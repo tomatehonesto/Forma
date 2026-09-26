@@ -402,7 +402,7 @@ function Semana({ w, proxT, filtro, aberto, onToggle }: { w: any; proxT: number;
         )}
       </Row>
       <Txt v="caption" c={c.tx3} style={{ marginTop: 5 }}>
-        {filtro ? fmtDate(new Date(w.t)) : `${w.dose} · ${w.site}`}
+        {filtro ? fmtDate(new Date(w.t)) : [w.dose, w.site].filter(Boolean).join(' · ')}
       </Txt>
       {!filtro && <Txt v="caption" c={c.tx4} style={{ marginTop: 3 }} numberOfLines={1}>{w.resumo}</Txt>}
     </>

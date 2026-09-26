@@ -249,6 +249,10 @@ function LinhaDoPlano() {
   const { previstas, atual, cumpridas, temHorizonte } = st.plano;
   const grade = weekGrid(S, 0);
   const feitas = new Set(grade.filter((g) => g.aplicou).map((g) => g.n));
+  /* As semanas de antes da primeira aplicação registrada não viram barra
+     de semana sem dose: são semanas sem registro, e ficam em fio, como as
+     previstas — posição sem afirmar nada. Ver `antes`, em weekGrid. */
+  const semRegistro = new Set(grade.filter((g) => g.antes).map((g) => g.n));
   /* ⚠️ TRÊS PEDAÇOS, E NÃO UMA FRASE: são DOIS números em negrito no meio
      dela, e o que fica entre eles muda de idioma para idioma. Mesma
      solução de `cadastro.telaPlano.objetivo`. */
@@ -304,6 +308,7 @@ function LinhaDoPlano() {
              ausência de marca dizem a mesma coisa por dois meios, e a
              célula fica coerente consigo mesma. */
           const ok = feitas.has(n) && !futura && !hoje;
+          const fio = futura || (semRegistro.has(n) && !hoje);
           return (
             <View
               key={n}
@@ -314,11 +319,11 @@ function LinhaDoPlano() {
                    a última é fio — semana prevista não é uma barra curta,
                    é uma barra que ainda não existe, e fio é o mínimo que
                    marca posição sem afirmar quantidade. */
-                height: hoje ? 26 : futura ? 2 : ok ? 24 : 10,
-                borderRadius: futura ? 1 : 4,
+                height: hoje ? 26 : fio ? 2 : ok ? 24 : 10,
+                borderRadius: fio ? 1 : 4,
                 backgroundColor: hoje ? 'rgba(221,246,44,0.5)'
                   : ok ? c.lime
-                    : futura ? 'rgba(255,255,255,0.28)' : 'rgba(255,255,255,0.26)',
+                    : fio ? 'rgba(255,255,255,0.28)' : 'rgba(255,255,255,0.26)',
                 /* pontilhado só na de hoje, e transparente nas outras para
                    as larguras não divergirem */
                 borderWidth: 1,

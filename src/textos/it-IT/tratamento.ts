@@ -89,6 +89,7 @@ export const tratamento = {
   estoqueEmDia: 'Scorta a posto',
   registreORecipiente: (oRecipiente: string) =>
     `Registra ${oRecipiente} e contiamo le dosi rimaste.`,
+  localNaoInformado: 'Zona non indicata',
 
   /* ============================================================
      LE ZONE DELLA PUNTURA

@@ -226,6 +226,29 @@ marcou. Agora quem escreve sobre dose, ciclo ou adesão pergunta antes
 | Jornada, o ritmo | "Ritmo mais lento" com uma pesagem | a etiqueta só com duas pesagens separadas por uma semana (`temRitmo`) |
 | Biblioteca e sugestões do Morphi | "Você aplicou há 7 dias" sem aplicação; "Posso trocar o dia da aplicação?" sem dia de aplicação | as leituras do ciclo e a sugestão só com ciclo |
 
+#### Quem já tinha começado
+
+O cadastro não registrava aplicação nenhuma para quem respondia "Já
+iniciei o tratamento", e com a regra acima essa pessoa via "Antes da
+primeira dose" no dia 63. **Decisão do dono (26/09):** o cadastro pergunta
+a data da última aplicação e a registra.
+
+- A pergunta vem depois da frequência (a forma decide a palavra: aplicação
+  ou dose), com a mesma roda de data, presa entre o início e hoje. O início
+  continua sendo perguntado: ele dá o passado (peso de partida, tempo de
+  tratamento, ritmo); a última dose dá o presente (ciclo, próxima dose,
+  aviso).
+- O registro não tem local — a pergunta é só a data —, e leva
+  `origem: 'cadastro'`: é a última dose de um tratamento em curso, e não a
+  primeira. Por isso ela não abre a etapa "primeira semana", o Morphi não
+  diz "desde a primeira dose", a conquista de tempo conta do início
+  informado, e a linha do tempo abre na semana do tratamento (a 9, e não a 1).
+- As semanas de antes da primeira aplicação registrada são semanas sem
+  registro, e não sem dose: não entram em "N de M semanas com aplicação"
+  e ficam em fio na régua do Cuidado.
+- Local vazio não conta para o rodízio, nem vira um " · " pendurado nas
+  linhas que escrevem o local.
+
 ### A varredura das telas internas
 
 Com a mesma regra, como pessoa nova, no servidor de produção: Evolução,

@@ -204,7 +204,9 @@ const CATALOGO = (): Trilha[] => [
     medida: (S) => {
       const i1 = (S.injections as any[])[0];
       if (!i1) return { feito: 0, quando: () => null };
-      const d0 = diaDe(i1.t);
+      /* Quem já tinha começado respondeu no cadastro a última dose, e não a
+         primeira: o relógio dessa pessoa começa no início que ela contou. */
+      const d0 = i1.origem === 'cadastro' && S.profile.startT ? diaDe(S.profile.startT) : diaDe(i1.t);
       return { feito: diffDays(now(), new Date(d0)), quando: (a) => (diffDays(now(), new Date(d0)) >= a ? d0 + a * DAY : null) };
     },
   },
@@ -221,6 +223,8 @@ const CATALOGO = (): Trilha[] => [
       const vistos = new Set<string>();
       const quando = new Map<number, number>();
       for (const i of S.injections as any[]) {
+        /* Aplicação sem local (a do cadastro) não é um local a mais. */
+        if (!i.site) continue;
         vistos.add(i.site);
         if (!quando.has(vistos.size)) quando.set(vistos.size, i.t);
       }

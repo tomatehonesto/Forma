@@ -50,6 +50,7 @@ export const cadastro = {
     doseAgora: 'Quelle est votre dose actuelle ?',
     frequenciaFuturo: 'À quelle fréquence allez-vous le prendre ?',
     frequenciaAgora: 'À quelle fréquence le prenez-vous ?',
+    ultima: (injetavel: boolean): string => (injetavel ? 'Quand avez-vous fait votre dernière piqûre ?' : 'Quand avez-vous pris votre dernière dose ?'),
     corpo: 'Quelles sont vos mesures actuelles ?',
     meta: 'Quel est votre objectif de poids ?',
     ritmo: 'Quel rythme voulez-vous suivre pour y arriver ?',
@@ -75,6 +76,7 @@ export const cadastro = {
     /* ⚠️ LE RÉCIPIENT ARRIVE DÉJÀ ACCORDÉ — « du flacon », « de la
        seringue ». Voir T.formas.doDa, dans textos/fr-FR/formas.ts. */
     frequencia: (doDaForma: string) => `C’est de là que viennent le comptage du cycle, les rappels et le stock ${doDaForma}.`,
+    ultima: 'C’est à partir d’elle que nous comptons le cycle et la prochaine dose — et elle entre directement dans votre historique.',
     corpo: 'Avec la taille et le poids nous calculons votre IMC et construisons vos objectifs quotidiens de protéines et d’eau.',
     meta: 'C’est la référence que nous utilisons pour montrer le chemin parcouru. Vous pourrez la changer quand vous voudrez.',
     ritmo: (aPercorrer: string) => `${aPercorrer} à parcourir.`,

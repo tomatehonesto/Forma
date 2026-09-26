@@ -47,6 +47,7 @@ export const cadastro = {
     doseAgora: 'Wie hoch ist deine aktuelle Dosis?',
     frequenciaFuturo: 'In welchem Abstand wirst du spritzen?',
     frequenciaAgora: 'In welchem Abstand spritzt du?',
+    ultima: (injetavel: boolean): string => (injetavel ? 'Wann war deine letzte Spritze?' : 'Wann hast du deine letzte Dosis genommen?'),
     corpo: 'Wie sind deine aktuellen Maße?',
     meta: 'Was ist dein Zielgewicht?',
     ritmo: 'In welchem Tempo willst du dorthin?',
@@ -76,6 +77,7 @@ export const cadastro = {
     /* ⚠️ DER BEHÄLTER KOMMT SCHON GEBEUGT — hier im GENITIV: „des Pens“,
        „der Spritze“. Siehe T.formas.doDa in textos/de-DE/formas.ts. */
     frequencia: (doDaForma: string) => `Daraus kommen die Zählung des Zyklus, die Erinnerungen und der Vorrat ${doDaForma}.`,
+    ultima: 'Von ihr aus zählen wir den Zyklus und die nächste Dosis — und sie steht gleich in deinem Verlauf.',
     corpo: 'Aus Größe und Gewicht berechnen wir deinen BMI und bauen deine Tagesziele für Eiweiß und Wasser.',
     meta: 'Das ist die Bezugsgröße, an der wir zeigen, wie weit du schon gekommen bist. Du kannst sie jederzeit ändern.',
     ritmo: (aPercorrer: string) => `${aPercorrer} bis dahin.`,

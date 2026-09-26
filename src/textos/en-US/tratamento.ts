@@ -64,6 +64,7 @@ export const tratamento = {
   estoqueEmDia: 'Supply on track',
   registreORecipiente: (oRecipiente: string) =>
     `Log ${oRecipiente}, and we’ll count the doses left.`,
+  localNaoInformado: 'Site not given',
 
   /* ⚠️ THE SIDE IS ABBREVIATED IN PARENTHESES because these labels appear
      inside short lines — history, the day's suggestion, the weekly

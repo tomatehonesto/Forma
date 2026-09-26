@@ -101,7 +101,7 @@ export default function Historico() {
                   casa diz o mês uma vez — "17 a 23 set" — e em inglês diz
                   "Sep 17–23". O "a" escrito na tela ficaria em português
                   para sempre. */
-              sub={`${fmtPeriodo(new Date(w.t), new Date(w.t + 6 * DAY))} · ${w.dose} · ${w.site}`}
+              sub={[fmtPeriodo(new Date(w.t), new Date(w.t + 6 * DAY)), w.dose, w.site].filter(Boolean).join(' · ')}
               meta={w.resumo}
               onPress={() => router.push(`/semana?s=${w.semana}` as any)}
             />

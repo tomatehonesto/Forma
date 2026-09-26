@@ -115,7 +115,8 @@ export default function Semana() {
           nome={K().aplicacao}
           selo={diasDaSemana()[ini.getDay()]}
           seloTom="neutra"
-          para={w.site}
+          /* A aplicação do cadastro não tem local: a pergunta foi só a data. */
+          para={w.site || T.tratamento.localNaoInformado}
         />
         {w.deltaPeso ? (
           <Metrica ic="scale" nome={T.medidas.corpo.peso} selo={w.deltaPeso} para={w.metricas[0]?.valor ?? w.deltaPeso} />

@@ -52,7 +52,7 @@
 
 import { DAY, diffDays, startOfDay, now, nf, doseTxt } from './time';
 import {
-  todayBrief, doseCycle, janelaDoEnjoo, lastInjection, temDose, M, pesoDeReferencia,
+  todayBrief, doseCycle, janelaDoEnjoo, lastInjection, temDose, M, pesoDeReferencia, comecouNoApp,
 } from './derive';
 import type { State } from './seed';
 import { T } from '../textos';
@@ -277,8 +277,12 @@ function daEtapa(S: State): Mensagem | null {
     };
   }
 
-  /* ---------- 3. a primeira semana ---------- */
-  if ((S.injections as any[]).length === 1 && desde <= JANELA_DIAS) {
+  /* ---------- 3. a primeira semana ----------
+     ⚠️ SÓ QUANDO A ÚNICA APLICAÇÃO É MESMO A PRIMEIRA. Quem já estava em
+     tratamento responde no cadastro a última dose, e ela chega sozinha na
+     lista — sem esta guarda, a Home dizia "Esta é a sua primeira semana de
+     tratamento" a quem estava no dia 63. Ver `aplicacaoDoCadastro`. */
+  if ((S.injections as any[]).length === 1 && comecouNoApp(S) && desde <= JANELA_DIAS) {
     return {
       chapeu: T.etapa.primeiraChapeu,
       head: T.etapa.primeiraHead,

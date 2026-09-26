@@ -55,6 +55,9 @@ export const cadastro = {
     doseAgora: 'Qual é a sua dose atual?',
     frequenciaFuturo: 'De quanto em quanto tempo você vai aplicar?',
     frequenciaAgora: 'De quanto em quanto tempo você aplica?',
+    /* Só quem já começou responde. A forma decide a palavra: quem toma
+       comprimido tomou uma dose, e não fez uma aplicação. */
+    ultima: (injetavel: boolean): string => (injetavel ? 'Quando foi a sua última aplicação?' : 'Quando você tomou a última dose?'),
     corpo: 'Quais são suas medidas atuais?',
     meta: 'Qual é a sua meta de peso?',
     ritmo: 'Qual ritmo você quer seguir para chegar lá?',
@@ -85,6 +88,7 @@ export const cadastro = {
     /* ⚠️ O RECIPIENTE VEM CONCORDADO — "do frasco", "da caneta". Ver
        T.formas.doDa, em textos/pt-BR/formas.ts. */
     frequencia: (doDaForma: string) => `É daqui que saem a contagem do ciclo, os lembretes e o estoque ${doDaForma}.`,
+    ultima: 'É dela que contamos o ciclo e a próxima dose — e ela já entra no seu histórico.',
     corpo: 'É com altura e peso que calculamos o seu IMC e montamos as suas metas diárias de proteína e água.',
     meta: 'É a referência que usamos para mostrar o quanto você já andou. Dá para mudar quando quiser.',
     ritmo: (aPercorrer: string) => `${aPercorrer} a percorrer.`,

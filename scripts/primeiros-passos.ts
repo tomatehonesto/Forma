@@ -22,7 +22,10 @@
         sem aplicação registrada não há ciclo, próxima dose, fase, adesão
         nem aviso de dose; sem pesagens bastantes não há ritmo nem
         "estável"; sem recipiente registrado não há estoque; sem check-in
-        respondido não há leitura do equilíbrio.
+        respondido não há leitura do equilíbrio;
+     7. quem já tinha começado responde no cadastro a última aplicação, e
+        ela vira a primeira do diário — sem local, e sem o local vazio
+        contar para o rodízio nem sobrar como " · " numa linha.
    ============================================================ */
 
 import { buildSeed, estadoVazio, type State } from '../src/logic/seed';
@@ -34,10 +37,15 @@ import {
   temEvolucao, temCiclo, journeySummary, journeyChanges, careState, doseContext, penStock,
   balanceRead, recommendations, radar, libraryPicks, companionSuggestions,
   cicloFases, injCalendar, protocoloDaSemana,
+  aplicacaoDoCadastro, diaDoTratamento, nextInjectionDate, rodizioDeLocais, timelineEvents,
+  semanasDaGrade, timelineWeeks,
 } from '../src/logic/derive';
+import { semanaDoTratamento } from '../src/logic/time';
 import { proximasDe, type Alerta } from '../src/logic/alertas';
 import { resumoEmTexto } from '../src/logic/resumo';
 import { conquistas } from '../src/logic/conquistas';
+import { mensagemDoDia } from '../src/logic/etapa';
+import { companionMemoria } from '../src/logic/derive';
 import { T } from '../src/textos';
 
 let falhas = 0;
@@ -223,6 +231,47 @@ const dormiu = clone(zero);
 (dormiu.checkins as any[]).push({ t: +hoje, sono: 5 });
 ok(!leitura(zero, 'moon') && !leitura(zero, 'flame') && leitura(dormiu, 'moon'),
   'sem registro, a biblioteca não fala da "sua média" de sono nem de proteína');
+
+console.log('\n7. QUEM JÁ TINHA COMEÇADO');
+/* O cadastro pergunta a data da última aplicação a quem já está em
+   tratamento, e a resposta vira a primeira aplicação do diário. */
+const ha3 = +hoje - 3 * DIA;
+const doCadastro = aplicacaoDoCadastro('mounjaro', 2.5, ha3);
+ok(doCadastro.t === ha3 + 12 * 3600e3 && doCadastro.site === '' && doCadastro.dose === 2.5,
+  'a aplicação do cadastro entra ao meio-dia do dia respondido, sem local');
+const jaComecou = clone(zero);
+jaComecou.profile.startT = +hoje - 40 * DIA;
+(jaComecou.injections as any[]).push(doCadastro);
+ok(temCiclo(jaComecou) && !diaDoTratamento(jaComecou).antes,
+  'quem já tinha começado tem ciclo desde o primeiro dia — nada de "Antes da primeira dose"');
+ok(+nextInjectionDate(jaComecou) === ha3 + 7 * DIA, 'a próxima dose conta da última aplicação respondida');
+ok(alertaDaDose ? proximasDe(jaComecou, { ...alertaDaDose, on: true }, 3).length > 0 : false,
+  'e o aviso da dose passa a ter data');
+ok(rodizioDeLocais(jaComecou).every((l: any) => l.ultima == null),
+  'a aplicação sem local não conta para local nenhum do rodízio');
+ok((conquistas(jaComecou).find((q) => q.id === 'rodizio')?.nivel ?? 0) === 0,
+  'nem vira "um local usado" nas conquistas');
+const evento = timelineEvents(jaComecou).find((e) => e.kind === 'aplicacao');
+ok(!!evento && !evento.sub.endsWith('·') && !evento.sub.includes(' ·  ') && !evento.sub.endsWith(' '),
+  'na linha do tempo, a aplicação sem local não deixa um " · " pendurado');
+ok(doCadastro.origem === 'cadastro', 'a aplicação do cadastro leva a origem — é a última dose, e não a primeira');
+ok(mensagemDoDia(jaComecou).chapeu !== T.etapa.primeiraChapeu && mensagemDoDia(aplicou5).chapeu === T.etapa.primeiraChapeu,
+  '"primeira semana" só para quem começou no app — e não para quem estava no dia 40');
+const memoria = [0, 1, 2, 3].map((n) => {
+  const x = clone(jaComecou);
+  (x.checkins as any[]).push(...Array.from({ length: n }, (_, k) => ({ t: +hoje - k * DIA, energia: 5 })));
+  return companionMemoria(x);
+});
+ok(memoria.every((f) => !f.includes(T.companion.memoria.desdeAPrimeira(3).split(',')[0])),
+  'o Morphi não diz "desde a primeira dose" contando da dose do cadastro');
+ok((conquistas(jaComecou).find((q) => q.id === 'tempo')?.nivel ?? 0) >= 1,
+  'o tempo de tratamento conta do início que a pessoa contou (40 dias: um mês)');
+const grade = semanasDaGrade(jaComecou);
+ok(grade.vividas === 1 && grade.aplicadas === 1,
+  `as semanas de antes do app não viram semanas sem dose: "1 de 1", e não "1 de 6" (${grade.aplicadas} de ${grade.vividas})`);
+const semanaDaDose = semanaDoTratamento(doCadastro.t, jaComecou.profile.startT);
+ok(timelineWeeks(jaComecou)[0]?.semana === semanaDaDose && timelineWeeks(aplicou5)[0]?.semana === 1,
+  `a linha do tempo de quem já tinha começado abre na semana do tratamento (${semanaDaDose}), e a de quem começou no app, na 1`);
 
 console.log(falhas ? `\n${falhas} afirmação(ões) falharam\n` : '\ntodas as afirmações passaram\n');
 process.exit(falhas ? 1 : 0);

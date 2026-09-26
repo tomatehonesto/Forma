@@ -101,6 +101,9 @@ export const tratamento = {
      precisar do acusativo. */
   registreORecipiente: (oRecipiente: string) =>
     `Registre ${oRecipiente}, e contamos as doses que restam.`,
+  /* A aplicação que o cadastro registra só tem data: onde uma linha pede
+     o local dela, é isto que vai. */
+  localNaoInformado: 'Local não informado',
 
   /* ============================================================
      OS LOCAIS DE APLICAÇÃO

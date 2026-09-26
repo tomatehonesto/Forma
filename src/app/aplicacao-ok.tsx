@@ -78,7 +78,7 @@ export default function AplicacaoOk() {
            morava aqui escrevia "oberschenkel (re.)" em alemão, onde todo
            substantivo é maiúsculo. `comum.noMeio` é quem sabe: minúscula
            em português, o nome intacto em alemão. */
-        texto={`${quando} · ${med.label} ${doseTxt(li?.dose ?? S.profile.dose)} ${med.unit}${vocab.injetavel && li ? ` · ${T.comum.noMeio(siteLabel(li.site))}` : ''}.`}
+        texto={`${quando} · ${med.label} ${doseTxt(li?.dose ?? S.profile.dose)} ${med.unit}${vocab.injetavel && li?.site ? ` · ${T.comum.noMeio(siteLabel(li.site))}` : ''}.`}
       >
         <Cartao>
           <Linha

@@ -171,7 +171,7 @@ export default function Caneta() {
               sub={p.estado === 'uso'
                 ? K().itemEmUso(maiuscula(aberto), fmtDate(p.abertaEm!), p.usadas, p.total)
                 : K().itemEncerrado(fmtPeriodo(new Date(p.abertaEm!), new Date(p.ultimaEm!)), p.usadas, p.total)}
-              itens={p.aplicacoes.map((a) => [fmtDate(a.t), T.comum.noMeio(siteLabel(a.site))] as [string, string])}
+              itens={p.aplicacoes.map((a) => [fmtDate(a.t), T.comum.noMeio(a.site ? siteLabel(a.site) : T.tratamento.localNaoInformado)] as [string, string])}
             />
           ))}
         </Sanfona>

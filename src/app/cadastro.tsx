@@ -17,7 +17,7 @@ import { IDADE_MINIMA } from '../logic/documentos';
 import { MEDS, MEDS_POR_PAIS, CADENCE_DAYS } from '../logic/meds';
 import { FORMAS, faixaDaMolecula, doDa, nomeDaMolecula, type Forma } from '../logic/formas';
 import type { Sistema } from '../logic/medidas';
-import { ATIVIDADES, MOTIVOS, curWeight, planoDoCadastro, emTratamento } from '../logic/derive';
+import { ATIVIDADES, MOTIVOS, curWeight, planoDoCadastro, emTratamento, aplicacaoDoCadastro } from '../logic/derive';
 import { MO_LONG, doseTxt, kgTxt, now, startOfDay, nf, dataComAno, maiuscula } from '../logic/time';
 import { Txt, Row, Rich, Rolagem } from '../ui/kit';
 import { Icon } from '../ui/Icon';
@@ -76,7 +76,7 @@ import { T } from '../textos';
    ============================================================ */
 
 type Id = 'idioma' | 'nome' | 'identidade' | 'nascimento' | 'tratamento' | 'inicio' | 'medicamento'
-  | 'forma' | 'dose' | 'frequencia' | 'corpo' | 'meta' | 'ritmo' | 'motivacao' | 'atividade'
+  | 'forma' | 'dose' | 'frequencia' | 'ultima' | 'corpo' | 'meta' | 'ritmo' | 'motivacao' | 'atividade'
   | 'restricao' | 'saude' | 'acompanhamento' | 'consentimento';
 
 /* A FILA NÃO É FIXA: quem ainda vai começar não responde QUANDO começou.
@@ -130,7 +130,11 @@ const TODOS: Id[] = [
      o aplicativo não entrega. Ver o alto de logic/pais. */
   'idioma',
   'nome', 'identidade', 'nascimento', 'tratamento', 'inicio', 'medicamento', 'forma', 'dose',
-  'frequencia', 'corpo', 'meta', 'ritmo', 'motivacao', 'atividade', 'restricao',
+  /* ⚠️ A ÚLTIMA APLICAÇÃO VEM DEPOIS DA FREQUÊNCIA, e não junto do início.
+     A pergunta se escreve com a forma — aplicação ou dose — e é com a
+     cadência que a resposta vira próxima dose; perguntar antes de saber
+     as duas seria perguntar numa língua que a tela ainda não fala. */
+  'frequencia', 'ultima', 'corpo', 'meta', 'ritmo', 'motivacao', 'atividade', 'restricao',
   'saude', 'acompanhamento',
   /* ⚠️ O CÓDIGO DE CONVITE SAIU DAQUI, e foi para a tela de escolher o
      plano. Ele existe para ligar a conta a um profissional, e o que isso
@@ -220,6 +224,9 @@ type Respostas = {
      de cada vez, e o dia 31 tem que sobreviver a um passeio por
      fevereiro. Vira carimbo só na hora de salvar. */
   iDia: number; iMes: number; iAno: number;
+  /* A ÚLTIMA APLICAÇÃO, nas mesmas três peças. Só quem já começou
+     responde, e a resposta vira a primeira aplicação do diário. */
+  uDia: number; uMes: number; uAno: number;
   /* ⚠️ ERA `recomendado: boolean` — "tem código de convite, sim ou
      não" —, e a resposta "não" cobria duas pessoas diferentes: quem se
      trata com um médico de fora da rede e quem decidiu se tratar
@@ -262,6 +269,7 @@ const VAZIO: Respostas = {
   altura: 1.7, peso: 80, pesoInicial: 80, meta: 70, ritmo: null,
   motivacao: null, atividade: null, restricoes: [], saude: null,
   iDia: now().getDate(), iMes: now().getMonth(), iAno: now().getFullYear(),
+  uDia: now().getDate(), uMes: now().getMonth(), uAno: now().getFullYear(),
   acompanhamento: null, profissional: '', recomendado: null, codigo: '', perguntas: false,
 };
 
@@ -1029,6 +1037,14 @@ export default function Cadastro() {
   const padrao = r.med ? CADENCE_DAYS(r.med) : 7;
   const perder = r.peso - r.meta;
   const inicio = +new Date(r.iAno, r.iMes, r.iDia);
+  /* A ÚLTIMA APLICAÇÃO FICA PRESA ENTRE O COMEÇO E HOJE: ninguém aplicou
+     antes de começar, nem amanhã. Presa aqui, e não só na roda, porque a
+     pessoa pode voltar e mudar o começo depois de ter respondido esta —
+     e a resposta tem de continuar valendo sem ela precisar reabrir. */
+  const ultima = Math.min(
+    +startOfDay(now()),
+    Math.max(+startOfDay(new Date(inicio)), +new Date(r.uAno, r.uMes, r.uDia)),
+  );
   /* A IDADE VIROU CONTA, e não só linha de conferência: ela entra na
      equação de energia e na referência de água por quilo. */
   const idade = (() => {
@@ -1080,6 +1096,9 @@ export default function Cadastro() {
   const passos = useMemo(
     () => TODOS.filter((x) => {
       if (x === 'inicio') return r.emTratamento === true;
+      /* A última aplicação só para quem já aplicou, e com medicamento
+         definido: sem ele não há dose a registrar nem ciclo a contar. */
+      if (x === 'ultima') return r.emTratamento === true && r.med !== 'indefinido';
       if (x === 'forma') return (MEDS[r.med ?? '']?.formas.length ?? 1) > 1;
       if (x === 'dose' || x === 'frequencia') return r.med !== 'indefinido';
       return true;
@@ -1174,6 +1193,8 @@ export default function Cadastro() {
     /* A roda não deixa escolher um dia que ainda não aconteceu, então
        chegar aqui já significa uma data válida. */
     if (x === 'inicio') return inicio <= +startOfDay(now());
+    /* Sempre válida: `ultima` já nasce presa entre o começo e hoje. */
+    if (x === 'ultima') return true;
     /* O BOTÃO DO RODAPÉ É O ACEITE, como na tela de saúde: não há uma
        resposta a marcar antes dele.
 
@@ -1328,6 +1349,14 @@ export default function Cadastro() {
          linha que a pessoa apagou de propósito.
 
          A edição faz a coisa oposta e está logo abaixo: acrescenta. */
+      /* A ÚLTIMA APLICAÇÃO VIRA A PRIMEIRA DO DIÁRIO — só no cadastro
+         inteiro, que começou do zero logo acima. E antes da marca d'água
+         das conquistas, logo abaixo: a pessoa já sabe da aplicação que
+         acabou de contar, e "1 aplicação registrada" não pode subir por
+         cima do plano como se fosse novidade. Ver `aplicacaoDoCadastro`. */
+      if (!editando && r.emTratamento && r.med && r.med !== 'indefinido' && r.dose) {
+        s.injections = [aplicacaoDoCadastro(r.med, r.dose, ultima)];
+      }
       if (!editando) {
         const t = +startOfDay(now());
         const resto = (s.weights || []).filter((w: any) => +startOfDay(new Date(w.t)) !== t);
@@ -1455,6 +1484,8 @@ export default function Cadastro() {
     forma: futuro ? QT.formaFuturo : QT.formaAgora,
     dose: futuro ? QT.doseFuturo : QT.doseAgora,
     frequencia: futuro ? QT.frequenciaFuturo : QT.frequenciaAgora,
+    /* A forma decide a palavra: quem toma comprimido tomou uma dose. */
+    ultima: QT.ultima(FORMAS()[formaEmUso].injetavel),
     corpo: QT.corpo,
     meta: QT.meta,
     ritmo: QT.ritmo,
@@ -1497,6 +1528,7 @@ export default function Cadastro() {
     /* `formaEmUso` existe alguns blocos acima, e é ela que sabe se a
        pessoa tem caneta, frasco ou cartela. */
     frequencia: QS.frequencia(doDa(formaEmUso)),
+    ultima: QS.ultima,
     corpo: QS.corpo,
     meta: QS.meta,
     ritmo: QS.ritmo(pesoTxt(S, Math.abs(perder))),
@@ -1550,6 +1582,21 @@ export default function Cadastro() {
      um dia do futuro, que o Continuar recusava sem dizer por quê. */
   const ultimoDoInicio = (a: number, m: number) =>
     a === hoje.getFullYear() && m === hoje.getMonth() ? hoje.getDate() : new Date(a, m + 1, 0).getDate();
+
+  /* AS RODAS DA ÚLTIMA APLICAÇÃO andam entre o começo e hoje. O valor que
+     elas mostram é o já preso (`ultima`), e o que elas gravam é a peça
+     crua — quem prende é a conta lá em cima. */
+  const comecou = new Date(+startOfDay(new Date(inicio)));
+  const ultimaD = new Date(ultima);
+  const mesesDaUltima = (a: number) => MO_LONG()
+    .map((m, k) => ({ v: k, label: m }))
+    .filter((x) => (a > comecou.getFullYear() || x.v >= comecou.getMonth())
+      && (a < hoje.getFullYear() || x.v <= hoje.getMonth()));
+  const diasDaUltima = (a: number, m: number) => {
+    const de = a === comecou.getFullYear() && m === comecou.getMonth() ? comecou.getDate() : 1;
+    const ate = ultimoDoInicio(a, m);
+    return Array.from({ length: Math.max(1, ate - de + 1) }, (_, k) => ({ v: de + k, label: String(de + k) }));
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
@@ -2262,6 +2309,33 @@ export default function Cadastro() {
               />
             </View>
           </View>
+        ) : null}
+
+        {/* A ÚLTIMA APLICAÇÃO — a mesma roda do começo e da data de
+            nascimento, presa entre o dia em que começou e hoje. A resposta
+            vira a primeira aplicação do diário, e é dela que o ciclo, a
+            próxima dose e o aviso passam a contar. */}
+        {id === 'ultima' ? (
+          <RodaDeData
+            dia={{
+              itens: diasDaUltima(ultimaD.getFullYear(), ultimaD.getMonth()),
+              valor: ultimaD.getDate(),
+              onEscolhe: (v) => p({ uDia: v, uMes: ultimaD.getMonth(), uAno: ultimaD.getFullYear() }),
+            }}
+            mes={{
+              itens: mesesDaUltima(ultimaD.getFullYear()),
+              valor: ultimaD.getMonth(),
+              onEscolhe: (v) => p({ uMes: v, uAno: ultimaD.getFullYear(), uDia: Math.min(ultimaD.getDate(), new Date(ultimaD.getFullYear(), v + 1, 0).getDate()) }),
+            }}
+            ano={{
+              itens: Array.from({ length: hoje.getFullYear() - comecou.getFullYear() + 1 }, (_, k) => {
+                const a = comecou.getFullYear() + k;
+                return { v: a, label: String(a) };
+              }),
+              valor: ultimaD.getFullYear(),
+              onEscolhe: (v) => p({ uAno: v, uMes: ultimaD.getMonth(), uDia: Math.min(ultimaD.getDate(), new Date(v, ultimaD.getMonth() + 1, 0).getDate()) }),
+            }}
+          />
         ) : null}
 
         {/* A INDICAÇÃO, E O CÓDIGO QUE A PROVA.

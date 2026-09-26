@@ -815,6 +815,8 @@ export function rodizioDeLocais(S: State): LocalDoRodizio[] {
   const hoje = +startOfDay(now());
   const ultimaDe = new Map<string, number>();
   for (const i of S.injections as any[]) {
+    /* Aplicação sem local (a do cadastro) não conta para local nenhum. */
+    if (!i.site) continue;
     const t = +startOfDay(new Date(i.t));
     if (!ultimaDe.has(i.site) || t > (ultimaDe.get(i.site) as number)) ultimaDe.set(i.site, t);
   }
@@ -917,6 +919,9 @@ export type SemanaCelula = {
   futura: boolean;
   atual: boolean;
   mes: string;               // rótulo curto, para agrupar visualmente
+  /** a semana inteira veio antes da primeira aplicação registrada: sem
+      registro, e não sem dose */
+  antes: boolean;
 };
 
 export function weekGrid(S: State, adiante = 4): SemanaCelula[] {
@@ -927,6 +932,13 @@ export function weekGrid(S: State, adiante = 4): SemanaCelula[] {
 
   const apl = S.injections.map((i: any) => +startOfDay(new Date(i.t)));
   const chk = (S.checkins as any[]).map((c) => c.t);
+  /* ⚠️ ANTES DA PRIMEIRA APLICAÇÃO REGISTRADA NÃO HÁ SEMANA SEM DOSE, há
+     semana sem registro. Quem já tinha começado entra no app na semana 9
+     com uma aplicação só — a última, que o cadastro perguntou —, e as oito
+     anteriores não são oito doses perdidas: são o tratamento de antes do
+     aplicativo. Quem ainda ia começar tem as semanas de espera pela
+     receita, que também não são falha de ninguém. */
+  const primeira = apl.length ? Math.min(...apl) : null;
 
   return Array.from({ length: total }, (_, k) => {
     const de = +addDays(ini, k * 7);
@@ -938,6 +950,7 @@ export function weekGrid(S: State, adiante = 4): SemanaCelula[] {
       futura: de > hoje,
       atual: hoje >= de && hoje < ate,
       mes: MES_CURTO[new Date(de).getMonth()],
+      antes: primeira == null || ate <= primeira,
     };
   });
 }
@@ -955,7 +968,8 @@ export function semanasDaGrade(S: State) {
   const grade = weekGrid(S, 0);
   return {
     grade,
-    vividas: grade.filter((g) => !g.futura).length,
+    /* As vividas contam da primeira aplicação registrada — ver `antes`. */
+    vividas: grade.filter((g) => !g.futura && !g.antes).length,
     aplicadas: grade.filter((g) => !g.futura && g.aplicou).length,
   };
 }
@@ -2390,6 +2404,10 @@ export function companionMemoria(S: State): string {
      Contava de `startT`, e a Mariana lia "há 70 dias" com a primeira
      aplicação registrada há 67 — três dias que a frase inventava. */
   const primeira = nInj ? Math.min(...S.injections.map((i) => i.t)) : 0;
+  /* Quem já tinha começado respondeu no cadastro a ÚLTIMA dose, e não a
+     primeira: para essa pessoa, "desde a primeira dose" contaria de uma
+     dose que não é a primeira. Ver `aplicacaoDoCadastro`. */
+  const primeiraConhecida = comecouNoApp(S);
   const diasDaPrimeira = nInj ? diffDays(now(), new Date(primeira)) : 0;
 
   const M = T.companion.memoria;
@@ -2399,10 +2417,10 @@ export function companionMemoria(S: State): string {
      primeira dose, já são 1". Com menos de dois dias, duas semanas ou
      duas doses, a frase sai da roda; "desde o primeiro dia" vale sempre. */
   const frases = [
-    ...(diasDaPrimeira >= 2 ? [M.desdeAPrimeira(diasDaPrimeira)] : []),
+    ...(primeiraConhecida && diasDaPrimeira >= 2 ? [M.desdeAPrimeira(diasDaPrimeira)] : []),
     ...(semanas >= 2 ? [M.desdeOPrimeiroDiaComSemanas(semanas)] : []),
     M.desdeOPrimeiroDia,
-    ...(nInj >= 2 ? [M.dosesAtras(nInj)] : []),
+    ...(primeiraConhecida && nInj >= 2 ? [M.dosesAtras(nInj)] : []),
   ];
   return frases[nCheck % frases.length];
 }
@@ -2884,8 +2902,9 @@ export function timelineEvents(S: State): TLEvent[] {
     out.push({
       key: `inj-${inj.t}`, kind: 'aplicacao', day: D(inj.t), ordemNoDia: '09:00',
       ic: 'syringe', color: 'accent', title: V().aplicacao(doseTxt(inj.dose), med.unit),
-      sub: `${nomeDaMolecula(med.mol)} · ${siteLabel(inj.site)}`,
-      detalhe: `${doseTxt(inj.dose)} ${med.unit} · ${nomeDaMolecula(med.mol)} · ${siteLabel(inj.site)}`,
+      /* O local só quando foi dito — a aplicação do cadastro não tem. */
+      sub: [nomeDaMolecula(med.mol), inj.site ? siteLabel(inj.site) : ''].filter(Boolean).join(' · '),
+      detalhe: [`${doseTxt(inj.dose)} ${med.unit}`, nomeDaMolecula(med.mol), inj.site ? siteLabel(inj.site) : ''].filter(Boolean).join(' · '),
       value: '', valueColor: 'tx3',
     });
   }
@@ -3024,6 +3043,13 @@ export function timelineWeeks(S: State): JourneyWeek[] {
     return { agua: (med2('agua') * CUP_ML) / 1000, prot: med2('prot'), exerc: cs.reduce((s: number, x: any) => s + (x.exerc || 0), 0) };
   };
   const stats = injs.map((_, i) => janela(i));
+  /* ⚠️ QUEM JÁ TINHA COMEÇADO NÃO ESTÁ NA SEMANA 1. A primeira aplicação
+     dessa pessoa no diário é a última que o cadastro perguntou, e ela cai
+     na semana em que o tratamento já está — a semana 9 de quem começou há
+     dois meses. As semanas passam a contar dali; para quem começou no
+     aplicativo, a primeira aplicação continua sendo a semana 1. */
+  const deslocamento = !injs.length || comecouNoApp(S) ? 0
+    : semanaDoTratamento(injs[0].t, S.profile.startT) - 1;
 
   for (let i = injs.length - 1; i >= 0; i--) {
     const inicio = +startOfDay(new Date(injs[i].t));
@@ -3040,7 +3066,8 @@ export function timelineWeeks(S: State): JourneyWeek[] {
     let deltaPeso: string | null = null;
     if (base != null && pesos.length) {
       const d = pesos[pesos.length - 1].kg - base;
-      deltaPeso = `${d <= 0 ? '−' : '+'}${pesoTxt(S, Math.abs(d))}`;
+      /* Zero não tem sinal: "−0,0 kg" afirmava uma queda que não houve. */
+      deltaPeso = Math.abs(d) < 0.05 ? pesoTxt(S, 0) : `${d < 0 ? '−' : '+'}${pesoTxt(S, Math.abs(d))}`;
     }
 
     /* resumo por tipo — é o que a semana rendeu, não a lista do que houve */
@@ -3088,9 +3115,9 @@ export function timelineWeeks(S: State): JourneyWeek[] {
     }
 
     out.push({
-      semana: i + 1, t: injs[i].t,
+      semana: i + 1 + deslocamento, t: injs[i].t,
       dose: `${med.label} ${doseTxt(injs[i].dose)} ${med.unit}`,
-      site: siteLabel(injs[i].site),
+      site: injs[i].site ? siteLabel(injs[i].site) : '',
       eventos, deltaPeso,
       resumo: resumo || W.semRegistros,
       mudouDose: i > 0 && injs[i].dose !== injs[i - 1].dose,
@@ -4879,6 +4906,39 @@ export function marcarTarefa(s: any, i: number) {
    detalhe com cara de dado. */
 export const instanteDaAplicacao = (t: number) =>
   t === +startOfDay(now()) ? +now() : t + 12 * 3600000;
+
+/* ============================================================
+   A ÚLTIMA APLICAÇÃO, PERGUNTADA NO CADASTRO
+
+   Quem já estava em tratamento chegava sem nenhuma aplicação registrada,
+   e o aplicativo inteiro a tratava como quem ainda vai começar: "Antes da
+   primeira dose" na Home, sem ciclo, sem próxima dose, sem aviso. O
+   cadastro passou a perguntar quando foi a última, e a resposta vira a
+   primeira aplicação do diário — é dela que o ciclo e a próxima dose
+   contam, como contariam de qualquer outra.
+
+   ⚠️ SEM LOCAL. A pergunta é só a data, e o local daquela aplicação o
+   aplicativo não sabe: `site` vazio quer dizer "não informado", e quem
+   escreve o local de uma aplicação pergunta antes se ele existe. O
+   rodízio conta só os locais que foram ditos.
+
+   A hora é a de sempre (`instanteDaAplicacao`): agora, se foi hoje;
+   meio-dia, se foi outro dia.
+
+   ⚠️ E ELA LEVA A ORIGEM (`origem: 'cadastro'`), porque é a ÚLTIMA dose
+   de um tratamento em curso, e não a primeira. Três leituras tratavam a
+   primeira aplicação registrada como o começo do tratamento — a etapa da
+   "primeira semana", a memória do Morphi ("desde a primeira dose") e a
+   conquista de tempo de tratamento —, e para esta pessoa as três
+   mentiriam. A marca sobe com o registro na sincronia (os dados vão
+   inteiros), e quem conta o começo lê o início que ela contou.
+   ============================================================ */
+export const aplicacaoDoCadastro = (med: string, dose: number, dia: number) =>
+  ({ t: instanteDaAplicacao(dia), med, dose, site: '', note: '', origem: 'cadastro' as const });
+
+/** A primeira aplicação registrada é mesmo a primeira dose do tratamento? Não quando veio do cadastro. */
+export const comecouNoApp = (S: State) =>
+  !((S.injections ?? []) as any[]).some((i) => i.origem === 'cadastro');
 
 /* NÃO EXISTE APAGAR APLICAÇÃO, e isso é decisão de produto.
 

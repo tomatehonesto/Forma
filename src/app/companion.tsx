@@ -155,7 +155,7 @@ function companionReply(S: State, text: string): Msg {
      perdida. */
   if (has('dose', 'aplica', 'aplicar', 'injeç', 'caneta', 'frasco', 'seringa', 'comprimido', 'tomar')) {
     const nd = nextInjectionDate(S); const li = lastInjection(S);
-    return { who: 'ai', text: `Sua próxima aplicação é <b>${relDay(nd)}</b> (${fmtDate(nd)}), ${med.label} ${doseTxt(S.profile.dose)} ${med.unit}. Sugiro alternar o local — da última vez foi ${li ? siteLabel(li.site) : 'abdômen'}.`, fonte: { rotulo: 'Suas aplicações', to: '/aplicacoes' }, mini: `Importante: eu não altero doses nem protocolos. Qualquer mudança é decisão de ${quemAcompanha || 'quem acompanha você'}. Posso te lembrar no dia e registrar a aplicação.` };
+    return { who: 'ai', text: `Sua próxima aplicação é <b>${relDay(nd)}</b> (${fmtDate(nd)}), ${med.label} ${doseTxt(S.profile.dose)} ${med.unit}. Sugiro alternar o local${li?.site ? ` — da última vez foi ${siteLabel(li.site)}` : ''}.`, fonte: { rotulo: 'Suas aplicações', to: '/aplicacoes' }, mini: `Importante: eu não altero doses nem protocolos. Qualquer mudança é decisão de ${quemAcompanha || 'quem acompanha você'}. Posso te lembrar no dia e registrar a aplicação.` };
   }
   if (has('água', 'agua', 'hidrat')) {
     return { who: 'ai', text: `Hoje você registrou <b>${aguaN(S, waterMlToday(S))} de ${aguaTxt(S, (S.profile as any).targets.waterMl)}</b>. Reparei que aos fins de semana a hidratação cai — e a água ajuda bastante com saciedade e com a náusea.`, fonte: { rotulo: 'Sua hidratação', to: '/agua' }, mini: `Quer que eu te lembre de beber água nos sábados e domingos?` };

@@ -337,7 +337,7 @@ export default function Aplicacoes() {
                 <Icon name="check" size={14} color={c.accent} sw={2.4} />
               </View>
               <View style={{ flex: 1 }}>
-                <Txt v="body">{doseTxt(i.dose)} {med.unit} · {siteLabel(i.site)}</Txt>
+                <Txt v="body">{doseTxt(i.dose)} {med.unit}{i.site ? ` · ${siteLabel(i.site)}` : ''}</Txt>
                 <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>
                   {fmtDate(new Date(i.t))} · {relDay(new Date(i.t))}
                 </Txt>
