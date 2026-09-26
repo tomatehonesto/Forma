@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Animated, View, Pressable, ScrollView, StyleSheet, TextInput, Platform, StyleProp, ViewStyle, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as Haptics from 'expo-haptics';
 import { useRouter, useNavigation } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { WD, nf } from '../logic/time';
@@ -1768,6 +1769,26 @@ const DISTANCIAS = [4, 3, 2, 1, 0, -1, -2, -3, -4];
 const ENCAIXA_A_RODA = Platform.OS === 'web' ? ({ scrollSnapType: 'y mandatory' } as any) : null;
 const ENCAIXA_A_LINHA = Platform.OS === 'web' ? ({ scrollSnapAlign: 'center' } as any) : null;
 
+/* O TIQUE — uma batida por linha que passa pela faixa (26/09/2026, pedido
+   do dono). É o que o seletor de data do próprio sistema faz, e é o que
+   deixa o dedo contar as linhas sem o olho precisar acompanhar.
+
+   ⚠️ UM POR PLATAFORMA, e não o `selectionAsync` em todas. No iPhone ele
+   é o gerador de seleção, o mesmo do seletor do sistema. No Android ele
+   é uma vibração crua de 50 ms, e girar o ano de uma vez vira zumbido —
+   lá quem faz o papel é o tique de relógio do próprio sistema, que existe
+   em toda versão e obedece ao ajuste de vibração ao toque. No web ele
+   seria uma vibração de 50 ms por linha, e fica de fora.
+
+   Engolido, como no gráfico de exames: telefone sem motor, Modo de Pouca
+   Energia ou vibração desligada não são motivo para derrubar o giro. */
+function tique() {
+  if (Platform.OS === 'ios') Haptics.selectionAsync().catch(() => {});
+  else if (Platform.OS === 'android') {
+    Haptics.performAndroidHapticsAsync(Haptics.AndroidHaptics.Clock_Tick).catch(() => {});
+  }
+}
+
 function noTambor(y: Animated.Value, k: number) {
   const inputRange = DISTANCIAS.map((d) => (k - d) * LINHA);
   const por = (outputRange: number[]) => y.interpolate({ inputRange, outputRange, extrapolate: 'clamp' });
@@ -1829,6 +1850,7 @@ export function Roda<V extends string | number>({ itens, valor, onEscolhe, largu
   const agora = React.useRef({ itens, valor, onEscolhe });
   agora.current = { itens, valor, onEscolhe };
   const onde = React.useRef(0);
+  const naFaixa = React.useRef(i);
 
   /* PRIMEIRO POSICIONA, DEPOIS ESCUTA.
 
@@ -1882,10 +1904,16 @@ export function Roda<V extends string | number>({ itens, valor, onEscolhe, largu
       useNativeDriver: true,
       listener: (e: NativeSyntheticEvent<NativeScrollEvent>) => {
         onde.current = e.nativeEvent.contentOffset.y;
-        if (!ouvindo.current) return;
         const { itens: lista, valor: v, onEscolhe: escolhe } = agora.current;
-        const k = Math.round(onde.current / LINHA);
-        const item = lista[Math.max(0, Math.min(lista.length - 1, k))];
+        const k = Math.max(0, Math.min(lista.length - 1, Math.round(onde.current / LINHA)));
+        /* A linha da faixa anda também nos saltos da própria roda, e é
+           guardada neles: senão o primeiro giro depois de um salto
+           tiquetaquearia por uma linha que ninguém passou com o dedo. */
+        const passou = k !== naFaixa.current;
+        naFaixa.current = k;
+        if (!ouvindo.current) return;
+        if (passou) tique();
+        const item = lista[k];
         if (item && item.v !== v) escolhe(item.v);
       },
     }),
