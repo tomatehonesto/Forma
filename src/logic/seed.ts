@@ -1066,21 +1066,19 @@ export function ensureDefaults(S: any) {
     (S.profile as any).vinculo =
       (S.profile.doctor || S.profile.clinic) ? { desde: S.profile.startT || +now() } : null;
   }
-  /* ⚠️ QUEM JÁ TINHA CÓDIGO GANHA O VÍNCULO, uma vez.
+  /* ⚠️⚠️ AQUI MORAVA "QUEM JÁ TINHA CÓDIGO GANHA O VÍNCULO", e ela saiu
+     (26/09/2026). Era da época sem nuvem, em que ter o código era ter o
+     vínculo, e rodava em toda abertura. Com a nuvem, código sem vínculo
+     é o estado normal de quem ainda não tem conta — o código guardado
+     espera a conta nascer, e o vínculo nasce no servidor, depois da
+     clínica conferida e do consentimento (logic/rede, app/codigo). A
+     regra transformava esse código num vínculo falso na abertura
+     seguinte: os planos diziam "você não paga", a Home mostrava uma
+     médica sem nome e uma consulta em 31/12/1969, e a folha do código
+     achava que ele já estava ligado e fechava sem conferir.
 
-     O aplicativo guardava o convite e esperava uma confirmação que nunca
-     vinha — quem digitou o código na versão anterior ficou com `convite`
-     preenchido e `vinculo` nulo, que sob a regra nova é um estado que
-     não existe mais: ter o código É ter o vínculo.
-
-     Esta linha é de mão única, como as outras daqui: ela dá, nunca tira.
-     Ninguém perde acesso por causa de uma migração. */
-  if (S.profile && (S.profile as any).convite && !(S.profile as any).vinculo) {
-    (S.profile as any).vinculo = {
-      desde: S.profile.startT || +now(),
-      convite: (S.profile as any).convite,
-    };
-  }
+     Ninguém precisa dela: o aplicativo nunca foi publicado, e todo
+     caminho sem nuvem grava o código e o vínculo juntos. */
   /* ⚠️⚠️ O CONTADOR DE DOSES VIRA UMA LISTA DE ABERTURAS. Ver a nota na
      semente, em `pens`.
 

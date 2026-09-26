@@ -103,6 +103,25 @@ export const mascarar = (verdade: State, modo: Modo): State => {
    propósito: se morasse dentro, seria gravada. */
 let real: State | null = null;
 
+/* ⚠️ COM A NUVEM, VÍNCULO SÓ NASCE NO SERVIDOR, e um vínculo sem `id` no
+   diário de quem ainda não tem conta não é vínculo nenhum. Ele nasceu de
+   uma regra antiga do `ensureDefaults`, que transformava o código
+   guardado em vínculo antes de a clínica conferir (ver logic/seed), e
+   deixava os planos dizendo "você não paga", a Home com uma médica sem
+   nome e a folha do código fechando sem conferir. Sai na abertura; o
+   código fica escrito, e a folha abre com ele.
+
+   Roda antes do `ensureDefaults`, que marca como acompanhado quem tem
+   vínculo — senão quem respondeu "por conta própria" continuaria marcado.
+   Com conta, quem cuida disto é `atualizarVinculo`, com aviso. Sem a
+   nuvem, a cópia sem `id` é o vínculo de verdade e fica, e a semente de
+   desenvolvimento também não é tocada. */
+function tirarVinculoSemConta(s: any) {
+  if (!contaLigada() || s?.conta) return;
+  if (s?.semente && typeof __DEV__ !== 'undefined' && __DEV__) return;
+  if (s?.profile?.vinculo && !s.profile.vinculo.id) s.profile.vinculo = null;
+}
+
 export const useStore = create<Store>((set, get) => ({
   S: semente(),
   ready: false,
@@ -126,6 +145,7 @@ export const useStore = create<Store>((set, get) => ({
       if (raw) {
         const lido = JSON.parse(raw);
         if (!(semDemonstracao && lido?.semente)) {
+          tirarVinculoSemConta(lido);
           const s = ensureDefaults(lido);
           const agora = JSON.stringify(s);
           if (agora !== raw) AsyncStorage.setItem(KEY, agora).catch(() => {});

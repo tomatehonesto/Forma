@@ -420,6 +420,7 @@ export const home = {
     nenhumaMensagem: 'Nenhuma mensagem nova',
     proximaConsulta: 'Próxima consulta',
     consultaEm: (data: string, diaDaSemana: string) => `${data} • ${diaDaSemana}`,
+    semConsulta: 'Nenhuma consulta marcada',
     solicitarReceita: 'Solicitar nova receita',
     solicitarReceitaSub: 'Uma mensagem para a sua equipe',
     acompanhaSeuTratamento: 'Acompanha o seu tratamento',

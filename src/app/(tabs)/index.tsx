@@ -855,8 +855,16 @@ export default function Home() {
                     sub={S.unread > 0 ? K().novasMensagens(S.unread) : K().nenhumaMensagem}
                     onPress={go('/conversa')} />
                   <View style={{ height: 1, backgroundColor: c.line, marginVertical: 12 }} />
+                  {/* ⚠️ SEM CONSULTA, A LINHA DIZ QUE NÃO HÁ. Ela montava a
+                      data de `consult.t` mesmo quando ele era zero, e zero
+                      é 31/12/1969 às 21h no fuso de Brasília — uma
+                      "próxima consulta" numa quarta-feira de meio século
+                      atrás. Com clínica, a agenda vem dela: não há o que
+                      anotar aqui, só o que esperar. */}
                   <ListRow ic="cal" title={K().proximaConsulta}
-                    sub={K().consultaEm(fmtDate(consultD), diasDaSemana()[consultD.getDay()])}
+                    sub={temConsulta(S)
+                      ? K().consultaEm(fmtDate(consultD), diasDaSemana()[consultD.getDay()])
+                      : K().semConsulta}
                     onPress={go('/consultas')} />
                   <View style={{ height: 1, backgroundColor: c.line, marginVertical: 12 }} />
                   {/* ⚠️ LEVA AO PEDIDO, e não à tela onde ele poderia estar.

@@ -281,6 +281,7 @@ export const home = {
     nenhumaMensagem: 'Ningún mensaje nuevo',
     proximaConsulta: 'Próxima consulta',
     consultaEm: (data: string, diaDaSemana: string) => `${data} • ${diaDaSemana}`,
+    semConsulta: 'Ninguna consulta agendada',
     solicitarReceita: 'Solicitar receta nueva',
     solicitarReceitaSub: 'Un mensaje para tu equipo',
     acompanhaSeuTratamento: 'Acompaña tu tratamiento',

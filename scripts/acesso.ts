@@ -113,6 +113,17 @@ async function main() {
   /* recarregar o aplicativo: o estado passa por ensureDefaults */
   const recarregada = ensureDefaults(clone(conectada)) as State;
   ok(clinicaConectada(recarregada), 'recarregado, o vínculo continua');
+
+  /* ⚠️ O CÓDIGO GUARDADO NÃO VIRA VÍNCULO AO RECARREGAR. Com a nuvem, quem
+     conecta antes de ter conta fica com o código escrito e pendente, e o
+     vínculo só nasce no servidor. Uma regra antiga do `ensureDefaults`
+     transformava esse código num vínculo falso na abertura seguinte. */
+  const pendente = clone(sozinha);
+  (pendente.profile as any).convite = 'TAVARES26';
+  (pendente as any).convitePendente = { codigo: 'TAVARES26', versao: 1 };
+  const pendenteRecarregada = ensureDefaults(clone(pendente)) as State;
+  ok(!clinicaConectada(pendenteRecarregada) && !acessoDe(pendenteRecarregada, null).tem,
+    'recarregado, o código só guardado continua sem vínculo e sem acesso — ele espera a conta');
   ok(registros(recarregada) === antes, 'recarregado, os registros continuam idênticos');
 
   /* cancelar a assinatura: a loja para de cobrar, e o aplicativo não faz nada */
