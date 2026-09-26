@@ -22,6 +22,7 @@ import { MO_LONG, doseTxt, kgTxt, now, startOfDay, nf, dataComAno, maiuscula } f
 import { Txt, Row, Rich, Rolagem } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { Botao, RodaDeData, Regua, Segmentado, NUMERO, SEM_ANEL } from '../ui/internas';
+import { Calendario } from '../ui/calendario';
 import { Lavagem } from '../ui/lavagem';
 import { RESTRICOES } from '../logic/restricoes';
 import { Marca, CoracaoDeSaude } from '../ui/marca';
@@ -75,7 +76,7 @@ import { T } from '../textos';
    tire: é o mesmo critério das outras.
    ============================================================ */
 
-type Id = 'idioma' | 'nome' | 'identidade' | 'nascimento' | 'tratamento' | 'inicio' | 'medicamento'
+type Id = 'idioma' | 'nome' | 'identidade' | 'nascimento' | 'tratamento' | 'inicio' | 'pesoInicio' | 'medicamento'
   | 'forma' | 'dose' | 'frequencia' | 'ultima' | 'corpo' | 'meta' | 'ritmo' | 'motivacao' | 'atividade'
   | 'restricao' | 'saude' | 'acompanhamento' | 'consentimento';
 
@@ -129,7 +130,13 @@ const TODOS: Id[] = [
      respostas para extrair dois booleanos promete uma especificidade que
      o aplicativo não entrega. Ver o alto de logic/pais. */
   'idioma',
-  'nome', 'identidade', 'nascimento', 'tratamento', 'inicio', 'medicamento', 'forma', 'dose',
+  /* ⚠️ O PESO DE QUANDO COMEÇOU TEM TELA PRÓPRIA, logo depois da data.
+     Ele morava embaixo dela, e cabia enquanto a data era uma roda; com o
+     calendário, a régua cairia para fora da tela, e quem não rolasse
+     seguiria com o peso de partida que a régua traz — gravado como o
+     começo da curva dela. Logo depois da data, e com a pergunta dizendo
+     de quando ele é, continua perto do que o situa. */
+  'nome', 'identidade', 'nascimento', 'tratamento', 'inicio', 'pesoInicio', 'medicamento', 'forma', 'dose',
   /* ⚠️ A ÚLTIMA APLICAÇÃO VEM DEPOIS DA FREQUÊNCIA, e não junto do início.
      A pergunta se escreve com a forma — aplicação ou dose — e é com a
      cadência que a resposta vira próxima dose; perguntar antes de saber
@@ -1095,7 +1102,7 @@ export default function Cadastro() {
      e aí quem sabe é quem está com ela na mão. */
   const passos = useMemo(
     () => TODOS.filter((x) => {
-      if (x === 'inicio') return r.emTratamento === true;
+      if (x === 'inicio' || x === 'pesoInicio') return r.emTratamento === true;
       /* A última aplicação só para quem já aplicou, e com medicamento
          definido: sem ele não há dose a registrar nem ciclo a contar. */
       if (x === 'ultima') return r.emTratamento === true && r.med !== 'indefinido';
@@ -1193,6 +1200,8 @@ export default function Cadastro() {
     /* A roda não deixa escolher um dia que ainda não aconteceu, então
        chegar aqui já significa uma data válida. */
     if (x === 'inicio') return inicio <= +startOfDay(now());
+    /* A régua sempre tem um valor. */
+    if (x === 'pesoInicio') return true;
     /* Sempre válida: `ultima` já nasce presa entre o começo e hoje. */
     if (x === 'ultima') return true;
     /* O BOTÃO DO RODAPÉ É O ACEITE, como na tela de saúde: não há uma
@@ -1399,7 +1408,7 @@ export default function Cadastro() {
         s.weights = [...(s.weights || []), { t: +now(), kg: r.peso }]
           .sort((a: any, b: any) => a.t - b.t);
       }
-      if (editando === 'inicio') {
+      if (editando === 'inicio' || editando === 'pesoInicio') {
         const diaZero = +startOfDay(new Date(inicio));
         const lista = (s.weights || []) as any[];
         const i = lista.findIndex((w) => +startOfDay(new Date(w.t)) === diaZero);
@@ -1480,6 +1489,7 @@ export default function Cadastro() {
     nascimento: QT.nascimento,
     tratamento: QT.tratamento,
     inicio: QT.inicio,
+    pesoInicio: QT.pesoInicio,
     medicamento: futuro ? QT.medicamentoFuturo : QT.medicamentoAgora,
     forma: futuro ? QT.formaFuturo : QT.formaAgora,
     dose: futuro ? QT.doseFuturo : QT.doseAgora,
@@ -1518,6 +1528,7 @@ export default function Cadastro() {
     nascimento: QS.nascimento,
     tratamento: QS.tratamento,
     inicio: QS.inicio,
+    pesoInicio: QS.pesoInicio,
     medicamento: QS.medicamento,
     forma: QS.forma,
     dose: med && med.doses.length
@@ -1575,28 +1586,11 @@ export default function Cadastro() {
 
   const diasNoMes = new Date(r.ano, r.mes + 1, 0).getDate();
   const hoje = startOfDay(now());
-  /* O último dia que o início do tratamento aceita num mês: o fim dele,
-     ou hoje, se o mês é o de agora — quem já começou não começou amanhã.
-     O mesmo número faz a lista da roda e prende o dia quando o mês ou o
-     ano mudam. Sem prender, a roda mostrava hoje e a resposta guardava
-     um dia do futuro, que o Continuar recusava sem dizer por quê. */
-  const ultimoDoInicio = (a: number, m: number) =>
-    a === hoje.getFullYear() && m === hoje.getMonth() ? hoje.getDate() : new Date(a, m + 1, 0).getDate();
-
-  /* AS RODAS DA ÚLTIMA APLICAÇÃO andam entre o começo e hoje. O valor que
-     elas mostram é o já preso (`ultima`), e o que elas gravam é a peça
-     crua — quem prende é a conta lá em cima. */
-  const comecou = new Date(+startOfDay(new Date(inicio)));
-  const ultimaD = new Date(ultima);
-  const mesesDaUltima = (a: number) => MO_LONG()
-    .map((m, k) => ({ v: k, label: m }))
-    .filter((x) => (a > comecou.getFullYear() || x.v >= comecou.getMonth())
-      && (a < hoje.getFullYear() || x.v <= hoje.getMonth()));
-  const diasDaUltima = (a: number, m: number) => {
-    const de = a === comecou.getFullYear() && m === comecou.getMonth() ? comecou.getDate() : 1;
-    const ate = ultimoDoInicio(a, m);
-    return Array.from({ length: Math.max(1, ate - de + 1) }, (_, k) => ({ v: de + k, label: String(de + k) }));
-  };
+  /* AS PEÇAS DE UMA DATA, a partir do dia que o calendário devolve. As
+     respostas guardam dia, mês e ano soltos — é a forma que a roda do
+     nascimento pede —, e as duas datas de calendário escrevem na mesma
+     forma. */
+  const pecas = (t: number) => { const d = new Date(t); return { dia: d.getDate(), mes: d.getMonth(), ano: d.getFullYear() }; };
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
@@ -2255,86 +2249,50 @@ export default function Cadastro() {
           </View>
         ) : null}
 
-        {/* A MESMA RODA DA DATA DE NASCIMENTO.
+        {/* ⚠️ DATA RECENTE É CALENDÁRIO; A RODA FICOU SÓ NO NASCIMENTO.
 
-            Aqui havia tira de meses e grade de dias — dois controles
-            diferentes para a mesma coisa que a tela de nascimento já
-            resolvia com um. Duas gramáticas de data no mesmo formulário é
-            a pessoa reaprendendo a responder no meio do caminho.
+            A roda é boa para ano — o nascimento anda décadas —, e ruim
+            para dia: quem começou há dois meses e aplica às quintas quer
+            ver a semana, e não girar três colunas até achar o número. O
+            calendário mostra o mês com o dia da semana em cima, e hoje
+            marcado para se localizar (decisão do dono, 26/09).
 
-            As rodas se limitam ao passado: quem já começou não começou
-            amanhã, e o mês e o dia encolhem quando o ano é o de agora. */}
+            Os limites são os de sempre: nada adiante de hoje (o padrão do
+            calendário), e cinco anos para trás, o mesmo alcance da roda
+            que ele substitui. */}
         {id === 'inicio' ? (
-          <View style={{ gap: 32 }}>
-            <RodaDeData
-              dia={{
-                itens: Array.from({ length: ultimoDoInicio(r.iAno, r.iMes) }, (_, k) => ({ v: k + 1, label: String(k + 1) })),
-                valor: Math.min(r.iDia, ultimoDoInicio(r.iAno, r.iMes)),
-                onEscolhe: (v) => p({ iDia: v }),
-              }}
-              mes={{
-                itens: MO_LONG()
-                  .map((m, k) => ({ v: k, label: m }))
-                  .filter((x) => r.iAno < hoje.getFullYear() || x.v <= hoje.getMonth()),
-                valor: r.iMes,
-                onEscolhe: (v) => p({ iMes: v, iDia: Math.min(r.iDia, ultimoDoInicio(r.iAno, v)) }),
-              }}
-              ano={{
-                itens: Array.from({ length: 6 }, (_, k) => {
-                  const a = hoje.getFullYear() - 5 + k;
-                  return { v: a, label: String(a) };
-                }),
-                valor: r.iAno,
-                onEscolhe: (v) => {
-                  const m = v === hoje.getFullYear() ? Math.min(r.iMes, hoje.getMonth()) : r.iMes;
-                  p({ iAno: v, iMes: m, iDia: Math.min(r.iDia, ultimoDoInicio(v, m)) });
-                },
-              }}
-            />
-            {/* O PESO DAQUELA ÉPOCA, aqui e não junto do peso de hoje: os
-                dois são a mesma grandeza em dois momentos, e perguntados
-                lado a lado é onde alguém responde o mesmo número duas
-                vezes sem perceber. Perto da data, fica claro de quando ele
-                é. */}
-            {/* O MESMO CONTROLE DOS OUTROS PESOS: régua para arrastar, mais
-                e menos para acertar, e o número tocável para digitar. Era
-                um contador só — três jeitos de dizer peso em duas telas e
-                um jeito só nesta. */}
-            <View>
-              <Rotulo>{K().pesoDeQuandoComecou}</Rotulo>
-              <Regua
-                key={`pi-${r.sistema}`}
-                {...reguaDePeso(r.sistema, 40, 180)}
-                valor={pesoV(r.sistema, r.pesoInicial)} onEscolhe={(v) => p({ pesoInicial: pesoKg(r.sistema, v) })} fundo={c.bg}
-              />
-            </View>
-          </View>
+          <Calendario
+            valor={inicio}
+            onEscolhe={(t) => { const d = pecas(t); p({ iDia: d.dia, iMes: d.mes, iAno: d.ano }); }}
+            de={+new Date(hoje.getFullYear() - 5, 0, 1)}
+          />
         ) : null}
 
-        {/* A ÚLTIMA APLICAÇÃO — a mesma roda do começo e da data de
-            nascimento, presa entre o dia em que começou e hoje. A resposta
-            vira a primeira aplicação do diário, e é dela que o ciclo, a
-            próxima dose e o aviso passam a contar. */}
+        {/* O PESO DAQUELA ÉPOCA, na tela logo depois da data, e não junto do
+            peso de hoje: os dois são a mesma grandeza em dois momentos, e
+            perguntados lado a lado é onde alguém responde o mesmo número
+            duas vezes sem perceber. A pergunta diz de quando ele é.
+
+            O MESMO CONTROLE DOS OUTROS PESOS: régua para arrastar, mais e
+            menos para acertar, e o número tocável para digitar. */}
+        {id === 'pesoInicio' ? (
+          <Regua
+            key={`pi-${r.sistema}`}
+            {...reguaDePeso(r.sistema, 40, 180)}
+            valor={pesoV(r.sistema, r.pesoInicial)} onEscolhe={(v) => p({ pesoInicial: pesoKg(r.sistema, v) })} fundo={c.bg}
+          />
+        ) : null}
+
+        {/* A ÚLTIMA APLICAÇÃO — no calendário, preso entre o dia em que
+            começou e hoje. É onde ele mais serve: quem aplica às quintas
+            acha a última quinta de relance. A resposta vira a primeira
+            aplicação do diário, e é dela que o ciclo, a próxima dose e o
+            aviso passam a contar. */}
         {id === 'ultima' ? (
-          <RodaDeData
-            dia={{
-              itens: diasDaUltima(ultimaD.getFullYear(), ultimaD.getMonth()),
-              valor: ultimaD.getDate(),
-              onEscolhe: (v) => p({ uDia: v, uMes: ultimaD.getMonth(), uAno: ultimaD.getFullYear() }),
-            }}
-            mes={{
-              itens: mesesDaUltima(ultimaD.getFullYear()),
-              valor: ultimaD.getMonth(),
-              onEscolhe: (v) => p({ uMes: v, uAno: ultimaD.getFullYear(), uDia: Math.min(ultimaD.getDate(), new Date(ultimaD.getFullYear(), v + 1, 0).getDate()) }),
-            }}
-            ano={{
-              itens: Array.from({ length: hoje.getFullYear() - comecou.getFullYear() + 1 }, (_, k) => {
-                const a = comecou.getFullYear() + k;
-                return { v: a, label: String(a) };
-              }),
-              valor: ultimaD.getFullYear(),
-              onEscolhe: (v) => p({ uAno: v, uMes: ultimaD.getMonth(), uDia: Math.min(ultimaD.getDate(), new Date(v, ultimaD.getMonth() + 1, 0).getDate()) }),
-            }}
+          <Calendario
+            valor={ultima}
+            onEscolhe={(t) => { const d = pecas(t); p({ uDia: d.dia, uMes: d.mes, uAno: d.ano }); }}
+            de={+startOfDay(new Date(inicio))}
           />
         ) : null}
 

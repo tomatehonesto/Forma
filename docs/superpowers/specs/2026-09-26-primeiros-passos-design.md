@@ -234,10 +234,16 @@ primeira dose" no dia 63. **Decisão do dono (26/09):** o cadastro pergunta
 a data da última aplicação e a registra.
 
 - A pergunta vem depois da frequência (a forma decide a palavra: aplicação
-  ou dose), com a mesma roda de data, presa entre o início e hoje. O início
-  continua sendo perguntado: ele dá o passado (peso de partida, tempo de
+  ou dose), no calendário, presa entre o início e hoje. O início continua
+  sendo perguntado: ele dá o passado (peso de partida, tempo de
   tratamento, ritmo); a última dose dá o presente (ciclo, próxima dose,
   aviso).
+- **Datas recentes são calendário; a roda ficou só no nascimento**
+  (decisão do dono, 26/09). O início também virou calendário, e por isso o
+  peso de quando começou ganhou tela própria logo depois da data — embaixo
+  do calendário, a régua ficaria fora da vista. Em Seus dados, a data de
+  início ganhou linha própria (só para quem começou antes do app), e
+  "Peso inicial" abre só a régua.
 - O registro não tem local — a pergunta é só a data —, e leva
   `origem: 'cadastro'`: é a última dose de um tratamento em curso, e não a
   primeira. Por isso ela não abre a etapa "primeira semana", o Morphi não

@@ -42,6 +42,7 @@ export const cadastro = {
     nascimento: 'Quand êtes-vous né·e ?',
     tratamento: 'Avez-vous déjà commencé le traitement ?',
     inicio: 'Quand avez-vous commencé ?',
+    pesoInicio: 'Combien pesiez-vous quand vous avez commencé ?',
     medicamentoFuturo: 'Quel médicament pensez-vous utiliser ?',
     medicamentoAgora: 'Quel médicament utilisez-vous ?',
     formaFuturo: 'Comment allez-vous le prendre ?',
@@ -68,7 +69,8 @@ export const cadastro = {
     identidade: 'C’est pour vous parler comme il faut. Ce qui entre dans les calculs de santé, c’est votre corps, et ça vient dans les questions suivantes.',
     nascimento: 'Chaque étape de la vie a ses besoins — et l’âge entre dans les valeurs de référence de vos analyses.',
     tratamento: 'Juste pour savoir où vous en êtes.',
-    inicio: 'Une date approximative suffit. C’est de là que sort votre semaine de traitement, et c’est ce poids qui devient le début de votre courbe.',
+    inicio: 'Une date approximative suffit. C’est de là que sort votre semaine de traitement.',
+    pesoInicio: 'Un chiffre approximatif suffit. C’est ce poids qui devient le début de votre courbe — et qui mesure le chemin parcouru.',
     medicamento: 'C’est de lui que viennent l’escalier des doses et l’intervalle entre les piqûres.',
     forma: 'La préparation magistrale sort de la pharmacie sous les deux formes, et ce qui change, c’est ce que vous avez en main au moment de le prendre.',
     doseComEscada: (med: string) => `Dans l’ordre de titration de ${med}.`,
@@ -129,7 +131,6 @@ export const cadastro = {
   outroIntervalo: 'Vous dites tous les combien de jours',
 
   pesoDeHoje: 'POIDS AUJOURD’HUI',
-  pesoDeQuandoComecou: 'POIDS AU DÉPART',
   querPerder: 'Vous voulez perdre',
   querGanhar: 'Vous voulez prendre',
 
@@ -261,6 +262,7 @@ export const cadastro = {
     dose: 'Dose',
     doseSub: (valor: string, unidade: string) => `${valor} ${unidade}`,
     frequencia: 'Fréquence',
+    inicioDoTratamento: 'Début du traitement',
 
     corpoERitmo: 'Corps et rythme',
     altura: 'Taille',

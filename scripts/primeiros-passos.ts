@@ -38,7 +38,7 @@ import {
   balanceRead, recommendations, radar, libraryPicks, companionSuggestions,
   cicloFases, injCalendar, protocoloDaSemana,
   aplicacaoDoCadastro, diaDoTratamento, nextInjectionDate, rodizioDeLocais, timelineEvents,
-  semanasDaGrade, timelineWeeks,
+  semanasDaGrade, timelineWeeks, comecouAntesDoApp,
 } from '../src/logic/derive';
 import { semanaDoTratamento } from '../src/logic/time';
 import { proximasDe, type Alerta } from '../src/logic/alertas';
@@ -269,6 +269,16 @@ ok((conquistas(jaComecou).find((q) => q.id === 'tempo')?.nivel ?? 0) >= 1,
 const grade = semanasDaGrade(jaComecou);
 ok(grade.vividas === 1 && grade.aplicadas === 1,
   `as semanas de antes do app não viram semanas sem dose: "1 de 1", e não "1 de 6" (${grade.aplicadas} de ${grade.vividas})`);
+/* Quem começou antes do app: pela aplicação do cadastro, ou — nos diários
+   de antes dela — por um início anterior ao dia do cadastro. */
+const antigo = (inicioHa: number) => {
+  const x = clone(zero);
+  (x.profile as any).consentimento = { em: +hoje + 10 * 3600e3, versao: 1 };
+  x.profile.startT = +hoje - inicioHa * DIA;
+  return x;
+};
+ok(comecouAntesDoApp(jaComecou) && comecouAntesDoApp(antigo(40)) && !comecouAntesDoApp(antigo(0)) && !comecouAntesDoApp(aplicou5),
+  'quem começou antes do app se reconhece sem campo novo no perfil — e quem ia começar, não');
 const semanaDaDose = semanaDoTratamento(doCadastro.t, jaComecou.profile.startT);
 ok(timelineWeeks(jaComecou)[0]?.semana === semanaDaDose && timelineWeeks(aplicou5)[0]?.semana === 1,
   `a linha do tempo de quem já tinha começado abre na semana do tratamento (${semanaDaDose}), e a de quem começou no app, na 1`);

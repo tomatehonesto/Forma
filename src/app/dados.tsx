@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { RESTRICOES } from '../logic/restricoes';
 import { MO_LONG, doseTxt, kgTxt as kg, dataComAno } from '../logic/time';
-import { M, cadenciaCurta, idadeDe, temDose, ATIVIDADES, MOTIVOS, emTratamento } from '../logic/derive';
+import { M, cadenciaCurta, idadeDe, temDose, ATIVIDADES, MOTIVOS, emTratamento, comecouAntesDoApp } from '../logic/derive';
 import { Txt } from '../ui/kit';
 import { TelaInterna, Titulao, Bloco, Cartao, Linha } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
@@ -72,11 +72,12 @@ export default function Dados() {
   const idade = idadeDe(S);
 
   /* Onde mora o peso inicial depende de quando a pessoa começou. Quem já
-     estava em tratamento respondeu o peso daquela época na tela "Comecei
-     em"; quem ainda vai começar não tem essa distinção, e o peso de hoje
-     é também o de partida. A linha precisa abrir a tela que escreveu o
-     número, e não a régua do peso de hoje, que é outro número. */
-  const passoDoPesoInicial = emTratamento(S) ? 'inicio' : 'corpo';
+     estava em tratamento respondeu o peso daquela época na tela logo
+     depois da data de início; quem ainda vai começar não tem essa
+     distinção, e o peso de hoje é também o de partida. A linha precisa
+     abrir a tela que escreveu o número, e não a régua do peso de hoje,
+     que é outro número. */
+  const passoDoPesoInicial = emTratamento(S) ? 'pesoInicio' : 'corpo';
 
   /* DOSE E FREQUÊNCIA SÓ EXISTEM COM CANETA ESCOLHIDA. Quem respondeu
      "ainda não sei" no cadastro não viu essas duas perguntas — a escada
@@ -113,6 +114,14 @@ export default function Dados() {
           ) : null}
           {comDose ? (
             <Linha ic="clock" titulo={K().frequencia} sub={cadenciaCurta(S)} onPress={corrige('frequencia')} />
+          ) : null}
+          {/* A DATA DE INÍCIO TEM LINHA PRÓPRIA desde que o peso daquela
+              época ganhou tela própria no cadastro — antes, ela se
+              corrigia por dentro da linha do peso inicial. Só para quem
+              começou antes do aplicativo: para quem ia começar, a data é a
+              do cadastro, e não há o que corrigir. */}
+          {comecouAntesDoApp(S) ? (
+            <Linha ic="cal" titulo={K().inicioDoTratamento} sub={dataComAno(S.profile.startT)} onPress={corrige('inicio')} />
           ) : null}
         </Cartao>
       </Bloco>

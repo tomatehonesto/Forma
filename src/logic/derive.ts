@@ -4940,6 +4940,21 @@ export const aplicacaoDoCadastro = (med: string, dose: number, dia: number) =>
 export const comecouNoApp = (S: State) =>
   !((S.injections ?? []) as any[]).some((i) => i.origem === 'cadastro');
 
+/** Começou o tratamento antes do aplicativo — disse no cadastro que já
+    estava em tratamento.
+
+    ⚠️ SEM CAMPO NOVO NO PERFIL, de propósito: campo novo numa parte que já
+    sobe é campo que um aparelho com a versão anterior apagaria no servidor
+    (ver o alto de logic/traducao). A resposta já está no diário de dois
+    jeitos: a aplicação que o cadastro registra (`origem: 'cadastro'`), e,
+    nos diários de antes dela, um início anterior ao dia do cadastro —
+    quem ia começar tem o início no próprio dia em que se cadastrou. */
+export const comecouAntesDoApp = (S: State) => {
+  if (!comecouNoApp(S)) return true;
+  const em = (S.profile as any).consentimento?.em;
+  return !!em && !!S.profile.startT && S.profile.startT < +startOfDay(new Date(em));
+};
+
 /* NÃO EXISTE APAGAR APLICAÇÃO, e isso é decisão de produto.
 
    Chegou a existir, pela mesma regra da água e do treino: o que o app

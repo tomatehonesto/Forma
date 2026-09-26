@@ -163,7 +163,7 @@ export default function Perfil() {
      o número — mandar todo mundo para "medidas atuais" fazia o lápis
      prometer corrigir o peso inicial e entregar a régua do peso de
      hoje, que é outro número. */
-  const passoDoPesoInicial = emTratamento(S) ? 'inicio' : 'corpo';
+  const passoDoPesoInicial = emTratamento(S) ? 'pesoInicio' : 'corpo';
   const atividade = ATIVIDADES().find((x) => x.id === (S.profile as any).atividade)?.titulo ?? K().naoInformado;
   const motivo = MOTIVOS().find((x) => x.id === (S.profile as any).motivacao)?.titulo ?? K().naoInformado;
   const restricoes = (((S.profile as any).restricoes ?? []) as string[])

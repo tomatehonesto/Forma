@@ -28,6 +28,7 @@ export const cadastro = {
     nascimento: 'When were you born?',
     tratamento: 'Have you started treatment?',
     inicio: 'When did you start?',
+    pesoInicio: 'How much did you weigh when you started?',
     medicamentoFuturo: 'Which medication do you plan to use?',
     medicamentoAgora: 'Which medication do you use?',
     formaFuturo: 'How will you take it?',
@@ -54,7 +55,8 @@ export const cadastro = {
     identidade: 'It’s so we address you the right way. The health math uses your body, and that’s what the next questions are for.',
     nascimento: 'Every stage of life has different needs — and age factors into the reference ranges for your labs.',
     tratamento: 'Just so we know where you are right now.',
-    inicio: 'A rough date is fine. This is where your treatment week comes from, and this weight becomes the start of your curve.',
+    inicio: 'A rough date is fine. This is where your treatment week comes from.',
+    pesoInicio: 'A rough number is fine. This weight becomes the start of your curve — and it’s how we measure how far you’ve come.',
     medicamento: 'It’s what the dose ladder and the interval between shots come from.',
     forma: 'Compounded medication comes both ways, and what changes is what you’re holding when it’s time to take it.',
     doseComEscada: (med: string) => `In ${med}’s titration order.`,
@@ -101,7 +103,6 @@ export const cadastro = {
   outroIntervalo: 'You say how many days apart',
 
   pesoDeHoje: 'WEIGHT TODAY',
-  pesoDeQuandoComecou: 'WEIGHT WHEN YOU STARTED',
   querPerder: 'You want to lose',
   querGanhar: 'You want to gain',
 
@@ -216,6 +217,7 @@ export const cadastro = {
     dose: 'Dose',
     doseSub: (valor: string, unidade: string) => `${valor} ${unidade}`,
     frequencia: 'Frequency',
+    inicioDoTratamento: 'Treatment start',
 
     corpoERitmo: 'Body and pace',
     altura: 'Height',

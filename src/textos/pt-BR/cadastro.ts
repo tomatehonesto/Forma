@@ -47,6 +47,7 @@ export const cadastro = {
     nascimento: 'Quando você nasceu?',
     tratamento: 'Você já está em tratamento?',
     inicio: 'Quando você começou?',
+    pesoInicio: 'Quanto você pesava quando começou?',
     medicamentoFuturo: 'Qual medicamento você pretende usar?',
     medicamentoAgora: 'Qual medicamento você usa?',
     formaFuturo: 'Como você vai aplicar?',
@@ -78,7 +79,8 @@ export const cadastro = {
     identidade: 'É para falarmos com você do jeito certo. O que entra nas contas de saúde é o seu corpo, e ele vem nas próximas perguntas.',
     nascimento: 'Cada fase da vida tem necessidades diferentes — e a idade entra nas faixas de referência dos seus exames.',
     tratamento: 'Só para saber onde você está agora.',
-    inicio: 'Aproximado está bom. É daqui que sai a sua semana de tratamento, e é este peso que vira o começo da sua curva.',
+    inicio: 'Aproximado está bom. É daqui que sai a sua semana de tratamento.',
+    pesoInicio: 'Aproximado está bom. É este peso que vira o começo da sua curva — e dele sai o quanto você já andou.',
     medicamento: 'É dele que saem a escada de doses e o intervalo entre as aplicações.',
     forma: 'Manipulado sai da farmácia dos dois jeitos, e o que muda é o que você tem na mão na hora de aplicar.',
     doseComEscada: (med: string) => `Na ordem da titulação do ${med}.`,
@@ -141,7 +143,6 @@ export const cadastro = {
   outroIntervalo: 'Você diz de quantos em quantos dias',
 
   pesoDeHoje: 'PESO DE HOJE',
-  pesoDeQuandoComecou: 'PESO DE QUANDO COMEÇOU',
   querPerder: 'Você quer perder',
   querGanhar: 'Você quer ganhar',
 
@@ -342,6 +343,7 @@ export const cadastro = {
     dose: 'Dose',
     doseSub: (valor: string, unidade: string) => `${valor} ${unidade}`,
     frequencia: 'Frequência',
+    inicioDoTratamento: 'Início do tratamento',
 
     /* ---------- o corpo ---------- */
     corpoERitmo: 'Corpo e ritmo',

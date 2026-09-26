@@ -39,6 +39,7 @@ export const cadastro = {
     nascimento: 'Wann bist du geboren?',
     tratamento: 'Bist du schon in Behandlung?',
     inicio: 'Wann hast du angefangen?',
+    pesoInicio: 'Wie viel hast du gewogen, als du angefangen hast?',
     medicamentoFuturo: 'Welches Medikament willst du nehmen?',
     medicamentoAgora: 'Welches Medikament nimmst du?',
     formaFuturo: 'Wie wirst du es dir geben?',
@@ -69,7 +70,8 @@ export const cadastro = {
     identidade: 'Damit wir dich richtig ansprechen. Was in die Gesundheitsrechnungen eingeht, ist dein Körper, und der kommt in den nächsten Fragen.',
     nascimento: 'Jede Lebensphase hat eigene Bedürfnisse — und das Alter geht in die Referenzbereiche deiner Blutwerte ein.',
     tratamento: 'Nur, um zu wissen, wo du gerade stehst.',
-    inicio: 'Ungefähr reicht. Daraus ergibt sich deine Behandlungswoche, und dieses Gewicht wird zum Anfang deiner Kurve.',
+    inicio: 'Ungefähr reicht. Daraus ergibt sich deine Behandlungswoche.',
+    pesoInicio: 'Ungefähr reicht. Dieses Gewicht wird zum Anfang deiner Kurve — und daran misst sich, wie weit du schon bist.',
     medicamento: 'Daraus kommen die Dosistreppe und der Abstand zwischen den Spritzen.',
     forma: 'Die Rezeptur kommt in beiden Formen aus der Apotheke, und was sich ändert, ist das, was du beim Spritzen in der Hand hast.',
     doseComEscada: (med: string) => `In der Reihenfolge der Aufdosierung von ${med}.`,
@@ -135,7 +137,6 @@ export const cadastro = {
   outroIntervalo: 'Du sagst, alle wie viele Tage',
 
   pesoDeHoje: 'GEWICHT HEUTE',
-  pesoDeQuandoComecou: 'GEWICHT AM ANFANG',
   querPerder: 'Du willst abnehmen',
   querGanhar: 'Du willst zunehmen',
 
@@ -273,6 +274,7 @@ export const cadastro = {
     dose: 'Dosis',
     doseSub: (valor: string, unidade: string) => `${valor} ${unidade}`,
     frequencia: 'Häufigkeit',
+    inicioDoTratamento: 'Behandlungsbeginn',
 
     corpoERitmo: 'Körper und Tempo',
     altura: 'Größe',
