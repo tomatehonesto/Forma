@@ -1,7 +1,11 @@
 import React from 'react';
-import { ActivityIndicator, AppState, Platform, TextInput, View } from 'react-native';
+import { ActivityIndicator, AppState, Platform, Pressable, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as AppleAuthentication from 'expo-apple-authentication';
+import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
+import { setStatusBarStyle } from 'expo-status-bar';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
 import { estadoVazio } from '../logic/seed';
 import {
@@ -12,8 +16,11 @@ import {
 } from '../logic/conta';
 import { TelaInterna, Titulao, Botao, Aviso, Cartao, Linha, SEM_ANEL } from '../ui/internas';
 import { Txt } from '../ui/kit';
+import { Icon } from '../ui/Icon';
+import { TelaDePergunta } from '../ui/pergunta';
+import { useAurora } from '../ui/aurora';
 import { useTheme } from '../ui/useTheme';
-import { ty, radius } from '../theme';
+import { ty, radius, alfa } from '../theme';
 import { T } from '../textos';
 
 const K = () => T.conta;
@@ -84,6 +91,14 @@ export default function Conta() {
   const repetir = React.useRef<(() => void) | null>(null);
 
   React.useEffect(() => { appleDisponivel().then(setApple); }, []);
+
+  /* ⚠️ A BARRA DE STATUS SEGUE O PASSO, e não a rota. A escolha abre sobre
+     a aurora, escura, e pede o relógio claro; o e-mail e o código abrem
+     sobre a lavagem, clara, e pedem o escuro — e os três são a mesma
+     tela. O `useLightStatusBar` das outras telas acende no foco da rota
+     e não veria a troca de passo. Ao sair, volta o padrão do app. */
+  React.useEffect(() => { setStatusBarStyle(passo === 'escolha' ? 'light' : 'dark'); }, [passo]);
+  React.useEffect(() => () => setStatusBarStyle('dark'), []);
 
   React.useEffect(() => {
     if (espera <= 0) return;
@@ -340,15 +355,19 @@ export default function Conta() {
     );
   }
 
+  /* O E-MAIL E O CÓDIGO SÃO PERGUNTAS DO CADASTRO, e têm o desenho delas
+     (ver ui/pergunta): a resposta escrita na tela, sem caixa em volta, e
+     o botão subindo com o teclado. A caixa de formulário existe para
+     separar um campo dos outros, e aqui não há outros. */
   if (passo === 'email') {
     const valido = EMAIL.test(email.trim());
     return (
-      <TelaInterna
+      <TelaDePergunta
         titulo={K().emailTitulo}
+        lead={K().emailLead(DIGITOS_DO_CODIGO)}
         onVoltar={voltar}
         rodape={<Botao label={K().enviarCodigo} pilula desligado={!valido || ocupado} onPress={mandar} />}
       >
-        <Titulao titulo={K().emailTitulo} lead={K().emailLead(DIGITOS_DO_CODIGO)} />
         <TextInput
           value={email}
           onChangeText={setEmail}
@@ -363,27 +382,28 @@ export default function Conta() {
           textContentType="emailAddress"
           inputMode="email"
           returnKeyType="send"
-          style={[ty.body, SEM_ANEL, {
-            color: c.tx, backgroundColor: c.bg1, borderWidth: 1, borderColor: c.line,
-            borderRadius: radius.md, paddingHorizontal: 14, paddingVertical: 14,
-          }]}
+          /* Menor que o nome, que usa o tamanho de manchete: e-mail é
+             comprido, e no tamanho do nome metade dele sumia para a
+             esquerda antes do arroba. */
+          style={[ty.display, SEM_ANEL, { color: c.tx, paddingVertical: 0, letterSpacing: -0.5 }]}
         />
         {email.length > 5 && !valido && !email.endsWith('@') ? (
-          <Txt v="caption" c={c.tx3}>{K().emailIncompleto}</Txt>
+          <Txt v="caption" c={c.tx3} style={{ marginTop: 12 }}>{K().emailIncompleto}</Txt>
         ) : null}
-        {aviso}
-      </TelaInterna>
+        {aviso ? <View style={{ marginTop: 20 }}>{aviso}</View> : null}
+      </TelaDePergunta>
     );
   }
 
   if (passo === 'codigo') {
+    const podeReenviar = espera <= 0 && !ocupado;
     return (
-      <TelaInterna
+      <TelaDePergunta
         titulo={K().codigoTitulo}
+        lead={K().codigoLead(email.trim(), VALIDADE_DO_CODIGO_MIN)}
         onVoltar={voltar}
         rodape={<Botao label={K().entrar} pilula desligado={codigo.length !== DIGITOS_DO_CODIGO || ocupado} onPress={() => confirmar()} />}
       >
-        <Titulao titulo={K().codigoTitulo} lead={K().codigoLead(email.trim(), VALIDADE_DO_CODIGO_MIN)} />
         <TextInput
           value={codigo}
           onChangeText={(v) => {
@@ -400,44 +420,130 @@ export default function Conta() {
           textContentType="oneTimeCode"
           autoComplete={Platform.OS === 'android' ? 'sms-otp' : 'one-time-code'}
           maxLength={DIGITOS_DO_CODIGO}
-          style={[ty.display, SEM_ANEL, {
-            color: c.tx, backgroundColor: c.bg1, borderWidth: 1, borderColor: c.line,
-            borderRadius: radius.md, paddingHorizontal: 14, paddingVertical: 12,
-            letterSpacing: 10, textAlign: 'center',
-          }]}
+          style={[ty.hero, SEM_ANEL, { color: c.tx, paddingVertical: 0, letterSpacing: 12 }]}
         />
-        {aviso}
-        <View style={{ gap: 8 }}>
-          <Botao
-            label={espera > 0 ? K().reenviarEm(espera) : K().reenviar}
-            tom="fantasma"
-            desligado={espera > 0 || ocupado}
-            onPress={mandar}
-          />
-          <Botao label={K().outroEmail} tom="fantasma" onPress={() => { limpar(); setPasso('email'); }} />
+        {aviso ? <View style={{ marginTop: 20 }}>{aviso}</View> : null}
+        {/* ⚠️ AS DUAS SAÍDAS SÃO TEXTO, e não botão. Eram dois botões do
+            tamanho do principal, empilhados logo abaixo do código, e a
+            tela parecia perguntar três coisas; o que ela pergunta é uma
+            só. Reenviar e trocar o e-mail são a porta de quem teve um
+            problema, e ficam do tamanho de uma porta lateral. */}
+        <View style={{ gap: 18, marginTop: 32, alignItems: 'flex-start' }}>
+          <Pressable
+            onPress={podeReenviar ? mandar : undefined}
+            hitSlop={10}
+            style={({ pressed }) => [{ opacity: pressed && podeReenviar ? 0.6 : 1 }]}
+          >
+            <Txt v="label" c={podeReenviar ? c.accent : c.tx4}>
+              {espera > 0 ? K().reenviarEm(espera) : K().reenviar}
+            </Txt>
+          </Pressable>
+          <Pressable
+            onPress={() => { limpar(); setPasso('email'); }}
+            hitSlop={10}
+            style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
+          >
+            <Txt v="label" c={c.accent}>{K().outroEmail}</Txt>
+          </Pressable>
         </View>
-      </TelaInterna>
+      </TelaDePergunta>
     );
   }
 
   /* ---- a escolha ---- */
   return (
-    <TelaInterna titulo={K().titulo[porta]} onVoltar={voltar}>
-      <Titulao titulo={K().titulo[porta]} lead={K().lead[porta]} />
+    <CapaDaConta titulo={K().titulo[porta]} lead={K().lead[porta]} onVoltar={voltar}>
       {aviso}
-      <View style={{ gap: 10 }}>
-        {apple ? (
-          <AppleAuthentication.AppleAuthenticationButton
-            buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
-            buttonStyle={isDark ? AppleAuthentication.AppleAuthenticationButtonStyle.WHITE : AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
-            cornerRadius={radius.pill}
-            style={{ height: 56 }}
-            onPress={viaApple}
-          />
-        ) : null}
-        <Botao label={K().comEmail} pilula tom={apple ? 'fantasma' : 'cheio'} onPress={() => { limpar(); setPasso('email'); }} />
-        <Txt v="caption" c={c.tx3} style={{ textAlign: 'center', marginTop: 4 }}>{K().semSenha}</Txt>
+      {/* ⚠️ O BOTÃO DA APPLE É O DELA, e não um desenhado aqui: a revisão
+          da loja confere o desenho do "Continuar com a Apple", e o botão
+          do sistema já sai certo em qualquer idioma. A altura é a da
+          pílula do app, para as portas empilhadas terem o mesmo tamanho.
+
+          O GOOGLE ENTRA AQUI, com o mesmo desenho do e-mail, quando a
+          entrada dele existir (fase 5 do plano do Supabase). Até lá, sem
+          botão: porta que não abre é pior que porta nenhuma. */}
+      {apple ? (
+        <AppleAuthentication.AppleAuthenticationButton
+          buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
+          buttonStyle={isDark ? AppleAuthentication.AppleAuthenticationButtonStyle.WHITE : AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+          cornerRadius={radius.pill}
+          style={{ height: 64 }}
+          onPress={viaApple}
+        />
+      ) : null}
+      <Botao label={K().comEmail} pilula tom={apple ? 'fantasma' : 'cheio'} onPress={() => { limpar(); setPasso('email'); }} />
+      <Txt v="caption" c={c.tx3} style={{ textAlign: 'center', marginTop: 6 }}>{K().semSenha}</Txt>
+    </CapaDaConta>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* A CAPA DA CONTA — a aurora no alto, as portas embaixo.
+
+   ⚠️ O DESENHO VEIO DE UMA REFERÊNCIA DO DONO (26/09/2026): o alto da tela
+   colorido, a frase no meio da cor, e as opções no claro. A cor é a
+   aurora da paleta — a mesma da Home e da abertura do cadastro —, e não
+   um degradê desenhado para cá: é ela que diz que isto é o Morphi, e ela
+   troca junto quando a pessoa troca a paleta.
+
+   ⚠️ A FOLHA CLARA SOBE POR CIMA DA AURORA, como na Home, e a aurora não
+   se desfaz no fundo. Desfeita, ela passava pelo cinza: o pé da imagem é
+   azul-noite, e azul-noite misturado com o fundo claro é uma faixa suja
+   no meio da tela. A folha arredondada é o jeito que o aplicativo já tem
+   de pôr o claro sobre a aurora, e os cantos só aparecem porque ela sobe
+   por cima da imagem — por isso o `SOBE`.
+
+   AS PORTAS FICAM EMBAIXO, perto do polegar. A folha tem uma altura
+   mínima para a aurora não tomar a tela inteira onde há uma porta só, e
+   a sobra de altura é da aurora: é ela que a tela tem para mostrar. */
+/* ------------------------------------------------------------------ */
+const SOBE = radius.lg;
+
+function CapaDaConta({ titulo, lead, onVoltar, children }: {
+  titulo: string; lead: string; onVoltar: () => void; children: React.ReactNode;
+}) {
+  const { c } = useTheme();
+  const aurora = useAurora();
+  const insets = useSafeAreaInsets();
+  const { height } = useWindowDimensions();
+
+  return (
+    <View style={{ flex: 1, backgroundColor: c.veu }}>
+      <View style={{ flex: 1 }}>
+        <Image source={aurora.hero} style={StyleSheet.absoluteFill} contentFit="cover" contentPosition="top" />
+        {/* O VÉU: mais pesado no alto, onde moram a seta e o relógio em
+            corpo pequeno, e mais leve onde a frase está. */}
+        <LinearGradient
+          colors={[alfa(c.veu, 0.6), alfa(c.veu, 0.28)]}
+          style={StyleSheet.absoluteFill}
+          pointerEvents="none"
+        />
+
+        <View style={{ position: 'absolute', top: insets.top + 12, left: 16, zIndex: 1 }}>
+          <Pressable onPress={onVoltar} hitSlop={14} style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1 }]}>
+            <Icon name="back" size={26} color={c.onHero} sw={2} />
+          </Pressable>
+        </View>
+
+        <View style={{
+          flex: 1, paddingHorizontal: 28,
+          paddingTop: insets.top + 48, paddingBottom: SOBE + 24,
+          alignItems: 'center', justifyContent: 'center', gap: 12,
+        }}>
+          <Txt v="h1" c={c.onHero} style={{ textAlign: 'center' }}>{titulo}</Txt>
+          <Txt v="note" c={c.onHero2} style={{ textAlign: 'center', lineHeight: 23 }}>{lead}</Txt>
+        </View>
       </View>
-    </TelaInterna>
+
+      <View style={{
+        backgroundColor: c.bg,
+        borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg,
+        marginTop: -SOBE, minHeight: Math.round(height * 0.4),
+        paddingTop: 28, paddingHorizontal: 20, paddingBottom: insets.bottom + 20,
+        justifyContent: 'flex-end', gap: 10,
+      }}>
+        {children}
+      </View>
+    </View>
   );
 }
