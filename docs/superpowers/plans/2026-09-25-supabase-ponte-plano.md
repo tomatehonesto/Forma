@@ -302,7 +302,7 @@ senhas do dono.
 | fase 4 | os dois modelos de e-mail ("Magic link" e "Confirm signup"), colados de `supabase/modelos/codigo.html`; código de **6** dígitos; validade de **600 s** | Authentication → Emails; Sign In / Providers → Email |
 | fase 4 | Apple ligada, com Client IDs `com.morphihealth.app,host.exp.Exponent`. Login nativo não precisa de Services ID nem de chave `.p8` | Sign In / Providers → Apple |
 | fase 5 | o item 16 das pendências (`eas init`, iPhone registrado, conta paga de desenvolvedor Apple); no Google Cloud, a tela de consentimento e três clientes OAuth (web, iOS e Android com o SHA-1); no Supabase, o Google com os IDs, o da web primeiro | EAS, Google Cloud, painel |
-| fase 7 | desligar "Allow public access" do Realtime, para só haver canal privado | Realtime → Settings |
+| fase 7 (⏸️ adiada) | desligar "Allow public access" do Realtime, para só haver canal privado — só quando a fase voltar | Realtime → Settings |
 | fases 4 e 6 | digitar no navegador de testes o código que chegar no e-mail dele, quando eu pedir | navegador |
 | quando for ler as perguntas | dar login e senha ao papel `analise_perguntas`, no editor SQL; a senha fica no gerenciador dele | painel |
 
@@ -1748,6 +1748,23 @@ No navegador de testes (`127.0.0.1`), com um cadastro novo e sem conta:
 ---
 
 ## Fase 7 — da clínica para o paciente, na hora
+
+⏸️ **ADIADA (26/09/2026), por decisão do dono.** O sistema da clínica
+ainda não existe, e no primeiro momento não vai ser necessário: sem ele,
+não há quem escreva mensagem, receita, consulta ou material do outro
+lado. O que isso deixa como está:
+- o aparelho continua sem descer nada da clínica. `messages`,
+  `prescriptions`, `team` e `materials` ficam como hoje, e
+  `tirarVinculo` os limpa ao fim do vínculo;
+- o fim do vínculo chega na volta ao aplicativo (fase 6), e não na hora;
+- "Allow public access" do Realtime não precisa ser desligado ainda. O
+  banco já tem os gatilhos e os tópicos da fase 1, prontos para quando
+  ela voltar;
+- ⚠️ **a fase 8 não pode prometer** mensagem da equipe nem nada chegando
+  "na hora". Os textos dizem o que a equipe VÊ, e não o que ela manda.
+
+Volta quando o portal dos médicos (o sistema da clínica) tiver o
+primeiro envio.
 
 🔑 **Depende do dono:** "Allow public access" desligado no Realtime.
 
