@@ -37,6 +37,7 @@ import {
 } from '../src/logic/derive';
 import { proximasDe, type Alerta } from '../src/logic/alertas';
 import { resumoEmTexto } from '../src/logic/resumo';
+import { conquistas } from '../src/logic/conquistas';
 import { T } from '../src/textos';
 
 let falhas = 0;
@@ -209,6 +210,19 @@ ok(doc0.includes(T.cuidado.dose.nenhumaRegistrada) && doc0.includes(T.resumo.apl
   'o resumo sem dose nem evolução não diz "1 dias", "0 de 0 previstas" nem "Estável (0,0%)"');
 ok(resumoEmTexto(longe).includes(T.resumo.variacao), 'com evolução, a variação volta ao resumo');
 ok(T.resumo.emDias(1) === '1 dia', 'um dia é "1 dia"');
+
+/* Conquistas e biblioteca (Etapa 3, grupo C). */
+ok(T.conquistas.dosesFalta(1) === 'Falta 1 aplicação' && T.conquistas.dosesFalta(3).startsWith('Faltam'),
+  '"Falta 1 aplicação", e não "Faltam 1"');
+const tempo0 = conquistas(zero).find((q) => q.id === 'tempo');
+const tempo5 = conquistas(aplicou5).find((q) => q.id === 'tempo');
+ok(tempo0?.falta === T.conquistas.tempoSemDose && tempo5?.falta !== T.conquistas.tempoSemDose,
+  'o tempo de tratamento não conta "faltam 30 dias" de uma primeira dose que não existe');
+const leitura = (S: State, ic: string) => libraryPicks(S).some((l) => l.ic === ic);
+const dormiu = clone(zero);
+(dormiu.checkins as any[]).push({ t: +hoje, sono: 5 });
+ok(!leitura(zero, 'moon') && !leitura(zero, 'flame') && leitura(dormiu, 'moon'),
+  'sem registro, a biblioteca não fala da "sua média" de sono nem de proteína');
 
 console.log(falhas ? `\n${falhas} afirmação(ões) falharam\n` : '\ntodas as afirmações passaram\n');
 process.exit(falhas ? 1 : 0);

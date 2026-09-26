@@ -44,6 +44,7 @@ export const conquistas = {
     ? `${p(a / 30, 'month')} since your first dose`
     : `${p(a / 365, 'year')} since your first dose`),
   tempoFalta: (r: number) => `${p(r, 'day')} to go`,
+  tempoSemDose: 'Starts with your first logged dose',
 
   /* ⚠️ ROTATION ISN'T DECORATION: repeating the same spot causes lumps,
      and alternating is label guidance. It's the only track that rewards a
@@ -153,7 +154,7 @@ export const conquistas = {
     todas: 'All',
     checkinsNoMes: 'check-ins this month',
     niveis: 'levels',
-    diasDeJornada: 'days of the journey',
+    diasDeJornada: (dias: number): string => (dias === 1 ? 'day of the journey' : 'days of the journey'),
 
     conquistadas: 'Reached',
     nenhumaAinda: 'None yet',

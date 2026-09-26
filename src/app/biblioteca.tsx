@@ -78,7 +78,7 @@ export default function Biblioteca() {
         </View>
       ) : (
         <View style={{ marginTop: 16 }}>
-          <Vazio ic="book" titulo={K.vazioTitulo} texto={K.vazioTexto} />
+          <Vazio ic="book" titulo={K.vazioTitulo} texto={(S.checkins as any[]).length ? K.vazioTexto : K.vazioSemRegistroTexto} />
         </View>
       )}
     </Screen>

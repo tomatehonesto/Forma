@@ -23,6 +23,9 @@
 
 /* O plural do português, com o irregular dito por extenso quando existe. */
 const p = (n: number, s: string, pl = `${s}s`) => `${n} ${n === 1 ? s : pl}`;
+/* E o verbo concorda com o número: "Falta 1 aplicação", e não "Faltam 1".
+   Só nas frases em que a quantidade é um número; "Faltam 2,0 kg" fica. */
+const v = (n: number, um: string, varios: string) => (n === 1 ? um : varios);
 
 export const conquistas = {
   /* As oito famílias, que são as abas da tela. */
@@ -40,7 +43,7 @@ export const conquistas = {
   /* ---------------- tratamento ---------------- */
   doses: 'Aplicações',
   dosesDesc: (a: number) => `${p(a, 'aplicação', 'aplicações')} registrada${a === 1 ? '' : 's'}`,
-  dosesFalta: (r: number) => `Faltam ${p(r, 'aplicação', 'aplicações')}`,
+  dosesFalta: (r: number) => `${v(r, 'Falta', 'Faltam')} ${p(r, 'aplicação', 'aplicações')}`,
 
   tempo: 'Tempo de tratamento',
   /* Abaixo de um ano conta em meses, e a partir dele em anos: "12 meses"
@@ -48,14 +51,17 @@ export const conquistas = {
   tempoDesc: (a: number) => (a < 365
     ? `${a / 30} ${a === 30 ? 'mês' : 'meses'} desde a primeira dose`
     : `${a / 365} ano${a > 365 ? 's' : ''} desde a primeira dose`),
-  tempoFalta: (r: number) => `Faltam ${p(r, 'dia')}`,
+  tempoFalta: (r: number) => `${v(r, 'Falta', 'Faltam')} ${p(r, 'dia')}`,
+  /* Sem dose registrada, o tempo de tratamento não começou a contar, e
+     "Faltam 30 dias" contava de uma primeira dose que não existe. */
+  tempoSemDose: 'Começa na primeira dose registrada',
 
   /* ⚠️ O RODÍZIO NÃO É ENFEITE: repetir o mesmo ponto causa nódulo, e
      alternar é orientação de bula. É a única trilha que premia uma
      prática de segurança. */
   rodizio: 'Rodízio',
   rodizioDesc: (a: number) => `${p(a, 'local', 'locais')} de aplicação usado${a === 1 ? '' : 's'}`,
-  rodizioFalta: (r: number) => `Faltam ${p(r, 'local', 'locais')}`,
+  rodizioFalta: (r: number) => `${v(r, 'Falta', 'Faltam')} ${p(r, 'local', 'locais')}`,
 
   titulacao: 'Titulação',
   titulacaoDesc: (a: string) => `Chegar à dose de ${a}`,
@@ -84,57 +90,57 @@ export const conquistas = {
 
   pesagens: 'Pesagens',
   pesagensDesc: (a: number) => `${p(a, 'pesagem', 'pesagens')} registrada${a === 1 ? '' : 's'}`,
-  pesagensFalta: (r: number) => `Faltam ${p(r, 'pesagem', 'pesagens')}`,
+  pesagensFalta: (r: number) => `${v(r, 'Falta', 'Faltam')} ${p(r, 'pesagem', 'pesagens')}`,
 
   /* ---------------- constância ---------------- */
   checkins: 'Check-ins',
   checkinsDesc: (a: number) => `${p(a, 'dia')} com check-in`,
-  checkinsFalta: (r: number) => `Faltam ${p(r, 'dia')}`,
+  checkinsFalta: (r: number) => `${v(r, 'Falta', 'Faltam')} ${p(r, 'dia')}`,
 
   sequencia: 'Dias seguidos',
   sequenciaDesc: (a: number) => `${p(a, 'check-in')} seguidos`,
-  sequenciaFalta: (r: number, alvo: number) => `Faltam ${p(r, 'dia')} para ${alvo}`,
+  sequenciaFalta: (r: number, alvo: number) => `${v(r, 'Falta', 'Faltam')} ${p(r, 'dia')} para ${alvo}`,
 
   /* ---------------- hidratação ---------------- */
   aguaDias: 'Dias na meta de água',
   aguaDiasDesc: (a: number) => `${p(a, 'dia')} na meta de água`,
-  aguaDiasFalta: (r: number) => `Faltam ${p(r, 'dia')}`,
+  aguaDiasFalta: (r: number) => `${v(r, 'Falta', 'Faltam')} ${p(r, 'dia')}`,
 
   aguaSemana: 'Semana hidratada',
   aguaSemanaDesc: (a: number) => `${p(a, 'dia')} na meta, na mesma semana`,
-  aguaSemanaFalta: (r: number, alvo: number) => `Faltam ${p(r, 'dia')} para ${alvo}`,
+  aguaSemanaFalta: (r: number, alvo: number) => `${v(r, 'Falta', 'Faltam')} ${p(r, 'dia')} para ${alvo}`,
 
   /* ---------------- proteína ---------------- */
   protDias: 'Dias na meta de proteína',
   protDiasDesc: (a: number) => `${p(a, 'dia')} na meta de proteína`,
-  protDiasFalta: (r: number) => `Faltam ${p(r, 'dia')}`,
+  protDiasFalta: (r: number) => `${v(r, 'Falta', 'Faltam')} ${p(r, 'dia')}`,
 
   protSeq: 'Proteína seguida',
   protSeqDesc: (a: number) => `${p(a, 'dia')} seguidos na meta`,
-  protSeqFalta: (r: number, alvo: number) => `Faltam ${p(r, 'dia')} para ${alvo}`,
+  protSeqFalta: (r: number, alvo: number) => `${v(r, 'Falta', 'Faltam')} ${p(r, 'dia')} para ${alvo}`,
 
   /* ---------------- movimento ---------------- */
   treinos: 'Treinos',
   treinosDesc: (a: number) => `${p(a, 'sessão', 'sessões')} registrada${a === 1 ? '' : 's'}`,
-  treinosFalta: (r: number) => `Faltam ${p(r, 'treino')}`,
+  treinosFalta: (r: number) => `${v(r, 'Falta', 'Faltam')} ${p(r, 'treino')}`,
 
   exercSemana: 'Semana ativa',
   exercSemanaDesc: (a: number) => `${p(a, 'dia')} na meta de movimento, na mesma semana`,
-  exercSemanaFalta: (r: number, alvo: number) => `Faltam ${p(r, 'dia')} para ${alvo}`,
+  exercSemanaFalta: (r: number, alvo: number) => `${v(r, 'Falta', 'Faltam')} ${p(r, 'dia')} para ${alvo}`,
 
   /* ---------------- alimentação ---------------- */
   refeicoes: 'Refeições',
   refeicoesDesc: (a: number) => `${p(a, 'refeição', 'refeições')} registrada${a === 1 ? '' : 's'}`,
-  refeicoesFalta: (r: number) => `Faltam ${p(r, 'refeição', 'refeições')}`,
+  refeicoesFalta: (r: number) => `${v(r, 'Falta', 'Faltam')} ${p(r, 'refeição', 'refeições')}`,
 
   favoritos: 'Pratos favoritos',
   favoritosDesc: (a: number) => `${p(a, 'prato')} guardado${a === 1 ? '' : 's'} para repetir`,
-  favoritosFalta: (r: number) => `Faltam ${p(r, 'prato')}`,
+  favoritosFalta: (r: number) => `${v(r, 'Falta', 'Faltam')} ${p(r, 'prato')}`,
 
   /* ---------------- acompanhamento ---------------- */
   medidas: 'Medidas do corpo',
   medidasDesc: (a: number) => `${p(a, 'medição', 'medições')} registrada${a === 1 ? '' : 's'}`,
-  medidasFalta: (r: number) => `Faltam ${p(r, 'medição', 'medições')}`,
+  medidasFalta: (r: number) => `${v(r, 'Falta', 'Faltam')} ${p(r, 'medição', 'medições')}`,
 
   /* ⚠️ SEM UNIDADE NO TÍTULO, pelo mesmo motivo da conquista de peso: o
      valor chega em centímetro ou em polegada, conforme quem lê. */
@@ -144,11 +150,11 @@ export const conquistas = {
 
   exames: 'Exames',
   examesDesc: (a: number) => `${p(a, 'exame')} importado${a === 1 ? '' : 's'}`,
-  examesFalta: (r: number) => `Faltam ${p(r, 'exame')}`,
+  examesFalta: (r: number) => `${v(r, 'Falta', 'Faltam')} ${p(r, 'exame')}`,
 
   consultas: 'Consultas',
   consultasDesc: (a: number) => `${p(a, 'consulta')} no histórico`,
-  consultasFalta: (r: number) => `Faltam ${p(r, 'consulta')}`,
+  consultasFalta: (r: number) => `${v(r, 'Falta', 'Faltam')} ${p(r, 'consulta')}`,
 
   /* O marco na linha do tempo: a trilha e em que nível ela estava. */
   marco: (titulo: string, nivel: number) => `${titulo} · nível ${nivel}`,
@@ -169,7 +175,7 @@ export const conquistas = {
     todas: 'Todas',
     checkinsNoMes: 'check-ins no mês',
     niveis: 'níveis',
-    diasDeJornada: 'dias de jornada',
+    diasDeJornada: (dias: number): string => (dias === 1 ? 'dia de jornada' : 'dias de jornada'),
 
     conquistadas: 'Conquistadas',
     nenhumaAinda: 'Nenhuma ainda',

@@ -51,6 +51,7 @@ export const companion = {
       minDeLeitura: (min: number) => `${min} min di lettura`,
       vazioTitulo: 'Niente da leggere adesso',
       vazioTexto: 'Le letture entrano quando qualcosa nei tuoi registri ne chiede una. Senza, non c’è niente da leggere — ed è una buona notizia.',
+      vazioSemRegistroTexto: 'Le letture entrano quando qualcosa nei tuoi registri ne chiede una. Con i tuoi primi check-in, cominciano a comparire qui.',
     },
 
     /* ---------- la fame che torna ---------- */

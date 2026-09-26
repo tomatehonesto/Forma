@@ -32,6 +32,7 @@ export const companion = {
       minDeLeitura: (min: number) => `${min} min read`,
       vazioTitulo: 'Nothing to read right now',
       vazioTexto: 'Readings show up when something in your logs calls for one. Without that there’s nothing to read — and that’s good news.',
+      vazioSemRegistroTexto: 'Readings show up when something in your logs calls for one. With your first check-ins, they start showing up here.',
     },
     fomeMotivo: (dia: number) => `You’re on day ${dia} of the cycle, when hunger comes back`,
     fomeTitulo: 'Why hunger comes back before your injection',

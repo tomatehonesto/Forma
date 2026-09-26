@@ -167,7 +167,7 @@ export default function Conquistas() {
         {[
           [String(checkins30(S)), K().checkinsNoMes],
           [`${niveisFeitos(todas)}/${niveisTotais(todas)}`, K().niveis],
-          [String(journeyDay(S)), K().diasDeJornada],
+          [String(journeyDay(S)), K().diasDeJornada(journeyDay(S))],
         ].map(([v, l], i) => (
           <View key={l} style={{ flex: 1, alignItems: 'center', borderLeftWidth: i ? 1 : 0, borderLeftColor: c.accentLine }}>
             <Txt v="h1" style={{ fontSize: 24 }}>{v}</Txt>

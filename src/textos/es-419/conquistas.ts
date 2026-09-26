@@ -22,6 +22,7 @@
 
 /* El plural del español, con el irregular dicho por extenso cuando existe. */
 const p = (n: number, s: string, pl = `${s}s`) => `${n} ${n === 1 ? s : pl}`;
+const v = (n: number, um: string, varios: string) => (n === 1 ? um : varios);
 
 export const conquistas = {
   familias: {
@@ -37,7 +38,7 @@ export const conquistas = {
 
   doses: 'Inyecciones',
   dosesDesc: (a: number) => `${p(a, 'inyección', 'inyecciones')} registrada${a === 1 ? '' : 's'}`,
-  dosesFalta: (r: number) => `Faltan ${p(r, 'inyección', 'inyecciones')}`,
+  dosesFalta: (r: number) => `${v(r, 'Falta', 'Faltan')} ${p(r, 'inyección', 'inyecciones')}`,
 
   tempo: 'Tiempo de tratamiento',
   /* Abajo de un año cuenta en meses, y a partir de ahí en años: "12 meses"
@@ -45,14 +46,15 @@ export const conquistas = {
   tempoDesc: (a: number) => (a < 365
     ? `${a / 30} ${a === 30 ? 'mes' : 'meses'} desde la primera dosis`
     : `${a / 365} año${a > 365 ? 's' : ''} desde la primera dosis`),
-  tempoFalta: (r: number) => `Faltan ${p(r, 'día')}`,
+  tempoFalta: (r: number) => `${v(r, 'Falta', 'Faltan')} ${p(r, 'día')}`,
+  tempoSemDose: 'Empieza con la primera dosis registrada',
 
   /* ⚠️ LA ROTACIÓN NO ES ADORNO: repetir el mismo punto causa nódulos, y
      alternar es indicación de prospecto. Es el único camino que premia una
      práctica de seguridad. */
   rodizio: 'Rotación',
   rodizioDesc: (a: number) => `${p(a, 'lugar', 'lugares')} de inyección usado${a === 1 ? '' : 's'}`,
-  rodizioFalta: (r: number) => `Faltan ${p(r, 'lugar', 'lugares')}`,
+  rodizioFalta: (r: number) => `${v(r, 'Falta', 'Faltan')} ${p(r, 'lugar', 'lugares')}`,
 
   titulacao: 'Titulación',
   titulacaoDesc: (a: string) => `Llegar a la dosis de ${a}`,
@@ -76,51 +78,51 @@ export const conquistas = {
 
   pesagens: 'Pesajes',
   pesagensDesc: (a: number) => `${p(a, 'pesaje')} registrado${a === 1 ? '' : 's'}`,
-  pesagensFalta: (r: number) => `Faltan ${p(r, 'pesaje')}`,
+  pesagensFalta: (r: number) => `${v(r, 'Falta', 'Faltan')} ${p(r, 'pesaje')}`,
 
   checkins: 'Check-ins',
   checkinsDesc: (a: number) => `${p(a, 'día')} con check-in`,
-  checkinsFalta: (r: number) => `Faltan ${p(r, 'día')}`,
+  checkinsFalta: (r: number) => `${v(r, 'Falta', 'Faltan')} ${p(r, 'día')}`,
 
   sequencia: 'Días seguidos',
   sequenciaDesc: (a: number) => `${p(a, 'check-in')} en días seguidos`,
-  sequenciaFalta: (r: number, alvo: number) => `Faltan ${p(r, 'día')} para ${alvo}`,
+  sequenciaFalta: (r: number, alvo: number) => `${v(r, 'Falta', 'Faltan')} ${p(r, 'día')} para ${alvo}`,
 
   aguaDias: 'Días en la meta de agua',
   aguaDiasDesc: (a: number) => `${p(a, 'día')} cumpliendo tu meta de agua`,
-  aguaDiasFalta: (r: number) => `Faltan ${p(r, 'día')}`,
+  aguaDiasFalta: (r: number) => `${v(r, 'Falta', 'Faltan')} ${p(r, 'día')}`,
 
   aguaSemana: 'Semana hidratada',
   aguaSemanaDesc: (a: number) => `${p(a, 'día')} en la meta, en la misma semana`,
-  aguaSemanaFalta: (r: number, alvo: number) => `Faltan ${p(r, 'día')} para ${alvo}`,
+  aguaSemanaFalta: (r: number, alvo: number) => `${v(r, 'Falta', 'Faltan')} ${p(r, 'día')} para ${alvo}`,
 
   protDias: 'Días en la meta de proteína',
   protDiasDesc: (a: number) => `${p(a, 'día')} cumpliendo tu meta de proteína`,
-  protDiasFalta: (r: number) => `Faltan ${p(r, 'día')}`,
+  protDiasFalta: (r: number) => `${v(r, 'Falta', 'Faltan')} ${p(r, 'día')}`,
 
   protSeq: 'Proteína seguida',
   protSeqDesc: (a: number) => `${p(a, 'día')} seguidos en la meta`,
-  protSeqFalta: (r: number, alvo: number) => `Faltan ${p(r, 'día')} para ${alvo}`,
+  protSeqFalta: (r: number, alvo: number) => `${v(r, 'Falta', 'Faltan')} ${p(r, 'día')} para ${alvo}`,
 
   treinos: 'Entrenamientos',
   treinosDesc: (a: number) => `${p(a, 'sesión', 'sesiones')} registrada${a === 1 ? '' : 's'}`,
-  treinosFalta: (r: number) => `Faltan ${p(r, 'entrenamiento')}`,
+  treinosFalta: (r: number) => `${v(r, 'Falta', 'Faltan')} ${p(r, 'entrenamiento')}`,
 
   exercSemana: 'Semana activa',
   exercSemanaDesc: (a: number) => `${p(a, 'día')} en la meta de movimiento, en la misma semana`,
-  exercSemanaFalta: (r: number, alvo: number) => `Faltan ${p(r, 'día')} para ${alvo}`,
+  exercSemanaFalta: (r: number, alvo: number) => `${v(r, 'Falta', 'Faltan')} ${p(r, 'día')} para ${alvo}`,
 
   refeicoes: 'Comidas',
   refeicoesDesc: (a: number) => `${p(a, 'comida')} registrada${a === 1 ? '' : 's'}`,
-  refeicoesFalta: (r: number) => `Faltan ${p(r, 'comida')}`,
+  refeicoesFalta: (r: number) => `${v(r, 'Falta', 'Faltan')} ${p(r, 'comida')}`,
 
   favoritos: 'Platos favoritos',
   favoritosDesc: (a: number) => `${p(a, 'plato')} guardado${a === 1 ? '' : 's'} para repetir`,
-  favoritosFalta: (r: number) => `Faltan ${p(r, 'plato')}`,
+  favoritosFalta: (r: number) => `${v(r, 'Falta', 'Faltan')} ${p(r, 'plato')}`,
 
   medidas: 'Medidas del cuerpo',
   medidasDesc: (a: number) => `${p(a, 'medición', 'mediciones')} registrada${a === 1 ? '' : 's'}`,
-  medidasFalta: (r: number) => `Faltan ${p(r, 'medición', 'mediciones')}`,
+  medidasFalta: (r: number) => `${v(r, 'Falta', 'Faltan')} ${p(r, 'medición', 'mediciones')}`,
 
   /* ⚠️ SIN UNIDAD EN EL TÍTULO, por lo mismo que en la de peso. */
   cintura: 'Cintura',
@@ -129,11 +131,11 @@ export const conquistas = {
 
   exames: 'Exámenes',
   examesDesc: (a: number) => `${p(a, 'examen', 'exámenes')} importado${a === 1 ? '' : 's'}`,
-  examesFalta: (r: number) => `Faltan ${p(r, 'examen', 'exámenes')}`,
+  examesFalta: (r: number) => `${v(r, 'Falta', 'Faltan')} ${p(r, 'examen', 'exámenes')}`,
 
   consultas: 'Consultas',
   consultasDesc: (a: number) => `${p(a, 'consulta')} en el historial`,
-  consultasFalta: (r: number) => `Faltan ${p(r, 'consulta')}`,
+  consultasFalta: (r: number) => `${v(r, 'Falta', 'Faltan')} ${p(r, 'consulta')}`,
 
   marco: (titulo: string, nivel: number) => `${titulo} · nivel ${nivel}`,
   tela: {
@@ -147,7 +149,7 @@ export const conquistas = {
     todas: 'Todos',
     checkinsNoMes: 'check-ins del mes',
     niveis: 'niveles',
-    diasDeJornada: 'días de camino',
+    diasDeJornada: (dias: number): string => (dias === 1 ? 'día de camino' : 'días de camino'),
 
     conquistadas: 'Alcanzados',
     nenhumaAinda: 'Ninguno todavía',

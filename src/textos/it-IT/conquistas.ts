@@ -30,6 +30,7 @@
    funzioni, il terzo argomento è obbligatorio di fatto: è la stessa
    scelta del tedesco, dove "Blister" non cambia affatto. */
 const p = (n: number, s: string, pl: string) => `${n} ${n === 1 ? s : pl}`;
+const v = (n: number, um: string, varios: string) => (n === 1 ? um : varios);
 
 export const conquistas = {
   /* Le otto famiglie, che sono le schede della schermata. */
@@ -47,7 +48,7 @@ export const conquistas = {
   /* ---------------- terapia ---------------- */
   doses: 'Punture',
   dosesDesc: (a: number) => `${p(a, 'puntura', 'punture')} registrat${a === 1 ? 'a' : 'e'}`,
-  dosesFalta: (r: number) => `Mancano ${p(r, 'puntura', 'punture')}`,
+  dosesFalta: (r: number) => `${v(r, 'Manca', 'Mancano')} ${p(r, 'puntura', 'punture')}`,
 
   tempo: 'Durata della terapia',
   /* Sotto l'anno conta in mesi, e da lì in poi in anni: "12 mesi" e "1
@@ -55,14 +56,15 @@ export const conquistas = {
   tempoDesc: (a: number) => (a < 365
     ? `${a / 30} ${a === 30 ? 'mese' : 'mesi'} dalla prima dose`
     : `${a / 365} ann${a > 365 ? 'i' : 'o'} dalla prima dose`),
-  tempoFalta: (r: number) => `Mancano ${p(r, 'giorno', 'giorni')}`,
+  tempoFalta: (r: number) => `${v(r, 'Manca', 'Mancano')} ${p(r, 'giorno', 'giorni')}`,
+  tempoSemDose: 'Inizia con la prima dose registrata',
 
   /* ⚠️ LA ROTAZIONE NON È UN ORNAMENTO: ripetere lo stesso punto provoca
      noduli, e alternare è indicazione del foglietto. È l'unico percorso
      che premia una pratica di sicurezza. */
   rodizio: 'Rotazione',
   rodizioDesc: (a: number) => `${p(a, 'zona', 'zone')} di iniezione usat${a === 1 ? 'a' : 'e'}`,
-  rodizioFalta: (r: number) => `Mancano ${p(r, 'zona', 'zone')}`,
+  rodizioFalta: (r: number) => `${v(r, 'Manca', 'Mancano')} ${p(r, 'zona', 'zone')}`,
 
   titulacao: 'Titolazione',
   titulacaoDesc: (a: string) => `Arrivare alla dose di ${a}`,
@@ -88,57 +90,57 @@ export const conquistas = {
 
   pesagens: 'Pesate',
   pesagensDesc: (a: number) => `${p(a, 'pesata', 'pesate')} registrat${a === 1 ? 'a' : 'e'}`,
-  pesagensFalta: (r: number) => `Mancano ${p(r, 'pesata', 'pesate')}`,
+  pesagensFalta: (r: number) => `${v(r, 'Manca', 'Mancano')} ${p(r, 'pesata', 'pesate')}`,
 
   /* ---------------- costanza ---------------- */
   checkins: 'Check-in',
   checkinsDesc: (a: number) => `${p(a, 'giorno', 'giorni')} con il check-in`,
-  checkinsFalta: (r: number) => `Mancano ${p(r, 'giorno', 'giorni')}`,
+  checkinsFalta: (r: number) => `${v(r, 'Manca', 'Mancano')} ${p(r, 'giorno', 'giorni')}`,
 
   sequencia: 'Giorni di fila',
   sequenciaDesc: (a: number) => `${p(a, 'check-in', 'check-in')} di fila`,
-  sequenciaFalta: (r: number, alvo: number) => `Mancano ${p(r, 'giorno', 'giorni')} per arrivare a ${alvo}`,
+  sequenciaFalta: (r: number, alvo: number) => `${v(r, 'Manca', 'Mancano')} ${p(r, 'giorno', 'giorni')} per arrivare a ${alvo}`,
 
   /* ---------------- idratazione ---------------- */
   aguaDias: 'Giorni in obiettivo di acqua',
   aguaDiasDesc: (a: number) => `${p(a, 'giorno', 'giorni')} con l’obiettivo di acqua raggiunto`,
-  aguaDiasFalta: (r: number) => `Mancano ${p(r, 'giorno', 'giorni')}`,
+  aguaDiasFalta: (r: number) => `${v(r, 'Manca', 'Mancano')} ${p(r, 'giorno', 'giorni')}`,
 
   aguaSemana: 'Settimana idratata',
   aguaSemanaDesc: (a: number) => `${p(a, 'giorno', 'giorni')} in obiettivo, nella stessa settimana`,
-  aguaSemanaFalta: (r: number, alvo: number) => `Mancano ${p(r, 'giorno', 'giorni')} per arrivare a ${alvo}`,
+  aguaSemanaFalta: (r: number, alvo: number) => `${v(r, 'Manca', 'Mancano')} ${p(r, 'giorno', 'giorni')} per arrivare a ${alvo}`,
 
   /* ---------------- proteine ---------------- */
   protDias: 'Giorni in obiettivo di proteine',
   protDiasDesc: (a: number) => `${p(a, 'giorno', 'giorni')} con l’obiettivo di proteine raggiunto`,
-  protDiasFalta: (r: number) => `Mancano ${p(r, 'giorno', 'giorni')}`,
+  protDiasFalta: (r: number) => `${v(r, 'Manca', 'Mancano')} ${p(r, 'giorno', 'giorni')}`,
 
   protSeq: 'Proteine di fila',
   protSeqDesc: (a: number) => `${p(a, 'giorno', 'giorni')} di fila in obiettivo`,
-  protSeqFalta: (r: number, alvo: number) => `Mancano ${p(r, 'giorno', 'giorni')} per arrivare a ${alvo}`,
+  protSeqFalta: (r: number, alvo: number) => `${v(r, 'Manca', 'Mancano')} ${p(r, 'giorno', 'giorni')} per arrivare a ${alvo}`,
 
   /* ---------------- movimento ---------------- */
   treinos: 'Allenamenti',
   treinosDesc: (a: number) => `${p(a, 'sessione', 'sessioni')} registrat${a === 1 ? 'a' : 'e'}`,
-  treinosFalta: (r: number) => `Mancano ${p(r, 'allenamento', 'allenamenti')}`,
+  treinosFalta: (r: number) => `${v(r, 'Manca', 'Mancano')} ${p(r, 'allenamento', 'allenamenti')}`,
 
   exercSemana: 'Settimana attiva',
   exercSemanaDesc: (a: number) => `${p(a, 'giorno', 'giorni')} in obiettivo di movimento, nella stessa settimana`,
-  exercSemanaFalta: (r: number, alvo: number) => `Mancano ${p(r, 'giorno', 'giorni')} per arrivare a ${alvo}`,
+  exercSemanaFalta: (r: number, alvo: number) => `${v(r, 'Manca', 'Mancano')} ${p(r, 'giorno', 'giorni')} per arrivare a ${alvo}`,
 
   /* ---------------- alimentazione ---------------- */
   refeicoes: 'Pasti',
   refeicoesDesc: (a: number) => `${p(a, 'pasto', 'pasti')} registrat${a === 1 ? 'o' : 'i'}`,
-  refeicoesFalta: (r: number) => `Mancano ${p(r, 'pasto', 'pasti')}`,
+  refeicoesFalta: (r: number) => `${v(r, 'Manca', 'Mancano')} ${p(r, 'pasto', 'pasti')}`,
 
   favoritos: 'Piatti preferiti',
   favoritosDesc: (a: number) => `${p(a, 'piatto', 'piatti')} salvat${a === 1 ? 'o' : 'i'} da ripetere`,
-  favoritosFalta: (r: number) => `Mancano ${p(r, 'piatto', 'piatti')}`,
+  favoritosFalta: (r: number) => `${v(r, 'Manca', 'Mancano')} ${p(r, 'piatto', 'piatti')}`,
 
   /* ---------------- monitoraggio ---------------- */
   medidas: 'Misure del corpo',
   medidasDesc: (a: number) => `${p(a, 'misurazione', 'misurazioni')} registrat${a === 1 ? 'a' : 'e'}`,
-  medidasFalta: (r: number) => `Mancano ${p(r, 'misurazione', 'misurazioni')}`,
+  medidasFalta: (r: number) => `${v(r, 'Manca', 'Mancano')} ${p(r, 'misurazione', 'misurazioni')}`,
 
   /* ⚠️ NIENTE UNITÀ NEL TITOLO, per la stessa ragione del peso. */
   cintura: 'Girovita',
@@ -147,11 +149,11 @@ export const conquistas = {
 
   exames: 'Esami',
   examesDesc: (a: number) => `${p(a, 'esame', 'esami')} importat${a === 1 ? 'o' : 'i'}`,
-  examesFalta: (r: number) => `Mancano ${p(r, 'esame', 'esami')}`,
+  examesFalta: (r: number) => `${v(r, 'Manca', 'Mancano')} ${p(r, 'esame', 'esami')}`,
 
   consultas: 'Visite',
   consultasDesc: (a: number) => `${p(a, 'visita', 'visite')} nello storico`,
-  consultasFalta: (r: number) => `Mancano ${p(r, 'visita', 'visite')}`,
+  consultasFalta: (r: number) => `${v(r, 'Manca', 'Mancano')} ${p(r, 'visita', 'visite')}`,
 
   /* Il segno sulla linea del tempo: il percorso e a che livello era. */
   marco: (titulo: string, nivel: number) => `${titulo} · livello ${nivel}`,
@@ -170,7 +172,7 @@ export const conquistas = {
     todas: 'Tutti',
     checkinsNoMes: 'check-in nel mese',
     niveis: 'livelli',
-    diasDeJornada: 'giorni di percorso',
+    diasDeJornada: (dias: number): string => (dias === 1 ? 'giorno di percorso' : 'giorni di percorso'),
 
     conquistadas: 'Raggiunti',
     nenhumaAinda: 'Ancora nessuno',

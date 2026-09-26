@@ -61,6 +61,7 @@ export const conquistas = {
     ? `${a / 30} ${a === 30 ? 'Monat' : 'Monate'} seit der ersten Dosis`
     : `${a / 365} ${a > 365 ? 'Jahre' : 'Jahr'} seit der ersten Dosis`),
   tempoFalta: (r: number) => `Noch ${p(r, 'Tag', 'Tage')}`,
+  tempoSemDose: 'Beginnt mit der ersten eingetragenen Dosis',
 
   /* ⚠️ DER WECHSEL DER EINSTICHSTELLE IST KEIN SCHMUCK: immer dieselbe
      Stelle zu treffen macht Knoten, und zu wechseln steht in der
@@ -177,7 +178,7 @@ export const conquistas = {
     todas: 'Alle',
     checkinsNoMes: 'Check-ins im Monat',
     niveis: 'Stufen',
-    diasDeJornada: 'Tage unterwegs',
+    diasDeJornada: (dias: number): string => (dias === 1 ? 'Tag unterwegs' : 'Tage unterwegs'),
 
     conquistadas: 'Erreicht',
     nenhumaAinda: 'Noch keiner',

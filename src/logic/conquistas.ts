@@ -198,7 +198,9 @@ const CATALOGO = (): Trilha[] => [
     id: 'tempo', familia: 'tratamento', ic: 'cal', titulo: T.conquistas.tempo,
     niveis: [30, 90, 180, 365, 730],
     desc: (a) => T.conquistas.tempoDesc(a),
-    falta: (r) => T.conquistas.tempoFalta(r),
+    /* Sem dose registrada, o relógio não começou: "Faltam 30 dias" contava
+       de uma primeira dose que não existe. */
+    falta: (r, _alvo, S) => ((S.injections as any[]).length ? T.conquistas.tempoFalta(r) : T.conquistas.tempoSemDose),
     medida: (S) => {
       const i1 = (S.injections as any[])[0];
       if (!i1) return { feito: 0, quando: () => null };

@@ -2445,13 +2445,21 @@ export function libraryPicks(S: State): Leitura[] {
   }
 
   const t: any = S.profile.targets;
-  const protMed = cs.length ? cs.reduce((s, c) => s + c.prot, 0) / cs.length : 0;
-  if (protMed < t.prot) {
+  /* ⚠️ AS DUAS MÉDIAS SÓ COM REGISTRO. Sem nenhum, as contas davam zero, e o
+     motivo da leitura dizia "Sua média de sono está em 0,0 h — nos seus
+     próprios registros isso já aparece" a quem nunca respondeu o sono, e
+     "Faltam 95 g para sua média bater a meta" com a média de nada. A
+     proteína conta os dias em que houve proteína registrada; o sono, os
+     dias em que ele foi respondido. */
+  const diasComProteina = cs.filter((c) => (c.prot || 0) > 0);
+  const protMed = diasComProteina.length
+    ? diasComProteina.reduce((s, c) => s + c.prot, 0) / diasComProteina.length : null;
+  if (protMed != null && protMed < t.prot) {
     out.push({ motivo: L.proteinaMotivo(Math.round(t.prot - protMed)), titulo: L.proteinaTitulo, desc: L.proteinaDesc, ic: 'flame', min: 5 });
   }
 
-  const sonoMed = cs.length ? cs.reduce((s, c) => s + c.sono, 0) / cs.length : 0;
-  if (sonoMed < 7) {
+  const sonoMed = mediaDe(cs, 'sono');
+  if (sonoMed != null && sonoMed < 7) {
     out.push({ motivo: L.sonoMotivo(nf(sonoMed, 1)), titulo: L.sonoTitulo, desc: L.sonoDesc, ic: 'moon', min: 4 });
   }
 

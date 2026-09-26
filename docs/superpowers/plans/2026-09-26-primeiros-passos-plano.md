@@ -171,6 +171,11 @@ recuo.
 E um de desenho, visto no caminho: no painel da Jornada, em 375 px, "hoje"
 e "faltam" se encostam ("hojefaltam 10,0 kg").
 
+**Corrigido:** o grupo A em `3ce041c` (mais o plural "1 de 1 doses
+previstas"), o grupo B e o encosto da Jornada em `8af7904`, e o grupo C
+no commit seguinte — onde entrou também o vazio da Biblioteca, que para
+quem ainda não registrou nada dizia "isso é uma boa notícia".
+
 ---
 
 ## O que este plano não faz

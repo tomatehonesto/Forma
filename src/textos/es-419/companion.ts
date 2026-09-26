@@ -39,6 +39,7 @@ export const companion = {
       minDeLeitura: (min: number) => `${min} min de lectura`,
       vazioTitulo: 'Nada para leer ahora',
       vazioTexto: 'Las lecturas aparecen cuando algo en tus registros pide una. Sin eso no hay qué leer — y eso es buena noticia.',
+      vazioSemRegistroTexto: 'Las lecturas aparecen cuando algo en tus registros pide una. Con tus primeros check-ins, empiezan a aparecer aquí.',
     },
     fomeMotivo: (dia: number) => `Estás en el día ${dia} del ciclo, cuando el hambre vuelve`,
     fomeTitulo: 'Por qué el hambre vuelve antes de la aplicación',

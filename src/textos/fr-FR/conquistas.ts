@@ -52,6 +52,7 @@ export const conquistas = {
     ? `${a / 30} mois depuis la première dose`
     : `${a / 365} an${a > 365 ? 's' : ''} depuis la première dose`),
   tempoFalta: (r: number) => `Il manque ${p(r, 'jour')}`,
+  tempoSemDose: 'Commence à la première dose enregistrée',
 
   /* ⚠️ LA ROTATION N'EST PAS UN ORNEMENT : répéter le même point cause des
      nodules, et alterner est une consigne de notice. C'est le seul
@@ -156,7 +157,7 @@ export const conquistas = {
     todas: 'Tous',
     checkinsNoMes: 'check-ins ce mois-ci',
     niveis: 'niveaux',
-    diasDeJornada: 'jours de parcours',
+    diasDeJornada: (dias: number): string => (dias === 1 ? 'jour de parcours' : 'jours de parcours'),
 
     conquistadas: 'Atteints',
     nenhumaAinda: 'Aucun pour l’instant',
