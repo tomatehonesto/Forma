@@ -3,8 +3,8 @@ import { View } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
-  CADAS, FINS, HORAS, INICIOS, LEADS, ORDEM, SEMANA, TIPOS, acharAlerta, horasDe,
-  inicialDoDia, novoAlerta, proximaDe, quando, rotuloDoLead,
+  CADAS, FINS, HORAS, INICIOS, LEADS, ORDEM, TIPOS, acharAlerta, horasDe,
+  inicialDoDia, novoAlerta, proximaDe, quando, rotuloDoLead, semana,
   type Alerta, type TipoDeAlerta,
 } from '../logic/alertas';
 import { hm } from '../logic/time';
@@ -155,7 +155,7 @@ export default function AlertaFolha() {
              qualquer calendário de parede, e a posição resolve. */
           <Campo nu rotulo={K().diasDaSemana} ajuda={K().diasDaSemanaAjuda}>
             <Grade cols={7} gap={6}>
-              {SEMANA.map((d) => (
+              {semana().map((d) => (
                 <Opc key={d} cheia label={inicialDoDia(d)} on={a.dias.includes(d)} onPress={() => trocarDia(d)} />
               ))}
             </Grade>

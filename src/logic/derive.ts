@@ -4,7 +4,7 @@ import {
   doseTxt, MO_LONG, semanaDoTratamento, quandoEm, dataLonga, kgTxt, maiuscula,
 } from './time';
 import { MEDS, CADENCE_DAYS, SHELF_DAYS } from './meds';
-import { numeroEnxuto } from './local';
+import { numeroEnxuto, primeiroDiaDaSemana } from './local';
 import { FORMAS, formaDe, oA, noNa, nomeDaMolecula } from './formas';
 import { T, type SobreOMarcador, type JeitoDeAjudar } from '../textos';
 import { conquistas, eventosDeConquista, feitas } from './conquistas';
@@ -806,14 +806,26 @@ export function injGrade(S: State) {
   const applied = new Set(S.injections.map((i: any) => +startOfDay(new Date(i.t))));
   const nd = +startOfDay(nextInjectionDate(S)), today = +startOfDay(now());
   const anchor = new Date(Math.max(nd, today));
-  const endSat = addDays(startOfDay(anchor), 6 - anchor.getDay());
+  /* ⚠️ A GRADE TERMINA NO ÚLTIMO DIA DA SEMANA DE QUEM LÊ, e terminava
+     sempre no sábado. Onde a semana começa na segunda, o fim é o
+     domingo. O cabeçalho da grade, em aplicacoes, é `ordemDaSemana`: os
+     dois têm de começar no mesmo dia, ou cada inicial fica em cima da
+     coluna de outro dia.
+
+     ⚠️ E OS DIAS SÃO CONTADOS PELO CALENDÁRIO, e não somando 24 horas,
+     pelo mesmo motivo da grade do mês (ui/calendario): onde há horário
+     de verão, o dia de 25 horas fazia a soma cair às 23 h da véspera, e
+     a grade repetia um dia. */
+  const ultimoDia = (primeiroDiaDaSemana() + 6) % 7;
+  const noDia = (k: number) => new Date(anchor.getFullYear(), anchor.getMonth(), anchor.getDate() + k);
+  const fim = (ultimoDia - anchor.getDay() + 7) % 7;
   const dias = SEMANAS_DA_GRADE * 7;
   const cells: { day: number; applied: boolean; planned: boolean; today: boolean }[] = [];
   for (let i = dias - 1; i >= 0; i--) {
-    const d = addDays(endSat, -i); const key = +startOfDay(d);
+    const d = noDia(fim - i); const key = +d;
     cells.push({ day: d.getDate(), applied: applied.has(key), planned: key === nd && key >= today, today: key === today });
   }
-  return { cells, de: +startOfDay(addDays(endSat, -(dias - 1))), semanas: SEMANAS_DA_GRADE };
+  return { cells, de: +noDia(fim - (dias - 1)), semanas: SEMANAS_DA_GRADE };
 }
 
 export const injCalendar = (S: State) => injGrade(S).cells;

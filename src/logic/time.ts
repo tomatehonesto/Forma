@@ -1,4 +1,4 @@
-import { formato, hora12, numero } from './local';
+import { formato, hora12, numero, primeiroDiaDaSemana, type DiaDaSemana } from './local';
 import { T } from '../textos';
 
 /* Tempo — helpers determinísticos (porta verbatim do protótipo). */
@@ -24,6 +24,21 @@ export const diffDays = (a: Date | number, b: Date | number) => Math.round((+sta
    letra, com outro nome — duas listas idênticas onde uma ia envelhecer
    sozinha. Os dois usos dele, em logic/alertas, passaram para o `WD`. */
 export const WD = () => formato().diaCurto;
+
+/* ⚠️ A SEMANA NA ORDEM DE QUEM LÊ, e não na do `getDay()`. As fileiras
+   de sete dias — a grade do calendário, a da constância e a dos dias de
+   um lembrete — começam no dia em que a semana começa para essa pessoa
+   (ver `primeiroDiaDaSemana`, em logic/local). Os números continuam os
+   do `getDay()`: só a ordem muda, e por isso `WD()[d]` segue valendo
+   para qualquer um deles.
+
+   É só para fileira. Os últimos sete dias, as tiras e os gráficos
+   correm em ordem de data, e a ordem de data não tem semana. */
+export const ordemDaSemana = (): DiaDaSemana[] => {
+  const p = primeiroDiaDaSemana();
+  return Array.from({ length: 7 }, (_, i) => ((p + i) % 7) as DiaDaSemana);
+};
+
 export const MO = () => formato().mesCurto;
 export const MO_LONG = () => formato().mesLongo;
 /* ⚠️ CHAMAVA-SE `diasDaSemana`, E NÃO É PORTUGUÊS NENHUM. O sufixo sobrou de

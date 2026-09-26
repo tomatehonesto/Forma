@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Pressable } from 'react-native';
-import { DAY, WD, fmtMesAno, startOfDay, now } from '../logic/time';
+import { WD, ordemDaSemana, fmtMesAno, startOfDay, now } from '../logic/time';
+import { primeiroDiaDaSemana } from '../logic/local';
 import { radius } from '../theme';
 import { Txt, Row } from './kit';
 import { useTheme } from './useTheme';
@@ -48,11 +49,22 @@ import { Icon } from './Icon';
    custa uma linha vazia de vez em quando e paga com a folha parada. */
 const LINHAS = 6;
 
-/** Os 42 dias da grade do mês de `base`, começando no domingo anterior. */
+/** Os 42 dias da grade do mês de `base`, a partir do primeiro dia da
+    semana de quem lê que caia no dia 1 ou antes dele — o domingo
+    anterior em português, a segunda em francês (ver `ordemDaSemana`).
+
+    ⚠️ CONTADOS PELO CALENDÁRIO, e não somando vinte e quatro horas. A
+    soma dava certo no Brasil, que não tem mais horário de verão, e
+    errava onde ele existe: no dia em que o relógio volta uma hora, a
+    meia-noite mais 24 h cai às 23 h do mesmo dia, e a grade repetia um
+    número e deslocava todos os seguintes — com a consulta, que alcança
+    dezoito meses, a data escolhida saía um dia antes. `new Date(ano,
+    mês, dia)` devolve sempre a meia-noite do dia certo. */
 function gradeDoMes(base: Date): number[] {
   const primeiro = new Date(base.getFullYear(), base.getMonth(), 1);
-  const inicio = +startOfDay(primeiro) - primeiro.getDay() * DAY;
-  return Array.from({ length: LINHAS * 7 }, (_, i) => inicio + i * DAY);
+  const recuo = (primeiro.getDay() - primeiroDiaDaSemana() + 7) % 7;
+  return Array.from({ length: LINHAS * 7 }, (_, i) =>
+    +new Date(primeiro.getFullYear(), primeiro.getMonth(), 1 - recuo + i));
 }
 
 /* O mesmo mês, em qualquer dia dele. */
@@ -115,9 +127,12 @@ export function Calendario({ valor, onEscolhe, de, ate }: {
       </Row>
 
       <Row>
-        {WD().map((d) => (
+        {/* O cabeçalho sai da mesma ordem que a grade: as duas começam
+            em `primeiroDiaDaSemana`, ou cada inicial fica em cima da
+            coluna de outro dia. */}
+        {ordemDaSemana().map((d) => (
           <View key={d} style={{ flex: 1, alignItems: 'center' }}>
-            <Txt v="micro" c={c.tx4}>{d}</Txt>
+            <Txt v="micro" c={c.tx4}>{WD()[d]}</Txt>
           </View>
         ))}
       </Row>

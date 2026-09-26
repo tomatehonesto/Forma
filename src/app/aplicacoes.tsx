@@ -9,7 +9,7 @@ import {
   doseDoPerfil,
   diasAteAplicar,
 } from '../logic/derive';
-import { now, diffDays, fmtDate, relDay, doseTxt, quandoEm, maiuscula, dataComDiaDaSemana } from '../logic/time';
+import { now, diffDays, fmtDate, relDay, doseTxt, quandoEm, maiuscula, dataComDiaDaSemana, ordemDaSemana } from '../logic/time';
 import { formaDe, nesteNesta, nomeDaMolecula } from '../logic/formas';
 import { T } from '../textos';
 
@@ -234,8 +234,12 @@ export default function Aplicacoes() {
             {/* ⚠️ AS SETE INICIAIS ESTAVAM ESCRITAS À MÃO em português —
                 D S T Q Q S S —, e em alemão a fileira saía assim mesmo.
                 `inicialDoDia` já existia em logic/alertas, e devolve a
-                inicial no idioma de quem lê. */}
-            {[0, 1, 2, 3, 4, 5, 6].map((wd) => inicialDoDia(wd)).map((d, i) => (
+                inicial no idioma de quem lê.
+
+                E A ORDEM É A DA SEMANA DE QUEM LÊ: em alemão a fileira
+                começa na segunda, e a grade embaixo (`injGrade`) termina
+                no domingo pelo mesmo motivo. */}
+            {ordemDaSemana().map((wd) => inicialDoDia(wd)).map((d, i) => (
               <View key={`h${i}`} style={{ width: '14.28%', alignItems: 'center', paddingVertical: 4 }}>
                 <Txt v="micro" c={c.tx4}>{d}</Txt>
               </View>

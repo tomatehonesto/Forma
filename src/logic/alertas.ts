@@ -1,6 +1,6 @@
 import type { State } from './seed';
 import { nextInjectionDate } from './derive';
-import { WD, diasDaSemana, addDays, hm, now, startOfDay, quandoEm, maiuscula } from './time';
+import { WD, diasDaSemana, addDays, hm, now, startOfDay, quandoEm, maiuscula, ordemDaSemana } from './time';
 import { T } from '../textos';
 
 /* ============================================================
@@ -206,10 +206,16 @@ export const acharAlerta = (S: State, alertaId: string): Alerta | null =>
 const horasEmTexto = (horas: number[]) =>
   [...horas].sort((a, b) => a - b).map((h) => hm(h, 0)).join(', ');
 
-/* A SEMANA DO CALENDÁRIO, começando no domingo. É a ordem em que a fileira
-   de dias aparece na folha, e resumo e seletor discordarem seria a pessoa
-   marcar da esquerda para a direita e ler de outro jeito. */
-export const SEMANA = [0, 1, 2, 3, 4, 5, 6];
+/* A SEMANA DO CALENDÁRIO. É a ordem em que a fileira de dias aparece na
+   folha, e resumo e seletor discordarem seria a pessoa marcar da esquerda
+   para a direita e ler de outro jeito.
+
+   ⚠️ ELA COMEÇAVA SEMPRE NO DOMINGO, e agora começa onde a semana de
+   quem lê começa (ver `ordemDaSemana`): em alemão, a fileira da folha
+   abre pela segunda, e o resumo põe a segunda antes do domingo, na mesma
+   ordem. É função, e não constante: a ordem depende do idioma e do
+   aparelho, e constante de módulo congelaria a do primeiro import. */
+export const semana = () => ordemDaSemana();
 
 /** D S T Q Q S S — a inicial de cada dia, para a fileira de sete. */
 export const inicialDoDia = (d: number) => WD()[d].charAt(0).toUpperCase();
@@ -217,7 +223,7 @@ export const inicialDoDia = (d: number) => WD()[d].charAt(0).toUpperCase();
 const diasEmTexto = (dias: number[]) => {
   const K = T.alertas;
   if (!dias.length) return K.todoDia;
-  const ordem = SEMANA.filter((d) => dias.includes(d));
+  const ordem = semana().filter((d) => dias.includes(d));
   if (ordem.length === 7) return K.todoDia;
   if (ordem.length === 5 && ![0, 6].some((d) => dias.includes(d))) return K.diasUteis;
   if (ordem.length === 2 && dias.includes(0) && dias.includes(6)) return K.fimDeSemana;

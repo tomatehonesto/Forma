@@ -538,7 +538,13 @@ export const useVitrine = create<Vitrine>((set) => ({
    A BUSCA
    ============================================================ */
 
-/* A semana começa na segunda para quem marca consulta. */
+/* A semana começa na segunda para quem marca consulta.
+
+   ⚠️ E ELA NÃO SEGUE A SEMANA DO IDIOMA (`ordemDaSemana`, em logic/time),
+   de propósito. Aquela é a do calendário — domingo primeiro no Brasil,
+   segunda na Alemanha. Esta é o expediente da clínica, e expediente se
+   lê de segunda a domingo em qualquer calendário: "seg a sex" é a mesma
+   frase nos dois. */
 const ORDEM: Dia[] = [1, 2, 3, 4, 5, 6, 0];
 /** A semana na ordem da vitrine — a fileira de dias do cartão usa a mesma. */
 export const SEMANA_DE_CONSULTA: readonly Dia[] = ORDEM;

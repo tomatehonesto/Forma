@@ -178,9 +178,27 @@ type Formato = {
      começam pelo dia. É a mesma regra do `comAno`, agora para quem monta
      a data, e não para quem a lê. */
   ordemDaData: readonly ParteDaData[];
+
+  /* ⚠️ O PRIMEIRO DIA DA SEMANA TAMBÉM É DO IDIOMA — e do aparelho antes
+     dele, quando ele responde (ver `primeiroDiaDaSemana`). O calendário
+     brasileiro e o americano começam no domingo; o francês, o alemão e o
+     italiano, na segunda, que é a norma europeia. Numa grade que começa
+     no dia errado, a pessoa conta as colunas pelo hábito e toca a data
+     do lado.
+
+     ⚠️ O ESPANHOL NÃO TEM UMA RESPOSTA SÓ. México, Colômbia, Peru,
+     Venezuela e América Central começam no domingo; Argentina, Chile,
+     Uruguai e Equador, na segunda. Fica o domingo, que é o calendário da
+     maior parte de quem lê `es-419` — e no telefone quem acerta o resto
+     é o aparelho, que sabe o país.
+
+     O número é o do `Date.getDay()`: 0 é domingo. */
+  primeiroDiaDaSemana: DiaDaSemana;
 };
 
 export type ParteDaData = 'dia' | 'mes' | 'ano';
+/** Como `Date.getDay()` conta: 0 é domingo, 6 é sábado. */
+export type DiaDaSemana = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 const PT: Formato = {
   decimal: ',',
@@ -199,6 +217,7 @@ const PT: Formato = {
   junta: (de, ate) => `${de} a ${ate}`,
   hora12: false,
   ordemDaData: ['dia', 'mes', 'ano'],
+  primeiroDiaDaSemana: 0,
 };
 
 const EN: Formato = {
@@ -220,6 +239,7 @@ const EN: Formato = {
   junta: (de, ate) => `${de} – ${ate}`,
   hora12: true,
   ordemDaData: ['mes', 'dia', 'ano'],
+  primeiroDiaDaSemana: 0,
 };
 
 /* ⚠️⚠️ O ESPANHOL NÃO TEM UM SEPARADOR DECIMAL, TEM DOIS — e esta é a
@@ -256,6 +276,7 @@ const ES: Formato = {
   junta: (de, ate) => `${de} a ${ate}`,
   hora12: false,
   ordemDaData: ['dia', 'mes', 'ano'],
+  primeiroDiaDaSemana: 0,
 };
 
 /* ⚠️⚠️ O MILHAR DO FRANCÊS É UM ESPAÇO, E É ESTE ESPAÇO: o fino
@@ -298,6 +319,7 @@ const FR: Formato = {
   junta: (de, ate) => `${de} – ${ate}`,
   hora12: false,
   ordemDaData: ['dia', 'mes', 'ano'],
+  primeiroDiaDaSemana: 1,
 };
 
 /* ⚠️⚠️ O PONTO DEPOIS DO DIA NÃO É PONTUAÇÃO, É O ORDINAL. Em alemão a
@@ -334,6 +356,7 @@ const DE: Formato = {
   junta: (de, ate) => `${de} – ${ate}`,
   hora12: false,
   ordemDaData: ['dia', 'mes', 'ano'],
+  primeiroDiaDaSemana: 1,
 };
 
 /* ⚠️ O ITALIANO ESCREVE A DATA COMO O FRANCÊS — dia antes, mês em
@@ -370,6 +393,7 @@ const IT: Formato = {
   junta: (de, ate) => `${de} – ${ate}`,
   hora12: false,
   ordemDaData: ['dia', 'mes', 'ano'],
+  primeiroDiaDaSemana: 1,
 };
 
 const FORMATOS: Record<Local, Formato> = { 'pt-BR': PT, 'en-US': EN, 'es-419': ES, 'fr-FR': FR, 'de-DE': DE, 'it-IT': IT };
@@ -382,6 +406,7 @@ let escolhido: Local | null = null;
 let doAparelho: Local | null = null;
 let paisDoAparelho: string | null = null;
 let relogio12: boolean | null = null;
+let semanaDoAparelho: DiaDaSemana | null = null;
 
 export const localAtual = (): Local => escolhido ?? doAparelho ?? PADRAO;
 
@@ -395,6 +420,15 @@ export const formato = (): Formato => FORMATOS[localAtual()];
     discordar: um brasileiro com o telefone em 12 horas lê "8:30 PM" em
     português, e está certo — quem escolheu foi ele, no sistema. */
 export const hora12 = () => relogio12 ?? formato().hora12;
+
+/** O dia em que a semana começa, contado como no `Date.getDay()`.
+
+    O mesmo desenho do `hora12`: o idioma tem um padrão, e o aparelho
+    pode discordar. A região do telefone já decide — uma argentina com o
+    telefone em espanhol começa a semana na segunda, como o calendário
+    dela —, e o iPhone ainda deixa a pessoa escolher o dia nos ajustes.
+    Quem escolheu foi ela. */
+export const primeiroDiaDaSemana = (): DiaDaSemana => semanaDoAparelho ?? formato().primeiroDiaDaSemana;
 
 /** A lista para escolher, com o idioma do país da pessoa em cima.
 
@@ -460,6 +494,19 @@ export function lerAparelho(): { local: Local; imperial: boolean } | null {
     /* O palpite do país vai para logic/pais, que é quem responde por ele. */
     contaOPais(paisDoAparelho);
     if (cal && typeof cal.uses24hourClock === 'boolean') relogio12 = !cal.uses24hourClock;
+
+    /* ⚠️ O PRIMEIRO DIA DA SEMANA SÓ SE LÊ NO APARELHO. No iPhone e no
+       Android, `firstWeekday` segue o enum da própria biblioteca: 1 é
+       domingo e 7 é sábado. No navegador ela repassa o `weekInfo` do
+       Intl, que conta de outro jeito — 1 é segunda e 7 é domingo —, e o
+       domingo de um navegador brasileiro chegaria aqui como sábado. No
+       web vale o padrão do idioma. */
+    /* eslint-disable-next-line @typescript-eslint/no-var-requires */
+    const { Platform } = require('react-native') as typeof import('react-native');
+    const fw = cal?.firstWeekday;
+    if (Platform.OS !== 'web' && typeof fw === 'number' && fw >= 1 && fw <= 7) {
+      semanaDoAparelho = (fw - 1) as DiaDaSemana;
+    }
 
     /* ⚠️ E O APARELHO TAMBÉM DIZ AS UNIDADES, que até aqui começavam
        sempre em métrico. `measurementSystem` é o que o sistema
