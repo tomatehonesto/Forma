@@ -173,7 +173,9 @@ export function dadosParaExportar(S: State, r: Recorte) {
      ⚠️ Os nomes de dentro de `dados` são os do aplicativo, e não os
      traduzidos de cima: é a cópia fiel, no formato do banco.
 
-     ⚠️ As fotos do corpo ficam fora, como ficam fora da conta. */
+     ⚠️ Os registros de foto (`foto`, que só a semente tem — o aplicativo
+     não tem mais a tela das fotos do corpo) ficam fora, como ficam fora da
+     conta. */
   if (r.inclui.completo) {
     const i = ida(S);
     const registros: Record<string, any[]> = {};

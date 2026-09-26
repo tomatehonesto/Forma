@@ -303,7 +303,7 @@ export const assinatura = {
      ============================================================ */
   suspenso: {
     clinicaGenerica: 'la clinique qui vous suivait',
-    nadaApagado: 'Rien n’a été effacé. Poids, piqûres, symptômes, analyses et photos sont là où ils étaient.',
+    nadaApagado: 'Rien n’a été effacé. Poids, piqûres, symptômes et analyses sont là où ils étaient.',
     nadaCobrado: 'Rien n’a été prélevé, et rien ne le sera sans que vous le choisissiez.',
     verOsPlanos: 'Voir les offres',
     outroCodigo: 'J’ai un autre code',

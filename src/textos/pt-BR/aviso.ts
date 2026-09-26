@@ -229,7 +229,7 @@ export const aviso = {
     /* ---------- onde ficam ---------- */
     ondeFicam: 'Onde os seus registros ficam',
     noAparelho: 'No aparelho e na sua conta',
-    noAparelhoTexto: 'Peso, medidas, aplicações, check-ins, exames e anotações ficam neste aparelho e no nosso banco, em São Paulo, ligados à sua conta. Só a sua conta lê o seu diário — e a clínica a que você se conectar, enquanto a conexão durar. As fotos do corpo e as perguntas ao Morphi ficam só aqui.',
+    noAparelhoTexto: 'Peso, medidas, aplicações, check-ins, exames e anotações ficam neste aparelho e no nosso banco, em São Paulo, ligados à sua conta. Só a sua conta lê o seu diário — e a clínica a que você se conectar, enquanto a conexão durar. As perguntas ao Morphi ficam só aqui.',
     desinstalar: 'Desinstalar não leva o seu diário',
     desinstalarTexto: 'Ele volta quando você entra na sua conta, neste aparelho ou em outro. Só o que foi registrado sem conexão, e ainda não chegou à conta, se perderia junto com o aplicativo.',
 

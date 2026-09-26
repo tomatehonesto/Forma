@@ -175,7 +175,7 @@ export const PRIVACIDADE = (): Documento => ({
         '<b>Identificação</b> — nome ou apelido, data de nascimento e como você se identifica.',
         '<b>Dados de saúde</b> — altura, peso, medidas corporais, sinais vitais, medicamento, dose, datas e locais de aplicação, sintomas, sono, humor, energia, exames e laudos, histórico de saúde (condições, alergias e medicamentos), restrições alimentares, documentos e as anotações que você escreve.',
         '<b>Hábitos</b> — refeições, proteína, hidratação e exercício que você registra.',
-        '<b>Fotos</b> — a foto de perfil, quando você escolhe uma, e as fotos do corpo que você tira para comparar a evolução. As fotos do corpo <b>ficam só no aparelho</b>: não vão para a sua conta nem para a clínica.',
+        '<b>Foto de perfil</b> — quando você escolhe uma.',
         '<b>Preferências</b> — metas diárias, horários de lembrete, idioma e tema do aplicativo.',
         '<b>Perguntas ao Morphi</b> — o que você pergunta dentro do aplicativo, com a hora e se a pergunta foi digitada por você ou sugerida por nós. Elas <b>ficam só no aparelho</b>: não vão para a sua conta, nem para a clínica, nem para nós.',
         '<b>Vínculo com clínica</b> — quando você se conecta a uma clínica parceira: o código de convite, a clínica, quem passou o código e as datas de início e de fim.',
@@ -226,8 +226,8 @@ export const PRIVACIDADE = (): Documento => ({
     {
       titulo: '6. O que sai do seu aparelho',
       itens: [
-        '<b>O seu diário, para a sua conta</b> — os registros, o perfil (com a foto de perfil, reduzida) e o consentimento vão para o nosso banco sozinhos, sempre que há conexão. É o que guarda o diário entre aparelhos. As fotos do corpo e as perguntas ao Morphi ficam fora.',
-        '<b>O que a clínica vê, quando você se conecta</b> — todo tipo de registro (pesagens, aplicações, check-ins, refeições, medidas, exames, laudos, sinais vitais, documentos, anotações, metas pessoais e os recipientes do medicamento) e o seu perfil, com o histórico de saúde. Inclui o que você registrou antes de conectar. A clínica vê enquanto a conexão durar, e o que for registrado durante o acompanhamento fica guardado por ela como prontuário, mesmo depois de desconectar. As fotos do corpo e as perguntas ao Morphi não entram.',
+        '<b>O seu diário, para a sua conta</b> — os registros, o perfil (com a foto de perfil, reduzida) e o consentimento vão para o nosso banco sozinhos, sempre que há conexão. É o que guarda o diário entre aparelhos. As perguntas ao Morphi ficam fora.',
+        '<b>O que a clínica vê, quando você se conecta</b> — todo tipo de registro (pesagens, aplicações, check-ins, refeições, medidas, exames, laudos, sinais vitais, documentos, anotações, metas pessoais e os recipientes do medicamento) e o seu perfil, com o histórico de saúde. Inclui o que você registrou antes de conectar. A clínica vê enquanto a conexão durar, e o que for registrado durante o acompanhamento fica guardado por ela como prontuário, mesmo depois de desconectar. As perguntas ao Morphi não entram.',
         '<b>A foto do prato</b>, quando você usa a leitura por foto — a imagem é reduzida no aparelho e enviada para ser interpretada. Ela <b>não é armazenada</b>: nem no registro da refeição, nem no serviço que faz a intermediação.',
         '<b>A sua fala, quando você usa o microfone</b> — o reconhecimento de voz é feito pelo sistema do aparelho. Pedimos que ele aconteça no próprio aparelho, mas quando o aparelho não tem o reconhecimento local do seu idioma, o sistema pode enviar o áudio aos servidores da Apple ou do Google. Isso só acontece enquanto o microfone está ligado.',
       ],

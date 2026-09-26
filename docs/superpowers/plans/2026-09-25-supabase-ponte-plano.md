@@ -2056,7 +2056,11 @@ apagados.
    - o ditado (PENDENCIAS 14, passo 1);
    - a localização, que é lida no aparelho para a distância e descartada
      (a frase dizia "não coleta");
-   - as fotos do corpo, que ficam no aparelho.
+   - as fotos do corpo, que ficam no aparelho — e que saíram no mesmo dia,
+     a pedido do dono: o aplicativo não tem mais a tela das fotos do
+     corpo, e nenhum texto fala delas (Política, Privacidade e o
+     cancelamento, nos seis idiomas). Só a semente ainda traz registros
+     de foto, que não sobem e não entram no arquivo exportado.
 
    O Google não entrou, porque não existe (fase 5).
 6. **As cópias de segurança** saem de `DIAS_DAS_COPIAS_DE_SEGURANCA`

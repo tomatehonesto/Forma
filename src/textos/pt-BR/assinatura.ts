@@ -310,7 +310,7 @@ export const assinatura = {
      ============================================================ */
   suspenso: {
     clinicaGenerica: 'a clínica que acompanhava você',
-    nadaApagado: 'Nada foi apagado. Peso, aplicações, sintomas, exames e fotos continuam onde estavam.',
+    nadaApagado: 'Nada foi apagado. Peso, aplicações, sintomas e exames continuam onde estavam.',
     nadaCobrado: 'Nada foi cobrado, e nada vai ser sem você escolher.',
     verOsPlanos: 'Ver os planos',
     outroCodigo: 'Tenho outro código',

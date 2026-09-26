@@ -290,7 +290,7 @@ export const assinatura = {
      ============================================================ */
   suspenso: {
     clinicaGenerica: 'il centro che ti seguiva',
-    nadaApagado: 'Non è stato cancellato niente. Peso, punture, sintomi, esami e foto sono dove erano.',
+    nadaApagado: 'Non è stato cancellato niente. Peso, punture, sintomi ed esami sono dove erano.',
     nadaCobrado: 'Non è stato addebitato niente, e non lo sarà senza che tu lo scelga.',
     verOsPlanos: 'Vedi i piani',
     outroCodigo: 'Ho un altro codice',

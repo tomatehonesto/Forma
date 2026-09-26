@@ -192,7 +192,7 @@ export const assinatura = {
 
   suspenso: {
     clinicaGenerica: 'the clinic that was following your care',
-    nadaApagado: 'Nothing was deleted. Weight, shots, symptoms, labs and photos are right where they were.',
+    nadaApagado: 'Nothing was deleted. Weight, shots, symptoms and labs are right where they were.',
     nadaCobrado: 'Nothing was charged, and nothing will be without you choosing it.',
     verOsPlanos: 'View plans',
     outroCodigo: 'I have another code',

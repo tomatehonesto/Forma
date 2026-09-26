@@ -248,7 +248,7 @@ export const assinatura = {
      líneas de abajo son la diferencia entre un aviso y una amenaza. */
   suspenso: {
     clinicaGenerica: 'la clínica que te acompañaba',
-    nadaApagado: 'No se borró nada. Peso, inyecciones, síntomas, exámenes y fotos siguen donde estaban.',
+    nadaApagado: 'No se borró nada. Peso, inyecciones, síntomas y exámenes siguen donde estaban.',
     nadaCobrado: 'No se cobró nada, y nada se va a cobrar sin que lo elijas.',
     verOsPlanos: 'Ver los planes',
     outroCodigo: 'Tengo otro código',
