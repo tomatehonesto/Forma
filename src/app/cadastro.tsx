@@ -11,7 +11,7 @@ import { useStore } from '../logic/store';
 import { normalizarConvite, vinculoDoConvite } from '../logic/assinatura';
 import { recomecarDoZero, type State } from '../logic/seed';
 import { marcarComoVistas } from '../logic/conquistas';
-import { AVISO, ISENCAO, TERMOS, POLITICA, ESCOLHA_DAS_PERGUNTAS, VERSAO as VERSAO_DO_AVISO } from '../logic/consentimento';
+import { AVISO, ISENCAO, TERMOS, POLITICA, ESCOLHA_DAS_PERGUNTAS, LEITURA_DAS_PERGUNTAS, VERSAO as VERSAO_DO_AVISO } from '../logic/consentimento';
 import { temIdentificacao, IDADE_MINIMA, TERMOS as DOC_TERMOS, PRIVACIDADE as DOC_PRIVACIDADE } from '../logic/documentos';
 import { MEDS, MEDS_POR_PAIS, CADENCE_DAYS } from '../logic/meds';
 import { FORMAS, faixaDaMolecula, doDa, nomeDaMolecula, type Forma } from '../logic/formas';
@@ -1266,7 +1266,7 @@ export default function Cadastro() {
          de novo quando o texto mudar. */
       if (!editando) {
         s.profile.consentimento = { em: +now(), versao: VERSAO_DO_AVISO };
-        s.perguntasParaUso = r.perguntas === true;
+        s.perguntasParaUso = LEITURA_DAS_PERGUNTAS && r.perguntas === true;
       }
       s.profile.startWeight = r.emTratamento ? r.pesoInicial : r.peso;
       s.profile.goalWeight = r.meta;
@@ -2459,7 +2459,7 @@ export default function Cadastro() {
                 BOTÃO. É outra finalidade, sobre texto de saúde, e com a
                 conta obrigatória ela não pode virar condição para usar o
                 diário (a decisão 2 do plano do Supabase). Vem desligada. */}
-            {contaLigada() ? (
+            {LEITURA_DAS_PERGUNTAS && contaLigada() ? (
               <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16, gap: 8 }}>
                 <Txt v="bodyMed">{ESCOLHA_DAS_PERGUNTAS().titulo}</Txt>
                 <Txt v="caption" c={c.tx2} style={{ lineHeight: 21 }}>{ESCOLHA_DAS_PERGUNTAS().texto}</Txt>

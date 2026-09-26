@@ -166,6 +166,11 @@ pessoa. Consequências:
 
 ### 2. As perguntas ao companheiro sobem para nós, e a clínica não lê
 
+> ⏸️ **Desligada em 26/09/2026, por decisão do dono** (fase 8, correção
+> 8): as perguntas ficam no aparelho, e nada disto roda até
+> `LEITURA_DAS_PERGUNTAS` voltar a ser verdadeiro. O desenho abaixo
+> continua valendo para quando voltar.
+
 `asked` guarda as perguntas feitas ao companheiro, com a hora. Elas sobem
 para uma tabela própria, `perguntas`, e não para `registros`.
 
@@ -2060,6 +2065,23 @@ apagados.
    dia:** a refeição "nova" era agora mais um minuto, e a semente põe as
    de hoje às 15h30. De madrugada, ela falhava. Agora a nova vem depois
    da mais nova da semente.
+8. ⚠️ **A leitura das perguntas saiu, por decisão do dono (26/09/2026),**
+   depois da entrega. Ele perguntou se dava para embutir a leitura nos
+   Termos, ou num aceite único no cadastro. Não dá: é dado de saúde, e
+   dentro de um aceite obrigatório o consentimento deixa de ser livre. Com
+   a escolha separada ou nada, ele escolheu nada, por enquanto.
+   - `LEITURA_DAS_PERGUNTAS = false`, em `logic/consentimento`, esconde a
+     escolha no cadastro, na folha nova e em Privacidade;
+   - `ensureDefaults` põe `perguntasParaUso` em falso em todo diário. Um
+     diário que a ligou volta a desligada, e a sincronia apaga do
+     servidor as que tinham ido;
+   - a Política deixou de descrever a finalidade, e diz que as perguntas
+     ficam no aparelho e que não as lemos;
+   - Privacidade diz o mesmo, nos seis idiomas.
+
+   O motor, o banco e os textos da escolha ficam parados, prontos para
+   voltar. O item 37 das pendências deixa de travar a publicação enquanto
+   estiver desligada, e diz o que voltar exige.
 
 ---
 
@@ -2084,7 +2106,8 @@ de `__DEV__` sai do commit da fase 8 antes desta lista estar feita.**
    build distribuída.
 5. **Subir o limite de e-mails por hora** para o tamanho do lançamento.
 6. **Resolver o que bloqueia a publicação** nas pendências: os
-   documentos, o item 2, e a leitura das perguntas.
+   documentos e o item 2 — e a leitura das perguntas (o item 37), se ela
+   tiver voltado.
 
 ---
 

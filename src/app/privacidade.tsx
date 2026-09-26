@@ -5,6 +5,7 @@ import { useStore } from '../logic/store';
 import { aparelhoDaVez } from '../logic/integracoes';
 import { temIdentificacao, TERMOS, PRIVACIDADE, DIAS_DAS_COPIAS_DE_SEGURANCA } from '../logic/documentos';
 import { contaLigada } from '../logic/nuvem';
+import { LEITURA_DAS_PERGUNTAS } from '../logic/consentimento';
 import { Txt, Row } from '../ui/kit';
 import { TelaInterna, Titulao, Bloco, Cartao, Linha, Aviso } from '../ui/internas';
 import { Icon } from '../ui/Icon';
@@ -24,9 +25,10 @@ const K = () => T.aviso.telaPrivacidade;
 
    A primeira descrevia um app sem servidor, sem login e sem cópia, e era
    verdade até a nuvem ser ligada para todos. Esta diz o que existe: o
-   diário no aparelho e na conta, o que a clínica conectada vê, a escolha
-   das perguntas — que se liga e desliga aqui — e o ditado (PENDENCIAS,
-   item 14).
+   diário no aparelho e na conta, o que a clínica conectada vê e o ditado
+   (PENDENCIAS, item 14). A escolha das perguntas mora aqui também, mas
+   está parada com a leitura desligada (`LEITURA_DAS_PERGUNTAS`, em
+   logic/consentimento): as perguntas ficam no aparelho.
 
    ⚠️ O APP JÁ TEVE UMA LINHA SOBRE ISSO E ELA FOI REMOVIDA, com razão:
    dizia "seus dados ficam no seu aparelho" no meio de uma lista de
@@ -210,12 +212,12 @@ export default function Privacidade() {
         <Cartao>
           <Bloquinho titulo={K().paraConta}>{K().paraContaTexto}</Bloquinho>
           <Bloquinho titulo={K().paraEquipe}>{K().paraEquipeTexto}</Bloquinho>
-          <Bloquinho titulo={K().perguntas}>{K().perguntasTexto}</Bloquinho>
+          {LEITURA_DAS_PERGUNTAS ? <Bloquinho titulo={K().perguntas}>{K().perguntasTexto}</Bloquinho> : null}
           {/* ⚠️ A ESCOLHA DAS PERGUNTAS MORA AQUI TAMBÉM, e não só no
               cadastro: consentimento que não se revoga no mesmo lugar em
               que se lê não é livre (LGPD, art. 8º, § 5º). Desligar apaga
               as que subiram — quem faz isso é a sincronia. */}
-          {contaLigada() ? <EscolhaDasPerguntas /> : null}
+          {LEITURA_DAS_PERGUNTAS && contaLigada() ? <EscolhaDasPerguntas /> : null}
           <Bloquinho titulo={K().fotoDoPrato}>{K().fotoDoPratoTexto}</Bloquinho>
           <Bloquinho titulo={K().ditado}>{K().ditadoTexto}</Bloquinho>
         </Cartao>

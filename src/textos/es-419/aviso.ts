@@ -146,7 +146,7 @@ export const aviso = {
 
     ondeFicam: 'Dónde quedan tus registros',
     noAparelho: 'En el aparato y en tu cuenta',
-    noAparelhoTexto: 'Peso, medidas, inyecciones, check-ins, exámenes y anotaciones quedan en este aparato y en nuestra base de datos, en São Paulo, vinculados a tu cuenta. Solo tu cuenta lee tu diario — y la clínica a la que te conectes, mientras dure la conexión. Las fotos del cuerpo quedan solo aquí.',
+    noAparelhoTexto: 'Peso, medidas, inyecciones, check-ins, exámenes y anotaciones quedan en este aparato y en nuestra base de datos, en São Paulo, vinculados a tu cuenta. Solo tu cuenta lee tu diario — y la clínica a la que te conectes, mientras dure la conexión. Las fotos del cuerpo y tus preguntas a Morphi quedan solo aquí.',
     desinstalar: 'Desinstalar no se lleva tu diario',
     desinstalarTexto: 'Vuelve cuando entras en tu cuenta, en este aparato o en otro. Solo lo que se registró sin conexión, y todavía no llegó a la cuenta, se perdería junto con la aplicación.',
 

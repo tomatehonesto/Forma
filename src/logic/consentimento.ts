@@ -6,8 +6,9 @@ import { T } from '../textos';
 
    A versão 1 dizia que tudo ficava no telefone, sem conta e sem senha, e
    era verdade até a nuvem ser ligada. A 2 diz que o diário fica na conta,
-   no banco em São Paulo, e traz a escolha das perguntas, que é própria e
-   vem desligada. Quem aceitou a 1 vê a nova na abertura (a tranca 2 do
+   no banco em São Paulo, e que as perguntas ao Morphi ficam no aparelho
+   (a leitura delas por nós está desligada: ver `LEITURA_DAS_PERGUNTAS`,
+   abaixo). Quem aceitou a 1 vê a nova na abertura (a tranca 2 do
    portão, em app/_layout), e nada sobe enquanto não aceitar (ver
    `consentimentoPendente` e a sincronia em logic/conta).
 
@@ -93,6 +94,20 @@ export type Consentimento = { em: number; versao: number };
 /** O que ficou guardado, quando ficou — ou nada. */
 export const consentimentoDe = (S: any): Consentimento | null =>
   (S?.profile?.consentimento as Consentimento) ?? null;
+
+/* ⚠️⚠️ A LEITURA DAS PERGUNTAS ESTÁ DESLIGADA, POR DECISÃO DO DONO
+   (26/09/2026). Nós não lemos as perguntas feitas ao Morphi, e elas não
+   saem do aparelho: a escolha não aparece em lugar nenhum, e o estado
+   sempre diz que ela está desligada (`ensureDefaults`, em logic/seed).
+   O resto fica pronto e parado — a tabela `perguntas` e as regras dela no
+   banco, a subida e a revogação na sincronia, os textos da escolha no
+   catálogo —, para voltar quando fizer sentido ler.
+
+   ⚠️ VOLTAR NÃO É SÓ TROCAR ISTO. A Política e os cartões deixaram de
+   falar dessa finalidade, e voltam a falar junto; a versão do
+   consentimento sobe; e a leitura por nós volta a bloquear a publicação
+   (PENDENCIAS, item 37). */
+export const LEITURA_DAS_PERGUNTAS = false;
 
 /** A escolha das perguntas, com o que o texto dela diz — o mesmo cartão
     no último passo do cadastro e na folha do consentimento novo. */

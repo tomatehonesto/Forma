@@ -204,7 +204,7 @@ export const aviso = {
     /* ---------- dove restano ---------- */
     ondeFicam: 'Dove restano i tuoi registri',
     noAparelho: 'Sul dispositivo e nel tuo account',
-    noAparelhoTexto: 'Peso, misure, punture, check-in, esami e appunti restano su questo dispositivo e nel nostro database, a San Paolo, legati al tuo account. Solo il tuo account legge il tuo diario — e la clinica a cui ti colleghi, finché dura il collegamento. Le foto del corpo restano solo qui.',
+    noAparelhoTexto: 'Peso, misure, punture, check-in, esami e appunti restano su questo dispositivo e nel nostro database, a San Paolo, legati al tuo account. Solo il tuo account legge il tuo diario — e la clinica a cui ti colleghi, finché dura il collegamento. Le foto del corpo e le tue domande a Morphi restano solo qui.',
     desinstalar: 'Disinstallare non porta via il tuo diario',
     desinstalarTexto: 'Torna quando accedi al tuo account, su questo dispositivo o su un altro. Solo quello che è stato registrato senza connessione, e non è ancora arrivato all’account, andrebbe perso con l’app.',
 

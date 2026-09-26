@@ -69,7 +69,31 @@ texto está em dados justamente para poder ser publicado; falta a página.
 
 ---
 
-### 37. A leitura das perguntas por nós
+### ⏸️ 37. A leitura das perguntas por nós — DESLIGADA, e por isso não trava
+
+> **Desligada em 26/09/2026, por decisão do dono**, no mesmo dia em que
+> entrou. A pergunta dele: dava para embutir a leitura nos Termos, ou num
+> aceite único no cadastro? Não dá — é dado de saúde, a base é o
+> consentimento específico e destacado (art. 11, I), e dentro de um aceite
+> obrigatório ele deixa de ser livre (art. 5º, XII; art. 8º, §§ 1º e 4º).
+> Com a escolha separada ou nada, ele escolheu nada, por enquanto.
+>
+> **Hoje:** `LEITURA_DAS_PERGUNTAS = false` (`logic/consentimento`). A
+> escolha não aparece em tela nenhuma, `ensureDefaults` põe
+> `perguntasParaUso` em falso em todo diário, e as perguntas ficam no
+> aparelho. A Política e os cartões não falam dessa finalidade, e a
+> Política diz que não lemos as perguntas.
+>
+> **Parado, e pronto para voltar:** a tabela `perguntas` com as regras,
+> a visão sem identidade, o papel `analise_perguntas` sem senha, a subida
+> e a revogação na sincronia e os textos da escolha nos seis idiomas.
+>
+> **Para voltar:**
+> - ligar a constante;
+> - voltar a Política (seções 2, 3, 4, 6, 7, 10, 11, 13 e 14) e os
+>   cartões;
+> - subir a versão do consentimento;
+> - e este item volta a travar a publicação, com o que está abaixo.
 
 Aberto em 26/09/2026, na fase 8 do plano do Supabase (a decisão 2). A
 pessoa pode permitir que leiamos as perguntas que faz ao Morphi — uma

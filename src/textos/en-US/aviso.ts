@@ -144,7 +144,7 @@ export const aviso = {
 
     ondeFicam: 'Where your entries live',
     noAparelho: 'On your device and in your account',
-    noAparelhoTexto: 'Weight, measurements, shots, check-ins, lab results and notes live on this device and in our database in São Paulo, tied to your account. Only your account reads your journal — and the clinic you connect with, while the connection lasts. Body photos stay only here.',
+    noAparelhoTexto: 'Weight, measurements, shots, check-ins, lab results and notes live on this device and in our database in São Paulo, tied to your account. Only your account reads your journal — and the clinic you connect with, while the connection lasts. Body photos and your questions to Morphi stay only here.',
     desinstalar: 'Uninstalling doesn’t take your journal with it',
     desinstalarTexto: 'It comes back when you sign in to your account, on this device or another. Only what was logged offline and hasn’t reached your account yet would be lost with the app.',
 

@@ -173,7 +173,7 @@ export const aviso = {
 
     ondeFicam: 'Wo deine Einträge bleiben',
     noAparelho: 'Auf dem Gerät und in deinem Konto',
-    noAparelhoTexto: 'Gewicht, Maße, Spritzen, Check-ins, Befunde und Notizen liegen auf diesem Gerät und in unserer Datenbank in São Paulo, mit deinem Konto verbunden. Nur dein Konto liest dein Tagebuch — und die Praxis, mit der du dich verbindest, solange die Verbindung besteht. Die Körperfotos bleiben nur hier.',
+    noAparelhoTexto: 'Gewicht, Maße, Spritzen, Check-ins, Befunde und Notizen liegen auf diesem Gerät und in unserer Datenbank in São Paulo, mit deinem Konto verbunden. Nur dein Konto liest dein Tagebuch — und die Praxis, mit der du dich verbindest, solange die Verbindung besteht. Die Körperfotos und deine Fragen an Morphi bleiben nur hier.',
     desinstalar: 'Deinstallieren nimmt dein Tagebuch nicht mit',
     desinstalarTexto: 'Es kommt zurück, wenn du dich in deinem Konto anmeldest, auf diesem Gerät oder einem anderen. Nur was ohne Verbindung eingetragen wurde und noch nicht im Konto angekommen ist, ginge mit der App verloren.',
 

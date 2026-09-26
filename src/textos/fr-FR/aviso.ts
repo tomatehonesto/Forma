@@ -147,7 +147,7 @@ export const aviso = {
 
     ondeFicam: 'Où vos relevés restent',
     noAparelho: 'Sur l’appareil et dans votre compte',
-    noAparelhoTexto: 'Le poids, les mesures, les piqûres, les check-ins, les analyses et les notes restent sur cet appareil et dans notre base de données, à São Paulo, liés à votre compte. Seul votre compte lit votre journal — et la clinique à laquelle vous vous connectez, tant que la connexion dure. Les photos du corps restent seulement ici.',
+    noAparelhoTexto: 'Le poids, les mesures, les piqûres, les check-ins, les analyses et les notes restent sur cet appareil et dans notre base de données, à São Paulo, liés à votre compte. Seul votre compte lit votre journal — et la clinique à laquelle vous vous connectez, tant que la connexion dure. Les photos du corps et vos questions à Morphi restent seulement ici.',
     desinstalar: 'Désinstaller n’emporte pas votre journal',
     desinstalarTexto: 'Il revient quand vous vous connectez à votre compte, sur cet appareil ou sur un autre. Seul ce qui a été noté hors connexion, et n’est pas encore arrivé au compte, se perdrait avec l’application.',
 

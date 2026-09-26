@@ -42,7 +42,11 @@ export const aviso = {
   /* ⚠️ A ESCOLHA DAS PERGUNTAS É PRÓPRIA, E VEM DESLIGADA (a decisão 2 do
      plano). É uma finalidade nova, sobre texto de saúde, e a conta é
      obrigatória: embutida no aceite geral, ela viraria condição para usar
-     o diário. Recusar não muda nada. */
+     o diário. Recusar não muda nada.
+
+     ⚠️⚠️ ESTAS QUATRO ESTÃO PARADAS: a leitura das perguntas foi desligada
+     pelo dono (`LEITURA_DAS_PERGUNTAS`, em logic/consentimento), e
+     nenhuma tela as mostra. Ficam aqui para a escolha voltar pronta. */
   perguntasTitulo: 'As suas perguntas ao Morphi',
   perguntasTexto: 'Se você deixar, lemos as perguntas que você faz ao Morphi para entender as dúvidas que aparecem e melhorar as respostas. Lemos sem saber quem perguntou, e a clínica nunca lê. Vem desligado, e recusar não muda nada no aplicativo.',
   perguntasEscolha: 'Permitir a leitura das minhas perguntas',
@@ -225,7 +229,7 @@ export const aviso = {
     /* ---------- onde ficam ---------- */
     ondeFicam: 'Onde os seus registros ficam',
     noAparelho: 'No aparelho e na sua conta',
-    noAparelhoTexto: 'Peso, medidas, aplicações, check-ins, exames e anotações ficam neste aparelho e no nosso banco, em São Paulo, ligados à sua conta. Só a sua conta lê o seu diário — e a clínica a que você se conectar, enquanto a conexão durar. As fotos do corpo ficam só aqui.',
+    noAparelhoTexto: 'Peso, medidas, aplicações, check-ins, exames e anotações ficam neste aparelho e no nosso banco, em São Paulo, ligados à sua conta. Só a sua conta lê o seu diário — e a clínica a que você se conectar, enquanto a conexão durar. As fotos do corpo e as perguntas ao Morphi ficam só aqui.',
     desinstalar: 'Desinstalar não leva o seu diário',
     desinstalarTexto: 'Ele volta quando você entra na sua conta, neste aparelho ou em outro. Só o que foi registrado sem conexão, e ainda não chegou à conta, se perderia junto com o aplicativo.',
 

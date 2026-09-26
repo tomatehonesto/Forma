@@ -7,8 +7,10 @@
    cópia, e era verdade até o Supabase entrar (fase 8 do plano em
    docs/superpowers/plans/2026-09-25-supabase-ponte-plano.md). Esta
    descreve o que existe agora: a conta, o diário guardado no banco em
-   São Paulo, o compartilhamento com a clínica conectada e a escolha das
-   perguntas. Ela entrou no mesmo commit que ligou a nuvem para todos, e
+   São Paulo e o compartilhamento com a clínica conectada. A leitura das
+   perguntas ao Morphi por nós ficou desligada (`LEITURA_DAS_PERGUNTAS`, em
+   logic/consentimento), e a Política não fala dela: as perguntas ficam no
+   aparelho. Ela entrou no mesmo commit que ligou a nuvem para todos, e
    é por isso que nenhuma build fora de `__DEV__` sai antes da virada
    para a produção.
 
@@ -175,9 +177,9 @@ export const PRIVACIDADE = (): Documento => ({
         '<b>Hábitos</b> — refeições, proteína, hidratação e exercício que você registra.',
         '<b>Fotos</b> — a foto de perfil, quando você escolhe uma, e as fotos do corpo que você tira para comparar a evolução. As fotos do corpo <b>ficam só no aparelho</b>: não vão para a sua conta nem para a clínica.',
         '<b>Preferências</b> — metas diárias, horários de lembrete, idioma e tema do aplicativo.',
-        '<b>Perguntas ao Morphi</b> — o que você pergunta dentro do aplicativo, com a hora e se a pergunta foi digitada por você ou sugerida por nós. Elas só saem do aparelho com a escolha da seção 3.',
+        '<b>Perguntas ao Morphi</b> — o que você pergunta dentro do aplicativo, com a hora e se a pergunta foi digitada por você ou sugerida por nós. Elas <b>ficam só no aparelho</b>: não vão para a sua conta, nem para a clínica, nem para nós.',
         '<b>Vínculo com clínica</b> — quando você se conecta a uma clínica parceira: o código de convite, a clínica, quem passou o código e as datas de início e de fim.',
-        '<b>Registro do consentimento</b> — a data e a versão do aviso que você aceitou, e a sua escolha sobre as perguntas.',
+        '<b>Registro do consentimento</b> — a data e a versão do aviso que você aceitou.',
       ],
       depois: [
         'A maior parte disso é <b>dado pessoal sensível</b>, na definição do art. 5º, II da LGPD. Isso significa uma régua mais alta, e é o que a seção 4 detalha.',
@@ -193,7 +195,6 @@ export const PRIVACIDADE = (): Documento => ({
         '<b>Compartilhar com a sua clínica</b> — quando você se conecta a uma clínica parceira, para que a equipe dela acompanhe o seu diário entre as consultas.',
         '<b>Lembretes</b> — para disparar os alertas que você mesmo configurou.',
         '<b>Leitura de foto</b> — para sugerir os itens do prato quando você fotografa uma refeição.',
-        '<b>Entender o uso do aplicativo</b> — <b>só se você ligar essa escolha</b>, que vem desligada. Lemos as perguntas que você faz ao Morphi para saber quais dúvidas aparecem e melhorar as respostas. Lemos sem saber quem perguntou, por um acesso de leitura que não mostra a conta. A clínica não lê as suas perguntas, nem com vínculo.',
         '<b>Obrigações legais</b> — quando a lei exigir de nós.',
       ],
       depois: [
@@ -206,13 +207,12 @@ export const PRIVACIDADE = (): Documento => ({
       itens: [
         '<b>Dados de saúde, e guardá-los na sua conta</b> — <b>consentimento específico e destacado</b> (art. 11, I). É o aceite que você dá no cadastro, antes de o plano ser montado, com um aviso que diz o que será feito.',
         '<b>Compartilhamento com a clínica a que você se conecta</b> — <b>consentimento específico</b> (art. 11, I), dado na tela do código, antes de conectar, com a lista do que a clínica passa a ver. O que a clínica guarda como prontuário depois de a conexão acabar segue a <b>tutela da saúde</b>, em procedimento realizado por profissionais de saúde (art. 11, II, "f"), e as regras de prontuário que valem para ela.',
-        '<b>Leitura das perguntas ao Morphi</b> — <b>consentimento específico</b> (art. 11, I), numa escolha própria, desligada por padrão. Recusar não muda nada no uso do aplicativo.',
         '<b>Conta, cadastro e funcionamento do aplicativo</b> — <b>execução de contrato</b> (art. 7º, V): sem esses dados o app não funciona.',
         '<b>Leitura da foto do prato</b> — <b>consentimento</b> (art. 7º, I), dado no momento em que você escolhe usar a câmera em vez do registro manual.',
         '<b>Leitura do aplicativo de saúde do celular</b> — <b>consentimento</b>, concedido e revogado nos ajustes do sistema operacional.',
       ],
       depois: [
-        'Você pode <b>revogar cada consentimento a qualquer momento</b>: a escolha das perguntas se desliga em Configurações › Privacidade e dados, o compartilhamento acaba ao desconectar da clínica, e o resto se revoga apagando os seus dados em Configurações ou escrevendo para o nosso canal. A revogação não invalida o tratamento feito antes dela.',
+        'Você pode <b>revogar cada consentimento a qualquer momento</b>: o compartilhamento acaba ao desconectar da clínica, e o resto se revoga apagando os seus dados em Configurações ou escrevendo para o nosso canal. A revogação não invalida o tratamento feito antes dela.',
       ],
     },
     {
@@ -226,9 +226,8 @@ export const PRIVACIDADE = (): Documento => ({
     {
       titulo: '6. O que sai do seu aparelho',
       itens: [
-        '<b>O seu diário, para a sua conta</b> — os registros, o perfil (com a foto de perfil, reduzida) e o consentimento vão para o nosso banco sozinhos, sempre que há conexão. É o que guarda o diário entre aparelhos. As fotos do corpo ficam fora.',
+        '<b>O seu diário, para a sua conta</b> — os registros, o perfil (com a foto de perfil, reduzida) e o consentimento vão para o nosso banco sozinhos, sempre que há conexão. É o que guarda o diário entre aparelhos. As fotos do corpo e as perguntas ao Morphi ficam fora.',
         '<b>O que a clínica vê, quando você se conecta</b> — todo tipo de registro (pesagens, aplicações, check-ins, refeições, medidas, exames, laudos, sinais vitais, documentos, anotações, metas pessoais e os recipientes do medicamento) e o seu perfil, com o histórico de saúde. Inclui o que você registrou antes de conectar. A clínica vê enquanto a conexão durar, e o que for registrado durante o acompanhamento fica guardado por ela como prontuário, mesmo depois de desconectar. As fotos do corpo e as perguntas ao Morphi não entram.',
-        '<b>As perguntas ao Morphi</b> — só com a escolha da seção 3 ligada. Ligar leva também as que já estão no aparelho, e desligar apaga as que foram.',
         '<b>A foto do prato</b>, quando você usa a leitura por foto — a imagem é reduzida no aparelho e enviada para ser interpretada. Ela <b>não é armazenada</b>: nem no registro da refeição, nem no serviço que faz a intermediação.',
         '<b>A sua fala, quando você usa o microfone</b> — o reconhecimento de voz é feito pelo sistema do aparelho. Pedimos que ele aconteça no próprio aparelho, mas quando o aparelho não tem o reconhecimento local do seu idioma, o sistema pode enviar o áudio aos servidores da Apple ou do Google. Isso só acontece enquanto o microfone está ligado.',
       ],
@@ -249,7 +248,7 @@ export const PRIVACIDADE = (): Documento => ({
         '<b>Autoridades públicas</b>, diante de obrigação legal ou ordem judicial, e apenas o estritamente exigido.',
       ],
       depois: [
-        'Não usamos <b>ferramentas de terceiros</b> de telemetria, analytics ou monitoramento de erro. O que lemos sobre o uso do aplicativo são as perguntas ao Morphi, e só de quem ligou a escolha da seção 3. Não compartilhamos com anunciantes, brokers de dados ou terceiros para fins de marketing.',
+        'Não usamos <b>ferramentas de terceiros</b> de telemetria, analytics ou monitoramento de erro, e não lemos as perguntas que você faz ao Morphi. Não compartilhamos com anunciantes, brokers de dados ou terceiros para fins de marketing.',
       ],
     },
     {
@@ -277,7 +276,7 @@ export const PRIVACIDADE = (): Documento => ({
         '<b>A conta e os registros do tratamento</b> — enquanto a sua conta existir. Você apaga cada registro onde ele aparece, e tudo de uma vez em Configurações › Apagar meus dados, que apaga a conta, o nosso banco e este aparelho na hora.',
         `<b>As cópias de segurança do banco</b> — guardam o que foi apagado por até ${DIAS_DAS_COPIAS_DE_SEGURANCA} dias, e depois somem sozinhas. Elas existem para recuperar o banco de uma falha, e não são usadas para mais nada.`,
         '<b>Outro aparelho em que você entrou</b> — mantém a cópia local do diário até você sair da conta nele, ou até ele voltar a ter conexão e saber que a conta foi apagada.',
-        '<b>As perguntas ao Morphi</b> — enquanto a escolha da seção 3 estiver ligada e a conta existir. Desligar a escolha apaga as que foram.',
+        '<b>As perguntas ao Morphi</b> — só no aparelho, que guarda as 12 mais recentes. Elas não vão para a conta.',
         '<b>Foto do prato</b> — não é guardada. Existe durante a chamada e é descartada.',
         '<b>O que a clínica guarda</b> — o que foi registrado durante a conexão fica com ela como prontuário, pelo prazo que as regras de prontuário impõem a ela. Para apagar o que está lá, o pedido é feito à clínica.',
         '<b>Registro do consentimento</b> — enquanto a conta existir, porque é a prova de que ele foi dado e em que versão.',
@@ -290,7 +289,7 @@ export const PRIVACIDADE = (): Documento => ({
         'Confirmar que há tratamento e <b>acessar</b> os seus dados — o aplicativo mostra tudo que você registrou.',
         '<b>Corrigir</b> dados incompletos, inexatos ou desatualizados — todo registro é editável onde aparece.',
         'Pedir <b>anonimização, bloqueio ou eliminação</b> de dados desnecessários ou tratados fora da lei.',
-        '<b>Levar os seus dados embora</b>, em formato estruturado e legível por máquina — Configurações › Exportar seus dados. O arquivo leva tudo o que a sua conta guarda, inclusive as perguntas.',
+        '<b>Levar os seus dados embora</b>, em formato estruturado e legível por máquina — Configurações › Exportar seus dados. O arquivo leva tudo o que a sua conta guarda, e as perguntas ao Morphi deste aparelho.',
         '<b>Eliminar</b> os dados tratados com o seu consentimento — Configurações › Apagar meus dados, que apaga a conta e tudo o que ela guarda (com a ressalva das cópias de segurança, na seção 10).',
         'Saber com quem compartilhamos, o que está na seção 7.',
         '<b>Revogar o consentimento</b>, e ser informado das consequências de não o dar.',
@@ -311,14 +310,14 @@ export const PRIVACIDADE = (): Documento => ({
     {
       titulo: '13. Cookies e rastreadores',
       paragrafos: [
-        'O Morphi <b>não usa cookies</b> de terceiros, pixels de rastreamento, identificadores de publicidade nem ferramentas de analytics de terceiros. Não usamos Google Analytics, Meta Pixel ou similares. O que lemos sobre o uso são as perguntas ao Morphi, como a seção 3 descreve, e só com a sua escolha.',
+        'O Morphi <b>não usa cookies</b> de terceiros, pixels de rastreamento, identificadores de publicidade nem ferramentas de analytics de terceiros. Não usamos Google Analytics, Meta Pixel ou similares.',
       ],
     },
     {
       titulo: '14. Segurança',
       paragrafos: [
         'No aparelho, os dados ficam na área privada do aplicativo, protegida pelo sistema operacional. A sessão da sua conta fica guardada cifrada, com a chave no cofre do sistema (Keychain no iPhone, Keystore no Android).',
-        'No banco, cada linha tem uma regra que diz quem pode lê-la: a sua conta lê o seu diário, e a clínica conectada lê o que a seção 6 lista, enquanto a conexão durar. Todo o tráfego, com o banco e com a leitura de foto, é criptografado via HTTPS. As perguntas, quando a escolha está ligada, são lidas por nós por um acesso próprio, que não mostra a conta de quem perguntou.',
+        'No banco, cada linha tem uma regra que diz quem pode lê-la: a sua conta lê o seu diário, e a clínica conectada lê o que a seção 6 lista, enquanto a conexão durar. Todo o tráfego, com o banco e com a leitura de foto, é criptografado via HTTPS.',
         'Nenhum sistema é inviolável, e não prometemos o contrário. Em caso de incidente de segurança que possa acarretar risco relevante, comunicaremos a <b>ANPD</b> e as pessoas afetadas, conforme o <b>art. 48 da LGPD</b>.',
         'A segurança do seu aparelho é parte disso: manter bloqueio de tela e o sistema atualizado protege o que está guardado aqui.',
       ],

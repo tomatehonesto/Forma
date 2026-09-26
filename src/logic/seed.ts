@@ -12,6 +12,7 @@ import { PALETAS } from '../theme';
 import type { Forma } from './meds';
 import type { Sistema } from './medidas';
 import type { Local } from './local';
+import { LEITURA_DAS_PERGUNTAS } from './consentimento';
 import { sistemaDe } from './medidas';
 import { carimbar, novoRid } from './identidade';
 import type { OrigemDaPergunta } from './perguntas';
@@ -1290,8 +1291,13 @@ export function ensureDefaults(S: any) {
   }
   if (S.conta === undefined) S.conta = null;
   if (typeof S.diario !== 'string' || !S.diario) S.diario = novoRid();
-  /* Quem gravou antes da escolha existir não escolheu: fica desligada. */
-  if (typeof S.perguntasParaUso !== 'boolean') S.perguntasParaUso = false;
+  /* Quem gravou antes da escolha existir não escolheu: fica desligada.
+     ⚠️ E COM A LEITURA DESLIGADA, ELA FICA DESLIGADA PARA TODO MUNDO
+     (`LEITURA_DAS_PERGUNTAS`, em logic/consentimento). Um diário que a
+     ligou enquanto ela existia (só no desenvolvimento) volta a desligada,
+     e a sincronia apaga do servidor as que tinham ido — é a mesma
+     revogação de sempre. */
+  if (typeof S.perguntasParaUso !== 'boolean' || !LEITURA_DAS_PERGUNTAS) S.perguntasParaUso = false;
   if (S.convitePendente === undefined) S.convitePendente = null;
   /* ⚠️ OS SINAIS VITAIS QUE O ESTADO VAZIO HERDAVA, NOS DIÁRIOS QUE JÁ
      EXISTIAM. Até a fase 3 do plano do Supabase, `estadoVazio` deixava os

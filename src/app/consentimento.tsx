@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Pressable, Switch } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
-import { AVISO, ESCOLHA_DAS_PERGUNTAS, TERMOS, POLITICA, VERSAO } from '../logic/consentimento';
+import { AVISO, ESCOLHA_DAS_PERGUNTAS, LEITURA_DAS_PERGUNTAS, TERMOS, POLITICA, VERSAO } from '../logic/consentimento';
 import { temIdentificacao, TERMOS as DOC_TERMOS, PRIVACIDADE as DOC_PRIVACIDADE } from '../logic/documentos';
 import { contaLigada } from '../logic/nuvem';
 import { now } from '../logic/time';
@@ -49,7 +49,7 @@ export default function ConsentimentoNovo() {
   const aceitar = () => {
     update((s: any) => {
       s.profile.consentimento = { em: +now(), versao: VERSAO };
-      s.perguntasParaUso = perguntas;
+      s.perguntasParaUso = LEITURA_DAS_PERGUNTAS && perguntas;
     });
     /* o portão decide o resto: sem conta, a tranca 3 leva à conta */
     router.replace('/(tabs)' as any);
@@ -108,7 +108,7 @@ export default function ConsentimentoNovo() {
             <Txt v="caption" c={c.tx2} style={{ lineHeight: 21 }}>{a.texto}</Txt>
           </View>
         ))}
-        {contaLigada() ? (
+        {LEITURA_DAS_PERGUNTAS && contaLigada() ? (
           <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16, gap: 8 }}>
             <Txt v="bodyMed">{ESCOLHA_DAS_PERGUNTAS().titulo}</Txt>
             <Txt v="caption" c={c.tx2} style={{ lineHeight: 21 }}>{ESCOLHA_DAS_PERGUNTAS().texto}</Txt>
