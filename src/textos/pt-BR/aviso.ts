@@ -12,12 +12,21 @@
    responder treze perguntas sobre o próprio tratamento, e merece saber o
    que ganha, não só o que não ganha. A frase diz as duas coisas, nessa
    ordem — o que fazemos, e onde paramos.
+
+   ⚠️ E ELA NÃO PRESSUPÕE EQUIPE (26/09/2026, pedido do dono). Falava em
+   "a sua equipe" e em "a próxima consulta", e quem tinha acabado de
+   responder que não tem acompanhamento lia uma promessa vazia: preparar
+   uma consulta que não existe, falar com uma equipe que não há. Agora ela
+   diz o que vale para qualquer pessoa — não substituímos o acompanhamento
+   médico, e sintoma grave e mudança de dose pedem um profissional. A irmã
+   dela na Ajuda ("O Morphi substitui o acompanhamento médico?") mudou
+   junto.
    ============================================================ */
 
 export const aviso = {
-  isencaoTitulo: 'Acompanhamos, não conduzimos',
-  isencaoTexto: 'Guardamos o que você registra e preparamos a consulta. Não diagnosticamos nem prescrevemos: dose e medicação são decisão da sua equipe.',
-  isencaoReforco: 'Sintoma que assusta? Não espere a próxima consulta. E antes de mudar a dose, fale com a sua equipe.',
+  isencaoTitulo: 'Não substituímos o acompanhamento médico',
+  isencaoTexto: 'Organizamos o que você registra e mostramos padrões nos seus próprios dados. Não fazemos diagnóstico nem prescrição, e nada do que aparece aqui substitui a orientação de um profissional de saúde.',
+  isencaoReforco: 'Em caso de sintoma grave, procure atendimento médico. Mudança de dose ou de medicação, só com orientação profissional.',
 
   /* Os quatro cartões de dado, na ordem em que a dúvida aparece.
 

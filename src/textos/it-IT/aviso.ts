@@ -15,9 +15,9 @@
    ============================================================ */
 
 export const aviso = {
-  isencaoTitulo: 'Seguiamo, non conduciamo',
-  isencaoTexto: 'Teniamo quello che registri e prepariamo la visita. Non facciamo diagnosi e non prescriviamo: dose e farmaco li decide il tuo team.',
-  isencaoReforco: 'Un sintomo ti spaventa? Non aspettare la prossima visita. E prima di cambiare la dose, parlane con il tuo team.',
+  isencaoTitulo: 'Non sostituiamo l’assistenza medica',
+  isencaoTexto: 'Mettiamo in ordine quello che registri e mostriamo andamenti nei tuoi dati. Non facciamo diagnosi e non prescriviamo, e niente di quello che vedi qui sostituisce il parere di un professionista sanitario.',
+  isencaoReforco: 'In caso di sintomo grave, rivolgiti subito a un medico. Cambia dose o farmaco solo su indicazione medica.',
 
   /* Le quattro schede sui dati, nell'ordine in cui arriva il dubbio. */
   guardadoTitulo: 'Salvato nel tuo account',

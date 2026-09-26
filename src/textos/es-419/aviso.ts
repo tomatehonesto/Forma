@@ -11,9 +11,9 @@
    ============================================================ */
 
 export const aviso = {
-  isencaoTitulo: 'Acompañamos, no conducimos',
-  isencaoTexto: 'Guardamos lo que registras y preparamos la consulta. No diagnosticamos ni recetamos: dosis y medicación son decisión de tu equipo.',
-  isencaoReforco: '¿Un síntoma que asusta? No esperes a la próxima consulta. Y antes de cambiar la dosis, habla con tu equipo.',
+  isencaoTitulo: 'No reemplazamos el acompañamiento médico',
+  isencaoTexto: 'Ordenamos lo que registras y mostramos patrones en tus propios datos. No hacemos diagnósticos ni recetamos, y nada de lo que aparece aquí reemplaza la orientación de un profesional de la salud.',
+  isencaoReforco: 'Ante un síntoma grave, busca atención médica. Cambia la dosis o la medicación solo con orientación profesional.',
 
   guardadoTitulo: 'Guardado en tu cuenta',
   guardadoTexto: 'En este teléfono y en nuestra base de datos, en São Paulo. Solo tu cuenta lee lo que es tuyo.',

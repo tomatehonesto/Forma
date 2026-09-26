@@ -54,8 +54,8 @@ export const ajuda = {
       a: 'Nichts, bis du dich über ihren Code mit einer Partnerpraxis verbindest. Mit der Verbindung sieht das Team dein Tagebuch, solange sie besteht, und die ganze Liste dessen, was es sehen wird, erscheint vor dem Verbinden. Deine Fragen an Morphi bleiben draußen, und du kannst dich jederzeit auf dem Bildschirm der Praxis trennen.',
     },
     {
-      q: 'Ersetzt ihr das, was mir meine Praxis sagt?',
-      a: 'Nein, und auf keinem Bildschirm. Was die App tut, ist ordnen, was passiert ist, und Muster in deinen eigenen Einträgen zeigen — Dosis, Symptom und Vorgehen sind ein Gespräch für die Sprechstunde. Wenn ein Text der App diese Themen berührt, sagt er das dazu.',
+      q: 'Ersetzt Morphi die ärztliche Betreuung?',
+      a: 'Nein, und auf keinem Bildschirm. Was wir tun, ist ordnen, was passiert ist, und Muster in deinen eigenen Einträgen zeigen. Wir stellen keine Diagnosen und verschreiben nichts: Dosis, Symptome und Vorgehen gehören zu einer medizinischen Fachkraft — und wenn ein Text der App diese Themen berührt, sagt er das dazu.',
     },
     {
       q: 'Und wenn ich die App deinstalliere?',

@@ -53,8 +53,8 @@ export const ajuda = {
       a: 'Niente, finché non ti colleghi a una clinica partner con il suo codice. Con il collegamento, il team vede il tuo diario finché dura, e l’elenco completo di cosa potrà vedere compare prima di collegarti. Le tue domande a Morphi restano fuori, e puoi scollegarti in qualsiasi momento, dalla schermata della clinica.',
     },
     {
-      q: 'Sostituite le indicazioni di chi mi segue?',
-      a: 'No, e in nessuna schermata. Quello che fa è mettere in ordine quello che è successo e mostrare schemi nei tuoi registri — dose, sintomo e condotta sono conversazione da visita. Quando un testo dell’app tocca questi argomenti, lo dice.',
+      q: 'Morphi sostituisce l’assistenza medica?',
+      a: 'No, e in nessuna schermata. Quello che facciamo è mettere in ordine quello che è successo e mostrare andamenti nei tuoi registri. Non facciamo diagnosi e non prescriviamo: dose, sintomi e condotta spettano a un professionista sanitario — e quando un testo dell’app tocca questi argomenti, lo dice.',
     },
     {
       q: 'E se disinstallo l’app?',

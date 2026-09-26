@@ -12,9 +12,9 @@
    ============================================================ */
 
 export const aviso = {
-  isencaoTitulo: 'Nous suivons, nous ne conduisons pas',
-  isencaoTexto: 'Nous gardons ce que vous notez et préparons la consultation. Nous ne diagnostiquons pas et ne prescrivons pas : la dose et le médicament relèvent de votre équipe.',
-  isencaoReforco: 'Un symptôme vous inquiète ? N’attendez pas la prochaine consultation. Et avant de changer la dose, parlez-en à votre équipe.',
+  isencaoTitulo: 'Nous ne remplaçons pas le suivi médical',
+  isencaoTexto: 'Nous organisons ce que vous notez et montrons des tendances dans vos propres données. Nous ne posons pas de diagnostic et ne prescrivons pas, et rien de ce qui apparaît ici ne remplace l’avis d’un professionnel de santé.',
+  isencaoReforco: 'En cas de symptôme grave, consultez sans attendre. Ne changez de dose ou de médicament que sur avis médical.',
 
   guardadoTitulo: 'Gardé dans votre compte',
   guardadoTexto: 'Sur ce téléphone et dans notre base de données, à São Paulo. Seul votre compte lit ce qui est à vous.',

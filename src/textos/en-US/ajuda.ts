@@ -48,8 +48,8 @@ export const ajuda = {
       a: 'Nothing, until you connect with a partner clinic using its code. With the connection, the team sees your journal while it lasts, and the full list of what it gets to see shows up before you connect. Your questions to Morphi stay out, and you can disconnect anytime on the clinic’s screen.',
     },
     {
-      q: 'Do you replace what my care team tells me?',
-      a: 'No, and on no screen. What it does is organize what happened and show patterns in your own logs — dose, symptom and course of action are a conversation for your visit. When something in the app touches those subjects, it says so.',
+      q: 'Does Morphi replace medical care?',
+      a: 'No, and on no screen. What we do is organize what happened and show patterns in your own logs. We don’t diagnose or prescribe: dose, symptoms and treatment decisions belong with a health professional — and when something in the app touches those subjects, it says so.',
     },
     {
       q: 'What if I uninstall the app?',

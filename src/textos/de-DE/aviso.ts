@@ -17,9 +17,9 @@
    ============================================================ */
 
 export const aviso = {
-  isencaoTitulo: 'Wir begleiten, wir führen nicht',
-  isencaoTexto: 'Wir heben auf, was du einträgst, und bereiten den Termin vor. Wir stellen keine Diagnose und verschreiben nichts: Dosis und Medikament entscheidet dein Team.',
-  isencaoReforco: 'Ein Symptom macht dir Angst? Warte nicht bis zum nächsten Termin. Und bevor du die Dosis änderst, sprich mit deinem Team.',
+  isencaoTitulo: 'Wir ersetzen keine ärztliche Betreuung',
+  isencaoTexto: 'Wir ordnen, was du einträgst, und zeigen Muster in deinen eigenen Daten. Wir stellen keine Diagnosen und verschreiben nichts, und nichts von dem, was du hier siehst, ersetzt den Rat einer medizinischen Fachkraft.',
+  isencaoReforco: 'Bei schweren Symptomen such ärztliche Hilfe. Dosis oder Medikament nur nach ärztlicher Rücksprache ändern.',
 
   /* Die vier Datenkarten, in der Reihenfolge, in der die Frage aufkommt. */
   guardadoTitulo: 'In deinem Konto aufbewahrt',

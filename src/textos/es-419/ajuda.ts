@@ -48,8 +48,8 @@ export const ajuda = {
       a: 'Nada, hasta que te conectes a una clínica asociada con su código. Con la conexión, el equipo ve tu diario mientras dure, y la lista completa de lo que pasa a ver aparece antes de conectar. Tus preguntas a Morphi quedan fuera, y puedes desconectarte en cualquier momento, en la pantalla de la clínica.',
     },
     {
-      q: '¿Ustedes reemplazan lo que me indica quien me acompaña?',
-      a: 'No, y en ninguna pantalla. Lo que hace es ordenar lo que pasó y mostrar patrones en tus propios registros — dosis, síntoma y conducta son conversación de consulta. Cuando un texto de la aplicación toca esos temas, lo dice.',
+      q: '¿Morphi reemplaza el acompañamiento médico?',
+      a: 'No, y en ninguna pantalla. Lo que hacemos es ordenar lo que pasó y mostrar patrones en tus propios registros. No diagnosticamos ni recetamos: dosis, síntomas y conducta son tema de un profesional de la salud — y cuando un texto de la aplicación toca esos temas, lo dice.',
     },
     {
       q: '¿Y si desinstalo la aplicación?',

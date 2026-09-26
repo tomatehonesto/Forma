@@ -159,8 +159,9 @@ export default function Codigo() {
      Três caminhos, conforme o diário:
        - com dono e sessão: liga na hora;
        - sem dono (o caminho do cadastro, antes da conta): o código e a
-         versão ficam guardados, e a clínica ainda não aparece como
-         conectada — ela liga quando a conta nascer (logic/conta);
+         versão ficam guardados, a clínica ainda não aparece como
+         conectada — ela liga quando a conta nascer (logic/conta) —, e a
+         pessoa segue direto para criar a conta;
        - com dono e a sessão caída: guarda do mesmo jeito, e pede para
          entrar de novo.
      Sem a conta ligada (uma build sem as variáveis do projeto), o código liga no
@@ -172,9 +173,17 @@ export default function Codigo() {
       return;
     }
     const pendente = { codigo: v.codigo, versao: VERSAO_DO_COMPARTILHAMENTO };
+    /* ⚠️ SEM CONTA, O PASSO SEGUINTE É A CONTA (26/09/2026, pedido do
+       dono). Quem chega aqui sem dono está no fim do cadastro, e o código
+       só vira vínculo quando a conta nascer. Voltar para os planos
+       mostrava de novo a tela de preço, e dali a única saída era o X do
+       canto — que lê como "fechar", e não como "seguir". A folha fecha e
+       os planos dão lugar à conta: é para lá que a pessoa ia de qualquer
+       jeito, e a clínica liga no instante em que ela entrar. */
     if (!(S as any).conta) {
       update((st: any) => { st.convitePendente = pendente; st.profile.convite = v.codigo; });
-      concluir();
+      if (router.canGoBack()) router.back();
+      router.replace('/conta?de=cadastro' as any);
       return;
     }
     setAviso(null);

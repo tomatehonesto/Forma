@@ -11,9 +11,9 @@
    ============================================================ */
 
 export const aviso = {
-  isencaoTitulo: 'We follow your treatment, we don’t run it',
-  isencaoTexto: 'We keep what you log and get your appointment ready. We don’t diagnose or prescribe: dose and medication are your care team’s call.',
-  isencaoReforco: 'A symptom that scares you? Don’t wait for the next appointment. And before changing your dose, talk to your care team.',
+  isencaoTitulo: 'We don’t replace medical care',
+  isencaoTexto: 'We organize what you log and show patterns in your own data. We don’t diagnose or prescribe, and nothing you see here replaces the advice of a health professional.',
+  isencaoReforco: 'If you have a severe symptom, seek medical care. Change your dose or medication only with professional guidance.',
 
   guardadoTitulo: 'Kept in your account',
   guardadoTexto: 'On this phone and in our database in São Paulo. Only your account reads what’s yours.',
