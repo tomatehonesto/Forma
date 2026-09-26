@@ -15,7 +15,7 @@ import {
   dailyTargets, weightCard, weightSeries, protein7d, bodyFat,
   nextInjectionDate, siteLabel, nextSite, streak, temAcompanhamento, clinicaConectada, temConsulta, M,
   lastInjection, penStock,
-  checkinFeito, diaDoTratamento,
+  checkinFeito, diaDoTratamento, temEvolucao, temCiclo,
   type DailyTarget,
   doseDoPerfil, temDose,
   diasAteAplicar,
@@ -32,7 +32,6 @@ import { radius, alfa, type Palette, RESPIRO_ABAS } from '../../theme';
 import { fotoDaEquipe, focoDaEquipe, inicialDoNome } from '../../ui/retratos';
 import { FaixaDaConta } from '../../ui/conta';
 import { PrimeirosPassos } from '../../ui/primeirosPassos';
-import { temEvolucao } from '../../logic/primeirosPassos';
 import { T } from '../../textos';
 
 /* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
@@ -266,8 +265,13 @@ export default function Home() {
     /* ⚠️ SAI DE CENA QUANDO HÁ ATRASO. `quandoEm` trata dia negativo como
        "hoje", então este cartão diria "hoje é dia de aplicar sua dose"
        para quem está três dias atrasada — verdade pela metade, ao lado de
-       um cartão que conta a outra metade. Um assunto, um cartão. */
-    ...(temDose(S) && atraso < 1 ? [{
+       um cartão que conta a outra metade. Um assunto, um cartão.
+
+       ⚠️ E SÓ COM CICLO (`temCiclo`). Sem aplicação registrada a data é
+       hoje por recuo, e o cartão dizia "Hoje é dia de aplicar sua dose"
+       logo depois de um que dizia "Sua primeira aplicação ainda está por
+       vir". A primeira não tem data, e quem fala dela é o destaque do dia. */
+    ...(temCiclo(S) && atraso < 1 ? [{
       over: K().proximaAplicacao,
       /* ⚠️ O REMÉDIO NÃO É O SUJEITO DA FRASE. "Mounjaro é hoje" trata a
          caixinha como se ela tivesse agenda, e obriga quem lê a traduzir

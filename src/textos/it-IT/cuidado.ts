@@ -113,11 +113,13 @@ export const cuidado = {
        NOME DELLA DOTTORESSA. Senza nessuno registrato si apriva con uno
        spazio vuoto. Chi conduce la terapia da sola la conduce da
        altrettanto tempo. */
-    emDiaComQuem: (quem: string, semanas: number) =>
-      `${quem} segue la tua terapia da ${semanas} settimane. Stai andando bene e al momento non c’è niente di importante in sospeso.`,
-    emDiaSozinha: (semanas: number) =>
-      `Sei a ${semanas} settimane di terapia, stai andando bene e al momento non c’è niente di importante in sospeso.`,
+    emDiaComQuem: (quem: string, semanas: number, boaAdesao: boolean) =>
+      `${quem} segue la tua terapia da ${semanas} ${semanas === 1 ? 'settimana' : 'settimane'}. ${boaAdesao ? 'Stai andando bene e al momento non c’è niente di importante in sospeso.' : 'Al momento non c’è niente di importante in sospeso.'}`,
+    emDiaSozinha: (semanas: number, boaAdesao: boolean) =>
+      `Sei a ${semanas} ${semanas === 1 ? 'settimana' : 'settimane'} di terapia${boaAdesao ? ', stai andando bene' : ''} e al momento non c’è niente di importante in sospeso.`,
     emDiaPulso: 'Monitoraggio in ordine',
+    comecoTitulo: 'Contiamo dalla prima dose.',
+    comecoTexto: 'Quando la prima dose sarà registrata, le settimane, le dosi e il ciclo si contano da lì.',
   },
 
   /* ============================================================
@@ -125,6 +127,7 @@ export const cuidado = {
      ============================================================ */
   dose: {
     aplicacaoHoje: 'Puntura oggi',
+    nenhumaRegistrada: 'Nessuna dose registrata',
     proximaAplicacao: (quando: string) => `Prossima puntura ${quando}`,
     nestaDoseHa: (semanas: number) =>
       `A questa dose da ${semanas} ${semanas === 1 ? 'settimana' : 'settimane'}`,
@@ -211,6 +214,7 @@ export const cuidado = {
     precisaDeVoce: 'Dipende da te',
     nadaPrecisa: 'Adesso non c’è niente che dipenda da te.',
     emDia: 'Il tuo monitoraggio è in ordine.',
+    nadaAinda: 'Quando qualcosa avrà bisogno di te, comparirà qui.',
 
     /* ---------- la visita ---------- */
     proximaConsulta: 'La tua prossima visita',

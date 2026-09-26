@@ -229,7 +229,11 @@ export const home = {
     ultimos7: 'I TUOI ULTIMI 7 GIORNI',
     doseEm: (quando: string) => `dose ${quando}`,
     diasComCheckin: (feitos: number, aplicadas: number, vividas: number) =>
-      `${feitos} su 7 giorni con check-in · ${aplicadas} su ${vividas} settimane con puntura`,
+      `${feitos} su 7 giorni con check-in · ${aplicadas} su ${vividas} ${vividas === 1 ? 'settimana' : 'settimane'} con puntura`,
+    diasComCheckinSo: (feitos: number) =>
+      `${feitos} su 7 giorni con check-in`,
+    primeiraDose: 'Prima dose',
+    primeiraDoseTexto: 'Il ciclo inizia a contare dalla prima dose che registri.',
     semanaASemana: 'Settimana per settimana. Tocca per vedere che cosa ha segnato ogni ciclo.',
     verAsSemanas: (quantas: number) => `Vedi tutte le ${quantas} settimane`,
     /* ---------- il pannello ---------- */
@@ -265,6 +269,7 @@ export const home = {
     /* ⚠️ IL LINK DICE IL NOME DELLA DESTINAZIONE, e diceva "Vedi tutte" —
        che è un'istruzione, non un posto. */
     oQueJaMudou: 'Che cosa è già cambiato',
+    oQueJaMudouVazio: 'Dalla seconda pesata in poi, qui compare che cosa è cambiato.',
     evolucao: 'Andamento',
     suasMetas: 'I tuoi obiettivi',
     metas: 'Obiettivi',

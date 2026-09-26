@@ -9,7 +9,7 @@ import {
   clinicaConectada, temAcompanhamento, nextConsult, lastMessage, carePending, careState,
   examesComValor, examesForaDaRef,
   doseContext, doseCycle, penStock, weekGrid, M, cadenciaCurta,
-  medComDose, fichaDe,
+  medComDose, fichaDe, temCiclo,
 } from '../../logic/derive';
 import { Nivel, Malha } from '../../ui/instrumentos';
 import { fmtDate, diasDaSemana, MO } from '../../logic/time';
@@ -25,7 +25,7 @@ import { pontoSemPedir, type Ponto } from '../../logic/localizacao';
 import { useTheme } from '../../ui/useTheme';
 import { radius, RESPIRO_ABAS } from '../../theme';
 import { fotoDaEquipe, focoDaEquipe, fotoDaRede, focoDaRede, inicialDoNome } from '../../ui/retratos';
-import { noNa, formaDe } from '../../logic/formas';
+import { noNa, formaDe, oA, FORMAS } from '../../logic/formas';
 import { T } from '../../textos';
 
 /* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
@@ -149,9 +149,13 @@ function Topo() {
               A cápsula os separa sem precisar de divisor: forma fechada
               lê como unidade, e o que está dentro dela deixa de pertencer
               ao que está fora. */}
-          <View style={{ backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 4 }}>
-            <Txt v="micro" c={c.onHero}>{st.adesaoRotulo}</Txt>
-          </View>
+          {/* Sem dose prevista não há pastilha: "0 de 0 doses" era a conta
+              de um tratamento que ainda não começou a ser registrado. */}
+          {st.adesaoRotulo ? (
+            <View style={{ backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 4 }}>
+              <Txt v="micro" c={c.onHero}>{st.adesaoRotulo}</Txt>
+            </View>
+          ) : null}
         </Row>
 
         {/* A manchete é a resposta. Ela muda de texto conforme o momento —
@@ -177,9 +181,13 @@ function Topo() {
             a régua mostra em forma e a frase confirma em palavra. Três
             versões do mesmo dado num card de 500 px era o excesso que a
             rodada passada não pegou. */}
-        <View style={{ marginTop: 26 }}>
-          <LinhaDoPlano />
-        </View>
+        {/* Antes da primeira dose não há semana de tratamento para marcar
+            na régua, nem aplicação em dia para contar. */}
+        {st.momento !== 'comeco' ? (
+          <View style={{ marginTop: 26 }}>
+            <LinhaDoPlano />
+          </View>
+        ) : null}
 
         {/* A faixa do resumo, de volta ao pé do card.
 
@@ -538,7 +546,8 @@ function Pendencias() {
           </View>
           <View style={{ flex: 1 }}>
             <Txt v="bodyMed">{K().nadaPrecisa}</Txt>
-            <Txt v="caption" c={c.tx2} style={{ marginTop: 3 }}>{K().emDia}</Txt>
+            {/* "Em dia" pede um ciclo em que estar em dia. */}
+            <Txt v="caption" c={c.tx2} style={{ marginTop: 3 }}>{temCiclo(S) ? K().emDia : K().nadaAinda}</Txt>
           </View>
         </Row>
       </View>
@@ -753,6 +762,24 @@ function Tratamento() {
               receita" é lembrete com semanas de antecedência, e pintá-lo de
               vermelho o iguala a um problema clínico — que é o que a cor de
               alerta precisa continuar significando neste app. */}
+          {/* ⚠️ SEM RECIPIENTE REGISTRADO, NÃO HÁ ESTOQUE A MOSTRAR. A conta
+              devolve "cheio" por recuo, e a tela o escrevia como fato:
+              "Estoque em dia · 4 de 4 · cerca de 4 semanas" numa caneta que
+              ninguém registrou. O registro é o que torna a conta
+              verdadeira, e é ele que a linha pede. */}
+          {!p.registrada ? (
+            <Pressable onPress={go('/caneta-nova')} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
+              <Row gap={12}>
+                <View style={{ flex: 1 }}>
+                  <Txt v="caption" c={c.tx2}>{K().dosesEm(noNa(formaDe(S)))}</Txt>
+                  <Txt v="caption" c={c.tx3} style={{ marginTop: 6, lineHeight: 20 }}>
+                    {T.tratamento.registreORecipiente(`${oA(formaDe(S))} ${FORMAS()[formaDe(S)].recipiente}`)}
+                  </Txt>
+                </View>
+                <Icon name="chev" size={14} color={c.tx4} sw={2} />
+              </Row>
+            </Pressable>
+          ) : (<>
           <Row>
             <Txt v="caption" c={c.tx2} style={{ flex: 1 }}>{K().dosesEm(noNa(formaDe(S)))}</Txt>
             {/* ⚠️ A COR DE LINK SÓ VALE SE HOUVER LINK. "Vale renovar a
@@ -787,6 +814,7 @@ function Tratamento() {
               </Row>
             </Pressable>
           )}
+          </>)}
         </View>
       </View>
     </View>

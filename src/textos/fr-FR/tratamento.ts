@@ -69,6 +69,8 @@ export const tratamento = {
   estoqueUrgente: 'Renouvelez maintenant',
   estoqueRenovar: 'Pensez à renouveler l’ordonnance',
   estoqueEmDia: 'Stock à jour',
+  registreORecipiente: (oRecipiente: string) =>
+    `Enregistrez ${oRecipiente} et nous compterons les doses restantes.`,
 
   /* ⚠️ LE CÔTÉ EST ABRÉGÉ ET ENTRE PARENTHÈSES parce que ces étiquettes
      apparaissent dans des lignes courtes — historique, suggestion du jour,

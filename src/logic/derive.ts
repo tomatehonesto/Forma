@@ -223,6 +223,46 @@ export const goalProgress = (S: State) => {
 };
 export const lastInjection = (S: State) => (S.injections.length ? S.injections[S.injections.length - 1] : null);
 
+/* ============================================================
+   HÁ UM CICLO A CONTAR?
+
+   Uma dose definida e pelo menos uma aplicação registrada. Sem as duas,
+   `nextInjectionDate` devolve HOJE — é o recuo que impede a conta de
+   quebrar —, e toda frase montada em cima dele afirma o que não
+   aconteceu: "dose hoje", "hoje é dia de aplicar", "o efeito começa a
+   subir", "boa adesão", o aviso da dose às nove da manhã.
+
+   Quem ainda vai começar não respondeu data nenhuma, e quem já tinha
+   começado não registrou a aplicação de antes do cadastro. Para as duas,
+   a próxima dose é a PRIMEIRA, e ela não tem data: é quando for
+   registrada. Quem escreve sobre dose, ciclo ou adesão pergunta isto
+   antes. Ver docs/superpowers/specs/2026-09-26-primeiros-passos-design.md,
+   Peça 3.
+   ============================================================ */
+export const temCiclo = (S: State) => !!lastInjection(S) && temDose(S);
+
+/* ============================================================
+   HÁ EVOLUÇÃO? E HÁ RITMO?
+
+   Evolução pede duas pesagens em dias diferentes — o mínimo para "peso
+   perdido" querer dizer alguma coisa. Quem já tinha começado e informou o
+   peso inicial no cadastro tem as duas no primeiro dia; quem começa hoje
+   tem uma, e as seções que comparam esperam.
+
+   Ritmo pede mais: as duas pesagens separadas por uma semana, porque ele
+   é quilo POR SEMANA. Com dois dias de distância, a conta dividiria a
+   diferença por uma semana que não passou.
+   ============================================================ */
+const diasDePesagem = (S: State) =>
+  [...new Set(((S.weights ?? []) as { t: number }[]).map((w) => +startOfDay(new Date(w.t))))].sort((a, b) => a - b);
+
+export const temEvolucao = (S: State) => diasDePesagem(S).length >= 2;
+
+export const temRitmo = (S: State) => {
+  const d = diasDePesagem(S);
+  return d.length >= 2 && diffDays(new Date(d[d.length - 1]), new Date(d[0])) >= 7;
+};
+
 /* A CADÊNCIA REAL, que nem sempre é a do catálogo.
 
    CADENCE_DAYS lê MEDS: Mounjaro e Ozempic são semanais, Saxenda e
@@ -412,7 +452,10 @@ export function radar(S: State): EixoDoRadar[] {
      outro. */
   põe('proteina', Math.min(100, ((mediaDe(recent, 'prot') ?? 0) / (S.profile as any).targets.prot) * 100));
   põe('saciedade', esc(mediaDe(recent, 'fome'), (m) => (10 - m) * 10));
-  põe('adesao', adesao(S));
+  /* Sem ciclo não há adesão a medir: zero aqui seria o eixo mais fraco de
+     quem ainda não começou, e a leitura do equilíbrio a mandaria "melhorar
+     a adesão" de um tratamento que não existe. */
+  põe('adesao', temCiclo(S) ? adesao(S) : null);
   return eixos;
 }
 
@@ -1275,12 +1318,12 @@ export function todayBrief(S: State) {
      como data da última dose e `dayIn` vira 1 — um "DIA 1 DE 7" para quem
      nunca aplicou nada, que é a mesma invenção que saiu do resto da Home
      esta semana. Sem ciclo, o chapéu continua PARA HOJE. */
-  const temCiclo = !!lastInjection(S) && temDose(S);
+  const comCiclo = temCiclo(S);
   /* ⚠️ "DIA 5 DA DOSE", E NÃO "DIA 5 DE 7". O de-sete parecia contagem
      regressiva de um prazo — sete do quê, e o que acontece quando chegar?
      A cadência é do medicamento, não uma meta a cumprir. "Da dose" diz a
      mesma posição e nomeia o relógio que a está medindo. */
-  const chapeu = temCiclo ? T.ciclo.chapeuDia(cyc.dayIn) : T.ciclo.chapeuSemCiclo;
+  const chapeu = comCiclo ? T.ciclo.chapeuDia(cyc.dayIn) : T.ciclo.chapeuSemCiclo;
   switch (cyc.phase.key) {
     case 'aplic':
       /* ⚠️ NÃO ANUNCIA QUE HOJE É DIA DE APLICAR: o slide seguinte da Home
@@ -1746,6 +1789,29 @@ export function patterns(S: State): Pattern[] {
    gráfico por ele: o gráfico vira ilustração de uma frase, não a frase.
    ============================================================ */
 export function balanceRead(S: State) {
+  const Q = T.equilibrio;
+  /* ⚠️ SEM CHECK-IN RESPONDIDO, NÃO HÁ LEITURA. O radar lê os três
+     últimos registros, e os acumuladores dele — água, movimento,
+     proteína — valem zero quando não há nada. Oito zeros têm amplitude
+     zero, e amplitude zero é a faixa do "tudo bem": quem acabou de chegar
+     lia "Reparei numa coisa boa… Eu não mudaria nada por enquanto". Um
+     elogio sem base é tão falso quanto uma bronca sem base.
+
+     Antes do primeiro check-in com resposta, o cartão diz de onde a
+     leitura vai sair, e o botão leva até lá. */
+  if (!((S.checkins ?? []) as any[]).slice(-3).some(respostaNoDia)) {
+    return {
+      abertura: Q.semLeitura,
+      texto: Q.semLeituraTexto,
+      fraco: '',
+      fracoNome: '',
+      botao: Q.semLeituraBotao,
+      q: '',
+      /** para onde o botão leva, quando não é uma pergunta ao Morphi */
+      to: '/checkin' as string | undefined,
+      serieDe: (_dias: number) => '',
+    };
+  }
   const eixos = radar(S).slice().sort((a, b) => b.v - a.v);
   const fortes = eixos.slice(0, 2);
   const fraco = eixos[eixos.length - 1];
@@ -1756,7 +1822,6 @@ export function balanceRead(S: State) {
   /* Os dois cortes de amplitude são de CÓDIGO: 30 e 55 são onde eu
      decidi que a figura deixa de estar equilibrada. As frases que cada
      faixa produz são de textos/pt-BR/equilibrio. */
-  const Q = T.equilibrio;
   const abertura = amp <= 30 ? Q.aberturaTudoBem
     : amp <= 55 ? Q.aberturaAtencao
       : Q.aberturaPreciso;
@@ -1782,6 +1847,7 @@ export function balanceRead(S: State) {
     fracoNome: fraco.k,
     botao: Q.botaoMelhorar(fraco.k),
     q: Q.perguntaMelhorar(fraco.k),
+    to: undefined as string | undefined,
     serieDe: (dias: number) => Q.serieDe(fraco.k, dias),
   };
 }
@@ -2358,11 +2424,15 @@ export function libraryPicks(S: State): Leitura[] {
   const m = M(S);
 
   const dia = Math.max(0, cadenciaDias(S) - diasAteAplicar(S));
+  /* ⚠️ AS DUAS LEITURAS DO CICLO SÓ COM CICLO. Sem aplicação registrada, o
+     recuo de `nextInjectionDate` fazia `dia` valer a cadência inteira, e o
+     motivo da leitura dizia "Você aplicou há 7 dias" a quem nunca aplicou. */
+  const comCiclo = temCiclo(S);
 
-  if (cyc.phase.key === 'retorno' || cyc.phase.key === 'pre') {
+  if (comCiclo && (cyc.phase.key === 'retorno' || cyc.phase.key === 'pre')) {
     out.push({ motivo: L.fomeMotivo(dia), titulo: L.fomeTitulo, desc: L.fomeDesc(T.comum.noMeio(nomeDaMolecula(m.mol))), ic: 'drop2', min: 3 });
   }
-  if (cyc.phase.key === 'aplic' || cyc.phase.key === 'pico') {
+  if (comCiclo && (cyc.phase.key === 'aplic' || cyc.phase.key === 'pico')) {
     out.push({ motivo: L.primeirosMotivo(dia), titulo: L.primeirosTitulo, desc: L.primeirosDesc, ic: 'dose', min: 3 });
   }
 
@@ -2420,7 +2490,9 @@ export function companionSuggestions(S: State): string[] {
   else if (cyc.phase.key === 'aplic') out.push(P.depoisDaAplicacao);
 
   if (ci && ci.nausea >= 5) out.push(P.diminuirEnjoo);
-  if (nd <= 2) out.push(P.trocarODia);
+  /* Trocar o dia da aplicação pede um dia de aplicação — sem ciclo, `nd` é
+     zero por recuo, e a sugestão aparecia para quem ainda não começou. */
+  if (temCiclo(S) && nd <= 2) out.push(P.trocarODia);
 
   const a1c = examBy(S, 'HbA1c');
   if (a1c && a1c.values.length >= 2) out.push(P.meusExames);
@@ -2509,7 +2581,10 @@ export function recommendations(S: State): Reco[] {
     });
   }
 
-  if (nd >= 0 && nd <= 3) {
+  /* Só com ciclo: sem aplicação registrada, `nd` é zero por recuo, e
+     "a aplicação da semana está chegando" seria dito a quem ainda não
+     começou. */
+  if (temCiclo(S) && nd >= 0 && nd <= 3) {
     out.push({
       emDias: nd, ic: 'syringe',
       texto: E.aplicacao(`${oA(formaDe(S))} ${FORMAS()[formaDe(S)].recipiente}`),
@@ -3111,7 +3186,10 @@ export function journeyChanges(S: State): Change[] {
      uma razão de forma, e não por descuido: ela são DOIS números
      (sistólica e diastólica), que não cabem no desenho de valor único do
      /marcador — e /saude já abre com ela no topo. */
-  out.push({
+  /* ⚠️ O PESO SÓ COM EVOLUÇÃO, como os vizinhos, que já pediam dois
+     pontos. Com uma pesagem ele saía "80,0 → 80,0 · Estável" — um
+     veredito de estabilidade sobre um intervalo que não existe. */
+  if (temEvolucao(S)) out.push({
     ic: 'scale', label: T.home.mudancas.peso, from: `${pesoTxt(S, startWeight(S))}`, to: `${pesoTxt(S, curWeight(S))}`,
     ...variacao(pesoV(S, curWeight(S) - startWeight(S)), pesoU(S)), to_: '/marcador?m=peso',
   });
@@ -4820,7 +4898,12 @@ export function penStock(S: State) {
     : left <= RENOVAR_COM
       ? { label: T.tratamento.estoqueRenovar, good: false }
       : { label: T.tratamento.estoqueEmDia, good: true };
-  return { left, total, semanas, verdict };
+  /* ⚠️ `registrada` DIZ SE A CONTA É DE UM RECIPIENTE DE VERDADE. Sem
+     abertura nenhuma, "cheio" é o recuo que impede pedir receita a quem
+     não aplicou — e continua sendo recuo, não fato. Quem ESCREVE o
+     estoque ("4 de 4", "restam 4 doses", "estoque em dia") pergunta isto
+     antes e, sem registro, pede o registro. */
+  return { left, total, semanas, verdict, registrada: !!atual };
 }
 
 /* Resumo do tratamento — os cinco números do topo da Jornada. */
@@ -4895,6 +4978,11 @@ export function journeySummary(S: State) {
        `pesoU(S)` junto. */
     ritmo, ritmoLabel: pesoN(S, ritmo),
     adesao: adesao(S), streak: streak(S),
+    /* ⚠️ O VEREDITO EXISTE SEMPRE, E SÓ SE MOSTRA COM RITMO. Com uma
+       pesagem, `lost` é zero e o último ramo acima dizia "Ritmo mais
+       lento" no primeiro dia — sobre uma semana que não aconteceu. Quem
+       desenha a etiqueta pergunta isto antes. */
+    temRitmo: temRitmo(S),
     verdict,
   };
 }
@@ -5326,7 +5414,7 @@ export type CareNivel = 'ok' | 'atencao' | 'acao';
    concatenação: cada momento tem manchete própria, e a ordem em que os
    estados são testados é a ordem de precedência entre eles.
    ============================================================ */
-export type CareMomento = 'consulta' | 'posConsulta' | 'pendencia' | 'emDia';
+export type CareMomento = 'consulta' | 'posConsulta' | 'pendencia' | 'comeco' | 'emDia';
 
 export function careState(S: State) {
   const cs = nextConsult(S);
@@ -5369,7 +5457,9 @@ export function careState(S: State) {
      para duas linhas. O estoque da caneta diz "3 de 4 doses na caneta",
      com o qualificador — aqui, ao lado da contagem de pendências, doses
      sem qualificador são as que foram tomadas. */
-  const adRotulo = E().adesao(S.injections.length, previstas);
+  /* Sem dose prevista não há conta: "0 de 0 doses" é a pastilha medindo
+     um tratamento que ainda não começou a ser registrado. Nula, ela some. */
+  const adRotulo = previstas ? E().adesao(S.injections.length, previstas) : null;
   const metricas: { valor: string; label: string }[] = [
     { valor: String(semanas), label: E().metricaSemanas },
     { valor: String(S.injections.length), label: E().metricaAplicacoes },
@@ -5488,12 +5578,33 @@ export function careState(S: State) {
      registrado ela abria com um espaço em branco: " acompanha seu
      tratamento há 10 semanas". Quem conduz o tratamento sozinha conduz
      há o mesmo tanto de tempo, e é isso que a frase passa a dizer. */
+  /* ⚠️ ANTES DA PRIMEIRA DOSE REGISTRADA NÃO EXISTE "EM DIA". O ramo de
+     baixo dizia "Seu cuidado está em dia. Você está há 1 semanas de
+     tratamento, com boa adesão" a quem nunca registrou uma dose — três
+     afirmações, nenhuma com dado. O começo diz de onde a conta vai sair.
+
+     E a primeira dose NÃO vira pendência: "vale resolver esta semana"
+     empurraria alguém a começar um remédio, e quando começar é decisão
+     dela com quem receita. */
+  if (!temCiclo(S)) return {
+    ...base, momento: 'comeco' as CareMomento, nivel: 'ok' as CareNivel,
+    kicker: E().kicker,
+    titulo: E().comecoTitulo,
+    texto: E().comecoTexto,
+    pulso: T.tratamento.antesDaPrimeiraDose,
+  };
+
   const quem = S.profile.doctor || S.profile.clinic;
+  /* ⚠️ "COM BOA ADESÃO" ERA ESCRITO PARA TODO MUNDO que chegasse aqui sem
+     pendência — inclusive com metade das doses. A frase só o diz quando
+     a conta diz: noventa por cento, o mesmo corte de "quase todas" nos
+     cruzamentos. */
+  const boaAdesao = ad >= 90;
   return {
     ...base, momento: 'emDia' as CareMomento, nivel: 'ok' as CareNivel,
     kicker: E().kicker,
     titulo: E().emDiaTitulo,
-    texto: quem ? E().emDiaComQuem(quem, semanas) : E().emDiaSozinha(semanas),
+    texto: quem ? E().emDiaComQuem(quem, semanas, boaAdesao) : E().emDiaSozinha(semanas, boaAdesao),
     pulso: E().emDiaPulso,
   };
 }
@@ -5509,12 +5620,19 @@ export function doseContext(S: State) {
   const atual = injs.length ? injs[injs.length - 1].dose : S.profile.dose;
   let i = injs.length - 1;
   while (i > 0 && injs[i - 1].dose === atual) i--;
-  const desde = injs.length ? Math.max(1, Math.round(diffDays(now(), new Date(injs[i].t)) / 7)) : 0;
+  /* ⚠️ SEM O PISO DE UMA SEMANA. O `Math.max(1, …)` fazia a primeira
+     aplicação, registrada hoje, virar "Nesta dose há 1 semana" — uma
+     semana que não passou. Menos de meia semana arredonda para zero, e a
+     frase espera. */
+  const desde = injs.length ? Math.round(diffDays(now(), new Date(injs[i].t)) / 7) : 0;
 
   const cs = nextConsult(S);
   const D = T.cuidado.dose;
   return {
-    proxima: quandoEm(nd).hoje ? D.aplicacaoHoje : D.proximaAplicacao(quandoEm(nd).label),
+    /* Sem aplicação registrada, `nd` é zero por recuo e a frase dizia
+       "Aplicação hoje". A próxima é a primeira, e ela não tem data. */
+    proxima: !injs.length ? D.nenhumaRegistrada
+      : quandoEm(nd).hoje ? D.aplicacaoHoje : D.proximaAplicacao(quandoEm(nd).label),
     naDose: desde > 0 ? D.nestaDoseHa(desde) : null,
     revisao: cs ? D.revisaoNaConsulta(cs.dias <= 0 ? D.revisaoHoje : cs.label) : null,
   };

@@ -1,5 +1,5 @@
 import type { State } from './seed';
-import { nextInjectionDate } from './derive';
+import { nextInjectionDate, temCiclo } from './derive';
 import { WD, diasDaSemana, addDays, hm, now, startOfDay, quandoEm, maiuscula, ordemDaSemana } from './time';
 import { T } from '../textos';
 
@@ -258,6 +258,12 @@ export function proximasDe(S: State, a: Alerta, quantas = 1): Date[] {
   const horas = horasDe(a);
 
   if (a.tipo === 'dose') {
+    /* ⚠️ SEM CICLO, O AVISO DA DOSE ESPERA. Antes da primeira aplicação
+       registrada, `nextInjectionDate` é HOJE por recuo — e o aviso tocava
+       às nove "é hoje", todo dia em que o app abrisse cedo, para quem
+       ainda nem começou. Ele passa a contar da primeira dose registrada,
+       como o resto do app. Ver `temCiclo`, em derive. */
+    if (!temCiclo(S)) return [];
     const base = addDays(startOfDay(nextInjectionDate(S)), -(a.lead ?? 0)) as Date;
     for (const h of horas) {
       const d = new Date(base); d.setHours(h, 0, 0, 0);

@@ -136,11 +136,19 @@ export const cuidado = {
        MÉDICA. Sem ninguém registrado ela abria com um espaço em branco:
        " acompanha seu tratamento há 10 semanas". Quem conduz o tratamento
        sozinha conduz há o mesmo tanto de tempo. */
-    emDiaComQuem: (quem: string, semanas: number) =>
-      `${quem} acompanha seu tratamento há ${semanas} semanas. Você está com boa adesão e não há nenhuma pendência importante no momento.`,
-    emDiaSozinha: (semanas: number) =>
-      `Você está há ${semanas} semanas de tratamento, com boa adesão e nenhuma pendência importante no momento.`,
+    emDiaComQuem: (quem: string, semanas: number, boaAdesao: boolean) =>
+      `${quem} acompanha seu tratamento há ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}. ${boaAdesao ? 'Você está com boa adesão e não há nenhuma pendência importante no momento.' : 'Não há nenhuma pendência importante no momento.'}`,
+    emDiaSozinha: (semanas: number, boaAdesao: boolean) =>
+      `Você está há ${semanas} ${semanas === 1 ? 'semana' : 'semanas'} de tratamento, ${boaAdesao ? 'com boa adesão e nenhuma' : 'sem nenhuma'} pendência importante no momento.`,
     emDiaPulso: 'Acompanhamento em dia',
+
+    /* ---------- antes da primeira dose registrada ----------
+
+       ⚠️ NÃO EXISTE "EM DIA" SEM CICLO. A frase diz de onde a conta vai
+       sair — e não pede a dose: quando começar é decisão da pessoa com
+       quem receita. Voz do produto, o "nós". */
+    comecoTitulo: 'Contamos a partir da primeira dose.',
+    comecoTexto: 'Quando a primeira dose estiver registrada, as semanas, as doses e o ciclo passam a ser contados daqui.',
   },
 
   /* ============================================================
@@ -148,6 +156,8 @@ export const cuidado = {
      ============================================================ */
   dose: {
     aplicacaoHoje: 'Aplicação hoje',
+    /* Sem aplicação registrada, a próxima é a primeira, e ela não tem data. */
+    nenhumaRegistrada: 'Nenhuma dose registrada',
     proximaAplicacao: (quando: string) => `Próxima aplicação ${quando}`,
     nestaDoseHa: (semanas: number) =>
       `Nesta dose há ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
@@ -254,6 +264,9 @@ export const cuidado = {
     precisaDeVoce: 'Precisa de você',
     nadaPrecisa: 'Nada precisa de você agora.',
     emDia: 'Seu acompanhamento está em dia.',
+    /* "Em dia" pede um ciclo em que estar em dia; antes dele, a lista só
+       diz o que ela é. */
+    nadaAinda: 'Quando algo pedir a sua atenção, aparece aqui.',
 
     /* ---------- a consulta ---------- */
     proximaConsulta: 'Sua próxima consulta',

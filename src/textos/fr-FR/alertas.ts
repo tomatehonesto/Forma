@@ -98,6 +98,7 @@ export const alertas = {
     desligado: 'Désactivée',
     guardado: 'Gardée — les alertes sonnent sur le téléphone',
     semAviso: 'Aucune alerte tant que c’est bloqué',
+    doseDepoisDaPrimeira: 'Commence à compter à partir de la première dose enregistrée',
 
     bloqueados: 'Les alertes sont bloquées',
     bloqueadosTexto: 'L’appareil bloque les notifications de cette application. Tant que ça reste ainsi, rien de ce que vous activez ici n’arrivera.',

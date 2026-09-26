@@ -242,7 +242,15 @@ export const home = {
     ultimos7: 'SEUS ÚLTIMOS 7 DIAS',
     doseEm: (quando: string) => `dose ${quando}`,
     diasComCheckin: (feitos: number, aplicadas: number, vividas: number) =>
-      `${feitos} de 7 dias com check-in · ${aplicadas} de ${vividas} semanas com aplicação`,
+      `${feitos} de 7 dias com check-in · ${aplicadas} de ${vividas} ${vividas === 1 ? 'semana' : 'semanas'} com aplicação`,
+    /* Sem aplicação registrada, a linha conta só o check-in: "0 de 1
+       semanas com aplicação" media um tratamento que ainda não começou a
+       ser registrado. */
+    diasComCheckinSo: (feitos: number) =>
+      `${feitos} de 7 dias com check-in`,
+    /* A faixa da fase, antes de haver fase: de onde o ciclo vai contar. */
+    primeiraDose: 'Primeira dose',
+    primeiraDoseTexto: 'O ciclo começa a contar da primeira dose que você registrar.',
     semanaASemana: 'Semana a semana. Toque para ver o que marcou cada ciclo.',
     verAsSemanas: (quantas: number) => `Ver as ${quantas} semanas`,
     /* ---------- o painel ---------- */
@@ -287,6 +295,9 @@ export const home = {
        instrução, não um lugar. É a mesma regra que tirou o "Ir para" dos
        botões da Home. */
     oQueJaMudou: 'O que já mudou',
+    /* Sem duas pesagens não há o que comparar: a seção diz quando passa a
+       ter, em vez de mostrar "80,0 → 80,0 · Estável". */
+    oQueJaMudouVazio: 'A partir da segunda pesagem, o que mudou aparece aqui.',
     evolucao: 'Evolução',
     suasMetas: 'Suas metas',
     metas: 'Metas',

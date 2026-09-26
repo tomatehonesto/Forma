@@ -87,6 +87,8 @@ export const tratamento = {
   estoqueUrgente: 'Rinnova adesso',
   estoqueRenovar: 'Vale la pena rinnovare la ricetta',
   estoqueEmDia: 'Scorta a posto',
+  registreORecipiente: (oRecipiente: string) =>
+    `Registra ${oRecipiente} e contiamo le dosi rimaste.`,
 
   /* ============================================================
      LE ZONE DELLA PUNTURA

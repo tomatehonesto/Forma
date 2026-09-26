@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { M, lastInjection, siteLabel, penStock, nextInjectionDate } from '../logic/derive';
 import { diffDays, now, doseTxt, dataComDiaDaSemana, maiuscula } from '../logic/time';
-import { FORMAS, formaDe, umOutro } from '../logic/formas';
+import { FORMAS, formaDe, umOutro, oA } from '../logic/formas';
 import { SheetScreen } from '../ui/kit';
 import { Confirmacao, Cartao, Linha, Botao } from '../ui/internas';
 import { T } from '../textos';
@@ -103,10 +103,16 @@ export default function AplicacaoOk() {
                  dizia "restam 2" ao lado de um sub que dizia "2 de 4
                  doses usadas", duas versões do mesmo número na mesma
                  linha. */
-              sub={acabou ? K().acabou(outro) : K().restamDoses(est.left)}
-              selo={acabou ? K().seloFim : undefined}
+              /* ⚠️ SEM RECIPIENTE REGISTRADO, "RESTAM 4 DOSES" ERA O RECUO
+                 DA CONTA escrito como fato — logo depois de uma dose. A
+                 linha pede o registro, e o toque leva a ele. */
+              sub={!est.registrada
+                ? T.tratamento.registreORecipiente(`${oA(formaDe(S))} ${vocab.recipiente}`)
+                : acabou ? K().acabou(outro) : K().restamDoses(est.left)}
+              selo={est.registrada && acabou ? K().seloFim : undefined}
               seloTom="neutra"
-              seta={false}
+              seta={!est.registrada}
+              onPress={!est.registrada ? () => router.push('/caneta-nova' as any) : undefined}
             />
           ) : null}
         </Cartao>

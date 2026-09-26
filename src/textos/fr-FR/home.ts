@@ -190,7 +190,11 @@ export const home = {
     ultimos7: 'VOS 7 DERNIERS JOURS',
     doseEm: (quando: string) => `dose ${quando}`,
     diasComCheckin: (feitos: number, aplicadas: number, vividas: number) =>
-      `${feitos} jours sur 7 avec un check-in · ${aplicadas} semaines sur ${vividas} avec une piqûre`,
+      `${feitos} ${feitos > 1 ? 'jours' : 'jour'} sur 7 avec un check-in · ${aplicadas} ${aplicadas > 1 ? 'semaines' : 'semaine'} sur ${vividas} avec une piqûre`,
+    diasComCheckinSo: (feitos: number) =>
+      `${feitos} ${feitos > 1 ? 'jours' : 'jour'} sur 7 avec un check-in`,
+    primeiraDose: 'Première dose',
+    primeiraDoseTexto: 'Le cycle commence à compter à partir de la première dose que vous enregistrez.',
     semanaASemana: 'Semaine par semaine. Touchez pour voir ce qui a marqué chaque cycle.',
     verAsSemanas: (quantas: number) => `Voir les ${quantas} semaines`,
     semanaEDia: (semana: number, dia: number) => `SEMAINE ${semana} · JOUR ${dia}`,
@@ -217,6 +221,7 @@ export const home = {
         : `${restam === 1 ? 'Il reste 1 dose' : `Il reste ${restam} doses`} · environ ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}`,
 
     oQueJaMudou: 'Ce qui a changé',
+    oQueJaMudouVazio: 'À partir de la deuxième pesée, ce qui a changé apparaît ici.',
     evolucao: 'Évolution',
     suasMetas: 'Vos objectifs',
     metas: 'Objectifs',

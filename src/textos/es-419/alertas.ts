@@ -98,6 +98,7 @@ export const alertas = {
     desligado: 'Apagado',
     guardado: 'Guardado — los avisos salen por el celular',
     semAviso: 'Sin aviso mientras esté bloqueado',
+    doseDepoisDaPrimeira: 'Empieza a contar desde la primera dosis registrada',
 
     bloqueados: 'Los avisos están bloqueados',
     bloqueadosTexto: 'El aparato está bloqueando las notificaciones de esta aplicación. Mientras siga así, nada de lo que actives aquí va a llegar.',

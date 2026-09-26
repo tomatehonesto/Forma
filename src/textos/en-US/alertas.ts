@@ -88,6 +88,7 @@ export const alertas = {
     desligado: 'Off',
     guardado: 'Saved — alerts go off on the phone',
     semAviso: 'No alert while it’s blocked',
+    doseDepoisDaPrimeira: 'Starts counting from your first logged dose',
 
     bloqueados: 'Alerts are blocked',
     bloqueadosTexto: 'The device is blocking notifications from this app. While it stays that way, nothing you switch on here will come through.',

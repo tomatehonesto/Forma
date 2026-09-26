@@ -17,14 +17,25 @@
         não é check-in; quem toma comprimido registra a primeira dose;
      4. esconder, reabrir e concluir, e concluído vence escondido; o
         diário de exemplo não tem cartão;
-     5. "Sua evolução" pede duas pesagens em dias diferentes.
+     5. "Sua evolução" pede duas pesagens em dias diferentes;
+     6. nenhuma frase afirma o que não aconteceu (Peça 3 da especificação):
+        sem aplicação registrada não há ciclo, próxima dose, fase, adesão
+        nem aviso de dose; sem pesagens bastantes não há ritmo nem
+        "estável"; sem recipiente registrado não há estoque; sem check-in
+        respondido não há leitura do equilíbrio.
    ============================================================ */
 
 import { buildSeed, estadoVazio, type State } from '../src/logic/seed';
 import {
-  passos, passosNaHome, passosParaReabrir, esconderPassos, reabrirPassos, concluirPassos, temEvolucao,
+  passos, passosNaHome, passosParaReabrir, esconderPassos, reabrirPassos, concluirPassos,
   type DoAparelho,
 } from '../src/logic/primeirosPassos';
+import {
+  temEvolucao, temCiclo, journeySummary, journeyChanges, careState, doseContext, penStock,
+  balanceRead, recommendations, radar, libraryPicks, companionSuggestions,
+} from '../src/logic/derive';
+import { proximasDe, type Alerta } from '../src/logic/alertas';
+import { T } from '../src/textos';
 
 let falhas = 0;
 const ok = (certo: boolean, o: string) => {
@@ -112,6 +123,71 @@ ok(!temEvolucao(mesmoDia), 'duas no mesmo dia: sem evolução');
 const doisDias = clone(umaPesagem);
 (doisDias.weights as any[]).push({ t: +hoje - 21 * DIA, kg: 85 });
 ok(temEvolucao(doisDias), 'duas em dias diferentes: com evolução — quem já tinha começado a tem no primeiro dia');
+
+console.log('\n6. NENHUMA FRASE SOBRE O QUE NÃO ACONTECEU');
+/* Uma pessoa com dose definida, uma pesagem e nada registrado. */
+const zero = clone(novo);
+zero.profile.med = 'mounjaro';
+(zero.profile as any).dose = 2.5;
+(zero.weights as any[]).push({ t: +hoje, kg: 80 });
+const aplicou5 = clone(zero);
+(aplicou5.injections as any[]).push({ t: +hoje - 5 * DIA + 12 * 3600e3, med: 'mounjaro', dose: 2.5, site: 'abd-e', note: '' });
+
+ok(!temCiclo(zero) && temCiclo(aplicou5), 'sem aplicação registrada não há ciclo; com uma, há');
+
+const r0 = journeySummary(zero);
+const perto = clone(zero);
+(perto.weights as any[]).push({ t: +hoje - 3 * DIA, kg: 81 });
+const longe = clone(zero);
+(longe.weights as any[]).push({ t: +hoje - 8 * DIA, kg: 81.5 });
+ok(!r0.temRitmo && !journeySummary(perto).temRitmo && journeySummary(longe).temRitmo,
+  'o ritmo pede pesagens com uma semana entre elas — no primeiro dia não há "Ritmo mais lento"');
+ok(!journeyChanges(zero).some((c) => c.ic === 'scale') && journeyChanges(perto).some((c) => c.ic === 'scale'),
+  'com uma pesagem, o peso não entra em "O que já mudou" (nada de "Estável")');
+
+const st0 = careState(zero);
+const st5 = careState(aplicou5);
+ok(st0.momento === 'comeco' && st0.adesaoRotulo === null && !st0.texto.includes('adesão'),
+  `o Cuidado sem dose registrada está no começo, sem "0 de 0 doses" nem adesão (momento: ${st0.momento})`);
+ok(st5.momento !== 'comeco' && st5.adesaoRotulo !== null, 'com uma aplicação, o Cuidado deixa o começo e conta as doses');
+const emDia1 = T.cuidado.estado.emDiaSozinha(1, true);
+ok(emDia1.includes('1 semana ') && !emDia1.includes('1 semanas'), 'uma semana é "semana", e não "1 semanas"');
+ok(!T.cuidado.estado.emDiaSozinha(4, false).includes('adesão'), 'sem adesão alta, a frase não a elogia');
+
+ok(doseContext(zero).proxima === T.cuidado.dose.nenhumaRegistrada && doseContext(aplicou5).proxima !== T.cuidado.dose.nenhumaRegistrada,
+  'sem aplicação registrada, a próxima não é "hoje"');
+const aplicouHoje = clone(zero);
+(aplicouHoje.injections as any[]).push({ t: +hoje + 12 * 3600e3, med: 'mounjaro', dose: 2.5, site: 'abd-e', note: '' });
+ok(doseContext(aplicouHoje).naDose === null && doseContext(aplicou5).naDose !== null,
+  'a primeira aplicação, registrada hoje, não é "nesta dose há 1 semana"');
+ok(!recommendations(zero).some((x) => x.ic === 'syringe') && recommendations(aplicou5).some((x) => x.ic === 'syringe'),
+  '"a aplicação da semana está chegando" só com ciclo');
+
+const alertaDaDose = (((zero as any).alertas ?? []) as Alerta[]).find((a) => a.tipo === 'dose');
+ok(!!alertaDaDose, 'o diário novo nasce com o alerta da dose');
+if (alertaDaDose) {
+  const ligado = { ...alertaDaDose, on: true };
+  ok(proximasDe(zero, ligado, 3).length === 0 && proximasDe(aplicou5, ligado, 3).length > 0,
+    'o aviso da dose espera a primeira aplicação registrada — nada de "é hoje" às nove');
+}
+
+const comCaneta = clone(aplicou5);
+(comCaneta as any).pens = [{ t: +hoje - 5 * DIA, med: 'mounjaro', dose: 2.5, dosesPerPen: 4 }];
+ok(!penStock(zero).registrada && !penStock(aplicou5).registrada && penStock(comCaneta).registrada,
+  'sem recipiente registrado, o estoque é recuo e não fato ("4 de 4")');
+
+const eq0 = balanceRead(zero);
+const respondeu6 = clone(zero);
+(respondeu6.checkins as any[]).push({ t: +hoje, energia: 7, agua: 3 });
+const eq1 = balanceRead(respondeu6);
+ok(eq0.to === '/checkin' && eq0.abertura === T.equilibrio.semLeitura && eq1.to === undefined,
+  'sem check-in respondido não há leitura do equilíbrio — nem "Reparei numa coisa boa"');
+ok(!radar(zero).some((e) => e.id === 'adesao') && radar(aplicou5).some((e) => e.id === 'adesao'),
+  'sem ciclo, adesão não é eixo do equilíbrio');
+const doCiclo = (S: State) => libraryPicks(S).filter((l) => l.ic === 'dose' || l.ic === 'drop2').length;
+ok(doCiclo(zero) === 0 && doCiclo(aplicou5) > 0, 'a biblioteca não diz "Você aplicou há 7 dias" a quem nunca aplicou');
+ok(!companionSuggestions(zero).includes(T.rotina.perguntas.trocarODia),
+  'sem dia de aplicação, o Morphi não sugere trocá-lo');
 
 console.log(falhas ? `\n${falhas} afirmação(ões) falharam\n` : '\ntodas as afirmações passaram\n');
 process.exit(falhas ? 1 : 0);

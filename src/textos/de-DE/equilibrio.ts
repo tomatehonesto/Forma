@@ -60,6 +60,9 @@ export const equilibrio = {
      schlechtesten Achse: sie sagt, ob die Behandlung im Gleichgewicht
      steht oder auf einem Bein. Bis 30, bis 55, und darüber. */
   aberturaTudoBem: 'Mir ist etwas Gutes aufgefallen.',
+  semLeitura: 'Ich habe noch nichts zu lesen.',
+  semLeituraTexto: 'Das Gleichgewicht lese ich aus den Check-ins — Schlaf, Energie, Stimmung und Hunger —, zusammen mit Wasser und Bewegung jedes Tages. Mit den ersten erscheint es hier.',
+  semLeituraBotao: 'Check-in machen',
   aberturaAtencao: 'Eine Sache ist mir aufgefallen.',
   aberturaPreciso: 'Ich muss dir etwas zeigen.',
 

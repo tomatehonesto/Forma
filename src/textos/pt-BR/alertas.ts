@@ -118,6 +118,9 @@ export const alertas = {
     desligado: 'Desligado',
     guardado: 'Guardado — os avisos saem pelo celular',
     semAviso: 'Sem aviso enquanto estiver bloqueado',
+    /* O aviso da dose conta da primeira aplicação registrada; antes dela a
+       linha diz isso, e não que o aparelho bloqueou. */
+    doseDepoisDaPrimeira: 'Começa a contar da primeira dose registrada',
 
     bloqueados: 'Os avisos estão bloqueados',
     bloqueadosTexto: 'O aparelho está barrando as notificações deste aplicativo. Enquanto estiver assim, nada do que você ligar aqui vai chegar.',

@@ -199,10 +199,32 @@ ruim. Elogio sem base é tão falso quanto bronca sem base.
 | Jornada, cartão do peso | "Ritmo mais lento" no dia 1 (`ritmoLento`, textos/tratamento) | o ritmo só aparece com pesagens suficientes para ter ritmo |
 | Jornada, a aplicação | "O efeito começa a subir nas próximas horas" sem aplicação (`aplicHead`, `faseAplicHint`, textos/ciclo) | a fase do ciclo só existe depois da primeira aplicação; antes, a primeira dose como o que vem |
 | Cuidado, o destaque | "Seu cuidado está em dia… com boa adesão" com zero doses (`emDiaTitulo` e vizinhas, textos/cuidado) | um texto de começo, que não fala de adesão antes de haver dose |
-| Cuidado, "Precisa de você" | "Nada precisa de você agora" no dia da primeira dose (`nadaPrecisa`) | a primeira dose aparece como pendência |
+| Cuidado, "Precisa de você" | "Nada precisa de você agora. Seu acompanhamento está em dia." sem dose nenhuma (`nadaPrecisa`, `emDia`) | o "em dia" sai antes do ciclo; a primeira dose **não** vira pendência — "vale resolver esta semana" empurraria alguém a começar um remédio, e quando começar é decisão dela com quem receita |
 | Cuidado, a caneta | "4 de 4" doses numa caneta nunca registrada (`estoqueEmDia`, textos/tratamento) | pedir o registro da caneta, em vez de supor que está cheia |
 | Cuidado, o destaque | "1 semanas" | plural certo (a vizinha `Nesta dose há…` já faz) |
 | Insights, o equilíbrio | "…e nem a adesão ficou para trás. Eu não mudaria nada" sem dado (textos/equilibrio) | a leitura só com registro; antes, o que registrar para ela existir |
+
+#### O que a Etapa 2 achou a mais
+
+A causa comum: sem aplicação registrada, `nextInjectionDate` devolve **hoje**
+por recuo. Toda frase montada em cima dela afirmava uma dose que ninguém
+marcou. Agora quem escreve sobre dose, ciclo ou adesão pergunta antes
+`temCiclo` (logic/derive).
+
+| Onde | Hoje | Correção |
+|---|---|---|
+| Home, o carrossel | "Hoje é dia de aplicar sua dose" logo depois de "Sua primeira aplicação ainda está por vir" | o slide da próxima aplicação só com ciclo |
+| Jornada, o painel | "SEMANA 1 · DIA 1", "dose hoje", "0 de 1 semanas com aplicação" antes da primeira dose | "ANTES DA PRIMEIRA DOSE"; sem data de dose; só a contagem de check-in; plural de semana |
+| Jornada, a faixa da fase | "APLICAÇÃO · O efeito começa a subir" sem aplicação | "PRIMEIRA DOSE · O ciclo começa a contar da primeira dose que você registrar", e o toque leva ao registro |
+| Jornada, "O que já mudou" | "Peso · 80,0 → 80,0 · Estável" com uma pesagem | o peso entra com evolução, como os vizinhos; sem nada, a seção diz quando passa a ter |
+| Cuidado, o destaque | "0 de 0 doses" e a régua "Semana 1 de 10 · 0 com aplicação em dia" | a pastilha e a régua só com dose prevista; e "com boa adesão" só com 90% ou mais |
+| Cuidado, a dose | "Aplicação hoje" sem aplicação; "Nesta dose há 1 semana" no dia da primeira | "Nenhuma dose registrada"; a semana na dose sem piso de um |
+| Cuidado e confirmação da aplicação | "4 de 4 · Estoque em dia" e "Restam 4 doses" sem recipiente registrado (`penStock` devolve cheio por recuo) | pede o registro do recipiente, com o toque levando a ele (`penStock().registrada`) |
+| Insights, "Próximas ações" | "Separe a caneta… a aplicação da semana está chegando" sem aplicação | só com ciclo |
+| Insights, o equilíbrio | adesão zero como o eixo mais fraco de quem não começou | sem ciclo, adesão não é eixo |
+| O aviso da dose | "é hoje" às nove, todo dia em que o app abrisse cedo, sem aplicação registrada | o aviso da dose conta da primeira aplicação registrada; Lembretes diz isso na linha |
+| Jornada, o ritmo | "Ritmo mais lento" com uma pesagem | a etiqueta só com duas pesagens separadas por uma semana (`temRitmo`) |
+| Biblioteca e sugestões do Morphi | "Você aplicou há 7 dias" sem aplicação; "Posso trocar o dia da aplicação?" sem dia de aplicação | as leituras do ciclo e a sugestão só com ciclo |
 
 ### A varredura das telas internas
 
@@ -223,7 +245,10 @@ por tela, antes de ser corrigido.
 - **A mesma sonda trava a Peça 2:** uma pesagem, sem evolução; duas no
   mesmo dia, sem evolução; duas em dias diferentes, com.
 - **E trava as frases da Peça 3** que saem de logic/derive: com zero doses,
-  nada fala em adesão; sem aplicação, nada fala em fase do ciclo.
+  nada fala em adesão; sem aplicação, nada fala em fase do ciclo, próxima
+  dose nem aviso de dose; sem pesagens bastantes, nada de ritmo nem de
+  "estável"; sem recipiente registrado, nada de estoque; sem check-in
+  respondido, nada de leitura do equilíbrio.
 - **No navegador:** como pessoa nova, no servidor de produção, na origem de
   teste (127.0.0.1:8082), em claro e escuro: o cartão, a comemoração, o
   esconder e o reabrir.

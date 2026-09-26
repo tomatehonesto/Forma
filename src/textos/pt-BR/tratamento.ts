@@ -95,6 +95,12 @@ export const tratamento = {
   estoqueUrgente: 'Renove agora',
   estoqueRenovar: 'Vale renovar a receita',
   estoqueEmDia: 'Estoque em dia',
+  /* ⚠️ SEM RECIPIENTE REGISTRADO NÃO HÁ ESTOQUE, e a conta devolvia
+     "cheio" por recuo. A frase pede o registro. O recipiente chega com o
+     artigo (`formas.oA`), e o alemão o põe como sujeito para não
+     precisar do acusativo. */
+  registreORecipiente: (oRecipiente: string) =>
+    `Registre ${oRecipiente}, e contamos as doses que restam.`,
 
   /* ============================================================
      OS LOCAIS DE APLICAÇÃO

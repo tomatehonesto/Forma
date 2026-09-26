@@ -68,6 +68,8 @@ export const tratamento = {
   estoqueUrgente: 'Renueva ahora',
   estoqueRenovar: 'Conviene renovar la receta',
   estoqueEmDia: 'Existencias al día',
+  registreORecipiente: (oRecipiente: string) =>
+    `Registra ${oRecipiente} y contamos las dosis que quedan.`,
 
   /* ⚠️ EL LADO VA ABREVIADO Y ENTRE PARÉNTESIS porque estos rótulos
      aparecen dentro de líneas cortas — historial, sugerencia del día,

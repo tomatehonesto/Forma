@@ -114,6 +114,7 @@ export const alertas = {
     desligado: 'Aus',
     guardado: 'Gespeichert — die Erinnerungen klingeln auf dem Telefon',
     semAviso: 'Keine Erinnerung, solange es blockiert ist',
+    doseDepoisDaPrimeira: 'Zählt ab der ersten eingetragenen Dosis',
 
     bloqueados: 'Die Erinnerungen sind blockiert',
     bloqueadosTexto: 'Das Gerät blockiert die Mitteilungen dieser App. Solange das so bleibt, kommt nichts an, was du hier einschaltest.',

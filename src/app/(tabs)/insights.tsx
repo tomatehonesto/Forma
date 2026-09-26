@@ -602,7 +602,8 @@ export default function Insights() {
 
           {/* botão sólido em lima, não link: aqui a IA não oferece leitura,
               propõe conversa */}
-          <Pressable onPress={perguntar(eq.q)} style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1, marginTop: 22, alignSelf: 'flex-start' }]}>
+          {/* Sem leitura, o botão leva ao check-in, que é de onde ela sai. */}
+          <Pressable onPress={eq.to ? go(eq.to) : perguntar(eq.q)} style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1, marginTop: 22, alignSelf: 'flex-start' }]}>
             <Row gap={8} style={{ backgroundColor: c.lime, borderRadius: radius.pill, paddingHorizontal: 20, paddingVertical: 13 }}>
               <Txt v="label" c={c.limeInk}>{eq.botao}</Txt>
               <Icon name="chev" size={14} color={c.limeInk} sw={2.4} />

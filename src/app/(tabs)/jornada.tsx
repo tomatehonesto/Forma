@@ -11,7 +11,7 @@ import {
   milestones, doseCycle, penStock, nextInjectionDate, siteLabel, nextSite,
   waterMlToday, litros, checkinToday, protocoloDaSemana, weekGrid, last7Days, M,
   sintomasDaSemana, diasDeSintomas, type Change, type TLEvent, type TLKind, type WeekMetric,
-  diasAteAplicar, semanasDaGrade,
+  diasAteAplicar, semanasDaGrade, temCiclo, diaDoTratamento,
 } from '../../logic/derive';
 import { now, fmtDate, relDay, nf, quandoEm } from '../../logic/time';
 import { Txt, Row, SectionHead, Divider, ListRow, Metric, Vazio, Rolagem } from '../../ui/kit';
@@ -92,6 +92,12 @@ function Painel() {
   /* a contagem de semanas continua, agora só como frase: o número diz
      a constância longa que sete dias não alcançam */
   const { vividas, aplicadas } = semanasDaGrade(S);
+  /* ⚠️ SEM CICLO, O PAINEL NÃO CONTA DOSE. Antes da primeira aplicação
+     registrada a próxima é "hoje" por recuo (ver `temCiclo`), e o painel
+     dizia "dose hoje", "0 de 1 semanas com aplicação" e "o efeito começa a
+     subir nas próximas horas" a quem ainda não começou. */
+  const comCiclo = temCiclo(S);
+  const dia = diaDoTratamento(S);
 
   return (
     /* Sobe até o topo da tela: o rótulo da aba já diz "Jornada", então o
@@ -108,7 +114,11 @@ function Painel() {
         style={StyleSheet.absoluteFill}
       />
       {/* ---- peso: o número que a pessoa veio buscar ---- */}
-      <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 1.2 }}>{K().semanaEDia(r.semana, r.dia)}</Txt>
+      {/* Antes da primeira dose não há semana nem dia de tratamento: a
+          linha diz o mesmo que a Home diz embaixo do nome. */}
+      <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 1.2 }}>
+        {dia.antes ? dia.texto.toUpperCase() : K().semanaEDia(r.semana, r.dia)}
+      </Txt>
 
       <Row style={{ alignItems: 'center', marginTop: 12 }}>
         {/* número inteiro em branco puro — é o destaque da tela, e recuar a
@@ -118,6 +128,10 @@ function Painel() {
         {/* A etiqueta emite um juízo, então precisa poder ser auditada: o
             toque abre /ritmo, que mostra de onde ela saiu e — mais
             importante — o que ela NÃO mede. */}
+        {/* ⚠️ SÓ COM RITMO. Com uma pesagem, a conta dava zero quilo por
+            semana e a etiqueta dizia "Ritmo mais lento" no primeiro dia.
+            Ver `temRitmo`, em derive. */}
+        {r.temRitmo ? (
         <Pressable onPress={() => router.push('/ritmo' as any)} hitSlop={6} style={({ pressed }) => [{ opacity: pressed ? 0.75 : 1 }]}>
           {/* A ETIQUETA É CHEIA, e era lima ou vidro.
 
@@ -139,6 +153,7 @@ function Painel() {
             <Txt v="tag" c={tintaDoVeredito}>{r.verdict.label}</Txt>
           </View>
         </Pressable>
+        ) : null}
       </Row>
 
       {/* A curva vem colada no número — é a mesma informação em outra
@@ -205,9 +220,11 @@ function Painel() {
             <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 1 }}>
               {K().ultimos7}
             </Txt>
-            <Txt v="tag" c={c.onHero}>
-              {K().doseEm(quandoEm(ndDays).label)}
-            </Txt>
+            {comCiclo ? (
+              <Txt v="tag" c={c.onHero}>
+                {K().doseEm(quandoEm(ndDays).label)}
+              </Txt>
+            ) : null}
           </Row>
 
           <Row gap={7} style={{ marginTop: 14 }}>
@@ -247,7 +264,7 @@ function Painel() {
           </Row>
 
           <Txt v="caption" c={c.onHero} style={{ marginTop: 8 }}>
-            {K().diasComCheckin(feitos, aplicadas, vividas)}
+            {comCiclo ? K().diasComCheckin(feitos, aplicadas, vividas) : K().diasComCheckinSo(feitos)}
           </Txt>
         </View>
       </Pressable>
@@ -265,8 +282,10 @@ function Painel() {
           ciclo abre nas quatro fases, com a de agora já expandida — a
           faixa leva para lá, que é a resposta direta em vez do caminho até
           ela. */}
+      {/* Sem ciclo não há fase: a faixa diz de onde ele vai começar a
+          contar, e o toque leva ao registro da primeira dose. */}
       <Pressable
-        onPress={() => router.push('/ciclo' as any)}
+        onPress={() => router.push((comCiclo ? '/ciclo' : '/aplicacao') as any)}
         style={({ pressed }) => [{ opacity: pressed ? 0.75 : 1, marginTop: 22, marginBottom: 26 }]}
       >
         <Row gap={12} style={{ backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine, borderRadius: radius.lg, padding: 14 }}>
@@ -274,8 +293,8 @@ function Painel() {
             <Icon name="aura" size={16} color={c.onHero} sw={1.9} />
           </View>
           <View style={{ flex: 1 }}>
-            <Txt v="micro" c={c.onHero2}>{cyc.phase.label.toUpperCase()}</Txt>
-            <Txt v="caption" c={c.onHero} style={{ marginTop: 2 }}>{cyc.phase.hint}</Txt>
+            <Txt v="micro" c={c.onHero2}>{(comCiclo ? cyc.phase.label : K().primeiraDose).toUpperCase()}</Txt>
+            <Txt v="caption" c={c.onHero} style={{ marginTop: 2 }}>{comCiclo ? cyc.phase.hint : K().primeiraDoseTexto}</Txt>
           </View>
           <Icon name="chev" size={15} color={c.onHero2} sw={2} />
         </Row>
@@ -588,9 +607,16 @@ export default function Jornada() {
         {/* ---------- O QUE JÁ MUDOU — grade densa ---------- */}
         <View style={{ marginTop: 34 }}>
           <SectionHead title={K().oQueJaMudou} link={K().evolucao} onPress={go('/evolucao')} />
-          <Row style={{ flexWrap: 'wrap', justifyContent: 'space-between', marginTop: 14 }}>
-            {changes.map((ch) => <ChangeTile key={ch.label} ch={ch} onPress={go(ch.to_)} />)}
-          </Row>
+          {/* Sem o que comparar, a seção diz quando passa a ter — e o
+              link do cabeçalho continua levando a Evolução, onde moram
+              fotos e medidas. */}
+          {changes.length ? (
+            <Row style={{ flexWrap: 'wrap', justifyContent: 'space-between', marginTop: 14 }}>
+              {changes.map((ch) => <ChangeTile key={ch.label} ch={ch} onPress={go(ch.to_)} />)}
+            </Row>
+          ) : (
+            <Txt v="caption" c={c.tx3} style={{ marginTop: 12 }}>{K().oQueJaMudouVazio}</Txt>
+          )}
           {/* Aqui havia três atalhos (Fotos, Metas, Saúde). Tentei como
               pílula e como linha de navegação, e nenhum dos dois assentou:
               o problema não era o estilo, era a redundância. Os três moram

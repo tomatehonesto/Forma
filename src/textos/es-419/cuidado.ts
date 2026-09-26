@@ -101,15 +101,18 @@ export const cuidado = {
     /* ⚠️ LA SEGUNDA VERSIÓN EXISTE PORQUE LA FRASE EMPEZABA POR EL NOMBRE
        DE LA MÉDICA. Sin nadie registrado abría con un espacio en blanco.
        Quien conduce el tratamiento sola lo conduce desde hace el mismo tiempo. */
-    emDiaComQuem: (quem: string, semanas: number) =>
-      `${quem} acompaña tu tratamiento desde hace ${semanas} semanas. Tienes buena adherencia y no hay ningún pendiente importante por ahora.`,
-    emDiaSozinha: (semanas: number) =>
-      `Llevas ${semanas} semanas de tratamiento, con buena adherencia y ningún pendiente importante por ahora.`,
+    emDiaComQuem: (quem: string, semanas: number, boaAdesao: boolean) =>
+      `${quem} acompaña tu tratamiento desde hace ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}. ${boaAdesao ? 'Tienes buena adherencia y no hay ningún pendiente importante por ahora.' : 'No hay ningún pendiente importante por ahora.'}`,
+    emDiaSozinha: (semanas: number, boaAdesao: boolean) =>
+      `Llevas ${semanas} ${semanas === 1 ? 'semana' : 'semanas'} de tratamiento, ${boaAdesao ? 'con buena adherencia y ningún' : 'sin ningún'} pendiente importante por ahora.`,
     emDiaPulso: 'Seguimiento al día',
+    comecoTitulo: 'Contamos a partir de la primera dosis.',
+    comecoTexto: 'Cuando la primera dosis esté registrada, las semanas, las dosis y el ciclo se cuentan desde ahí.',
   },
 
   dose: {
     aplicacaoHoje: 'Inyección hoy',
+    nenhumaRegistrada: 'Ninguna dosis registrada',
     proximaAplicacao: (quando: string) => `Próxima inyección ${quando}`,
     nestaDoseHa: (semanas: number) =>
       `En esta dosis desde hace ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
@@ -182,6 +185,7 @@ export const cuidado = {
     precisaDeVoce: 'Depende de ti',
     nadaPrecisa: 'Nada depende de ti ahora.',
     emDia: 'Tu seguimiento está al día.',
+    nadaAinda: 'Cuando algo necesite tu atención, aparecerá aquí.',
 
     proximaConsulta: 'Tu próxima consulta',
     consultasLink: 'Consultas',

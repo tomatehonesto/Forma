@@ -81,6 +81,9 @@ export const equilibrio = {
      sola. Fino a 30, fino a 55, e oltre.
      ============================================================ */
   aberturaTudoBem: 'Ho notato una cosa bella.',
+  semLeitura: 'Non ho ancora niente da leggere.',
+  semLeituraTexto: 'Leggo l’equilibrio nei check-in — sonno, energia, umore e fame —, insieme all’acqua e al movimento di ogni giorno. Con i primi, compare qui.',
+  semLeituraBotao: 'Fai il check-in',
   aberturaAtencao: 'Una cosa mi ha colpito.',
   aberturaPreciso: 'Devo farti vedere una cosa.',
 

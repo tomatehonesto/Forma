@@ -1,6 +1,5 @@
 import type { State } from './seed';
 import type { Permissao } from './avisos';
-import { startOfDay } from './time';
 import { respostaNoDia } from './derive';
 import { FORMAS, formaDe } from './formas';
 import { T } from '../textos';
@@ -122,16 +121,3 @@ export const passosNaHome = (S: State) =>
 /** A linha do Perfil que reabre: escondido, e ainda não concluído. */
 export const passosParaReabrir = (S: State) =>
   doDiario(S) && passosEscondidos(S) && !passosConcluidos(S);
-
-/* ============================================================
-   HÁ EVOLUÇÃO?
-
-   Duas pesagens em dias diferentes — o mínimo para "peso perdido" querer
-   dizer alguma coisa. Quem já tinha começado e informou o peso inicial no
-   cadastro tem as duas no primeiro dia, e tem evolução de verdade; quem
-   começa hoje tem uma, e a seção espera (Peça 2 da especificação).
-   ============================================================ */
-export function temEvolucao(S: State) {
-  const dias = new Set(((S.weights ?? []) as { t: number }[]).map((w) => +startOfDay(w.t)));
-  return dias.size >= 2;
-}

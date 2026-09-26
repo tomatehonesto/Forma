@@ -72,6 +72,8 @@ export const tratamento = {
   estoqueUrgente: 'Jetzt nachbestellen',
   estoqueRenovar: 'Zeit für ein neues Rezept',
   estoqueEmDia: 'Vorrat reicht',
+  registreORecipiente: (oRecipiente: string) =>
+    `${oRecipiente.charAt(0).toUpperCase()}${oRecipiente.slice(1)} ist noch nicht eingetragen — mit dem Eintrag zählen wir die restlichen Dosen.`,
 
   /* ⚠️ DIE SEITE KOMMT ABGEKÜRZT UND IN KLAMMERN, weil diese Etiketten in
      kurzen Zeilen stehen — Verlauf, Vorschlag des Tages, Wochenübersicht.

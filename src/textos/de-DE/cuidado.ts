@@ -132,11 +132,13 @@ export const cuidado = {
        ÄRZTIN BEGANN. Ohne jemanden Eingetragenen öffnete er mit einem
        Leerzeichen: „ begleitet deine Behandlung seit 10 Wochen“. Wer die
        Behandlung allein führt, führt sie genauso lange. */
-    emDiaComQuem: (quem: string, semanas: number) =>
-      `${quem} begleitet deine Behandlung seit ${semanas} Wochen. Du bist gut dabei, und im Moment steht nichts Wichtiges offen.`,
-    emDiaSozinha: (semanas: number) =>
-      `Du bist seit ${semanas} Wochen in Behandlung, bist gut dabei, und im Moment steht nichts Wichtiges offen.`,
+    emDiaComQuem: (quem: string, semanas: number, boaAdesao: boolean) =>
+      `${quem} begleitet deine Behandlung seit ${semanas} ${semanas === 1 ? 'Woche' : 'Wochen'}. ${boaAdesao ? 'Du bist gut dabei, und im Moment steht nichts Wichtiges offen.' : 'Im Moment steht nichts Wichtiges offen.'}`,
+    emDiaSozinha: (semanas: number, boaAdesao: boolean) =>
+      `Du bist seit ${semanas} ${semanas === 1 ? 'Woche' : 'Wochen'} in Behandlung${boaAdesao ? ', bist gut dabei' : ''}, und im Moment steht nichts Wichtiges offen.`,
     emDiaPulso: 'Betreuung auf Stand',
+    comecoTitulo: 'Wir zählen ab der ersten Dosis.',
+    comecoTexto: 'Sobald die erste Dosis eingetragen ist, zählen wir von dort die Wochen, die Dosen und den Zyklus.',
   },
 
   /* ============================================================
@@ -144,6 +146,7 @@ export const cuidado = {
      ============================================================ */
   dose: {
     aplicacaoHoje: 'Spritze heute',
+    nenhumaRegistrada: 'Noch keine Dosis eingetragen',
     proximaAplicacao: (quando: string) => `Nächste Spritze ${quando}`,
     nestaDoseHa: (semanas: number) =>
       `Bei dieser Dosis seit ${semanas} ${semanas === 1 ? 'Woche' : 'Wochen'}`,
@@ -218,6 +221,7 @@ export const cuidado = {
     precisaDeVoce: 'Wartet auf dich',
     nadaPrecisa: 'Gerade wartet nichts auf dich.',
     emDia: 'Deine Begleitung ist auf dem Stand.',
+    nadaAinda: 'Wenn etwas deine Aufmerksamkeit braucht, erscheint es hier.',
 
     proximaConsulta: 'Dein nächster Termin',
     consultasLink: 'Termine',

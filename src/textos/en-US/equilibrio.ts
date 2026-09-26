@@ -28,6 +28,9 @@ export const equilibrio = {
   /* The three openers, chosen by the spread between the best and worst
      axis. */
   aberturaTudoBem: 'I noticed something good.',
+  semLeitura: 'I don’t have anything to read yet.',
+  semLeituraTexto: 'I read your balance from check-ins — sleep, energy, mood and hunger — along with each day’s water and movement. With your first few, it shows up here.',
+  semLeituraBotao: 'Check in',
   aberturaAtencao: 'Something caught my eye.',
   aberturaPreciso: 'There’s something I want to show you.',
 

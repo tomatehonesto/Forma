@@ -108,15 +108,18 @@ export const cuidado = {
        NOM DE LA MÉDECIN. Sans personne d'enregistré, elle ouvrait sur un
        blanc. Qui mène son traitement seule le mène depuis aussi
        longtemps. */
-    emDiaComQuem: (quem: string, semanas: number) =>
-      `${quem} suit votre traitement depuis ${semanas} semaines. Votre observance est bonne et il n’y a rien d’important en attente pour l’instant.`,
-    emDiaSozinha: (semanas: number) =>
-      `Vous êtes à ${semanas} semaines de traitement, avec une bonne observance et rien d’important en attente pour l’instant.`,
+    emDiaComQuem: (quem: string, semanas: number, boaAdesao: boolean) =>
+      `${quem} suit votre traitement depuis ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}. ${boaAdesao ? 'Votre observance est bonne et il n’y a rien d’important en attente pour l’instant.' : 'Il n’y a rien d’important en attente pour l’instant.'}`,
+    emDiaSozinha: (semanas: number, boaAdesao: boolean) =>
+      `Vous êtes à ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'} de traitement, ${boaAdesao ? 'avec une bonne observance et rien' : 'sans rien'} d’important en attente pour l’instant.`,
     emDiaPulso: 'Suivi à jour',
+    comecoTitulo: 'Nous comptons à partir de la première dose.',
+    comecoTexto: 'Une fois la première dose enregistrée, les semaines, les doses et le cycle se comptent à partir de là.',
   },
 
   dose: {
     aplicacaoHoje: 'Piqûre aujourd’hui',
+    nenhumaRegistrada: 'Aucune dose enregistrée',
     proximaAplicacao: (quando: string) => `Prochaine piqûre ${quando}`,
     nestaDoseHa: (semanas: number) =>
       `À cette dose depuis ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}`,
@@ -186,6 +189,7 @@ export const cuidado = {
     precisaDeVoce: 'Ce qui dépend de vous',
     nadaPrecisa: 'Rien ne dépend de vous pour le moment.',
     emDia: 'Votre suivi est à jour.',
+    nadaAinda: 'Quand quelque chose demandera votre attention, cela apparaîtra ici.',
 
     proximaConsulta: 'Votre prochaine consultation',
     consultasLink: 'Consultations',

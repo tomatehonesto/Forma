@@ -11,6 +11,7 @@ import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
 import { estadoDaPermissao, pedirPermissao, type Permissao } from '../logic/avisos';
+import { temCiclo } from '../logic/derive';
 import { maiuscula } from '../logic/time';
 import { T } from '../textos';
 
@@ -124,8 +125,12 @@ export default function Lembretes() {
             <Txt v="micro" c={c.tx4} style={{ marginTop: 2 }}>
               {prox ? K().proximo(prox)
                 : !a.on ? K().desligado
-                  : permissao === 'indisponivel' ? K().guardado
-                    : K().semAviso}
+                  /* O aviso da dose conta da primeira aplicação registrada
+                     (logic/alertas); antes dela, a linha diz isso, e não
+                     que o aparelho bloqueou. */
+                  : a.tipo === 'dose' && !temCiclo(S) ? K().doseDepoisDaPrimeira
+                    : permissao === 'indisponivel' ? K().guardado
+                      : K().semAviso}
             </Txt>
           </Pressable>
           <Switch

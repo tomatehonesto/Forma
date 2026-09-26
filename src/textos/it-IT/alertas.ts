@@ -109,6 +109,7 @@ export const alertas = {
     desligado: 'Spento',
     guardado: 'Salvato — gli avvisi escono dal telefono',
     semAviso: 'Nessun avviso mentre è bloccato',
+    doseDepoisDaPrimeira: 'Inizia a contare dalla prima dose registrata',
 
     bloqueados: 'Gli avvisi sono bloccati',
     bloqueadosTexto: 'Il dispositivo sta bloccando le notifiche di questa app. Finché resta così, niente di quello che accendi qui arriverà.',

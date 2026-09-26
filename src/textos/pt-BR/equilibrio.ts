@@ -69,6 +69,12 @@ export const equilibrio = {
      30, até 55, e acima disso.
      ============================================================ */
   aberturaTudoBem: 'Reparei numa coisa boa.',
+  /* ⚠️ SEM CHECK-IN RESPONDIDO NÃO HÁ LEITURA. Oito zeros davam
+     amplitude zero, e amplitude zero era "Reparei numa coisa boa". A
+     frase diz de onde a leitura sai, e o botão leva até lá. */
+  semLeitura: 'Ainda não tenho o que ler.',
+  semLeituraTexto: 'Eu leio o equilíbrio nos check-ins — sono, energia, humor e fome —, junto da água e do movimento de cada dia. Com os primeiros, ele aparece aqui.',
+  semLeituraBotao: 'Fazer check-in',
   aberturaAtencao: 'Uma coisa me chamou atenção.',
   aberturaPreciso: 'Tenho uma coisa para te mostrar.',
 

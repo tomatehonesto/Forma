@@ -53,6 +53,9 @@ export const equilibrio = {
   },
 
   aberturaTudoBem: 'J’ai remarqué une bonne chose.',
+  semLeitura: 'Je n’ai encore rien à lire.',
+  semLeituraTexto: 'Je lis l’équilibre dans les check-ins — sommeil, énergie, humeur et faim —, avec l’eau et le mouvement de chaque jour. Dès les premiers, il apparaît ici.',
+  semLeituraBotao: 'Faire le check-in',
   aberturaAtencao: 'Quelque chose a attiré mon attention.',
   aberturaPreciso: 'J’ai quelque chose à vous montrer.',
 

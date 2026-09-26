@@ -96,16 +96,19 @@ export const cuidado = {
        THE DOCTOR'S NAME. With nobody on file it opened with a blank
        space. Someone running their treatment alone has been running it
        just as long. */
-    emDiaComQuem: (quem: string, semanas: number) =>
-      `${quem} has been following your treatment for ${semanas} weeks. You’re keeping up well and there’s nothing waiting on you right now.`,
-    emDiaSozinha: (semanas: number) =>
-      `You’re ${semanas} weeks into treatment, keeping up well, with nothing waiting on you right now.`,
+    emDiaComQuem: (quem: string, semanas: number, boaAdesao: boolean) =>
+      `${quem} has been following your treatment for ${semanas} ${semanas === 1 ? 'week' : 'weeks'}. ${boaAdesao ? 'You’re keeping up well and there’s nothing waiting on you right now.' : 'There’s nothing waiting on you right now.'}`,
+    emDiaSozinha: (semanas: number, boaAdesao: boolean) =>
+      `You’re ${semanas} ${semanas === 1 ? 'week' : 'weeks'} into treatment, ${boaAdesao ? 'keeping up well, with nothing' : 'with nothing'} waiting on you right now.`,
     emDiaPulso: 'Follow-up on track',
+    comecoTitulo: 'We count from your first dose.',
+    comecoTexto: 'Once your first dose is logged, the weeks, the doses and the cycle are counted from there.',
   },
 
   /* ---------- the dose context ---------- */
   dose: {
     aplicacaoHoje: 'Shot today',
+    nenhumaRegistrada: 'No dose logged yet',
     proximaAplicacao: (quando: string) => `Next shot ${quando}`,
     nestaDoseHa: (semanas: number) =>
       `On this dose for ${semanas} ${semanas === 1 ? 'week' : 'weeks'}`,
@@ -174,6 +177,7 @@ export const cuidado = {
     precisaDeVoce: 'Waiting on you',
     nadaPrecisa: 'Nothing is waiting on you right now.',
     emDia: 'Your follow-up is up to date.',
+    nadaAinda: 'When something needs your attention, it shows up here.',
 
     proximaConsulta: 'Your next appointment',
     consultasLink: 'Appointments',

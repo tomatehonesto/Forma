@@ -46,6 +46,9 @@ export const equilibrio = {
   },
 
   aberturaTudoBem: 'Vi algo bueno.',
+  semLeitura: 'Todavía no tengo qué leer.',
+  semLeituraTexto: 'Leo el equilibrio en los check-ins — sueño, energía, ánimo y hambre —, junto con el agua y el movimiento de cada día. Con los primeros, aparece aquí.',
+  semLeituraBotao: 'Hacer check-in',
   aberturaAtencao: 'Algo me llamó la atención.',
   aberturaPreciso: 'Tengo algo que mostrarte.',
 

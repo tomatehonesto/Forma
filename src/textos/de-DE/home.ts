@@ -199,7 +199,11 @@ export const home = {
        keinen Satz, hier ist es ein Substantiv. */
     doseEm: (quando: string) => `Dosis ${quando}`,
     diasComCheckin: (feitos: number, aplicadas: number, vividas: number) =>
-      `${feitos} von 7 Tagen mit Check-in · ${aplicadas} von ${vividas} Wochen mit Spritze`,
+      `${feitos} von 7 Tagen mit Check-in · ${aplicadas} von ${vividas} ${vividas === 1 ? 'Woche' : 'Wochen'} mit Spritze`,
+    diasComCheckinSo: (feitos: number) =>
+      `${feitos} von 7 Tagen mit Check-in`,
+    primeiraDose: 'Erste Dosis',
+    primeiraDoseTexto: 'Der Zyklus zählt ab der ersten Dosis, die du einträgst.',
     semanaASemana: 'Woche für Woche. Tipp darauf, um zu sehen, was jeden Zyklus geprägt hat.',
     verAsSemanas: (quantas: number) => `Alle ${quantas} Wochen ansehen`,
     semanaEDia: (semana: number, dia: number) => `WOCHE ${semana} · TAG ${dia}`,
@@ -226,6 +230,7 @@ export const home = {
         : `${restam === 1 ? 'Noch 1 Dosis' : `Noch ${restam} Dosen`} · rund ${semanas} ${semanas === 1 ? 'Woche' : 'Wochen'}`,
 
     oQueJaMudou: 'Was sich geändert hat',
+    oQueJaMudouVazio: 'Ab der zweiten Wiegung erscheint hier, was sich geändert hat.',
     evolucao: 'Entwicklung',
     suasMetas: 'Deine Ziele',
     metas: 'Ziele',
