@@ -1714,8 +1714,26 @@ No navegador de testes (`127.0.0.1`), com um cadastro novo e sem conta:
    - desconectar: o vínculo encerrado por `paciente`, com a cópia do
      perfil, e o diário intacto.
 
-   ⏳ Faltam a clínica encerrando, o pendente virando vínculo quando a
-   conta nasce e apagar a conta que conectou.
+   - a clínica encerrando (`BOTAFOGO26`, encerrado pelo banco com
+     `private.encerra(…, 'clinica')`, porque a rede de exemplo não tem
+     profissional com login): na volta ao aplicativo, a cópia saiu e o
+     aviso "A clínica encerrou o acompanhamento" chegou ao sino.
+
+   ⏳ Faltam o pendente virando vínculo quando a conta nasce e apagar a
+   conta que conectou.
+10. ⚠️ **Na primeira tentativa (`PAULISTA26`), o aviso não chegou**, e a
+    cópia já tinha saído sem ele. O caminho que tira a cópia sem aviso
+    existia: a conferência do vínculo que a volta ao aplicativo dispara
+    podia terminar depois de uma conexão feita no meio, e aplicar a
+    resposta velha (o vínculo anterior, encerrado) sobre a cópia nova.
+    Agora a resposta só vale para a cópia que havia na pergunta. Aquela
+    tentativa foi antes das sondas, e não dá para afirmar que foi isto.
+    A segunda, com as sondas, passou inteira.
+11. **"Anote quem é" não marcava o acompanhamento.** A tela gravava o
+    nome da médica e a pessoa continuava "por conta própria", com a rede
+    parceira na aba Cuidado. Defeito anterior ao plano, achado no teste.
+12. **O código também entra por "Quem acompanha você"**, pedido do dono:
+    quem tem médico não vê a rede, e o código só entrava pelo Perfil.
 
 ---
 

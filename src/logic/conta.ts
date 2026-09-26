@@ -253,12 +253,22 @@ export async function usarConvitePendente(): Promise<'nenhum' | 'ligou' | 'nao-v
 
 /** A cópia do vínculo segue o servidor — na abertura, na volta ao
     aplicativo, e depois de conectar ou desconectar. Ver
-    `seguirVinculoDoServidor`, em logic/rede. */
+    `seguirVinculoDoServidor`, em logic/rede.
+
+    ⚠️ A RESPOSTA SÓ VALE PARA A CÓPIA QUE HAVIA NA PERGUNTA. Conectar
+    enquanto uma conferência está no ar (a volta ao aplicativo dispara
+    uma) fazia a resposta velha — o vínculo anterior, já encerrado —
+    cair sobre a cópia nova: ela saía sem aviso nenhum, e a pessoa ficava
+    desconectada de uma clínica que continuava ligada no servidor. Se a
+    cópia mudou no meio, a resposta é descartada, e a conferência
+    seguinte (a próxima volta ao aplicativo) pergunta pela cópia nova. */
 export async function atualizarVinculo() {
   if (!diarioDaConta()) return;
+  const naPergunta = JSON.stringify((useStore.getState().S as any).profile?.vinculo ?? null);
   const remoto = await ultimoVinculo();
   if (remoto === undefined || !diarioDaConta()) return;
   const S = useStore.getState().S;
+  if (JSON.stringify((S as any).profile?.vinculo ?? null) !== naPergunta) return;
   const copia: any = JSON.parse(JSON.stringify(S));
   const aviso = seguirVinculoDoServidor(copia, remoto);
   /* Só grava o que mudou: a mesma cópia regravada acordaria a sincronia
