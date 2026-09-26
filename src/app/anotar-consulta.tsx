@@ -1,12 +1,16 @@
 import React from 'react';
-import { View } from 'react-native';
+import { View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { clinicaConectada, temAcompanhamento } from '../logic/derive';
 import { temConsulta } from '../logic/derive';
-import { MO_LONG, startOfDay, now } from '../logic/time';
+import { startOfDay, now, maiuscula, dataComDiaDaSemana, dataComAno, diasDaSemana } from '../logic/time';
+import { formato } from '../logic/local';
+import { radius } from '../theme';
 import { Txt, Row } from '../ui/kit';
-import { TelaInterna, Titulao, Campo, Roda, Botao, Aviso, Opcoes, Opc } from '../ui/internas';
+import { TelaInterna, Titulao, Campo, Botao, Aviso, Opcoes, Opc } from '../ui/internas';
+import { Calendario } from '../ui/calendario';
+import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { T } from '../textos';
 
@@ -52,9 +56,18 @@ const TIPOS = () => [
 ];
 
 /* Dezoito meses para a frente e nenhum dia para trás. Consulta é
-   compromisso futuro: uma roda que aceita o ano passado convida ao erro
-   de digitação que depois vira "consulta há 300 dias" na Home. */
+   compromisso futuro: um campo que aceita o ano passado convida ao erro
+   de toque que depois vira "consulta há 300 dias" na Home. */
 const MESES_A_FRENTE = 18;
+
+/* ⚠️ O ANO SÓ APARECE QUANDO NÃO É ESTE. A consulta alcança dezoito
+   meses, e "sexta, 5 de março" sem ano não diz se é daqui a cinco meses
+   ou a dezessete; no ano corrente, ele seria ruído. */
+const dataDaConsulta = (t: number) => {
+  const d = new Date(t);
+  if (d.getFullYear() === now().getFullYear()) return dataComDiaDaSemana(d);
+  return formato().comDiaDaSemana(diasDaSemana()[d.getDay()], dataComAno(d));
+};
 
 export default function AnotarConsulta() {
   const S = useStore((s) => s.S);
@@ -70,39 +83,16 @@ export default function AnotarConsulta() {
   const limite = new Date(hoje.getFullYear(), hoje.getMonth() + MESES_A_FRENTE, hoje.getDate());
 
   const inicial = atual && +atual >= +hoje ? atual : hoje;
-  const [dia, setDia] = React.useState(inicial.getDate());
-  const [mes, setMes] = React.useState(inicial.getMonth());
-  const [ano, setAno] = React.useState(inicial.getFullYear());
+  const [quando, setQuando] = React.useState(+startOfDay(inicial));
   const [tipo, setTipo] = React.useState(S.consult.type || TIPOS()[0]);
-
-  /* As três rodas se limitam entre si: num mês de trinta dias o 31 não
-     existe, e no mês de hoje os dias que já passaram também não. Sem
-     isso, a roda oferece uma data que o botão depois recusa — que é o
-     jeito mais irritante de um formulário dizer não. */
-  const primeiroDoMes = ano === hoje.getFullYear() && mes === hoje.getMonth() ? hoje.getDate() : 1;
-  const ultimoDoMes = new Date(ano, mes + 1, 0).getDate();
-  const noLimite = ano === limite.getFullYear() && mes === limite.getMonth();
-  const maiorDia = noLimite ? Math.min(ultimoDoMes, limite.getDate()) : ultimoDoMes;
-
-  const dias = Array.from(
-    { length: Math.max(1, maiorDia - primeiroDoMes + 1) },
-    (_, k) => ({ v: primeiroDoMes + k, label: String(primeiroDoMes + k) }),
-  );
-  const meses = MO_LONG()
-    .map((m, k) => ({ v: k, label: m }))
-    .filter((x) => {
-      const depoisDeHoje = ano > hoje.getFullYear() || x.v >= hoje.getMonth();
-      const antesDoLimite = ano < limite.getFullYear() || x.v <= limite.getMonth();
-      return depoisDeHoje && antesDoLimite;
-    });
-  const anos = Array.from(
-    { length: limite.getFullYear() - hoje.getFullYear() + 1 },
-    (_, k) => ({ v: hoje.getFullYear() + k, label: String(hoje.getFullYear() + k) }),
-  );
+  /* A grade já vem aberta para quem ainda não tem consulta: a data é o
+     que essa pessoa veio fazer aqui. Quem já tem abre a tela para mudar
+     outra coisa tanto quanto a data, e a encontra fechada, escrita. */
+  const [calAberto, setCalAberto] = React.useState(!jaTem);
 
   const salvar = () => {
     update((s: any) => {
-      s.consult = { t: +startOfDay(new Date(ano, mes, dia)), type: tipo, doctor: s.profile.doctor };
+      s.consult = { t: quando, type: tipo, doctor: s.profile.doctor };
     });
     router.back();
   };
@@ -137,24 +127,39 @@ export default function AnotarConsulta() {
         lead={K().lead}
       />
 
+      {/* ⚠️ O CALENDÁRIO, E NÃO A RODA (26/09/2026, pedido do dono). A
+          consulta é marcada pela semana — "terça que vem", "dia 5, uma
+          segunda" —, e a grade mostra o dia da semana e os dias em volta
+          de uma vez; a roda serve a data longe, como a de nascimento, em
+          que o dia da semana não importa e os anos são muitos.
+
+          O MESMO CAMPO DA APLICAÇÃO: a data escrita por extenso, e a
+          grade embaixo dela. Escolher fecha a grade, porque a data
+          aparece escrita no campo, que é onde ela fica — e um toque nele
+          abre de novo. Os limites são os da consulta: de hoje até
+          dezoito meses. */}
       <Campo rotulo={K().quando}>
-        <Row gap={10}>
-          <Roda largura={78} itens={dias} valor={Math.min(Math.max(dia, primeiroDoMes), maiorDia)} onEscolhe={setDia} />
-          <Roda
-            largura={142} itens={meses} valor={mes}
-            onEscolhe={(v) => {
-              setMes(v);
-              setDia((d) => Math.min(d, new Date(ano, v + 1, 0).getDate()));
-            }}
+        <Pressable
+          onPress={() => setCalAberto((x) => !x)}
+          style={({ pressed }) => [{
+            backgroundColor: c.bg2, borderRadius: radius.md,
+            paddingHorizontal: 14, paddingVertical: 13,
+            opacity: pressed ? 0.7 : 1,
+          }]}
+        >
+          <Row style={{ justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+            <Txt v="bodyMed" style={{ flex: 1 }}>{maiuscula(dataDaConsulta(quando))}</Txt>
+            <Icon name={calAberto ? 'chevup' : 'chevdown'} size={16} color={c.tx3} sw={2.2} />
+          </Row>
+        </Pressable>
+        {calAberto ? (
+          <Calendario
+            valor={quando}
+            de={+hoje}
+            ate={+limite}
+            onEscolhe={(t) => { setQuando(t); setCalAberto(false); }}
           />
-          <Roda
-            largura={90} itens={anos} valor={ano}
-            onEscolhe={(v) => {
-              setAno(v);
-              setMes((m) => (v === hoje.getFullYear() ? Math.max(m, hoje.getMonth()) : m));
-            }}
-          />
-        </Row>
+        ) : null}
       </Campo>
 
       <Campo rotulo={K().comoVaiSer}>

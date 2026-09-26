@@ -170,7 +170,17 @@ type Formato = {
   /* Relógio de 24 ou de 12 horas. É o padrão do idioma, e o aparelho
      pode discordar — ver `lerAparelho`. */
   hora12: boolean;
+
+  /* ⚠️ A ORDEM DAS RODAS DA DATA TAMBÉM É DO IDIOMA. O inglês americano
+     põe o mês na frente — escreve 09/26/2026 e diz "September 26" —, e
+     uma roda que abre pelo dia faz essa pessoa montar a data ao
+     contrário do que ela escreve a vida inteira. As outras cinco línguas
+     começam pelo dia. É a mesma regra do `comAno`, agora para quem monta
+     a data, e não para quem a lê. */
+  ordemDaData: readonly ParteDaData[];
 };
+
+export type ParteDaData = 'dia' | 'mes' | 'ano';
 
 const PT: Formato = {
   decimal: ',',
@@ -188,6 +198,7 @@ const PT: Formato = {
   mesAno: (m, a) => `${PT.mesLongo[m]} de ${a}`,
   junta: (de, ate) => `${de} a ${ate}`,
   hora12: false,
+  ordemDaData: ['dia', 'mes', 'ano'],
 };
 
 const EN: Formato = {
@@ -208,6 +219,7 @@ const EN: Formato = {
   mesAno: (m, a) => `${EN.mesLongo[m]} ${a}`,
   junta: (de, ate) => `${de} – ${ate}`,
   hora12: true,
+  ordemDaData: ['mes', 'dia', 'ano'],
 };
 
 /* ⚠️⚠️ O ESPANHOL NÃO TEM UM SEPARADOR DECIMAL, TEM DOIS — e esta é a
@@ -243,6 +255,7 @@ const ES: Formato = {
   mesAno: (m, a) => `${ES.mesLongo[m]} de ${a}`,
   junta: (de, ate) => `${de} a ${ate}`,
   hora12: false,
+  ordemDaData: ['dia', 'mes', 'ano'],
 };
 
 /* ⚠️⚠️ O MILHAR DO FRANCÊS É UM ESPAÇO, E É ESTE ESPAÇO: o fino
@@ -284,6 +297,7 @@ const FR: Formato = {
   mesAno: (m, a) => `${FR.mesLongo[m]} ${a}`,
   junta: (de, ate) => `${de} – ${ate}`,
   hora12: false,
+  ordemDaData: ['dia', 'mes', 'ano'],
 };
 
 /* ⚠️⚠️ O PONTO DEPOIS DO DIA NÃO É PONTUAÇÃO, É O ORDINAL. Em alemão a
@@ -319,6 +333,7 @@ const DE: Formato = {
   mesAno: (m, a) => `${DE.mesLongo[m]} ${a}`,
   junta: (de, ate) => `${de} – ${ate}`,
   hora12: false,
+  ordemDaData: ['dia', 'mes', 'ano'],
 };
 
 /* ⚠️ O ITALIANO ESCREVE A DATA COMO O FRANCÊS — dia antes, mês em
@@ -354,6 +369,7 @@ const IT: Formato = {
   mesAno: (m, a) => `${IT.mesLongo[m]} ${a}`,
   junta: (de, ate) => `${de} – ${ate}`,
   hora12: false,
+  ordemDaData: ['dia', 'mes', 'ano'],
 };
 
 const FORMATOS: Record<Local, Formato> = { 'pt-BR': PT, 'en-US': EN, 'es-419': ES, 'fr-FR': FR, 'de-DE': DE, 'it-IT': IT };

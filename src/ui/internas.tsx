@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, View, Pressable, ScrollView, StyleSheet, TextInput, Platform, StyleProp, ViewStyle } from 'react-native';
+import { Animated, View, Pressable, ScrollView, StyleSheet, TextInput, Platform, StyleProp, ViewStyle, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useNavigation } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { WD, nf } from '../logic/time';
+import { formato, type ParteDaData } from '../logic/local';
 import { Txt, Row, Rolagem } from './kit';
 import { Icon } from './Icon';
 import { AreaCurve } from './charts';
@@ -1705,89 +1706,266 @@ export function Texto({ valor, onChange, placeholder, linhas = 3 }: {
 /* A RODA — uma lista que rola e para no item escolhido.
 
    ⚠️ ELA MORAVA DENTRO DO CADASTRO, e saiu de lá quando a segunda tela
-   precisou dela. Data de nascimento, início do tratamento e agora a
-   próxima consulta são a mesma pergunta em três lugares — e a regra da
-   casa é que duas cópias do mesmo gesto é onde um padrão começa a
-   divergir.
+   precisou dela. Data de nascimento e início do tratamento são a mesma
+   pergunta em dois lugares — e a regra da casa é que duas cópias do
+   mesmo gesto é onde um padrão começa a divergir.
+
+   A próxima consulta também usou a roda, e trocou pelo calendário
+   (26/09/2026): consulta se marca pela semana, e a grade mostra o dia da
+   semana; a roda fica com a data longe, em que ele não importa.
 
    O COMPONENTE NÃO SABE DE DATAS. Ele recebe uma lista de { v, label } e
    devolve o v escolhido; quem decide que dia 31 não existe em fevereiro,
-   ou que o ano não passa do que vem, é quem chama. Foi assim que ela
-   nasceu no cadastro, onde os limites são "não pode ser no futuro", e é
-   o que permite usá-la agora onde o limite é o contrário. */
+   ou que o ano não passa do que vem, é quem chama. */
 /* ------------------------------------------------------------------ */
 /* ⚠️ GENÉRICA NO VALOR, e era só número. O dia, o mês e o ano do
    nascimento são números; o idioma e o país são códigos — 'pt-BR', 'BR'.
    O corpo já era agnóstico: ele compara com `===` e usa o valor como
    chave, e as duas coisas funcionam igual para os dois tipos. */
-export function Roda<V extends string | number>({ itens, valor, onEscolhe, largura }: {
+
+/* ⚠️⚠️ ELA GIRA COMO UM TAMBOR, e não pinta o escolhido (26/09/2026).
+
+   Antes, o item escolhido ganhava a cor de ação e cada roda tinha a sua
+   caixa azul — três caixas lado a lado, que liam como três botões. Agora
+   quem diz qual é o escolhido é a DISTÂNCIA ATÉ O MEIO: a linha do meio
+   fica inteira, e cada linha para longe dela apaga, encolhe e se deita,
+   como os rótulos de um tambor que gira. Uma faixa neutra só marca o
+   lugar onde a roda para.
+
+   E isso fecha um desencontro que a pintura tinha: ela seguia o `valor`,
+   e o tambor segue a rolagem. Com a pintura, uma roda podia parar num
+   item e pintar outro; agora o que está na faixa é, por construção, o
+   que está escolhido.
+
+   O desenho vem dos números abaixo, e não de imagem: cada linha é um
+   rótulo colado num cilindro de raio RAIO, girado PASSO a cada linha. Os
+   números são contas, e trocar PASSO refaz a curva inteira. */
+const LINHA = 44;
+const PASSO = (20 * Math.PI) / 180;
+const RAIO = LINHA / PASSO;
+const ALCANCE = 3;
+/* A altura é a do tambor, e não a de sete linhas retas: perto das
+   bordas as linhas se deitam e ocupam menos, e sete linhas retas
+   deixariam um vão vazio em cima e embaixo. */
+const ALTURA_DA_RODA = Math.round(
+  2 * (RAIO * Math.sin(ALCANCE * PASSO) + (LINHA / 2) * Math.cos(ALCANCE * PASSO)),
+);
+/* Para cada distância ao meio (0 a 4 linhas): o quanto a linha aparece,
+   o seu tamanho, e o quanto ela escorrega na direção do meio para cair
+   em cima da curva — num tambor, as linhas se apertam perto da borda. */
+const APARECE = [1, 0.45, 0.28, 0.14, 0];
+const TAMANHO = [1, 0.94, 0.89, 0.85, 0.82];
+const ESCORREGA = [0, 1, 2, 3, 4].map((d) => RAIO * Math.sin(d * PASSO) - d * LINHA);
+/* Em ordem de rolagem crescente: com a rolagem em (k − 4) linhas, o item
+   k está 4 linhas abaixo do meio. */
+const DISTANCIAS = [4, 3, 2, 1, 0, -1, -2, -3, -4];
+
+/* O ENCAIXE NO WEB. No aparelho, `snapToInterval` para a roda em cima de
+   uma linha; o navegador ignora essa propriedade, e a roda parava entre
+   duas — com o tambor, a linha do meio fica torta na faixa e aponta para
+   um item que não está lá. O encaixe do CSS faz o mesmo trabalho, e só
+   existe no web; no aparelho os dois objetos são nulos. */
+const ENCAIXA_A_RODA = Platform.OS === 'web' ? ({ scrollSnapType: 'y mandatory' } as any) : null;
+const ENCAIXA_A_LINHA = Platform.OS === 'web' ? ({ scrollSnapAlign: 'center' } as any) : null;
+
+function noTambor(y: Animated.Value, k: number) {
+  const inputRange = DISTANCIAS.map((d) => (k - d) * LINHA);
+  const por = (outputRange: number[]) => y.interpolate({ inputRange, outputRange, extrapolate: 'clamp' });
+  return {
+    opacity: por(DISTANCIAS.map((d) => APARECE[Math.abs(d)])),
+    transform: [
+      { perspective: 600 },
+      { translateY: por(DISTANCIAS.map((d) => Math.sign(d) * ESCORREGA[Math.abs(d)])) },
+      /* A linha de baixo se deita para a frente e a de cima para trás,
+         que é o lado para onde a superfície do tambor foge. */
+      {
+        rotateX: y.interpolate({
+          inputRange,
+          outputRange: DISTANCIAS.map((d) => `${-d * 20}deg`),
+          extrapolate: 'clamp',
+        }),
+      },
+      { scale: por(DISTANCIAS.map((d) => TAMANHO[Math.abs(d)])) },
+    ],
+  };
+}
+
+/* A faixa onde a roda para. Fica atrás dos números e não recebe toque —
+   é régua, não botão.
+
+   ⚠️ NEUTRA, e não da cor de ação. A cor de ação foi para cá quando a
+   faixa era o único sinal do escolhido e, em bg2, sumia no fundo; hoje o
+   sinal é o próprio tambor, e a faixa só marca o lugar. Ela é a tinta do
+   texto em transparência, e não um cinza fixo: assim ela escurece
+   qualquer fundo que estiver atrás — o claro, o escuro e a lavagem do
+   cadastro — na mesma medida. */
+function FaixaDaRoda() {
+  const { c, isDark } = useTheme();
+  return (
+    <View
+      pointerEvents="none"
+      style={{
+        position: 'absolute', left: 0, right: 0, top: (ALTURA_DA_RODA - LINHA) / 2, height: LINHA,
+        backgroundColor: alfa(c.tx, isDark ? 0.08 : 0.05), borderRadius: radius.md,
+      }}
+    />
+  );
+}
+
+export function Roda<V extends string | number>({ itens, valor, onEscolhe, largura, faixa = true }: {
   itens: { v: V; label: string }[];
   valor: V; onEscolhe: (v: V) => void; largura?: number;
+  /* A RodaDeData desliga a faixa de cada roda e desenha uma só atrás das
+     três. */
+  faixa?: boolean;
 }) {
   const { c } = useTheme();
-  const ALT = 44;
-  const VISIVEIS = 5;
   const ref = React.useRef<ScrollView>(null);
-  const montou = React.useRef(false);
   const i = Math.max(0, itens.findIndex((x) => x.v === valor));
+  const y = React.useRef(new Animated.Value(i * LINHA)).current;
+
+  /* O ouvinte da rolagem nasce uma vez só (ver `aoRolar`), e o que ele
+     precisa ler é o do render de agora, e não o do render em que nasceu. */
+  const agora = React.useRef({ itens, valor, onEscolhe });
+  agora.current = { itens, valor, onEscolhe };
+  const onde = React.useRef(0);
 
   /* PRIMEIRO POSICIONA, DEPOIS ESCUTA.
 
      Sem esta trava a roda estragava a resposta que já existia: ao montar,
      a lista reporta deslocamento zero, o onScroll lê zero como "parou no
      primeiro item" e grava 1920 por cima de 1990 — antes mesmo de o
-     scrollTo ter acontecido. O quadro de folga garante que o salto
-     inicial já passou quando a escuta começa. */
-  const pronto = React.useRef(false);
-  React.useEffect(() => {
-    if (montou.current) return;
-    montou.current = true;
-    const t = setTimeout(() => {
-      ref.current?.scrollTo({ y: i * ALT, animated: false });
-      setTimeout(() => { pronto.current = true; }, 60);
-    }, 0);
-    return () => clearTimeout(t);
+     scrollTo ter acontecido. O quadro de folga garante que o salto já
+     passou quando a escuta volta. E vale para todo salto que a própria
+     roda dá, e não só para o primeiro (ver `acertar`). */
+  const ouvindo = React.useRef(false);
+  const solta = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const posicionar = React.useCallback((k: number) => {
+    ouvindo.current = false;
+    ref.current?.scrollTo({ y: k * LINHA, animated: false });
+    if (solta.current) clearTimeout(solta.current);
+    solta.current = setTimeout(() => { ouvindo.current = true; }, 60);
   }, []);
 
-  return (
-    <View style={{ width: largura, height: ALT * VISIVEIS }}>
-      {/* A faixa do meio marca onde a lista para. Fica atrás dos números e
-          não recebe toque — é régua, não botão.
+  React.useEffect(() => {
+    const t = setTimeout(() => posicionar(i), 0);
+    return () => {
+      clearTimeout(t);
+      if (solta.current) clearTimeout(solta.current);
+    };
+  }, []);
 
-          Em bg2 ela sumia: o fundo da tela é #F5F6FA e ela era #EDF1F3,
-          dois cinzas a três pontos de distância. Na lavagem azul do
-          cadastro, então, desaparecia de vez. Agora ela usa a cor de
-          seleção do app, que é a mesma coisa que a faixa significa. */}
+  /* ⚠️ A LISTA PODE MUDAR DEBAIXO DA RODA, e aí a posição mente. Quem
+     chama encurta e desloca a lista conforme as outras rodas — trocar o
+     mês tira o dia 31, e a consulta começa no dia de hoje só no mês de
+     hoje. Na lista nova, a mesma posição é outro item: a faixa mostraria
+     um dia e o `valor` guardaria outro. Quando a lista muda, e quando a
+     rolagem ganha altura nova, a roda volta para o item do `valor`.
+
+     Só a lista chama isso, e não o `valor`: o valor muda a cada linha que
+     passa pela faixa enquanto o dedo gira, e voltar a roda para ele no
+     meio do giro puxaria o dedo para trás. */
+  const acertar = React.useCallback(() => {
+    const { itens: lista, valor: v } = agora.current;
+    const k = lista.findIndex((x) => x.v === v);
+    if (k >= 0 && k !== Math.round(onde.current / LINHA)) posicionar(k);
+  }, [posicionar]);
+  const assinatura = itens.map((x) => `${x.v}=${x.label}`).join('|');
+  const primeira = React.useRef(true);
+  React.useLayoutEffect(() => {
+    if (primeira.current) { primeira.current = false; return; }
+    acertar();
+  }, [assinatura]);
+
+  const aoRolar = React.useMemo(
+    () => Animated.event([{ nativeEvent: { contentOffset: { y } } }], {
+      useNativeDriver: true,
+      listener: (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+        onde.current = e.nativeEvent.contentOffset.y;
+        if (!ouvindo.current) return;
+        const { itens: lista, valor: v, onEscolhe: escolhe } = agora.current;
+        const k = Math.round(onde.current / LINHA);
+        const item = lista[Math.max(0, Math.min(lista.length - 1, k))];
+        if (item && item.v !== v) escolhe(item.v);
+      },
+    }),
+    [y],
+  );
+
+  /* As linhas não dependem do `valor` — o tambor é que decide o que
+     aparece —, e por isso só se refazem quando a lista muda. Refazer a
+     cada linha que passa pela faixa recriaria as cem animações do ano
+     no meio do giro. */
+  const linhas = React.useMemo(
+    () => itens.map((x, k) => (
+      /* O giro fica no rótulo, e não na linha: a linha é o que o encaixe
+         mede, e ela precisa continuar reta, no lugar dela. */
       <View
-        pointerEvents="none"
-        style={{
-          position: 'absolute', left: 0, right: 0, top: ALT * 2, height: ALT,
-          backgroundColor: c.accentWeak, borderRadius: radius.md,
-          borderWidth: 1, borderColor: c.accentLine,
-        }}
-      />
-      <Rolagem
+        key={String(x.v)}
+        style={[{ height: LINHA, alignItems: 'center', justifyContent: 'center' }, ENCAIXA_A_LINHA]}
+      >
+        <Animated.View style={noTambor(y, k)}>
+          <Txt v="title" c={c.tx} numberOfLines={1}>{x.label}</Txt>
+        </Animated.View>
+      </View>
+    )),
+    [assinatura, c.tx, y],
+  );
+
+  return (
+    <View style={{ width: largura, height: ALTURA_DA_RODA }}>
+      {faixa ? <FaixaDaRoda /> : null}
+      {/* A MESMA DECISÃO DA ROLAGEM, escrita à mão: sem elástico no fim da
+          lista. É Animated.ScrollView, e não a Rolagem do kit, porque o
+          tambor precisa da rolagem ligada direto na animação. */}
+      <Animated.ScrollView
         ref={ref}
+        style={ENCAIXA_A_RODA}
+        bounces={false}
+        overScrollMode="never"
         showsVerticalScrollIndicator={false}
-        snapToInterval={ALT}
+        snapToInterval={LINHA}
         decelerationRate="fast"
         scrollEventThrottle={16}
-        onScroll={(e) => {
-          if (!pronto.current) return;
-          const k = Math.round(e.nativeEvent.contentOffset.y / ALT);
-          const item = itens[Math.max(0, Math.min(itens.length - 1, k))];
-          if (item && item.v !== valor) onEscolhe(item.v);
-        }}
-        contentContainerStyle={{ paddingVertical: ALT * 2 }}
+        contentOffset={{ x: 0, y: i * LINHA }}
+        onScroll={aoRolar}
+        onContentSizeChange={acertar}
+        contentContainerStyle={{ paddingVertical: (ALTURA_DA_RODA - LINHA) / 2 }}
       >
-        {itens.map((x) => (
-          <View key={x.v} style={{ height: ALT, alignItems: 'center', justifyContent: 'center' }}>
-            <Txt v={x.v === valor ? 'bodyMed' : 'body'} c={x.v === valor ? c.accent : c.tx4}>
-              {x.label}
-            </Txt>
+        {linhas}
+      </Animated.ScrollView>
+    </View>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* A DATA EM RODAS — dia, mês e ano debaixo de uma faixa só.
+
+   ⚠️ A ORDEM DAS RODAS É DO IDIOMA (`ordemDaData`, em logic/local): o
+   inglês americano monta a data pelo mês, e as outras línguas pelo dia.
+   Era dia, mês e ano escrito à mão nas três telas que perguntam data.
+
+   Os limites continuam com quem chama, como na Roda: esta aqui só sabe
+   a ordem e o desenho — que dia 31 não existe em fevereiro, ou que a
+   consulta não fica no passado, é a tela que diz. */
+/* ------------------------------------------------------------------ */
+type ColunaDaData = { itens: { v: number; label: string }[]; valor: number; onEscolhe: (v: number) => void };
+
+/* A largura de cada roda. O mês por extenso precisa de mais que o dobro
+   de um dia; o ano, de quatro algarismos. */
+const PESO_DA_PARTE: Record<ParteDaData, number> = { dia: 1, mes: 2, ano: 1.3 };
+
+export function RodaDeData(colunas: { dia: ColunaDaData; mes: ColunaDaData; ano: ColunaDaData }) {
+  return (
+    <View style={{ height: ALTURA_DA_RODA }}>
+      <FaixaDaRoda />
+      <View style={{ flex: 1, flexDirection: 'row' }}>
+        {formato().ordemDaData.map((parte) => (
+          <View key={parte} style={{ flex: PESO_DA_PARTE[parte] }}>
+            <Roda faixa={false} {...colunas[parte]} />
           </View>
         ))}
-      </Rolagem>
+      </View>
     </View>
   );
 }

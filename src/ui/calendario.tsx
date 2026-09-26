@@ -7,7 +7,7 @@ import { useTheme } from './useTheme';
 import { Icon } from './Icon';
 
 /* ============================================================
-   O CALENDÁRIO — uma grade de mês para escolher um dia que já passou.
+   O CALENDÁRIO — uma grade de mês para escolher um dia.
 
    Nasceu para o "quando" do registro de aplicação, onde os atalhos de
    Hoje / Ontem / Anteontem resolvem o caso comum e falham no único caso
@@ -19,22 +19,27 @@ import { Icon } from './Icon';
    diferentes em cada uma. Esta peça não as converte; ela só deixa de ser
    desculpa quando isso valer a pena.
 
-   ⚠️⚠️ NÃO EXISTE FUTURO AQUI, e não é limitação: é o assunto.
+   ⚠️⚠️ O LIMITE É DE QUEM CHAMA, e o padrão é não existir futuro.
 
    Registro de medicamento aplicado é FATO. Um fato com data adiante é uma
    promessa disfarçada de registro — e, num aplicativo que conta o ciclo da
    dose a partir da última aplicação, uma promessa dessas empurra a próxima
-   dose para depois de um dia que ainda não aconteceu.
+   dose para depois de um dia que ainda não aconteceu. Por isso, sem `ate`,
+   o último dia é hoje.
 
-   Os dias adiante de hoje são desenhados, e não escondidos: sumir com
+   A consulta pediu o contrário (26/09/2026): ela é compromisso, e só
+   existe adiante — de hoje até dezoito meses. Quem decide isso é a tela,
+   pelo `de` e pelo `ate`; o calendário só obedece, como a Roda.
+
+   Os dias fora do limite são desenhados, e não escondidos: sumir com
    metade da grade faria o mês parecer quebrado. Eles ficam apagados e não
    respondem ao toque, que é a diferença entre "isto não cabe aqui" e
    "isto não existe".
 
-   ⚠️ E A SETA DE AVANÇAR SOME NO MÊS CORRENTE, em vez de ficar cinza. Ali
-   ela não é um controle desabilitado à espera de condição: não há mês
-   seguinte a visitar, e um botão que nunca vai funcionar é pior do que
-   botão nenhum.
+   ⚠️ E AS SETAS SOMEM NA PONTA, em vez de ficar cinza. No mês do último
+   dia permitido, a de avançar; no do primeiro, a de voltar. Ali elas não
+   são controles desabilitados à espera de condição: não há mês a visitar,
+   e um botão que nunca vai funcionar é pior do que botão nenhum.
    ============================================================ */
 
 /* A grade tem sempre seis linhas. Cinco bastariam para quase todo mês, e
@@ -50,13 +55,22 @@ function gradeDoMes(base: Date): number[] {
   return Array.from({ length: LINHAS * 7 }, (_, i) => inicio + i * DAY);
 }
 
-export function Calendario({ valor, onEscolhe }: {
+/* O mesmo mês, em qualquer dia dele. */
+const mesmoMes = (a: Date, b: Date) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth();
+
+export function Calendario({ valor, onEscolhe, de, ate }: {
   /** o dia escolhido, em milissegundos */
   valor: number;
   onEscolhe: (t: number) => void;
+  /** o primeiro dia que se pode escolher; sem ele, não há limite para trás */
+  de?: number;
+  /** o último dia que se pode escolher; sem ele, é hoje */
+  ate?: number;
 }) {
   const { c } = useTheme();
   const hoje = +startOfDay(now());
+  const primeiro = de == null ? null : +startOfDay(new Date(de));
+  const ultimo = +startOfDay(new Date(ate ?? hoje));
 
   /* O mês à vista começa no do dia escolhido — quem abre o calendário
      depois de ter escolhido 12 de agosto quer ver agosto, e não voltar
@@ -67,27 +81,29 @@ export function Calendario({ valor, onEscolhe }: {
   /* O mesmo `|| hoje` do estado inicial: sem ele, um valor zerado cairia
      em 1970 e o mês inteiro apareceria sem dia escolhido, sem aviso. */
   const diaEscolhido = +startOfDay(new Date(valor || hoje));
-  const mesCorrente = mes.getFullYear() === new Date(hoje).getFullYear()
-    && mes.getMonth() === new Date(hoje).getMonth();
+  const noPrimeiroMes = primeiro != null && mesmoMes(mes, new Date(primeiro));
+  const noUltimoMes = mesmoMes(mes, new Date(ultimo));
 
   const andar = (d: number) => setMes((m) => new Date(m.getFullYear(), m.getMonth() + d, 1));
 
   return (
     <View style={{ gap: 10 }}>
       <Row style={{ justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 4 }}>
-        <Pressable
-          onPress={() => andar(-1)}
-          hitSlop={12}
-          style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1 }]}
-        >
-          <Icon name="back" size={20} color={c.tx2} sw={2.2} />
-        </Pressable>
+        {/* As duas setas somem na ponta — ver a nota lá em cima. O View
+            vazio segura o lugar, para o nome do mês não sair do meio. */}
+        {noPrimeiroMes ? <View style={{ width: 20 }} /> : (
+          <Pressable
+            onPress={() => andar(-1)}
+            hitSlop={12}
+            style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1 }]}
+          >
+            <Icon name="back" size={20} color={c.tx2} sw={2.2} />
+          </Pressable>
+        )}
 
         <Txt v="bodyMed">{fmtMesAno(mes)}</Txt>
 
-        {/* Some no mês corrente — ver a nota lá em cima. O View vazio
-            segura o lugar, para o nome do mês não pular para o meio. */}
-        {mesCorrente ? <View style={{ width: 20 }} /> : (
+        {noUltimoMes ? <View style={{ width: 20 }} /> : (
           <Pressable
             onPress={() => andar(1)}
             hitSlop={12}
@@ -111,16 +127,17 @@ export function Calendario({ valor, onEscolhe }: {
           <Row key={li}>
             {dias.slice(li * 7, li * 7 + 7).map((t) => {
               const d = new Date(t);
-              const adiante = t > hoje;
+              const fora = t > ultimo || (primeiro != null && t < primeiro);
               const deOutroMes = d.getMonth() !== mes.getMonth();
               const escolhido = t === diaEscolhido;
               const eHoje = t === hoje;
 
               /* ⚠️ TRÊS ESTADOS DE TINTA, e a ordem importa: escolhido
-                 ganha de hoje, hoje ganha de dia comum, e adiante apaga
-                 tudo. Sem a precedência, o dia de hoje escolhido ficaria
-                 com a cor de hoje e a pessoa não veria a própria escolha. */
-              const tinta = adiante ? c.tx4
+                 ganha de hoje, hoje ganha de dia comum, e fora do limite
+                 apaga tudo. Sem a precedência, o dia de hoje escolhido
+                 ficaria com a cor de hoje e a pessoa não veria a própria
+                 escolha. */
+              const tinta = fora ? c.tx4
                 : escolhido ? c.accentInk
                   : deOutroMes ? c.tx4
                     : c.tx;
@@ -128,12 +145,12 @@ export function Calendario({ valor, onEscolhe }: {
               return (
                 <Pressable
                   key={t}
-                  disabled={adiante}
+                  disabled={fora}
                   onPress={() => onEscolhe(t)}
                   style={({ pressed }) => [{
                     flex: 1, aspectRatio: 1,
                     alignItems: 'center', justifyContent: 'center',
-                    opacity: pressed && !adiante ? 0.6 : 1,
+                    opacity: pressed && !fora ? 0.6 : 1,
                   }]}
                 >
                   <View style={{

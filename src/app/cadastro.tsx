@@ -21,7 +21,7 @@ import { ATIVIDADES, MOTIVOS, curWeight, planoDoCadastro, emTratamento } from '.
 import { MO_LONG, doseTxt, kgTxt, now, startOfDay, nf, dataComAno, maiuscula } from '../logic/time';
 import { Txt, Row, Rich, Rolagem } from '../ui/kit';
 import { Icon } from '../ui/Icon';
-import { Botao, Roda, Regua, Segmentado, NUMERO, SEM_ANEL } from '../ui/internas';
+import { Botao, RodaDeData, Regua, Segmentado, NUMERO, SEM_ANEL } from '../ui/internas';
 import { Lavagem } from '../ui/lavagem';
 import { RESTRICOES } from '../logic/restricoes';
 import { Marca, CoracaoDeSaude } from '../ui/marca';
@@ -903,15 +903,6 @@ function Sincronia({ nome }: { nome: string }) {
   );
 }
 
-/* A DATA CURTA — a da conferência, onde ela divide a linha com um rótulo
-   e um lápis. "15 de setembro de 2026" ali dentro quebra em duas linhas
-   ou some no meio de reticências. */
-const dataCurta = (t: number) => {
-  const d = new Date(t);
-  return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
-};
-
-
 /* A mesma projeção em número, para comparar de relance: entre quatro
    alternativas empilhadas, 02/2027 e 11/2026 se comparam sem leitura. */
 const mesEmNumero = (t: number) => {
@@ -1552,6 +1543,13 @@ export default function Cadastro() {
 
   const diasNoMes = new Date(r.ano, r.mes + 1, 0).getDate();
   const hoje = startOfDay(now());
+  /* O último dia que o início do tratamento aceita num mês: o fim dele,
+     ou hoje, se o mês é o de agora — quem já começou não começou amanhã.
+     O mesmo número faz a lista da roda e prende o dia quando o mês ou o
+     ano mudam. Sem prender, a roda mostrava hoje e a resposta guardava
+     um dia do futuro, que o Continuar recusava sem dizer por quê. */
+  const ultimoDoInicio = (a: number, m: number) =>
+    a === hoje.getFullYear() && m === hoje.getMonth() ? hoje.getDate() : new Date(a, m + 1, 0).getDate();
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
@@ -1746,31 +1744,28 @@ export default function Cadastro() {
 
         {id === 'nascimento' ? (
           <View>
-            <Row style={{ gap: 10 }}>
-            <Roda
-              largura={78}
-              itens={Array.from({ length: diasNoMes }, (_, k) => ({ v: k + 1, label: String(k + 1) }))}
-              valor={Math.min(r.dia, diasNoMes)}
-              onEscolhe={(v) => p({ dia: v })}
+            <RodaDeData
+              dia={{
+                itens: Array.from({ length: diasNoMes }, (_, k) => ({ v: k + 1, label: String(k + 1) })),
+                valor: Math.min(r.dia, diasNoMes),
+                onEscolhe: (v) => p({ dia: v }),
+              }}
+              mes={{
+                itens: MO_LONG().map((m, k) => ({ v: k, label: m })),
+                valor: r.mes,
+                /* Mudar de mês pode deixar o dia fora do calendário — 31 de
+                   fevereiro não existe, e guardar isso encostaria um dia
+                   inválido na data de nascimento. */
+                onEscolhe: (v) => p({ mes: v, dia: Math.min(r.dia, new Date(r.ano, v + 1, 0).getDate()) }),
+              }}
+              ano={{
+                itens: Array.from({ length: now().getFullYear() - 12 - 1920 + 1 }, (_, k) => ({
+                  v: 1920 + k, label: String(1920 + k),
+                })),
+                valor: r.ano,
+                onEscolhe: (v) => p({ ano: v, dia: Math.min(r.dia, new Date(v, r.mes + 1, 0).getDate()) }),
+              }}
             />
-            <Roda
-              largura={142}
-              itens={MO_LONG().map((m, k) => ({ v: k, label: m }))}
-              valor={r.mes}
-              /* Mudar de mês pode deixar o dia fora do calendário — 31 de
-                 fevereiro não existe, e guardar isso encostaria um dia
-                 inválido na data de nascimento. */
-              onEscolhe={(v) => p({ mes: v, dia: Math.min(r.dia, new Date(r.ano, v + 1, 0).getDate()) })}
-            />
-            <Roda
-              largura={90}
-              itens={Array.from({ length: now().getFullYear() - 12 - 1920 + 1 }, (_, k) => ({
-                v: 1920 + k, label: String(1920 + k),
-              }))}
-              valor={r.ano}
-              onEscolhe={(v) => p({ ano: v, dia: Math.min(r.dia, new Date(v, r.mes + 1, 0).getDate()) })}
-            />
-            </Row>
             {/* A EXPLICAÇÃO FICA COLADA NA RODA, e não no rodapé: é ali
                 que a pessoa acabou de mexer, e é ali que ela procura o
                 motivo de o botão ter apagado. */}
@@ -2224,42 +2219,31 @@ export default function Cadastro() {
             amanhã, e o mês e o dia encolhem quando o ano é o de agora. */}
         {id === 'inicio' ? (
           <View style={{ gap: 32 }}>
-            <Row style={{ gap: 10 }}>
-              <Roda
-                largura={78}
-                itens={Array.from(
-                  { length: r.iAno === hoje.getFullYear() && r.iMes === hoje.getMonth()
-                    ? hoje.getDate() : new Date(r.iAno, r.iMes + 1, 0).getDate() },
-                  (_, k) => ({ v: k + 1, label: String(k + 1) }),
-                )}
-                valor={r.iDia}
-                onEscolhe={(v) => p({ iDia: v })}
-              />
-              <Roda
-                largura={142}
-                itens={MO_LONG()
+            <RodaDeData
+              dia={{
+                itens: Array.from({ length: ultimoDoInicio(r.iAno, r.iMes) }, (_, k) => ({ v: k + 1, label: String(k + 1) })),
+                valor: Math.min(r.iDia, ultimoDoInicio(r.iAno, r.iMes)),
+                onEscolhe: (v) => p({ iDia: v }),
+              }}
+              mes={{
+                itens: MO_LONG()
                   .map((m, k) => ({ v: k, label: m }))
-                  .filter((x) => r.iAno < hoje.getFullYear() || x.v <= hoje.getMonth())}
-                valor={r.iMes}
-                onEscolhe={(v) => p({
-                  iMes: v,
-                  iDia: Math.min(r.iDia, new Date(r.iAno, v + 1, 0).getDate()),
-                })}
-              />
-              <Roda
-                largura={90}
-                itens={Array.from({ length: 6 }, (_, k) => {
+                  .filter((x) => r.iAno < hoje.getFullYear() || x.v <= hoje.getMonth()),
+                valor: r.iMes,
+                onEscolhe: (v) => p({ iMes: v, iDia: Math.min(r.iDia, ultimoDoInicio(r.iAno, v)) }),
+              }}
+              ano={{
+                itens: Array.from({ length: 6 }, (_, k) => {
                   const a = hoje.getFullYear() - 5 + k;
                   return { v: a, label: String(a) };
-                })}
-                valor={r.iAno}
-                onEscolhe={(v) => p({
-                  iAno: v,
-                  iMes: v === hoje.getFullYear() ? Math.min(r.iMes, hoje.getMonth()) : r.iMes,
-                  iDia: Math.min(r.iDia, new Date(v, r.iMes + 1, 0).getDate()),
-                })}
-              />
-            </Row>
+                }),
+                valor: r.iAno,
+                onEscolhe: (v) => {
+                  const m = v === hoje.getFullYear() ? Math.min(r.iMes, hoje.getMonth()) : r.iMes;
+                  p({ iAno: v, iMes: m, iDia: Math.min(r.iDia, ultimoDoInicio(v, m)) });
+                },
+              }}
+            />
             {/* O PESO DAQUELA ÉPOCA, aqui e não junto do peso de hoje: os
                 dois são a mesma grandeza em dois momentos, e perguntados
                 lado a lado é onde alguém responde o mesmo número duas
