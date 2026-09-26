@@ -60,7 +60,7 @@ export const cadastro = {
        niemand kennt. */
     acompanhamentoFuturo: 'Willst du dich ärztlich begleiten lassen?',
     acompanhamentoAgora: 'Wirst du ärztlich begleitet?',
-    consentimento: 'Wichtige Hinweise',
+    consentimento: 'Bevor es losgeht',
   },
 
   subs: {
@@ -89,7 +89,7 @@ export const cadastro = {
        lügt, bekommt eine App, die ihr von Terminen erzählt, die sie nicht
        hat. */
     acompanhamento: 'Diese Antwort öffnet, was mit der ärztlichen Begleitung zu tun hat — Notizen und die Vorbereitung von Terminen.',
-    consentimento: 'Zwei Dinge, bevor es losgeht: was wir für deine Behandlung tun, und was mit dem passiert, was du einträgst.',
+    consentimento: 'Zwei Dinge: was wir für deine Behandlung tun, und was mit dem passiert, was du einträgst.',
   },
 
   seuNome: 'Dein Vorname',
@@ -125,8 +125,6 @@ export const cadastro = {
   formaSeringaSub: 'Du ziehst die Dosis mit einer Spritze auf',
   formaCanetaSub: 'Kommt fertig gefüllt, bereit zum Spritzen',
 
-  doseDeInicio: 'Anfangsdosis',
-  doseMaxima: 'Höchstdosis',
 
   todosOsDias: 'Jeden Tag',
   aCadaDias: (d: number) => `Alle ${d} Tage`,
@@ -186,8 +184,6 @@ export const cadastro = {
      dass die Person einwilligt, ohne zu wissen, dass sie eingewilligt hat
      — und eine Einwilligung zu Gesundheitsdaten muss ein klarer Akt sein
      und nicht die Nebenwirkung davon, einen Bildschirm weiterzuschalten. */
-  concordarEMontar: 'Zustimmen und meinen Plan erstellen',
-  ficaRegistrado: 'Wird mit dem heutigen Datum festgehalten.',
   salvar: 'Speichern',
   continuar: 'Weiter',
 

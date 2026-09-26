@@ -73,20 +73,25 @@ export const POLITICA = '/documento?id=privacidade';
    nela com a história inteira, em vez de com a memória dos últimos dias.
    Quem conduz o tratamento continua sendo quem sempre foi.
    ============================================================ */
+/* ⚠️ A ISENÇÃO NÃO TEM MAIS CHAVE PRÓPRIA (pedido do dono, 26/09/2026).
+   O "Entendi e concordo" travava o botão; agora o botão Continuar é o
+   aceite de tudo o que está na tela — a isenção, os dados e os
+   documentos —, e a frase logo acima dele diz isso com todas as letras
+   (`FraseDoAceite`, em ui/consentimento). É a frase que faz do toque um
+   ato claro: "Continuar" sozinho seria consentir sem saber. */
 export const ISENCAO = () => ({
   titulo: T.aviso.isencaoTitulo,
   texto: T.aviso.isencaoTexto,
   reforco: T.aviso.isencaoReforco,
-  aceite: T.aviso.isencaoAceite,
 });
 
-export type ItemDoAviso = { titulo: string; texto: string };
+export type ItemDoAviso = { ic: string; titulo: string; texto: string };
 
 export const AVISO = (): ItemDoAviso[] => [
-  { titulo: T.aviso.guardadoTitulo, texto: T.aviso.guardadoTexto },
-  { titulo: T.aviso.usoTitulo, texto: T.aviso.usoTexto },
-  { titulo: T.aviso.saiTitulo, texto: T.aviso.saiTexto },
-  { titulo: T.aviso.controleTitulo, texto: T.aviso.controleTexto },
+  { ic: 'lock', titulo: T.aviso.guardadoTitulo, texto: T.aviso.guardadoTexto },
+  { ic: 'target', titulo: T.aviso.usoTitulo, texto: T.aviso.usoTexto },
+  { ic: 'send', titulo: T.aviso.saiTitulo, texto: T.aviso.saiTexto },
+  { ic: 'gear', titulo: T.aviso.controleTitulo, texto: T.aviso.controleTexto },
 ];
 
 export type Consentimento = { em: number; versao: number };

@@ -10,8 +10,10 @@ import { Txt, Row } from '../ui/kit';
 import { TelaInterna, Titulao, Bloco, Cartao, Linha, Aviso } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
-import { apagarConta } from '../logic/conta';
-import { tirarDiarioDoTelefone } from '../ui/conta';
+import { apagarConta, useEstadoDaSincronia } from '../logic/conta';
+import { clinicaConectada } from '../logic/derive';
+import { tirarDiarioDoTelefone, fraseDoEstado } from '../ui/conta';
+import { radius } from '../theme';
 import { T } from '../textos';
 
 /* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
@@ -60,14 +62,79 @@ const K = () => T.aviso.telaPrivacidade;
    no import: o recuo ficava em português nos cinco idiomas, e o nome do
    depósito congelava no primeiro aparelho que o aplicativo viu. */
 const appDeSaude = () => aparelhoDaVez()?.nome ?? K().appDeSaudePadrao;
+const maiuscula = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
-function Bloquinho({ titulo, children }: { titulo: string; children: React.ReactNode }) {
+/* ============================================================
+   ⚠️ ELA ERA UMA LISTA DE PERGUNTAS E RESPOSTAS (pedido do dono,
+   26/09/2026: "tá quase parecendo uma FAQ"). Blocos de título com um
+   parágrafo embaixo, um atrás do outro — a informação certa, no formato
+   de quem vai ler tudo, e ninguém lê tudo.
+
+   Agora a tela responde primeiro o que a pessoa veio saber, em uma
+   linha cada: o estado do diário no alto, e cada saída com o seu nome e
+   quando ela acontece. O parágrafo continua lá, e abre no toque — quem
+   quer o porquê encontra, e quem só queria conferir não precisa ler.
+   ============================================================ */
+
+/** O estado do diário, no alto: guardado na conta, ou só neste aparelho. */
+function CartaoDoEstado() {
   const { c } = useTheme();
+  const conta = useStore((s) => (s.S as any).conta);
+  const estado = useEstadoDaSincronia();
+  const temConta = !!conta && contaLigada();
+  /* a frase da sincronia só aparece quando ela diz alguma coisa além de
+     "guardado" — esperando conexão, entre de novo, a conta apagada */
+  const recado = temConta && estado !== 'guardado' ? fraseDoEstado(estado) : null;
   return (
-    <View style={{ paddingHorizontal: 16, paddingVertical: 14, gap: 6 }}>
-      <Txt v="bodyMed">{titulo}</Txt>
-      <Txt v="caption" c={c.tx2} style={{ lineHeight: 21 }}>{children}</Txt>
-    </View>
+    <Row gap={14} style={{
+      alignItems: 'flex-start', backgroundColor: c.accentWeak, borderRadius: radius.lg,
+      paddingHorizontal: 16, paddingVertical: 16,
+    }}>
+      <View style={{
+        width: 40, height: 40, borderRadius: 20, backgroundColor: c.bg1,
+        alignItems: 'center', justifyContent: 'center',
+      }}>
+        <Icon name="lock" size={19} color={c.accent} sw={1.9} />
+      </View>
+      <View style={{ flex: 1, gap: 4 }}>
+        <Txt v="bodyMed">{temConta ? K().statusGuardadoTitulo : K().statusAquiTitulo}</Txt>
+        <Txt v="caption" c={c.tx2} style={{ lineHeight: 20 }}>
+          {temConta ? K().statusGuardadoTexto : K().statusAquiTexto}
+        </Txt>
+        {recado ? <Txt v="caption" c={c.tx3} style={{ marginTop: 2 }}>{recado}</Txt> : null}
+      </View>
+    </Row>
+  );
+}
+
+/** Uma saída (ou uma entrada): o nome, quando acontece, e o porquê, que
+    abre no toque. */
+function LinhaQueAbre({ ic, titulo, resumo, texto }: {
+  ic: string; titulo: string; resumo: string; texto: string;
+}) {
+  const { c } = useTheme();
+  const [aberta, setAberta] = React.useState(false);
+  return (
+    <Pressable onPress={() => setAberta((a) => !a)} style={({ pressed }) => [{ opacity: pressed ? 0.75 : 1 }]}>
+      <View style={{ paddingHorizontal: 16, paddingVertical: 13 }}>
+        <Row gap={12} style={{ alignItems: 'center' }}>
+          <View style={{
+            width: 34, height: 34, borderRadius: 17, backgroundColor: c.bg3,
+            alignItems: 'center', justifyContent: 'center',
+          }}>
+            <Icon name={ic} size={16} color={c.accent} sw={1.9} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Txt v="bodyMed">{titulo}</Txt>
+            <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>{resumo}</Txt>
+          </View>
+          <Icon name={aberta ? 'chevup' : 'chevdown'} size={14} color={c.tx4} sw={2} />
+        </Row>
+        {aberta ? (
+          <Txt v="caption" c={c.tx2} style={{ lineHeight: 21, marginTop: 10, marginLeft: 46 }}>{texto}</Txt>
+        ) : null}
+      </View>
+    </Pressable>
   );
 }
 
@@ -167,6 +234,7 @@ export default function Privacidade() {
   const go = (p: string) => () => router.push(p as any);
   const reset = useStore((s) => s.reset);
   const conta = useStore((s) => (s.S as any).conta);
+  const clinica = useStore((s) => clinicaConectada(s.S));
   /* ⚠️ SEM DONO (a semente, ou o diário que ainda não tem conta), apagar
      é local, sem rede e sem função, como sempre foi.
 
@@ -192,12 +260,7 @@ export default function Privacidade() {
     <TelaInterna titulo={K().titulo}>
       <Titulao titulo={K().titulo} lead={K().lead} />
 
-      <Bloco titulo={K().ondeFicam}>
-        <Cartao>
-          <Bloquinho titulo={K().noAparelho}>{K().noAparelhoTexto}</Bloquinho>
-          <Bloquinho titulo={K().desinstalar}>{K().desinstalarTexto}</Bloquinho>
-        </Cartao>
-      </Bloco>
+      <CartaoDoEstado />
 
       {/* A SEÇÃO MAIS IMPORTANTE DA TELA, e a que um app costuma
           esconder. Ela lista TUDO que atravessa para fora do aparelho, e
@@ -207,19 +270,33 @@ export default function Privacidade() {
           ⚠️ NUMA TELA DE PRIVACIDADE, A FRASE ERRADA PARA O LADO SEGURO
           TAMBÉM É ERRO. Ela já prometeu envio à equipe que não existia;
           hoje a clínica VÊ o diário (fase 6), e não recebe nada que a
-          pessoa mande — mensagem e receita são da fase 7, adiada. */}
+          pessoa mande — mensagem e receita são da fase 7, adiada.
+
+          ⚠️ E A LINHA DA CLÍNICA DIZ O ESTADO DE VERDADE: nenhuma, ou
+          conectada. É a pergunta que a pessoa vem fazer a esta tela. */}
       <Bloco titulo={K().oQueSai} nota={K().oQueSaiNota}>
         <Cartao>
-          <Bloquinho titulo={K().paraConta}>{K().paraContaTexto}</Bloquinho>
-          <Bloquinho titulo={K().paraEquipe}>{K().paraEquipeTexto}</Bloquinho>
-          {LEITURA_DAS_PERGUNTAS ? <Bloquinho titulo={K().perguntas}>{K().perguntasTexto}</Bloquinho> : null}
-          {/* ⚠️ A ESCOLHA DAS PERGUNTAS MORA AQUI TAMBÉM, e não só no
-              cadastro: consentimento que não se revoga no mesmo lugar em
-              que se lê não é livre (LGPD, art. 8º, § 5º). Desligar apaga
-              as que subiram — quem faz isso é a sincronia. */}
+          <LinhaQueAbre ic="user" titulo={K().saiConta} resumo={K().saiContaResumo} texto={K().paraContaTexto} />
+          <LinhaQueAbre
+            ic="steth"
+            titulo={K().saiClinica}
+            resumo={clinica ? K().saiClinicaConectada : K().saiClinicaNenhuma}
+            texto={K().paraEquipeTexto}
+          />
+          <LinhaQueAbre ic="camera" titulo={K().saiFoto} resumo={K().saiFotoResumo} texto={K().fotoDoPratoTexto} />
+          <LinhaQueAbre ic="mic" titulo={K().saiMicrofone} resumo={K().saiMicrofoneResumo} texto={K().ditadoTexto} />
+          {/* ⚠️ COM A LEITURA DESLIGADA (`LEITURA_DAS_PERGUNTAS`), AS
+              PERGUNTAS FICAM AQUI, e a linha diz isso. Ligada, ela volta a
+              ser a da escolha, com o interruptor embaixo — consentimento
+              que não se revoga no mesmo lugar em que se lê não é livre
+              (LGPD, art. 8º, § 5º). */}
+          <LinhaQueAbre
+            ic="companion"
+            titulo={K().saiPerguntas}
+            resumo={LEITURA_DAS_PERGUNTAS ? K().perguntas : K().saiPerguntasResumo}
+            texto={LEITURA_DAS_PERGUNTAS ? K().perguntasTexto : K().saiPerguntasTexto}
+          />
           {LEITURA_DAS_PERGUNTAS && contaLigada() ? <EscolhaDasPerguntas /> : null}
-          <Bloquinho titulo={K().fotoDoPrato}>{K().fotoDoPratoTexto}</Bloquinho>
-          <Bloquinho titulo={K().ditado}>{K().ditadoTexto}</Bloquinho>
         </Cartao>
       </Bloco>
 
@@ -228,8 +305,12 @@ export default function Privacidade() {
           {/* ⚠️ DIZIA "o app lê as pesagens... Ele só lê". Duas vezes o
               aplicativo falando de si em terceira pessoa, numa tela cuja
               pergunta é justamente quem faz o quê. Quem lê somos nós. */}
-          <Bloquinho titulo={K().soOPeso(appDeSaude())}>{K().soOPesoTexto(appDeSaude())}</Bloquinho>
-          <Bloquinho titulo={K().permissao}>{K().permissaoTexto}</Bloquinho>
+          <LinhaQueAbre
+            ic="heart"
+            titulo={maiuscula(appDeSaude())}
+            resumo={K().leSaudeResumo}
+            texto={`${K().soOPesoTexto(appDeSaude())} ${K().permissaoTexto}`}
+          />
         </Cartao>
       </Bloco>
 

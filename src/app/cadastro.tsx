@@ -11,8 +11,9 @@ import { useStore } from '../logic/store';
 import { normalizarConvite, vinculoDoConvite } from '../logic/assinatura';
 import { recomecarDoZero, type State } from '../logic/seed';
 import { marcarComoVistas } from '../logic/conquistas';
-import { AVISO, ISENCAO, TERMOS, POLITICA, ESCOLHA_DAS_PERGUNTAS, LEITURA_DAS_PERGUNTAS, VERSAO as VERSAO_DO_AVISO } from '../logic/consentimento';
-import { temIdentificacao, IDADE_MINIMA, TERMOS as DOC_TERMOS, PRIVACIDADE as DOC_PRIVACIDADE } from '../logic/documentos';
+import { ISENCAO, ESCOLHA_DAS_PERGUNTAS, LEITURA_DAS_PERGUNTAS, VERSAO as VERSAO_DO_AVISO } from '../logic/consentimento';
+import { ListaDoAviso, FraseDoAceite } from '../ui/consentimento';
+import { IDADE_MINIMA } from '../logic/documentos';
 import { MEDS, MEDS_POR_PAIS, CADENCE_DAYS } from '../logic/meds';
 import { FORMAS, faixaDaMolecula, doDa, nomeDaMolecula, type Forma } from '../logic/formas';
 import type { Sistema } from '../logic/medidas';
@@ -20,7 +21,7 @@ import { ATIVIDADES, MOTIVOS, curWeight, planoDoCadastro, emTratamento } from '.
 import { MO_LONG, doseTxt, kgTxt, now, startOfDay, nf, dataComAno, maiuscula } from '../logic/time';
 import { Txt, Row, Rich, Rolagem } from '../ui/kit';
 import { Icon } from '../ui/Icon';
-import { Botao, Roda, Regua, Segmentado, Opcoes, Opc, NUMERO, SEM_ANEL } from '../ui/internas';
+import { Botao, Roda, Regua, Segmentado, NUMERO, SEM_ANEL } from '../ui/internas';
 import { Lavagem } from '../ui/lavagem';
 import { RESTRICOES } from '../logic/restricoes';
 import { Marca, CoracaoDeSaude } from '../ui/marca';
@@ -241,9 +242,6 @@ type Respostas = {
   /* O idioma escolhido no primeiro passo. Ele já vem preenchido do que o
      aparelho indicou — ver logic/local. */
   idioma: Local;
-  /* A chave da isenção. Ela não vem do perfil na edição: aceitar de novo
-     não é o assunto de quem voltou para corrigir a altura. */
-  aceite: boolean;
   /** a leitura das perguntas ao Morphi — própria, e desligada por padrão */
   perguntas: boolean;
   codigo: string;
@@ -264,7 +262,7 @@ const VAZIO: Respostas = {
   altura: 1.7, peso: 80, pesoInicial: 80, meta: 70, ritmo: null,
   motivacao: null, atividade: null, restricoes: [], saude: null,
   iDia: now().getDate(), iMes: now().getMonth(), iAno: now().getFullYear(),
-  acompanhamento: null, profissional: '', recomendado: null, codigo: '', aceite: false, perguntas: false,
+  acompanhamento: null, profissional: '', recomendado: null, codigo: '', perguntas: false,
 };
 
 /* ------------------------------------------------------------------ */
@@ -368,9 +366,10 @@ function Escolha({ ic, titulo, sub, rodape, selo, on, cheia, onPress }: {
      dedo, e a lista inteira passa a caber. */
   /* ALTURA IGUAL PARA TODAS AS ALTERNATIVAS DA MESMA TELA.
 
-     A lista de doses tem subtítulo na primeira e na última ("Dose de
-     início", "Dose máxima") e nenhuma no meio; a de frequência só tem no
-     "Outro intervalo". Sem piso, o cartão com legenda ficava um degrau
+     A lista de frequência só tem subtítulo no "Outro intervalo" (a de
+     doses tinha "Dose de início" e "Dose máxima" na primeira e na última,
+     e o dono tirou: a ordem da lista já diz isso). Sem piso, o cartão com
+     legenda ficava um degrau
      mais alto que os vizinhos, e a lista parecia desalinhada por
      descuido — quando a diferença era só o texto a mais.
 
@@ -1185,13 +1184,14 @@ export default function Cadastro() {
        chegar aqui já significa uma data válida. */
     if (x === 'inicio') return inicio <= +startOfDay(now());
     /* O BOTÃO DO RODAPÉ É O ACEITE, como na tela de saúde: não há uma
-       resposta a marcar antes dele. */
-    /* ⚠️ O ÚLTIMO PASSO SÓ LIBERA COM A CHAVE LIGADA. Antes o botão do
-       rodapé ERA o aceite — tocar em "Concordar e montar meu plano"
-       consentia. Funciona juridicamente e some visualmente: o gesto de
-       consentir ficava idêntico ao de avançar as treze telas anteriores.
-       Com a chave, a pessoa faz uma coisa que só serve para isso. */
-    if (x === 'consentimento') return !!editando || r.aceite;
+       resposta a marcar antes dele.
+
+       ⚠️ HOUVE UMA CHAVE ("Entendi e concordo") que travava este passo,
+       para o gesto de consentir não ficar idêntico ao de avançar as
+       treze telas anteriores. O dono pediu o Continuar de volta como
+       aceite (26/09/2026); o que diferencia o gesto agora é a frase
+       colada no botão, que diz o que o toque aceita (`FraseDoAceite`). */
+    if (x === 'consentimento') return true;
     /* O nome do profissional é opcional: quem tem médico e não quer
        escrever o nome agora continua tendo médico, e a ficha fica para
        depois. O código, não — sem ele "vim por indicação" é uma
@@ -1677,13 +1677,17 @@ export default function Cadastro() {
              mesma resposta.
 
              ⚠️ E CADA OPÇÃO SE ESCREVE NO PRÓPRIO IDIOMA. É o que salva a
-             tela para quem não entendeu a pergunta. */
+             tela para quem não entendeu a pergunta.
+
+             ⚠️ E É O MESMO CARTÃO DAS OUTRAS PERGUNTAS, alinhado à
+             esquerda e com a mesma altura: era a pílula centrada, e a
+             primeira tela do questionário parecia de outro aplicativo. */
           <View style={{ gap: 8 }}>
             {idiomasOrdenados().map((l) => (
-              <Opc
+              <Escolha
                 key={l}
                 cheia
-                label={NOME_DO_LOCAL[l]}
+                titulo={NOME_DO_LOCAL[l]}
                 on={localAtual() === l}
                 onPress={() => {
                   trocarLocal(l);
@@ -1917,7 +1921,6 @@ export default function Cadastro() {
                 <Escolha
                   key={d} cheia
                   titulo={`${doseTxt(d)} ${med.unit}`}
-                  sub={i === 0 ? K().doseDeInicio : i === med.doses.length - 1 ? K().doseMaxima : undefined}
                   on={r.dose === d}
                   onPress={() => p({ dose: d })}
                 />
@@ -2423,11 +2426,15 @@ export default function Cadastro() {
         ) : null}
 
         {id === 'consentimento' ? (
-          <View style={{ gap: 10 }}>
-            {/* ⚠️ A ISENÇÃO VEM PRIMEIRO, E É A ÚNICA COM CHAVE. Ver o alto
-                de logic/consentimento: o resto do aviso é sobre dado, e
-                esta é sobre tratamento — é a que alguém pode entender
-                errado de um jeito que faz mal. */}
+          <View style={{ gap: 12 }}>
+            {/* ⚠️ A ISENÇÃO VEM PRIMEIRO, E EM DESTAQUE. Ver o alto de
+                logic/consentimento: o resto do aviso é sobre dado, e esta
+                é sobre tratamento — é a que alguém pode entender errado de
+                um jeito que faz mal. Não tem mais chave: o Continuar é o
+                aceite, e a frase acima dele diz isso (pedido do dono).
+
+                O reforço vai num recado âmbar, e não vermelho: a cor de
+                erro deste aplicativo é clínica, e isto é conselho. */}
             <View style={{
               backgroundColor: c.bg1, borderRadius: radius.lg, padding: 18, gap: 12,
               borderWidth: 1, borderColor: c.line,
@@ -2437,24 +2444,16 @@ export default function Cadastro() {
                 <Txt v="bodyMed" style={{ flex: 1 }}>{ISENCAO().titulo}</Txt>
               </Row>
               <Txt v="caption" c={c.tx2} style={{ lineHeight: 21 }}>{ISENCAO().texto}</Txt>
-              <Txt v="caption" c={c.tx2} style={{ lineHeight: 21 }}>{ISENCAO().reforco}</Txt>
-              <Row gap={12} style={{ alignItems: 'center', paddingTop: 4, borderTopWidth: 1, borderTopColor: c.line2, marginTop: 2 }}>
-                <Switch
-                  value={r.aceite}
-                  onValueChange={(v) => p({ aceite: v })}
-                  trackColor={{ false: c.track, true: c.accent }}
-                  thumbColor="#fff"
-                />
-                <Txt v="label" style={{ flex: 1 }}>{ISENCAO().aceite}</Txt>
+              <Row gap={10} style={{
+                alignItems: 'flex-start', backgroundColor: c.amberBg, borderRadius: radius.md,
+                paddingHorizontal: 12, paddingVertical: 10,
+              }}>
+                <Icon name="alerta" size={16} color={c.amber} sw={2} />
+                <Txt v="caption" style={{ flex: 1, lineHeight: 20 }}>{ISENCAO().reforco}</Txt>
               </Row>
             </View>
 
-            {AVISO().map((a) => (
-              <View key={a.titulo} style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16, gap: 5 }}>
-                <Txt v="bodyMed">{a.titulo}</Txt>
-                <Txt v="caption" c={c.tx2} style={{ lineHeight: 21 }}>{a.texto}</Txt>
-              </View>
-            ))}
+            <ListaDoAviso />
             {/* ⚠️ A ESCOLHA DAS PERGUNTAS TEM CHAVE PRÓPRIA, E NÃO TRAVA O
                 BOTÃO. É outra finalidade, sobre texto de saúde, e com a
                 conta obrigatória ela não pode virar condição para usar o
@@ -2474,21 +2473,6 @@ export default function Cadastro() {
                 </Row>
                 <Txt v="micro" c={c.tx3} style={{ lineHeight: 17 }}>{ESCOLHA_DAS_PERGUNTAS().detalhe}</Txt>
               </View>
-            ) : null}
-            {/* OS DOCUMENTOS SÓ APARECEM QUANDO ESTIVEREM COMPLETOS. Um
-                link para "Termos de uso" que abre um texto sem quem
-                responde por ele, numa tela de aceite, é a pior linha
-                possível: ela é a prova de que a pessoa aceitou uma coisa
-                que ninguém assinou. */}
-            {temIdentificacao() ? (
-              <Row gap={16} style={{ justifyContent: 'center', paddingVertical: 10 }}>
-                <Pressable onPress={() => router.push(TERMOS as any)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-                  <Txt v="label" c={c.accent}>{DOC_TERMOS().titulo}</Txt>
-                </Pressable>
-                <Pressable onPress={() => router.push(POLITICA as any)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-                  <Txt v="label" c={c.accent}>{DOC_PRIVACIDADE().titulo}</Txt>
-                </Pressable>
-              </Row>
             ) : null}
           </View>
         ) : null}
@@ -2516,15 +2500,16 @@ export default function Cadastro() {
             altura não está consentindo de novo, e o rodapé continua sendo
             o 'Salvar' de todas as outras. */}
         {id === 'consentimento' && !editando ? (
-          <View>
-            {/* O RÓTULO DIZ O QUE O TOQUE SIGNIFICA. "Continuar" seria a
-                pessoa consentindo sem saber que consentiu — e consentimento
-                para dado de saúde precisa ser um ato claro, não o efeito
-                colateral de avançar uma tela. */}
-            <Botao pilula label={K().concordarEMontar} desligado={!r.aceite} onPress={avanca} />
-            <Txt v="micro" c={c.tx4} style={{ textAlign: 'center', marginTop: 10 }}>
-              {K().ficaRegistrado}
-            </Txt>
+          <View style={{ gap: 12 }}>
+            {/* ⚠️ O TOQUE EM CONTINUAR É O ACEITE, E A FRASE COLADA NELE É
+                O QUE FAZ DISSO UM ATO CLARO. O botão dizia "Concordar e
+                montar meu plano", e a isenção tinha chave própria; o dono
+                pediu o Continuar de todas as telas como aceite. Sem a
+                frase, seria consentir sem saber — com ela, o toque diz
+                com todas as letras o que aceita, e onde ler. Os documentos
+                viram link dentro dela (ver `FraseDoAceite`). */}
+            <FraseDoAceite />
+            <Botao pilula label={K().continuar} onPress={avanca} />
           </View>
         ) : id === 'saude' ? (
           <View>

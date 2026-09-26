@@ -45,7 +45,7 @@ export const cadastro = {
     saude: 'Connect your health app',
     acompanhamentoFuturo: 'Do you plan to have a clinician following your care?',
     acompanhamentoAgora: 'Do you have a clinician following your care?',
-    consentimento: 'Important information',
+    consentimento: 'Before we start',
   },
 
   subs: {
@@ -67,7 +67,7 @@ export const cadastro = {
     atividade: 'It goes into your daily water goal — moving more means losing more fluid — and it tells us where you’re starting from.',
     saude: 'Your health data helps make sense of your progress — without you having to log everything.',
     acompanhamento: 'This answer opens up what’s tied to medical follow-up — notes, and getting ready for appointments.',
-    consentimento: 'Two things before we start: what we do for your treatment, and what happens to what you log.',
+    consentimento: 'Two things: what we do for your treatment, and what happens to what you log.',
   },
 
   seuNome: 'Your name',
@@ -91,8 +91,6 @@ export const cadastro = {
   formaSeringaSub: 'You draw the dose with a syringe',
   formaCanetaSub: 'Comes prefilled, ready to inject',
 
-  doseDeInicio: 'Starting dose',
-  doseMaxima: 'Maximum dose',
 
   todosOsDias: 'Every day',
   aCadaDias: (d: number) => `Every ${d} days`,
@@ -140,8 +138,6 @@ export const cadastro = {
 
   /* ⚠️ THE LABEL SAYS WHAT THE TAP MEANS. "Continue" would be consenting
      without knowing you consented. */
-  concordarEMontar: 'Agree and build my plan',
-  ficaRegistrado: 'Recorded with today’s date.',
   salvar: 'Save',
   continuar: 'Continue',
 

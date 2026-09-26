@@ -11,24 +11,30 @@
    ============================================================ */
 
 export const aviso = {
-  isencaoTitulo: 'We follow your treatment — we don’t run it',
-  isencaoTexto: 'We keep what you log, show you how things have been going, and put together what you’ll take to your appointment. We’re not a diagnosis and we don’t prescribe: dose, interval and medication are decisions for whoever follows your care.',
-  isencaoReforco: 'Before changing anything about your dose or your timing, talk to your care team. And if a symptom scares you, don’t wait for the next appointment.',
-  isencaoAceite: 'I understand and agree',
+  isencaoTitulo: 'We follow your treatment, we don’t run it',
+  isencaoTexto: 'We keep what you log and get your appointment ready. We don’t diagnose or prescribe: dose and medication are your care team’s call.',
+  isencaoReforco: 'A symptom that scares you? Don’t wait for the next appointment. And before changing your dose, talk to your care team.',
 
-  guardadoTitulo: 'What you log is kept in your account',
-  guardadoTexto: 'Weight, symptoms, shots, labs and notes live on this phone and in our database in São Paulo, tied to your account. That way your journal isn’t lost if you switch or lose your phone. Only your account can read what’s yours.',
+  guardadoTitulo: 'Kept in your account',
+  guardadoTexto: 'On this phone and in our database in São Paulo. Only your account reads what’s yours.',
 
-  usoTitulo: 'What your data is used for',
-  usoTexto: 'To build your daily goals, follow how the treatment is going, and organize what you bring to your appointment. None of that is a diagnosis, and the app doesn’t prescribe or adjust a dose.',
+  usoTitulo: 'Used for your follow-up',
+  usoTexto: 'For your goals, your progress and what to bring to your appointment. It’s not a diagnosis.',
 
   /* ⚠️ THE PART A CONSENT NOTICE USUALLY LEAVES OUT, and the only one
      here that changes what the person decides. */
-  saiTitulo: 'What else can leave here, and only with a move from you',
-  saiTexto: 'Your journal, to the clinic you connect with using its code, after you see what it gets to see. And the photo of your plate, when you use photo reading: it’s sent to be read and isn’t kept.',
+  saiTitulo: 'Leaves only with a move from you',
+  saiTexto: 'To the clinic you connect with using its code, and the photo of your plate, when you ask for it to be read.',
 
-  controleTitulo: 'You stay in control',
-  controleTexto: 'You can fix and delete any entry, export everything to a file, and erase your data entirely, at any time, in settings.',
+  controleTitulo: 'You’re in control',
+  controleTexto: 'Fix, export or delete your data whenever you want.',
+
+  /* a frase que faz do Continuar do último passo do cadastro um aceite (ui/consentimento) */
+  termosDeUso: 'Terms of Use',
+  politicaDePrivacidade: 'Privacy Policy',
+  aceiteAntes: 'By tapping Continue, you agree to the above, to the ',
+  aceiteEntre: ' and to the ',
+  aceiteDepois: '.',
 
   perguntasTitulo: 'Your questions to Morphi',
   perguntasTexto: 'If you let us, we read the questions you ask Morphi to understand which doubts come up and to improve the answers. We read them without knowing who asked, and the clinic never reads them. It starts off, and saying no changes nothing in the app.',
@@ -141,32 +147,38 @@ export const aviso = {
   telaPrivacidade: {
     titulo: 'Privacy and data',
     lead: 'Where your entries live, what leaves here, and what the app reads from outside.',
+    statusGuardadoTitulo: 'Your journal is safely kept',
+    statusGuardadoTexto: 'On this device and in your account, in São Paulo. If you switch devices, it comes back when you sign in.',
+    statusAquiTitulo: 'Your journal is on this device',
+    statusAquiTexto: 'It doesn’t have an account yet: for now, it stays only here.',
 
-    ondeFicam: 'Where your entries live',
-    noAparelho: 'On your device and in your account',
-    noAparelhoTexto: 'Weight, measurements, shots, check-ins, lab results and notes live on this device and in our database in São Paulo, tied to your account. Only your account reads your journal — and the clinic you connect with, while the connection lasts. Your questions to Morphi stay only here.',
-    desinstalar: 'Uninstalling doesn’t take your journal with it',
-    desinstalarTexto: 'It comes back when you sign in to your account, on this device or another. Only what was logged offline and hasn’t reached your account yet would be lost with the app.',
 
     oQueSai: 'What leaves here',
     oQueSaiNota: 'Only the first one goes on its own. The rest depends on a move from you.',
-    paraConta: 'Your journal, to your account',
+    saiConta: 'Your account',
+    saiContaResumo: 'Goes on its own',
+    saiClinica: 'Your clinic',
+    saiClinicaNenhuma: 'None connected',
+    saiClinicaConectada: 'Connected',
+    saiFoto: 'Plate photo',
+    saiFotoResumo: 'Only if you use it',
+    saiMicrofone: 'Microphone',
+    saiMicrofoneResumo: 'Only while it’s on',
+    saiPerguntas: 'Questions to Morphi',
+    saiPerguntasResumo: 'Stay here',
+    saiPerguntasTexto: 'The questions you ask Morphi stay only on this device: they don’t go to your account, to the clinic, or to us.',
     paraContaTexto: 'Your entries and profile go to our database whenever there’s a connection. That’s what keeps your journal across devices.',
-    paraEquipe: 'What your clinic sees',
     paraEquipeTexto: 'Nothing, until you connect with a partner clinic using its code. Before connecting, you see the list of what it gets to see; it sees it while the connection lasts, and you can disconnect on the clinic’s screen. The appointment summary is built here, and leaves when you show or export it.',
     perguntas: 'Your questions to Morphi',
     perguntasTexto: 'Only if you allow reading, with the switch below. We read them without knowing who asked, and the clinic never does. Turning it off deletes the ones sent.',
-    ditado: 'Your voice, when you use the microphone',
     ditadoTexto: 'Turning speech into text is done by your phone’s system. We ask for it to happen on the device itself, but without on-device recognition for your language, the system may send the audio to Apple or Google. Only while the microphone is on.',
-    fotoDoPrato: 'The photo of your plate, when you use photo reading',
     fotoDoPratoTexto: 'It’s shrunk on the device and sent to be read by a model, which returns the items on the plate. The image isn’t kept: not in your meal entry, and not on the server in between. Logging the meal by hand sends nothing.',
 
     leDeFora: 'What the app reads from outside',
+    leSaudeResumo: 'Only your weight',
     appDeSaudePadrao: 'the phone’s health app',
-    soOPeso: (app: string) => `${app}, and weight only`,
     soOPesoTexto: (app: string) =>
       `With your permission, we read the weigh-ins your scale, your watch or another app wrote there. We only read: we never write anything into ${app}. And we read weight only — sleep, steps and heart rate stay out.`,
-    permissao: 'The permission is yours, and you can take it back',
     permissaoTexto: 'It’s granted in the system settings and revoked in the same place. Without it, everything here still works: weight goes back to arriving the way it did before, typed in by you.',
 
     podeFazer: 'What you can do right now',

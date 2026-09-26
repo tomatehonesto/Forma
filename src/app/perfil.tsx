@@ -29,7 +29,7 @@ import { radius, space, font, paletaDe } from '../theme';
 import { CANAL } from '../logic/documentos';
 import { pesoTxt, sistemaDe, pesoU, pesoN, unidadesDe } from '../logic/medidas';
 import { NOME_DO_LOCAL, localAtual, type Local } from '../logic/local';
-import { GrupoDaConta, BotaoDeSair } from '../ui/conta';
+import { BotaoDeSair } from '../ui/conta';
 import { sair } from '../logic/conta';
 import { T } from '../textos';
 
@@ -507,8 +507,9 @@ export default function Perfil() {
 
           E mora no perfil porque é assunto de conta: o vínculo é quem
           presta o serviço, e um dia é quem decide a cobrança. */}
-      {/* A conta e se o diário está guardado — ver ui/conta. */}
-      <GrupoDaConta />
+      {/* ⚠️ A CONTA NÃO TEM MAIS GRUPO AQUI: o e-mail e o estado do
+          diário foram para Seus dados, junto dos outros dados da pessoa
+          (pedido do dono, 26/09/2026). Ver `BlocoDaConta`, em ui/conta. */}
 
       <Grupo title={K().planoECobranca}>
         {/* ⚠️ O PLANO PRECISA DE UM LUGAR FIXO, e não só do fim do

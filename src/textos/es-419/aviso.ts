@@ -11,24 +11,30 @@
    ============================================================ */
 
 export const aviso = {
-  isencaoTitulo: 'Acompañamos tu tratamiento — no lo conducimos',
-  isencaoTexto: 'Guardamos lo que registras, te mostramos cómo viene andando el tratamiento y preparamos lo que vas a llevar a la consulta. No somos un diagnóstico y no recetamos: dosis, intervalo y medicación son decisión de quien te acompaña.',
-  isencaoReforco: 'Antes de cambiar cualquier cosa en tu dosis o en tu horario, habla con tu equipo. Y si aparece un síntoma que asusta, no esperes a la próxima consulta.',
-  isencaoAceite: 'Entendí y acepto',
+  isencaoTitulo: 'Acompañamos, no conducimos',
+  isencaoTexto: 'Guardamos lo que registras y preparamos la consulta. No diagnosticamos ni recetamos: dosis y medicación son decisión de tu equipo.',
+  isencaoReforco: '¿Un síntoma que asusta? No esperes a la próxima consulta. Y antes de cambiar la dosis, habla con tu equipo.',
 
-  guardadoTitulo: 'Lo que registras queda guardado en tu cuenta',
-  guardadoTexto: 'Peso, síntomas, inyecciones, exámenes y notas quedan en este teléfono y en nuestra base de datos, en São Paulo, vinculados a tu cuenta. Así tu diario no se pierde si cambias o pierdes el teléfono. Solo tu cuenta lee lo que es tuyo.',
+  guardadoTitulo: 'Guardado en tu cuenta',
+  guardadoTexto: 'En este teléfono y en nuestra base de datos, en São Paulo. Solo tu cuenta lee lo que es tuyo.',
 
-  usoTitulo: 'Para qué se usan tus datos',
-  usoTexto: 'Para armar tus metas diarias, acompañar la evolución del tratamiento y organizar lo que lleves a la consulta. Nada de eso es un diagnóstico, y la aplicación no receta ni ajusta dosis.',
+  usoTitulo: 'Usado en tu seguimiento',
+  usoTexto: 'Para las metas, la evolución y lo que llevar a la consulta. No es un diagnóstico.',
 
   /* ⚠️ LA PARTE QUE UN AVISO DE CONSENTIMIENTO SUELE CALLAR, y que aquí es
      la única que cambia lo que la persona decide. */
-  saiTitulo: 'Qué más puede salir de aquí, y solo con un gesto tuyo',
-  saiTexto: 'Tu diario, para la clínica a la que te conectes con su código, después de ver lo que ella pasa a ver. Y la foto del plato, cuando uses la lectura por foto: se envía para ser leída y no queda guardada.',
+  saiTitulo: 'Solo sale con un gesto tuyo',
+  saiTexto: 'Para la clínica a la que te conectes con su código, y la foto del plato, cuando pidas la lectura.',
 
-  controleTitulo: 'Tú sigues teniendo el control',
-  controleTexto: 'Puedes corregir y borrar cualquier registro, exportar todo en un archivo y borrar tus datos por completo, en cualquier momento, en la configuración.',
+  controleTitulo: 'Tú tienes el control',
+  controleTexto: 'Corrige, exporta o borra tus datos cuando quieras.',
+
+  /* a frase que faz do Continuar do último passo do cadastro um aceite (ui/consentimento) */
+  termosDeUso: 'Términos de Uso',
+  politicaDePrivacidade: 'Política de Privacidad',
+  aceiteAntes: 'Al tocar Continuar, aceptas lo que está arriba, los ',
+  aceiteEntre: ' y la ',
+  aceiteDepois: '.',
 
   perguntasTitulo: 'Tus preguntas a Morphi',
   perguntasTexto: 'Si nos dejas, leemos las preguntas que le haces a Morphi para entender qué dudas aparecen y mejorar las respuestas. Las leemos sin saber quién preguntó, y la clínica nunca las lee. Viene apagado, y decir que no, no cambia nada en la aplicación.',
@@ -143,32 +149,38 @@ export const aviso = {
   telaPrivacidade: {
     titulo: 'Privacidad y datos',
     lead: 'Dónde quedan tus registros, qué sale de aquí y qué lee la aplicación de afuera.',
+    statusGuardadoTitulo: 'Tu diario está guardado',
+    statusGuardadoTexto: 'En este aparato y en tu cuenta, en São Paulo. Si cambias de aparato, vuelve cuando entras.',
+    statusAquiTitulo: 'Tu diario está en este aparato',
+    statusAquiTexto: 'Todavía no tiene cuenta: por ahora, queda solo aquí.',
 
-    ondeFicam: 'Dónde quedan tus registros',
-    noAparelho: 'En el aparato y en tu cuenta',
-    noAparelhoTexto: 'Peso, medidas, inyecciones, check-ins, exámenes y anotaciones quedan en este aparato y en nuestra base de datos, en São Paulo, vinculados a tu cuenta. Solo tu cuenta lee tu diario — y la clínica a la que te conectes, mientras dure la conexión. Tus preguntas a Morphi quedan solo aquí.',
-    desinstalar: 'Desinstalar no se lleva tu diario',
-    desinstalarTexto: 'Vuelve cuando entras en tu cuenta, en este aparato o en otro. Solo lo que se registró sin conexión, y todavía no llegó a la cuenta, se perdería junto con la aplicación.',
 
     oQueSai: 'Qué sale de aquí',
     oQueSaiNota: 'Solo lo primero va solo. Lo demás depende de un gesto tuyo.',
-    paraConta: 'Tu diario, para tu cuenta',
+    saiConta: 'Tu cuenta',
+    saiContaResumo: 'Va solo',
+    saiClinica: 'Tu clínica',
+    saiClinicaNenhuma: 'Ninguna conectada',
+    saiClinicaConectada: 'Conectada',
+    saiFoto: 'Foto del plato',
+    saiFotoResumo: 'Solo si la usas',
+    saiMicrofone: 'Micrófono',
+    saiMicrofoneResumo: 'Solo mientras está encendido',
+    saiPerguntas: 'Preguntas a Morphi',
+    saiPerguntasResumo: 'Quedan aquí',
+    saiPerguntasTexto: 'Las preguntas que le haces a Morphi quedan solo en este aparato: no van a tu cuenta, ni a la clínica, ni a nosotros.',
     paraContaTexto: 'Los registros y el perfil van a nuestra base de datos siempre que hay conexión. Eso es lo que guarda el diario entre aparatos.',
-    paraEquipe: 'Lo que ve tu clínica',
     paraEquipeTexto: 'Nada, hasta que te conectes a una clínica asociada con su código. Antes de conectar, aparece la lista de lo que pasa a ver; lo ve mientras dure la conexión, y puedes desconectarte en la pantalla de la clínica. El resumen para la consulta se arma aquí, y sale cuando lo muestras o lo exportas.',
     perguntas: 'Tus preguntas a Morphi',
     perguntasTexto: 'Solo si permites la lectura, con el interruptor de abajo. Las leemos sin saber quién preguntó, y la clínica nunca las lee. Apagarlo borra las que se enviaron.',
-    ditado: 'Tu voz, cuando usas el micrófono',
     ditadoTexto: 'Quien convierte la voz en texto es el sistema del aparato. Pedimos que eso ocurra en el propio aparato, pero, sin el reconocimiento local de tu idioma, el sistema puede enviar el audio a Apple o a Google. Solo mientras el micrófono está encendido.',
-    fotoDoPrato: 'La foto del plato, cuando usas la lectura por foto',
     fotoDoPratoTexto: 'Se reduce en el aparato y se envía para que la lea un modelo, que devuelve los ítems del plato. La imagen no queda guardada: ni en tu registro de la comida, ni en el servidor que hace el puente. Registrar la comida a mano no envía nada.',
 
     leDeFora: 'Qué lee la aplicación de afuera',
+    leSaudeResumo: 'Solo el peso',
     appDeSaudePadrao: 'aplicación de salud del celular',
-    soOPeso: (app: string) => `${app}, y solo el peso`,
     soOPesoTexto: (app: string) =>
       `Con tu permiso, leemos los pesajes que tu balanza, tu reloj u otra aplicación escribieron ahí. Solo leemos: nunca escribimos nada en ${app}. Y leemos solo peso — sueño, pasos y latidos quedan fuera.`,
-    permissao: 'El permiso es tuyo, y se quita cuando quieras',
     permissaoTexto: 'Se da en los ajustes del sistema y se revoca en el mismo lugar. Sin él, todo aquí sigue funcionando: el peso vuelve a entrar como entró hasta aquí, escrito por ti.',
 
     podeFazer: 'Qué puedes hacer ahora',

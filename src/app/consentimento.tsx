@@ -2,8 +2,9 @@ import React from 'react';
 import { View, Pressable, Switch } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
-import { AVISO, ESCOLHA_DAS_PERGUNTAS, LEITURA_DAS_PERGUNTAS, TERMOS, POLITICA, VERSAO } from '../logic/consentimento';
-import { temIdentificacao, TERMOS as DOC_TERMOS, PRIVACIDADE as DOC_PRIVACIDADE } from '../logic/documentos';
+import { ESCOLHA_DAS_PERGUNTAS, LEITURA_DAS_PERGUNTAS, TERMOS, POLITICA, VERSAO } from '../logic/consentimento';
+import { ListaDoAviso } from '../ui/consentimento';
+import { temIdentificacao } from '../logic/documentos';
 import { contaLigada } from '../logic/nuvem';
 import { now } from '../logic/time';
 import { tirarDiarioDoTelefone } from '../ui/conta';
@@ -102,12 +103,7 @@ export default function ConsentimentoNovo() {
     >
       <Titulao titulo={K().titulo} lead={K().lead} />
       <View style={{ gap: 10 }}>
-        {AVISO().map((a) => (
-          <View key={a.titulo} style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16, gap: 5 }}>
-            <Txt v="bodyMed">{a.titulo}</Txt>
-            <Txt v="caption" c={c.tx2} style={{ lineHeight: 21 }}>{a.texto}</Txt>
-          </View>
-        ))}
+        <ListaDoAviso />
         {LEITURA_DAS_PERGUNTAS && contaLigada() ? (
           <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16, gap: 8 }}>
             <Txt v="bodyMed">{ESCOLHA_DAS_PERGUNTAS().titulo}</Txt>
@@ -127,10 +123,10 @@ export default function ConsentimentoNovo() {
         {temIdentificacao() ? (
           <Row gap={16} style={{ justifyContent: 'center', paddingVertical: 10 }}>
             <Pressable onPress={() => router.push(TERMOS as any)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-              <Txt v="label" c={c.accent}>{DOC_TERMOS().titulo}</Txt>
+              <Txt v="label" c={c.accent}>{T.aviso.termosDeUso}</Txt>
             </Pressable>
             <Pressable onPress={() => router.push(POLITICA as any)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-              <Txt v="label" c={c.accent}>{DOC_PRIVACIDADE().titulo}</Txt>
+              <Txt v="label" c={c.accent}>{T.aviso.politicaDePrivacidade}</Txt>
             </Pressable>
           </Row>
         ) : (

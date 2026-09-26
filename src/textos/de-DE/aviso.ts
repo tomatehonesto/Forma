@@ -17,25 +17,31 @@
    ============================================================ */
 
 export const aviso = {
-  isencaoTitulo: 'Wir begleiten deine Behandlung — wir führen sie nicht',
-  isencaoTexto: 'Wir heben auf, was du einträgst, zeigen dir, wie es läuft, und bereiten vor, was du zum Termin mitnimmst. Wir stellen keine Diagnose und verschreiben nichts: Dosis, Abstand und Medikament entscheidet, wer dich behandelt.',
-  isencaoReforco: 'Bevor du an deiner Dosis oder deinem Zeitpunkt etwas änderst, sprich mit deinem Team. Und wenn ein Symptom auftaucht, das dir Angst macht, warte nicht bis zum nächsten Termin.',
-  isencaoAceite: 'Verstanden und einverstanden',
+  isencaoTitulo: 'Wir begleiten, wir führen nicht',
+  isencaoTexto: 'Wir heben auf, was du einträgst, und bereiten den Termin vor. Wir stellen keine Diagnose und verschreiben nichts: Dosis und Medikament entscheidet dein Team.',
+  isencaoReforco: 'Ein Symptom macht dir Angst? Warte nicht bis zum nächsten Termin. Und bevor du die Dosis änderst, sprich mit deinem Team.',
 
   /* Die vier Datenkarten, in der Reihenfolge, in der die Frage aufkommt. */
-  guardadoTitulo: 'Was du einträgst, wird in deinem Konto aufbewahrt',
-  guardadoTexto: 'Gewicht, Beschwerden, Spritzen, Befunde und Notizen liegen auf diesem Telefon und in unserer Datenbank in São Paulo, mit deinem Konto verbunden. So geht dein Tagebuch nicht verloren, wenn du das Handy wechselst oder verlierst. Nur dein Konto liest, was dir gehört.',
+  guardadoTitulo: 'In deinem Konto aufbewahrt',
+  guardadoTexto: 'Auf diesem Telefon und in unserer Datenbank in São Paulo. Nur dein Konto liest, was dir gehört.',
 
-  usoTitulo: 'Wofür deine Daten verwendet werden',
-  usoTexto: 'Um deine Tagesziele zu bauen, die Entwicklung der Behandlung zu verfolgen und zu ordnen, was du zum Termin mitnimmst. Nichts davon ist eine Diagnose, und die App verschreibt nichts und passt keine Dosis an.',
+  usoTitulo: 'Für deine Begleitung genutzt',
+  usoTexto: 'Für deine Ziele, deinen Verlauf und das, was du zum Termin mitnimmst. Es ist keine Diagnose.',
 
   /* ⚠️ DER TEIL, DEN EIN EINWILLIGUNGSHINWEIS ÜBLICHERWEISE VERSCHWEIGT,
      und der hier als einziger ändert, wie die Person entscheidet. */
-  saiTitulo: 'Was sonst noch von hier weggehen kann, und nur durch eine Geste von dir',
-  saiTexto: 'Dein Tagebuch, an die Praxis, mit der du dich über ihren Code verbindest, nachdem du gesehen hast, was sie sehen wird. Und das Foto vom Teller, wenn du die Foto-Erkennung nutzt: es wird zum Auslesen geschickt und nicht aufbewahrt.',
+  saiTitulo: 'Geht nur durch eine Geste von dir weg',
+  saiTexto: 'An die Praxis, mit der du dich über ihren Code verbindest, und das Foto vom Teller, wenn du die Erkennung anstößt.',
 
   controleTitulo: 'Du behältst die Kontrolle',
-  controleTexto: 'Du kannst jeden Eintrag korrigieren und löschen, alles in eine Datei ausgeben und deine Daten jederzeit vollständig löschen, in den Einstellungen.',
+  controleTexto: 'Korrigiere, exportiere oder lösche deine Daten, wann du willst.',
+
+  /* a frase que faz do Continuar do último passo do cadastro um aceite (ui/consentimento) */
+  termosDeUso: 'Nutzungsbedingungen',
+  politicaDePrivacidade: 'Datenschutzerklärung',
+  aceiteAntes: 'Mit Tippen auf Weiter stimmst du dem oben Beschriebenen, den ',
+  aceiteEntre: ' und der ',
+  aceiteDepois: ' zu.',
 
   perguntasTitulo: 'Deine Fragen an Morphi',
   perguntasTexto: 'Wenn du es erlaubst, lesen wir die Fragen, die du Morphi stellst, um zu verstehen, welche Zweifel auftauchen, und die Antworten zu verbessern. Wir lesen sie, ohne zu wissen, wer gefragt hat, und die Praxis liest sie nie. Es ist anfangs aus, und Nein zu sagen ändert nichts an der App.',
@@ -170,29 +176,36 @@ export const aviso = {
   telaPrivacidade: {
     titulo: 'Datenschutz und Daten',
     lead: 'Wo deine Einträge bleiben, was von hier weggeht und was die App von außen liest.',
+    statusGuardadoTitulo: 'Dein Tagebuch ist aufbewahrt',
+    statusGuardadoTexto: 'Auf diesem Gerät und in deinem Konto, in São Paulo. Wechselst du das Gerät, kommt es mit der Anmeldung zurück.',
+    statusAquiTitulo: 'Dein Tagebuch ist auf diesem Gerät',
+    statusAquiTexto: 'Es hat noch kein Konto: vorerst bleibt es nur hier.',
 
-    ondeFicam: 'Wo deine Einträge bleiben',
-    noAparelho: 'Auf dem Gerät und in deinem Konto',
-    noAparelhoTexto: 'Gewicht, Maße, Spritzen, Check-ins, Befunde und Notizen liegen auf diesem Gerät und in unserer Datenbank in São Paulo, mit deinem Konto verbunden. Nur dein Konto liest dein Tagebuch — und die Praxis, mit der du dich verbindest, solange die Verbindung besteht. Deine Fragen an Morphi bleiben nur hier.',
-    desinstalar: 'Deinstallieren nimmt dein Tagebuch nicht mit',
-    desinstalarTexto: 'Es kommt zurück, wenn du dich in deinem Konto anmeldest, auf diesem Gerät oder einem anderen. Nur was ohne Verbindung eingetragen wurde und noch nicht im Konto angekommen ist, ginge mit der App verloren.',
 
     oQueSai: 'Was von hier weggeht',
     oQueSaiNota: 'Nur das Erste geht von allein. Der Rest hängt von einer Geste von dir ab.',
-    paraConta: 'Dein Tagebuch, in dein Konto',
+    saiConta: 'Dein Konto',
+    saiContaResumo: 'Geht von allein',
+    saiClinica: 'Deine Praxis',
+    saiClinicaNenhuma: 'Keine verbunden',
+    saiClinicaConectada: 'Verbunden',
+    saiFoto: 'Tellerfoto',
+    saiFotoResumo: 'Nur wenn du es nutzt',
+    saiMicrofone: 'Mikrofon',
+    saiMicrofoneResumo: 'Nur wenn es an ist',
+    saiPerguntas: 'Fragen an Morphi',
+    saiPerguntasResumo: 'Bleiben hier',
+    saiPerguntasTexto: 'Die Fragen, die du Morphi stellst, bleiben nur auf diesem Gerät: Sie gehen weder in dein Konto noch an die Praxis noch an uns.',
     paraContaTexto: 'Die Einträge und das Profil gehen in unsere Datenbank, sobald es eine Verbindung gibt. Das bewahrt das Tagebuch über Geräte hinweg auf.',
-    paraEquipe: 'Was deine Praxis sieht',
     paraEquipeTexto: 'Nichts, bis du dich über ihren Code mit einer Partnerpraxis verbindest. Vor dem Verbinden erscheint die Liste dessen, was sie sehen wird; sie sieht es, solange die Verbindung besteht, und du kannst dich auf dem Bildschirm der Praxis trennen. Die Übersicht für den Termin wird hier gebaut und geht weg, wenn du sie zeigst oder exportierst.',
     perguntas: 'Deine Fragen an Morphi',
     perguntasTexto: 'Nur wenn du das Lesen erlaubst, mit dem Schalter unten. Wir lesen sie, ohne zu wissen, wer gefragt hat, und die Praxis liest sie nie. Ausschalten löscht die geschickten.',
-    ditado: 'Deine Stimme, wenn du das Mikrofon nutzt',
     ditadoTexto: 'Die Sprache in Text verwandelt das System des Geräts. Wir bitten darum, dass das auf dem Gerät selbst passiert, aber ohne lokale Erkennung deiner Sprache kann das System den Ton an Apple oder Google schicken. Nur solange das Mikrofon an ist.',
-    fotoDoPrato: 'Das Foto vom Teller, wenn du die Foto-Erkennung nutzt',
     fotoDoPratoTexto: 'Es wird auf dem Gerät verkleinert und zum Lesen an ein Modell geschickt, das die Bestandteile des Tellers zurückgibt. Das Bild wird nicht aufbewahrt: weder in deinem Eintrag zur Mahlzeit noch auf dem Server, der die Brücke bildet. Die Mahlzeit von Hand einzutragen schickt nichts.',
 
     leDeFora: 'Was die App von außen liest',
+    leSaudeResumo: 'Nur das Gewicht',
     appDeSaudePadrao: 'Gesundheits-App des Telefons',
-    soOPeso: (app: string) => `${app}, und nur das Gewicht`,
     /* ⚠️ DER NAME STEHT HIER NICHT NOCH EINMAL, und das ist kein
        Versehen. Nach einer Präposition bräuchte er einen Artikel — "in die
        Gesundheits-App" —, und mit einem echten Namen wäre der Artikel
@@ -200,7 +213,6 @@ export const aviso = {
        den er bekommt; die Überschrift direkt darüber nennt den Namen. */
     soOPesoTexto: (_app: string) =>
       `Mit deiner Erlaubnis lesen wir die Wiegungen, die deine Waage, deine Uhr oder eine andere App dort eingetragen haben. Wir lesen nur — geschrieben wird dort nie etwas. Und wir lesen nur Gewicht: Schlaf, Schritte und Herzfrequenz bleiben draußen.`,
-    permissao: 'Die Erlaubnis gehört dir, und du nimmst sie zurück, wann du willst',
     permissaoTexto: 'Sie wird in den Systemeinstellungen gegeben und an derselben Stelle widerrufen. Ohne sie bleibt die App vollständig: das Gewicht kommt wieder so herein wie bisher, von dir eingetippt.',
 
     podeFazer: 'Was du jetzt tun kannst',

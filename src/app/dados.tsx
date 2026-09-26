@@ -9,6 +9,7 @@ import { TelaInterna, Titulao, Bloco, Cartao, Linha } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 import { pesoTxt, alturaTxt } from '../logic/medidas';
 import { T } from '../textos';
+import { BlocoDaConta } from '../ui/conta';
 
 /* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
    de módulo congela o idioma no import. */
@@ -93,6 +94,10 @@ export default function Dados() {
   return (
     <TelaInterna titulo={K().titulo}>
       <Titulao titulo={K().titulo} lead={K().lead} />
+
+      {/* A CONTA PRIMEIRO: o e-mail é um dado da pessoa como os outros, e
+          a frase embaixo dele diz se o diário está guardado. Ver ui/conta. */}
+      <BlocoDaConta />
 
       {/* O TRATAMENTO PRIMEIRO: é o que muda mais, e o que muda mais
           rápido. Numa titulação, a dose sobe a cada poucas semanas. */}

@@ -12,24 +12,30 @@
    ============================================================ */
 
 export const aviso = {
-  isencaoTitulo: 'Nous suivons votre traitement — nous ne le conduisons pas',
-  isencaoTexto: 'Nous gardons ce que vous notez, nous vous montrons comment les choses avancent et nous préparons ce que vous apporterez à la consultation. Nous ne sommes pas un diagnostic et nous ne prescrivons pas : la dose, l’intervalle et le médicament sont la décision de la personne qui vous suit.',
-  isencaoReforco: 'Avant de changer quoi que ce soit à votre dose ou à votre horaire, parlez-en à votre équipe. Et si un symptôme vous inquiète, n’attendez pas la prochaine consultation.',
-  isencaoAceite: 'J’ai compris et j’accepte',
+  isencaoTitulo: 'Nous suivons, nous ne conduisons pas',
+  isencaoTexto: 'Nous gardons ce que vous notez et préparons la consultation. Nous ne diagnostiquons pas et ne prescrivons pas : la dose et le médicament relèvent de votre équipe.',
+  isencaoReforco: 'Un symptôme vous inquiète ? N’attendez pas la prochaine consultation. Et avant de changer la dose, parlez-en à votre équipe.',
 
-  guardadoTitulo: 'Ce que vous notez est gardé dans votre compte',
-  guardadoTexto: 'Poids, symptômes, piqûres, analyses et notes restent sur ce téléphone et dans notre base de données, à São Paulo, liés à votre compte. Ainsi, votre journal ne se perd pas si vous changez ou perdez de téléphone. Seul votre compte lit ce qui est à vous.',
+  guardadoTitulo: 'Gardé dans votre compte',
+  guardadoTexto: 'Sur ce téléphone et dans notre base de données, à São Paulo. Seul votre compte lit ce qui est à vous.',
 
-  usoTitulo: 'À quoi servent vos données',
-  usoTexto: 'À construire vos objectifs quotidiens, à suivre l’évolution du traitement et à organiser ce que vous apportez à la consultation. Rien de tout cela n’est un diagnostic, et l’application ne prescrit ni n’ajuste de dose.',
+  usoTitulo: 'Utilisé pour votre suivi',
+  usoTexto: 'Pour vos objectifs, votre évolution et ce que vous apportez à la consultation. Ce n’est pas un diagnostic.',
 
   /* ⚠️ LA PARTIE QU'UN AVIS DE CONSENTEMENT TAIT D'HABITUDE, et la seule
      ici qui change ce que la personne décide. */
-  saiTitulo: 'Ce qui peut encore sortir d’ici, et seulement par un geste de votre part',
-  saiTexto: 'Votre journal, vers la clinique à laquelle vous vous connectez avec son code, après avoir vu ce qu’elle pourra voir. Et la photo de l’assiette, quand vous utilisez la lecture par photo : elle est envoyée pour être lue et n’est pas conservée.',
+  saiTitulo: 'Ne sort que par un geste de votre part',
+  saiTexto: 'Vers la clinique à laquelle vous vous connectez avec son code, et la photo de l’assiette, quand vous demandez la lecture.',
 
   controleTitulo: 'Vous gardez la main',
-  controleTexto: 'Vous pouvez corriger et effacer n’importe quel relevé, tout exporter dans un fichier et effacer vos données entièrement, à tout moment, dans les réglages.',
+  controleTexto: 'Corrigez, exportez ou effacez vos données quand vous voulez.',
+
+  /* a frase que faz do Continuar do último passo do cadastro um aceite (ui/consentimento) */
+  termosDeUso: 'Conditions d’utilisation',
+  politicaDePrivacidade: 'Politique de confidentialité',
+  aceiteAntes: 'En touchant Continuer, vous acceptez ce qui précède, les ',
+  aceiteEntre: ' et la ',
+  aceiteDepois: '.',
 
   perguntasTitulo: 'Vos questions à Morphi',
   perguntasTexto: 'Si vous le permettez, nous lisons les questions que vous posez à Morphi pour comprendre quels doutes reviennent et améliorer les réponses. Nous les lisons sans savoir qui les a posées, et la clinique ne les lit jamais. C’est désactivé au départ, et refuser ne change rien dans l’application.',
@@ -144,32 +150,38 @@ export const aviso = {
   telaPrivacidade: {
     titulo: 'Confidentialité et données',
     lead: 'Où vos relevés restent, ce qui sort d’ici et ce que l’application lit de l’extérieur.',
+    statusGuardadoTitulo: 'Votre journal est bien gardé',
+    statusGuardadoTexto: 'Sur cet appareil et dans votre compte, à São Paulo. Si vous changez d’appareil, il revient quand vous vous connectez.',
+    statusAquiTitulo: 'Votre journal est sur cet appareil',
+    statusAquiTexto: 'Il n’a pas encore de compte : pour l’instant, il reste seulement ici.',
 
-    ondeFicam: 'Où vos relevés restent',
-    noAparelho: 'Sur l’appareil et dans votre compte',
-    noAparelhoTexto: 'Le poids, les mesures, les piqûres, les check-ins, les analyses et les notes restent sur cet appareil et dans notre base de données, à São Paulo, liés à votre compte. Seul votre compte lit votre journal — et la clinique à laquelle vous vous connectez, tant que la connexion dure. Vos questions à Morphi restent seulement ici.',
-    desinstalar: 'Désinstaller n’emporte pas votre journal',
-    desinstalarTexto: 'Il revient quand vous vous connectez à votre compte, sur cet appareil ou sur un autre. Seul ce qui a été noté hors connexion, et n’est pas encore arrivé au compte, se perdrait avec l’application.',
 
     oQueSai: 'Ce qui sort d’ici',
     oQueSaiNota: 'Seul le premier part tout seul. Le reste dépend d’un geste de votre part.',
-    paraConta: 'Votre journal, vers votre compte',
+    saiConta: 'Votre compte',
+    saiContaResumo: 'Part tout seul',
+    saiClinica: 'Votre clinique',
+    saiClinicaNenhuma: 'Aucune connectée',
+    saiClinicaConectada: 'Connectée',
+    saiFoto: 'Photo de l’assiette',
+    saiFotoResumo: 'Seulement si vous l’utilisez',
+    saiMicrofone: 'Micro',
+    saiMicrofoneResumo: 'Seulement quand il est allumé',
+    saiPerguntas: 'Questions à Morphi',
+    saiPerguntasResumo: 'Restent ici',
+    saiPerguntasTexto: 'Les questions que vous posez à Morphi restent seulement sur cet appareil : elles ne vont ni dans votre compte, ni à la clinique, ni chez nous.',
     paraContaTexto: 'Les relevés et le profil partent vers notre base de données dès qu’il y a une connexion. C’est ce qui garde le journal d’un appareil à l’autre.',
-    paraEquipe: 'Ce que voit votre clinique',
     paraEquipeTexto: 'Rien, jusqu’à ce que vous vous connectiez à une clinique partenaire avec son code. Avant de vous connecter, vous voyez la liste de ce qu’elle pourra voir ; elle le voit tant que la connexion dure, et vous pouvez vous déconnecter sur l’écran de la clinique. Le résumé de consultation se construit ici, et part quand vous le montrez ou l’exportez.',
     perguntas: 'Vos questions à Morphi',
     perguntasTexto: 'Seulement si vous permettez la lecture, avec l’interrupteur ci-dessous. Nous les lisons sans savoir qui les a posées, et la clinique ne les lit jamais. Le désactiver efface celles envoyées.',
-    ditado: 'Votre voix, quand vous utilisez le micro',
     ditadoTexto: 'C’est le système de l’appareil qui transforme la voix en texte. Nous demandons que cela se fasse sur l’appareil lui-même, mais, sans la reconnaissance locale de votre langue, le système peut envoyer l’audio à Apple ou à Google. Seulement tant que le micro est allumé.',
-    fotoDoPrato: 'La photo de l’assiette, quand vous utilisez la lecture par photo',
     fotoDoPratoTexto: 'Elle est réduite sur l’appareil et envoyée pour être lue par un modèle, qui renvoie les éléments de l’assiette. L’image n’est pas conservée : ni dans votre relevé de repas, ni sur le serveur qui fait le pont. Noter le repas à la main n’envoie rien.',
 
     leDeFora: 'Ce que l’application lit de l’extérieur',
+    leSaudeResumo: 'Seulement le poids',
     appDeSaudePadrao: 'l’application santé du téléphone',
-    soOPeso: (app: string) => `${app}, et le poids seulement`,
     soOPesoTexto: (app: string) =>
       `Avec votre permission, nous lisons les pesées que votre balance, votre montre ou une autre application y ont écrites. Nous ne faisons que lire : nous n’écrivons jamais rien dans ${app}. Et nous ne lisons que le poids — le sommeil, les pas et le rythme cardiaque restent dehors.`,
-    permissao: 'La permission est la vôtre, et se retire quand vous voulez',
     permissaoTexto: 'Elle se donne dans les réglages du système et se retire au même endroit. Sans elle, tout ici continue de fonctionner : le poids revient à entrer comme il entrait avant, tapé par vous.',
 
     podeFazer: 'Ce que vous pouvez faire maintenant',

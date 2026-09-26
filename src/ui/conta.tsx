@@ -17,8 +17,8 @@ import { useStore } from '../logic/store';
 import { contaLigada } from '../logic/nuvem';
 import { sair, sincronia, useEstadoDaSincronia } from '../logic/conta';
 import type { EstadoDaSincronia } from '../logic/sincronia';
-import { Grupo, ListRow, Txt, Row } from './kit';
-import { Botao } from './internas';
+import { Txt, Row } from './kit';
+import { Botao, Bloco, Cartao, Linha } from './internas';
 import { Icon } from './Icon';
 import { useTheme } from './useTheme';
 import { radius } from '../theme';
@@ -55,14 +55,21 @@ export async function tirarDiarioDoTelefone() {
 }
 
 /* ============================================================
-   A LINHA DO PERFIL
+   A CONTA, EM "SEUS DADOS"
+
+   ⚠️ ERA UM GRUPO PRÓPRIO NO ALTO DO PERFIL ("Sua conta"), e o dono pediu
+   o e-mail junto dos outros dados da pessoa (26/09/2026): o e-mail é um
+   dado dela, como o nome e o nascimento. Mora no alto de /dados, com a
+   frase do estado da sincronia — e o que precisa de atenção (entrar de
+   novo, a conta apagada, a conta que ainda não nasceu) também aparece na
+   faixa da Home, que leva para cá (`FaixaDaConta`, abaixo).
 
    ⚠️ NA SEMENTE ELA NÃO APARECE: a Mariana não tem conta, e nunca vai
    ter. Sem dono, depois do cadastro, ela diz que a conta nasce quando a
    conexão voltar — é o único jeito de estar ali sem conta, porque com
    conexão o portão já teria levado à conta.
    ============================================================ */
-export function GrupoDaConta() {
+export function BlocoDaConta() {
   const router = useRouter();
   const conta = useStore((s) => (s.S as any).conta as { id: string; email?: string } | null);
   const semente = useStore((s) => !!(s.S as any).semente);
@@ -75,10 +82,12 @@ export function GrupoDaConta() {
   if (!conta) {
     if (!feito) return null;
     return (
-      <Grupo title={K().linha.titulo}>
-        <ListRow ic="user" title={K().linha.titulo} sub={K().linha.semConta}
-          onPress={() => router.push('/conta?de=cadastro' as any)} />
-      </Grupo>
+      <Bloco titulo={K().linha.titulo}>
+        <Cartao>
+          <Linha ic="mail" titulo={K().linha.titulo} sub={K().linha.semConta}
+            onPress={() => router.push('/conta?de=cadastro' as any)} />
+        </Cartao>
+      </Bloco>
     );
   }
 
@@ -86,14 +95,16 @@ export function GrupoDaConta() {
   const entrar = estado === 'entrar-de-novo' || estado === 'outra-conta';
   const apagada = estado === 'conta-apagada';
   return (
-    <Grupo title={K().linha.titulo}>
-      <ListRow
-        ic="user"
-        title={conta.email ?? K().linha.titulo}
-        sub={frase ?? undefined}
-        tone={entrar || apagada ? 'warn' : 'default'}
-        onPress={entrar ? () => router.push('/conta?de=sessao' as any) : apagada ? () => setLimpando(true) : undefined}
-      />
+    <Bloco titulo={K().linha.titulo}>
+      <Cartao>
+        <Linha
+          ic="mail"
+          titulo={conta.email ?? K().linha.titulo}
+          sub={frase ?? undefined}
+          seta={entrar || apagada}
+          onPress={entrar ? () => router.push('/conta?de=sessao' as any) : apagada ? () => setLimpando(true) : undefined}
+        />
+      </Cartao>
       {apagada && limpando ? (
         <View style={{ gap: 8 }}>
           <Txt v="caption">{K().apagada.lead}</Txt>
@@ -104,7 +115,7 @@ export function GrupoDaConta() {
           />
         </View>
       ) : null}
-    </Grupo>
+    </Bloco>
   );
 }
 
@@ -161,10 +172,15 @@ export function BotaoDeSair({ refazer }: { refazer: () => void }) {
 /* ============================================================
    A FAIXA DA HOME
 
-   Aparece em dois estados, os dois em que o diário não está a salvo:
-   depois do cadastro, sem conta porque não havia conexão; e com a conta
-   apagada em outro aparelho. Toque leva ao Perfil, onde está a linha.
-   ============================================================ */
+   Aparece nos estados em que o diário não está a salvo: depois do
+   cadastro, sem conta porque não havia conexão; com a conta apagada em
+   outro aparelho; e com a sessão caída ("entre de novo"). Toque leva a
+   Seus dados, onde está a linha da conta (`BlocoDaConta`).
+
+   ⚠️ O "ENTRE DE NOVO" ENTROU AQUI quando a conta saiu do alto do Perfil
+   para dentro de Seus dados: lá ele fica um nível abaixo, e uma sessão
+   caída para a subida do diário — não pode depender de a pessoa ir
+   procurar. */
 export function FaixaDaConta({ style }: { style?: StyleProp<ViewStyle> }) {
   const { c } = useTheme();
   const router = useRouter();
@@ -173,10 +189,13 @@ export function FaixaDaConta({ style }: { style?: StyleProp<ViewStyle> }) {
   const feito = useStore((s) => s.S.onboardDone);
   const estado = useEstadoDaSincronia();
   if (!contaLigada() || semente || !feito) return null;
-  const frase = !conta ? K().linha.semConta : estado === 'conta-apagada' ? K().linha.contaApagada : null;
+  const frase = !conta ? K().linha.semConta
+    : estado === 'conta-apagada' ? K().linha.contaApagada
+      : estado === 'entrar-de-novo' || estado === 'outra-conta' ? K().linha.entrarDeNovo
+        : null;
   if (!frase) return null;
   return (
-    <Pressable onPress={() => router.push('/perfil' as any)} style={({ pressed }) => [style, { opacity: pressed ? 0.8 : 1 }]}>
+    <Pressable onPress={() => router.push('/dados' as any)} style={({ pressed }) => [style, { opacity: pressed ? 0.8 : 1 }]}>
       <Row gap={10} style={{
         backgroundColor: c.bg1, borderWidth: 1, borderColor: c.line, borderRadius: radius.lg,
         paddingHorizontal: 14, paddingVertical: 12,

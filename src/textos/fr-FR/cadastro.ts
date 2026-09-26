@@ -59,7 +59,7 @@ export const cadastro = {
     saude: 'Connectez votre application de santé',
     acompanhamentoFuturo: 'Pensez-vous être suivi·e par un·e spécialiste ?',
     acompanhamentoAgora: 'Êtes-vous suivi·e par un·e spécialiste ?',
-    consentimento: 'Informations importantes',
+    consentimento: 'Avant de commencer',
   },
 
   subs: {
@@ -88,7 +88,7 @@ export const cadastro = {
        application qui se met à lui parler de consultations qu'elle n'a
        pas. */
     acompanhamento: 'Cette réponse ouvre ce qui est lié au suivi médical — les notes, et la préparation des consultations.',
-    consentimento: 'Deux choses avant de commencer : ce que nous faisons pour votre traitement, et ce qui arrive à ce que vous notez.',
+    consentimento: 'Deux choses : ce que nous faisons pour votre traitement, et ce qui arrive à ce que vous notez.',
   },
 
   seuNome: 'Votre prénom',
@@ -119,8 +119,6 @@ export const cadastro = {
   formaSeringaSub: 'Vous prélevez la dose avec une seringue',
   formaCanetaSub: 'Arrive prérempli, prêt à injecter',
 
-  doseDeInicio: 'Dose de départ',
-  doseMaxima: 'Dose maximale',
 
   todosOsDias: 'Tous les jours',
   aCadaDias: (d: number) => `Tous les ${d} jours`,
@@ -181,8 +179,6 @@ export const cadastro = {
      personne qui consent sans savoir qu'elle a consenti — et un
      consentement pour des données de santé doit être un acte clair, pas
      l'effet secondaire d'un écran qu'on fait avancer. */
-  concordarEMontar: 'Accepter et construire mon plan',
-  ficaRegistrado: 'Enregistré à la date d’aujourd’hui.',
   salvar: 'Enregistrer',
   continuar: 'Continuer',
 

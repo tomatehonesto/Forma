@@ -64,7 +64,7 @@ export const cadastro = {
     saude: 'Conecte o seu aplicativo de saúde',
     acompanhamentoFuturo: 'Você pretende ter o acompanhamento de um especialista?',
     acompanhamentoAgora: 'Você possui o acompanhamento de um especialista?',
-    consentimento: 'Informações importantes',
+    consentimento: 'Antes de começar',
   },
 
   /* ============================================================
@@ -93,7 +93,7 @@ export const cadastro = {
     atividade: 'Entra na sua meta diária de água — quem se mexe mais perde mais líquido — e diz de onde você está partindo.',
     saude: 'Os seus dados de saúde ajudam a entender a sua evolução — sem você precisar registrar tudo.',
     acompanhamento: 'Essa resposta habilita funcionalidades ligadas ao acompanhamento médico, como anotações e planejamento para consultas.',
-    consentimento: 'Duas coisas antes de começar: o que fazemos pelo seu tratamento, e o que acontece com o que você registra.',
+    consentimento: 'Duas coisas: o que fazemos pelo seu tratamento, e o que acontece com o que você registra.',
   },
 
   /* ============================================================
@@ -129,8 +129,6 @@ export const cadastro = {
   formaSeringaSub: 'Você aspira a dose com uma seringa',
   formaCanetaSub: 'Já vem preenchida, pronta para aplicar',
 
-  doseDeInicio: 'Dose de início',
-  doseMaxima: 'Dose máxima',
 
   todosOsDias: 'Todos os dias',
   aCadaDias: (d: number) => `A cada ${d} dias`,
@@ -199,8 +197,6 @@ export const cadastro = {
      saúde precisa ser um ato claro, não o efeito colateral de avançar uma
      tela.
      ============================================================ */
-  concordarEMontar: 'Concordar e montar meu plano',
-  ficaRegistrado: 'Fica registrado com a data de hoje.',
   salvar: 'Salvar',
   continuar: 'Continuar',
 
