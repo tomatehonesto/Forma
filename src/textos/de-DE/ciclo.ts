@@ -150,6 +150,7 @@ export const ciclo = {
     titulo: 'Dosiszyklus',
     diaDepois: (dia: number, acao: string) => `Tag ${dia} nach\ndeiner ${acao}`,
     lead: 'Die Wirkung des Medikaments steigt in den ersten Tagen und lässt bis zur nächsten Dosis nach. Was du spürst, folgt diesem Verlauf — und das ist zu erwarten.',
+    leadSemCiclo: 'Der Zyklus zählt ab der ersten Dosis, die du einträgst. Das sind die Phasen, die er meistens hat: Die Wirkung steigt in den ersten Tagen und lässt bis zur nächsten Dosis nach.',
 
     cicloAtual: 'Aktueller Zyklus',
     diaDeTotal: (dia: number, total: number) => `Tag ${dia} von ${total}`,

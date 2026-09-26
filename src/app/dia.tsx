@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
-import { nextInjectionDate, M, respostaNoDia, respondido } from '../logic/derive';
+import { nextInjectionDate, M, respostaNoDia, respondido, temCiclo } from '../logic/derive';
 import { startOfDay, now, diffDays, doseTxt, dataComDiaDaSemana, maiuscula } from '../logic/time';
 import { Txt, SheetScreen } from '../ui/kit';
 import { Cartao, Linha } from '../ui/internas';
@@ -52,7 +52,8 @@ export default function Dia() {
     : K().respondidoNesteDia;
   const peso = (S.weights as any[]).find((x) => +startOfDay(new Date(x.t)) === dia);
 
-  const prevista = diffDays(nextInjectionDate(S), d) === 0;
+  /* Sem ciclo, nada é previsto: a próxima dose seria hoje por recuo. */
+  const prevista = temCiclo(S) && diffDays(nextInjectionDate(S), d) === 0;
   const nada = !aplicou && !fez && !peso;
 
   const sub = [

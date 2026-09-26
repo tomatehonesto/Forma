@@ -202,6 +202,9 @@ export const tratamento = {
 
     cicloDaDose: 'Dose cycle',
     cicloSub: (dia: number, total: number, fase: string) => `Day ${dia} of ${total} · ${fase.toLowerCase()}`,
+    primeiraDose: 'FIRST DOSE',
+    aindaNaoRegistrada: 'Not logged yet',
+    cicloSemDose: 'Starts with your first logged dose',
     emCurso: 'under way',
 
     medicamento: 'Medication',
@@ -219,7 +222,7 @@ export const tratamento = {
 
     constancia: 'Consistency',
     constanciaNota: (feitas: number, previstas: number, semanas: number) =>
-      `${feitas} of ${previstas} doses planned in the last ${semanas} weeks.`,
+      `${feitas} of ${previstas} ${previstas === 1 ? 'dose' : 'doses'} planned in the last ${semanas} weeks.`,
 
     nivelNoCorpo: 'Level in the body',
     nivelTexto: (molecula: string, meiaVida: string) =>

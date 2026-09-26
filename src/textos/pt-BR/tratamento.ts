@@ -291,6 +291,11 @@ export const tratamento = {
 
     cicloDaDose: 'Ciclo da dose',
     cicloSub: (dia: number, total: number, fase: string) => `Dia ${dia} de ${total} · ${fase.toLowerCase()}`,
+    /* Antes da primeira dose registrada: o cartão do alto diz qual é a
+       primeira, sem data — ela é quando for registrada. */
+    primeiraDose: 'PRIMEIRA DOSE',
+    aindaNaoRegistrada: 'Ainda não registrada',
+    cicloSemDose: 'Começa na primeira dose registrada',
     emCurso: 'em curso',
 
     /* O recipiente chega concordado e com maiúscula — "Caneta", "Frasco". */
@@ -331,7 +336,7 @@ export const tratamento = {
        também dava 100%. */
     constancia: 'Constância',
     constanciaNota: (feitas: number, previstas: number, semanas: number) =>
-      `${feitas} de ${previstas} doses previstas nas últimas ${semanas} semanas.`,
+      `${feitas} de ${previstas} ${previstas === 1 ? 'dose prevista' : 'doses previstas'} nas últimas ${semanas} semanas.`,
 
     nivelNoCorpo: 'Nível no corpo',
     nivelTexto: (molecula: string, meiaVida: string) =>

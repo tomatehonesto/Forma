@@ -848,6 +848,7 @@ export const SEMANAS_DA_GRADE = 6;
 export function injGrade(S: State) {
   const applied = new Set(S.injections.map((i: any) => +startOfDay(new Date(i.t))));
   const nd = +startOfDay(nextInjectionDate(S)), today = +startOfDay(now());
+  const comCiclo = temCiclo(S);
   const anchor = new Date(Math.max(nd, today));
   /* ⚠️ A GRADE TERMINA NO ÚLTIMO DIA DA SEMANA DE QUEM LÊ, e terminava
      sempre no sábado. Onde a semana começa na segunda, o fim é o
@@ -866,7 +867,8 @@ export function injGrade(S: State) {
   const cells: { day: number; applied: boolean; planned: boolean; today: boolean }[] = [];
   for (let i = dias - 1; i >= 0; i--) {
     const d = noDia(fim - i); const key = +d;
-    cells.push({ day: d.getDate(), applied: applied.has(key), planned: key === nd && key >= today, today: key === today });
+    /* Sem ciclo não há próxima: `nd` é hoje por recuo (ver `temCiclo`). */
+    cells.push({ day: d.getDate(), applied: applied.has(key), planned: comCiclo && key === nd && key >= today, today: key === today });
   }
   return { cells, de: +noDia(fim - (dias - 1)), semanas: SEMANAS_DA_GRADE };
 }
@@ -4036,7 +4038,15 @@ const MEDIDAS: Record<string, (S: State, alvo: number) => {
 
 export function protocoloDaSemana(S: State) {
   const p: any = S.protocol;
-  const tarefas: TarefaDoProtocolo[] = (p.tasks as any[]).map((x, i) => {
+  /* ⚠️ ANTES DA PRIMEIRA DOSE REGISTRADA, A APLICAÇÃO DA SEMANA SAI DA
+     CONTA. Ela ficava "0 de 1" na lista de quem ainda não começou — uma
+     pendência empurrando o começo de um remédio, que é decisão da pessoa
+     com quem receita. O índice `i` continua sendo o da lista guardada,
+     porque é por ele que a tarefa manual se marca. */
+  const comCiclo = temCiclo(S);
+  const tarefas: TarefaDoProtocolo[] = (p.tasks as any[]).map((x, i) => [x, i] as const)
+    .filter(([x]) => comCiclo || x.metrica !== 'aplicacao')
+    .map(([x, i]) => {
     const m = x.metrica && MEDIDAS[x.metrica];
     if (!m) {
       /* Tarefa manual — inclusive as antigas, guardadas antes de existir
@@ -5702,19 +5712,26 @@ export const cicloFasesFixas = (): CicloFase[] => [
     a hoje: "passou", "agora", "amanhã" ou o intervalo que falta. */
 export function cicloFases(S: State) {
   const { dayIn, total, nextDose } = doseCycle(S);
+  /* ⚠️ SEM CICLO, AS FASES SÃO CONTEÚDO, E NÃO POSIÇÃO. Antes da primeira
+     aplicação registrada, `dayIn` é 1 por recuo, e a tela marcava "agora"
+     na subida do efeito de um remédio que ninguém aplicou. As fases
+     continuam — são o que a pessoa vai viver —, mas nenhuma é a de agora e
+     nenhuma tem data. */
+  const comCiclo = temCiclo(S);
   const fases = cicloFasesFixas().map((f) => {
-    const estado: 'passou' | 'agora' | 'amanha' | 'depois' =
-      dayIn > f.ate ? 'passou'
+    const estado: 'passou' | 'agora' | 'amanha' | 'depois' = !comCiclo ? 'depois'
+      : dayIn > f.ate ? 'passou'
         : dayIn >= f.de ? 'agora'
           : f.de === dayIn + 1 ? 'amanha' : 'depois';
     const Se = T.rotina.selo;
-    const selo = estado === 'passou' ? Se.passou
-      : estado === 'agora' ? Se.agora
-        : estado === 'amanha' ? Se.amanha : Se.emDias(f.de - dayIn);
+    const selo = !comCiclo ? undefined
+      : estado === 'passou' ? Se.passou
+        : estado === 'agora' ? Se.agora
+          : estado === 'amanha' ? Se.amanha : Se.emDias(f.de - dayIn);
     return { ...f, estado, selo };
   });
   const atual = fases.find((f) => f.estado === 'agora') ?? fases[fases.length - 1];
-  return { dayIn, total, nextDose, fases, atual, pct: Math.round((dayIn / total) * 100) };
+  return { dayIn, total, nextDose, fases, atual, comCiclo, pct: Math.round((dayIn / total) * 100) };
 }
 
 /* ============================================================

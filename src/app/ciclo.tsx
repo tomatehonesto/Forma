@@ -53,17 +53,23 @@ export default function Ciclo() {
         />
       )}
     >
+      {/* ⚠️ SEM CICLO, NEM DIA NEM PRÓXIMA DOSE. Antes da primeira aplicação
+          registrada a tela dizia "Dia 1 depois da aplicação" e "Próxima
+          dose: hoje" — o recuo da conta escrito como fato. As fases ficam,
+          como o que ela vai viver. */}
       <Titulao
-        titulo={K().diaDepois(cic.dayIn, vocab.acao)}
-        lead={K().lead}
+        titulo={cic.comCiclo ? K().diaDepois(cic.dayIn, vocab.acao) : T.tratamento.antesDaPrimeiraDose}
+        lead={cic.comCiclo ? K().lead : K().leadSemCiclo}
       />
 
-      <Progresso
-        label={K().cicloAtual}
-        valor={K().diaDeTotal(cic.dayIn, cic.total)}
-        pct={cic.pct}
-        nota={K().proximaDose(dataComDiaDaSemana(cic.nextDose))}
-      />
+      {cic.comCiclo ? (
+        <Progresso
+          label={K().cicloAtual}
+          valor={K().diaDeTotal(cic.dayIn, cic.total)}
+          pct={cic.pct}
+          nota={K().proximaDose(dataComDiaDaSemana(cic.nextDose))}
+        />
+      ) : null}
 
       <Bloco titulo={K().asQuatroFases}>
         <Sanfona>

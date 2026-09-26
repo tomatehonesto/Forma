@@ -121,6 +121,56 @@ Trilha. O que ferir a regra ("nenhuma frase afirma o que não aconteceu")
 entra neste plano, como um item por tela, antes de ser corrigido — em
 commits por grupo de telas.
 
+### O que a varredura achou (26 de setembro, pessoa nova sem dose)
+
+Limpas: Metas, Alimentação, Hidratação, Exercício, Sintomas, Sinais
+vitais, Exames, Semana, Consultas e Notificações. (Trilha só abre com uma
+conquista escolhida.) O resto, por grupo:
+
+**Grupo A — as telas da dose.** A mesma causa da Etapa 2: sem aplicação
+registrada, a próxima dose é hoje por recuo, e o estoque é cheio por
+recuo.
+
+- **Ciclo:** "Dia 1 depois da aplicação", "Ciclo atual · dia 1 de 7",
+  "Próxima dose: sábado, 26 de setembro" e as fases com "agora" e "em 2
+  dias". Sem ciclo: as fases como conteúdo, sem posição nem data.
+- **Aplicações:** "PRÓXIMA APLICAÇÃO · Hoje", "Ciclo da dose · Dia 1 de
+  7", "Restam 4 doses nesta caneta" e a grade marcando hoje como
+  "próxima". Sem ciclo: a primeira dose, sem data; sem recipiente, o
+  pedido de registro.
+- **Caneta:** "Nenhuma caneta aberta", e logo abaixo "Doses usadas 0 de
+  4", "Última dose desta caneta: sábado, 17 de outubro", "21 dias", "4
+  semanas" e "Receita até 17 out" — projeções de uma caneta que não
+  existe. Sem recipiente: só o que é fato, e o registro.
+- **O dia (/dia):** "Dia de aplicação · prevista para hoje". Sem ciclo,
+  nada é previsto.
+- **Protocolos:** "aplicação hoje" na linha do topo, e "Aplicação da
+  semana · 0 de 1" antes da primeira dose.
+
+**Grupo B — as telas que resumem.**
+
+- **Resumo para consulta:** "Tempo de tratamento · 1 dias", "Aplicações ·
+  0 de 0 previstas" e "Variação · Estável (0,0%) · em 0 dias" — no
+  documento que vai para o médico.
+- **Perfil:** "Dia 1" antes da primeira dose, e "Atual −0,0 kg" com uma
+  pesagem.
+- **Evolução:** "Doze semanas de tratamento" no alto, e "0,0 kg" de
+  variação com um registro.
+- **Histórico:** "1 registro desde o início do tratamento", antes do
+  tratamento.
+
+**Grupo C — conquistas e biblioteca.**
+
+- **Conquistas:** "Faltam 1 aplicação" (e dia, treino, refeição…), "1
+  dias de jornada", e "Tempo de tratamento · Faltam 30 dias" contando de
+  uma primeira dose que não existe.
+- **Biblioteca:** "SUA MÉDIA DE SONO ESTÁ EM 0,0 H … nos seus próprios
+  registros isso já aparece" sem resposta nenhuma, e "FALTAM 95 G PARA
+  SUA MÉDIA BATER A META" com a média de nada.
+
+E um de desenho, visto no caminho: no painel da Jornada, em 375 px, "hoje"
+e "faltam" se encostam ("hojefaltam 10,0 kg").
+
 ---
 
 ## O que este plano não faz

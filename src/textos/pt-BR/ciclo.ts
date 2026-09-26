@@ -163,6 +163,9 @@ export const ciclo = {
     titulo: 'Ciclo da dose',
     diaDepois: (dia: number, acao: string) => `Dia ${dia} depois\nda ${acao}`,
     lead: 'O efeito do medicamento sobe nos primeiros dias e vai cedendo até a próxima dose. O que você sente muda junto — e isso é esperado.',
+    /* Sem aplicação registrada não há dia do ciclo: as fases viram o que
+       ela vai viver, e o alto da tela diz de onde a conta começa. */
+    leadSemCiclo: 'O ciclo começa a contar da primeira dose que você registrar. Estas são as fases que ele costuma ter: o efeito sobe nos primeiros dias e vai cedendo até a próxima dose.',
 
     cicloAtual: 'Ciclo atual',
     diaDeTotal: (dia: number, total: number) => `dia ${dia} de ${total}`,

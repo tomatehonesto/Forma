@@ -7,10 +7,10 @@ import {
   nextInjectionDate, nextSite, pharmaSeries, siteLabel,
   cadenciaTexto,
   doseDoPerfil,
-  diasAteAplicar,
+  diasAteAplicar, temCiclo,
 } from '../logic/derive';
 import { now, diffDays, fmtDate, relDay, doseTxt, quandoEm, maiuscula, dataComDiaDaSemana, ordemDaSemana } from '../logic/time';
-import { formaDe, nesteNesta, nomeDaMolecula } from '../logic/formas';
+import { formaDe, nesteNesta, nomeDaMolecula, oA, FORMAS } from '../logic/formas';
 import { T } from '../textos';
 
 /* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
@@ -102,13 +102,16 @@ export default function Aplicacoes() {
 
      E a fração da constância sai "0 de 0 doses previstas", que é a
      conta certa para uma pergunta que ainda não foi feita. A GRADE
-     FICA: ela mostra a próxima dose tracejada e os dias da semana, e
-     isso vale para quem ainda vai aplicar a primeira.
+     FICA, com os dias da semana — sem "próxima": sem aplicação
+     registrada, a próxima dose era hoje por recuo, e a tela a anunciava
+     em letra grande ("PRÓXIMA APLICAÇÃO · Hoje"). A primeira não tem
+     data; ela é quando for registrada. Ver `temCiclo`, em derive.
 
-     O que sobra é uma tela coerente de quem está começando — quando é a
-     próxima, o ciclo, o medicamento, os alertas, e o botão de registrar
-     no rodapé. */
+     O que sobra é uma tela coerente de quem está começando — a primeira
+     dose, o ciclo que ela vai abrir, o medicamento, os alertas, e o botão
+     de registrar no rodapé. */
   const semAplicacao = !S.injections.length;
+  const comCiclo = temCiclo(S);
 
   const doseStr = doseDoPerfil(S);
 
@@ -149,12 +152,12 @@ export default function Aplicacoes() {
           Duas portas para a mesma sala, e a de dentro do cartão fazia
           menos. */}
       <View style={{ backgroundColor: c.accentWeak, borderRadius: radius.card, padding: 18 }}>
-        <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>{K().proximaAplicacao}</Txt>
+        <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>{comCiclo ? K().proximaAplicacao : K().primeiraDose}</Txt>
         <Txt v="display" style={{ fontSize: 30, lineHeight: 36, marginTop: 6 }}>
-          {maiuscula(quandoEm(ndDays).label)}
+          {comCiclo ? maiuscula(quandoEm(ndDays).label) : K().aindaNaoRegistrada}
         </Txt>
         <Txt v="caption" c={c.tx2} style={{ marginTop: 3 }}>
-          {maiuscula(dataComDiaDaSemana(nd))} · {doseStr}
+          {comCiclo ? `${maiuscula(dataComDiaDaSemana(nd))} · ${doseStr}` : doseStr}
         </Txt>
       </View>
 
@@ -173,7 +176,9 @@ export default function Aplicacoes() {
         <Linha
           ic="waves"
           titulo={K().cicloDaDose}
-          sub={K().cicloSub(cic.dayIn, cic.total, cic.fases.find((f) => f.estado === 'agora')?.sub ?? K().emCurso)}
+          sub={comCiclo
+            ? K().cicloSub(cic.dayIn, cic.total, cic.fases.find((f) => f.estado === 'agora')?.sub ?? K().emCurso)
+            : K().cicloSemDose}
           onPress={() => router.push('/ciclo' as any)}
         />
         {/* O ESTOQUE SAI DE canetaAtual(), e não do código. Aqui havia
@@ -193,9 +198,13 @@ export default function Aplicacoes() {
              nada — uma contagem que obriga a subtrair para responder a
              única pergunta que interessa ali: dá para esperar até a
              próxima consulta? */
-          sub={k.verdict.good
-            ? K().dosesRestantesNo(k.left, nesteNesta(formaDe(S)))
-            : K().cobreSemanas(k.verdict.label, Math.round(k.semanas))}
+          /* Sem recipiente registrado, "restam 4 doses" era o recuo da
+             conta; a linha pede o registro (`penStock().registrada`). */
+          sub={!k.registrada
+            ? T.tratamento.registreORecipiente(`${oA(formaDe(S))} ${FORMAS()[formaDe(S)].recipiente}`)
+            : k.verdict.good
+              ? K().dosesRestantesNo(k.left, nesteNesta(formaDe(S)))
+              : K().cobreSemanas(k.verdict.label, Math.round(k.semanas))}
           onPress={() => router.push('/caneta' as any)}
         />
         <Linha
@@ -263,10 +272,12 @@ export default function Aplicacoes() {
               <View style={{ width: 10, height: 10, borderRadius: 3, backgroundColor: c.accentWeak, borderWidth: 1, borderColor: c.accentLine }} />
               <Txt v="micro" c={c.tx3}>{K().aplicada}</Txt>
             </Row>
-            <Row gap={5}>
-              <View style={{ width: 10, height: 10, borderRadius: 3, borderWidth: 1, borderColor: c.tx4, borderStyle: 'dashed' }} />
-              <Txt v="micro" c={c.tx3}>{K().proxima}</Txt>
-            </Row>
+            {comCiclo ? (
+              <Row gap={5}>
+                <View style={{ width: 10, height: 10, borderRadius: 3, borderWidth: 1, borderColor: c.tx4, borderStyle: 'dashed' }} />
+                <Txt v="micro" c={c.tx3}>{K().proxima}</Txt>
+              </Row>
+            ) : null}
           </Row>
           <Txt v="micro" c={c.tx3} style={{ marginTop: 10, lineHeight: 16 }}>
             {K().semCulpa}

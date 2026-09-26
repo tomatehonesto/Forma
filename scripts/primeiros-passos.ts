@@ -33,6 +33,7 @@ import {
 import {
   temEvolucao, temCiclo, journeySummary, journeyChanges, careState, doseContext, penStock,
   balanceRead, recommendations, radar, libraryPicks, companionSuggestions,
+  cicloFases, injCalendar, protocoloDaSemana,
 } from '../src/logic/derive';
 import { proximasDe, type Alerta } from '../src/logic/alertas';
 import { T } from '../src/textos';
@@ -188,6 +189,17 @@ const doCiclo = (S: State) => libraryPicks(S).filter((l) => l.ic === 'dose' || l
 ok(doCiclo(zero) === 0 && doCiclo(aplicou5) > 0, 'a biblioteca não diz "Você aplicou há 7 dias" a quem nunca aplicou');
 ok(!companionSuggestions(zero).includes(T.rotina.perguntas.trocarODia),
   'sem dia de aplicação, o Morphi não sugere trocá-lo');
+
+/* As telas da dose (Etapa 3, grupo A). */
+const cf0 = cicloFases(zero);
+ok(!cf0.comCiclo && cf0.fases.every((f) => f.estado !== 'agora' && f.selo === undefined)
+  && cicloFases(aplicou5).fases.some((f) => f.estado === 'agora'),
+  'sem ciclo, nenhuma fase é "agora" nem tem data — as fases viram conteúdo');
+ok(!injCalendar(zero).some((c) => c.planned) && injCalendar(aplicou5).some((c) => c.planned),
+  'sem ciclo, a grade de Aplicações não marca a "próxima"');
+const temAplicacaoNaSemana = (S: State) => protocoloDaSemana(S).tarefas.some((t: any) => t.ic === 'syringe');
+ok(!temAplicacaoNaSemana(zero) && temAplicacaoNaSemana(aplicou5),
+  'antes da primeira dose, "Aplicação da semana" sai do protocolo; com ela, volta');
 
 console.log(falhas ? `\n${falhas} afirmação(ões) falharam\n` : '\ntodas as afirmações passaram\n');
 process.exit(falhas ? 1 : 0);

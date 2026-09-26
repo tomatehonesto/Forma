@@ -4,7 +4,7 @@ import { useAurora } from '../ui/aurora';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
-  clinicaConectada, historicoDeProtocolos, marcarTarefa, nextInjectionDate, protocoloDaSemana,
+  clinicaConectada, historicoDeProtocolos, marcarTarefa, nextInjectionDate, protocoloDaSemana, temCiclo,
 } from '../logic/derive';
 import { fmtPeriodo, relDay } from '../logic/time';
 import { Txt, Row, Chevron } from '../ui/kit';
@@ -108,11 +108,13 @@ export default function Protocolos() {
            menos acionável dela, depois de tudo. A data da próxima
            aplicação pertence à linha que já conta a semana: é o quando da
            mesma frase que diz o quanto. */
+        /* A data da aplicação só com ciclo: sem aplicação registrada, ela
+           seria "hoje" por recuo (ver `temCiclo`, em derive). */
         linha={[
           K().semanaN(p.semana),
           faltam === 0 ? K().tudoCumprido : K().cumpridasDeTotal(p.feitas, p.total),
-          K().aplicacaoEm(relDay(nextInjectionDate(S))),
-        ].join(' · ')}
+          temCiclo(S) ? K().aplicacaoEm(relDay(nextInjectionDate(S))) : null,
+        ].filter(Boolean).join(' · ')}
         pct={p.pct}
       >
         {/* O atalho leva a quem escreveu o protocolo. É a única ação que

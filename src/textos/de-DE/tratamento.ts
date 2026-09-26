@@ -239,6 +239,9 @@ export const tratamento = {
     /* ⚠️ KEIN `toLowerCase()` AN DER PHASE: „Tag 4 von 7 · anstieg“ wäre
        ein Rechtschreibfehler. Dieselbe Regel wie `comum.noMeio`. */
     cicloSub: (dia: number, total: number, fase: string) => `Tag ${dia} von ${total} · ${fase}`,
+    primeiraDose: 'ERSTE DOSIS',
+    aindaNaoRegistrada: 'Noch nicht eingetragen',
+    cicloSemDose: 'Beginnt mit der ersten eingetragenen Dosis',
     emCurso: 'läuft',
 
     medicamento: 'Medikament',
@@ -260,7 +263,7 @@ export const tratamento = {
        kam auch auf 100%. */
     constancia: 'Regelmäßigkeit',
     constanciaNota: (feitas: number, previstas: number, semanas: number) =>
-      `${feitas} von ${previstas} vorgesehenen Dosen in den letzten ${semanas} Wochen.`,
+      `${feitas} von ${previstas} ${previstas === 1 ? 'vorgesehenen Dosis' : 'vorgesehenen Dosen'} in den letzten ${semanas} Wochen.`,
 
     nivelNoCorpo: 'Spiegel im Körper',
     nivelTexto: (molecula: string, meiaVida: string) =>

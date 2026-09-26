@@ -280,6 +280,9 @@ export const tratamento = {
 
     cicloDaDose: 'Ciclo della dose',
     cicloSub: (dia: number, total: number, fase: string) => `Giorno ${dia} su ${total} · ${fase.toLowerCase()}`,
+    primeiraDose: 'PRIMA DOSE',
+    aindaNaoRegistrada: 'Non ancora registrata',
+    cicloSemDose: 'Inizia con la prima dose registrata',
     emCurso: 'in corso',
 
     /* Il contenitore arriva concordato e con la maiuscola — "Penna",
@@ -303,7 +306,7 @@ export const tratamento = {
        giorni di ritardo faceva anche lei 100%. */
     constancia: 'Regolarità',
     constanciaNota: (feitas: number, previstas: number, semanas: number) =>
-      `${feitas} su ${previstas} dosi previste nelle ultime ${semanas} settimane.`,
+      `${feitas} su ${previstas} ${previstas === 1 ? 'dose prevista' : 'dosi previste'} nelle ultime ${semanas} settimane.`,
 
     nivelNoCorpo: 'Livello nel corpo',
     nivelTexto: (molecula: string, meiaVida: string) =>

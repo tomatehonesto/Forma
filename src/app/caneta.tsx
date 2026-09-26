@@ -6,7 +6,7 @@ import { canetaAtual, siteLabel, M } from '../logic/derive';
 import { FORMAS, formaDe, concordar, oA } from '../logic/formas';
 import { doseTxt, fmtDate, fmtPeriodo, dataComDiaDaSemana, dataLonga, maiuscula } from '../logic/time';
 import {
-  TelaInterna, Titulao, Bloco, Progresso, Grade2, Metrica, Aviso,
+  TelaInterna, Titulao, Bloco, Progresso, Grade2, Metrica, Aviso, Cartao, Linha,
   Sanfona, SanfonaLinha, Botao,
 } from '../ui/internas';
 import { T } from '../textos';
@@ -69,12 +69,29 @@ export default function Caneta() {
           : K().leadSemAberto(concordar(forma, K().nenhumM, K().nenhumF), vocab.recipiente, aberto, total)}
       />
 
-      <Progresso
-        label={K().dosesUsadas}
-        valor={K().usadasDe(usadas, total)}
-        pct={(usadas / total) * 100}
-        nota={K().ultimaDose(concordar(forma, K().desteM, K().desteF), vocab.recipiente, dataComDiaDaSemana(k.cobreAte))}
-      />
+      {/* ⚠️ SEM RECIPIENTE REGISTRADO, NADA DE PROJEÇÃO. A tela dizia
+          "Nenhuma caneta aberta" e logo abaixo "Doses usadas 0 de 4",
+          "Última dose desta caneta: 17 de outubro" e "Receita até 17 out"
+          — datas de uma caneta que não existe. Sem registro fica o que é
+          fato (quantas doses cabem, a validade de bula) e o pedido do
+          registro, que é o que torna o resto verdadeiro. */}
+      {atual ? (
+        <Progresso
+          label={K().dosesUsadas}
+          valor={K().usadasDe(usadas, total)}
+          pct={(usadas / total) * 100}
+          nota={K().ultimaDose(concordar(forma, K().desteM, K().desteF), vocab.recipiente, dataComDiaDaSemana(k.cobreAte))}
+        />
+      ) : (
+        <Cartao>
+          <Linha
+            ic="pill"
+            titulo={maiuscula(vocab.recipiente)}
+            sub={T.tratamento.registreORecipiente(`${oA(forma)} ${vocab.recipiente}`)}
+            onPress={() => router.push('/caneta-nova' as any)}
+          />
+        </Cartao>
+      )}
 
       <Grade2>
         {/* ⚠️ "NÃO INFORMADA" É UM ESTADO, e não um vazio. Manipulado não
@@ -96,20 +113,26 @@ export default function Caneta() {
             informada" com todas as letras, e a nota diz de quem é a
             resposta. "0 dias" ou um travessão seriam o aplicativo
             afirmando que a coisa venceu no dia em que foi aberta. */}
+        {/* Sem recipiente, a validade é a do produto: o prazo de bula
+            quando existe, e "não informada" só quando nem ele existe. */}
         <Metrica
           ic="clock"
           nome={k.vence ? K().venceEm : K().validadeApos(aberto)}
-          selo={k.validadeDias ? K().validadeDias(k.validadeDias) : undefined}
+          selo={k.vence && k.validadeDias ? K().validadeDias(k.validadeDias) : undefined}
           seloTom="neutra"
-          para={k.vence ? fmtDate(k.vence) : K().validadeNaoInformada}
-          nota={k.vence ? undefined : K().quemPreparaDefine}
+          para={k.vence ? fmtDate(k.vence)
+            : !atual && k.validadeDias ? K().validadeDias(k.validadeDias)
+              : K().validadeNaoInformada}
+          nota={k.vence || k.validadeDias ? undefined : K().quemPreparaDefine}
         />
-        <Metrica
-          ic="pill"
-          nome={K().receitaAte}
-          selo={K().receitaSemanas(Math.round(k.semanas))}
-          para={fmtDate(k.cobreAte)}
-        />
+        {atual ? (
+          <Metrica
+            ic="pill"
+            nome={K().receitaAte}
+            selo={K().receitaSemanas(Math.round(k.semanas))}
+            para={fmtDate(k.cobreAte)}
+          />
+        ) : null}
       </Grade2>
 
       {/* A caneta pode vencer antes de a última dose sair dela — com 14 dias
@@ -134,6 +157,7 @@ export default function Caneta() {
         />
       ) : null}
 
+      {k.lista.length ? (
       <Bloco titulo={K().historico(vocab.plural)}>
         <Sanfona>
           {k.lista.map((p) => (
@@ -152,6 +176,7 @@ export default function Caneta() {
           ))}
         </Sanfona>
       </Bloco>
+      ) : null}
 
       {/* Espaço para o rodapé não cobrir a última linha da sanfona aberta. */}
       <View />
