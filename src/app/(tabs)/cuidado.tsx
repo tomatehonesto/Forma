@@ -926,6 +926,22 @@ function QuemAcompanha() {
         </Row>
       </Pressable>
 
+      {/* ⚠️ O CÓDIGO TAMBÉM ENTRA AQUI, para quem tem médico e ainda não
+          está conectada. A rede parceira não aparece para ela (ver
+          `Parceiros`, abaixo), e o código só entrava pelo Perfil — mas é
+          justamente o médico dela que pode passar a atender pelo
+          aplicativo e mandar um. Uma linha, e não um card: é uma porta,
+          e não uma oferta. Conectar guarda a ficha de agora e a devolve
+          quando o vínculo acabar (ver logic/rede). */}
+      {temRedeParceira() && !clinicaConectada(S) && (
+        <Pressable
+          onPress={() => router.push('/codigo' as any)}
+          hitSlop={8}
+          style={({ pressed }) => [{ marginTop: 14, alignSelf: 'flex-start', opacity: pressed ? 0.6 : 1 }]}
+        >
+          <Txt v="caption" c={c.accent2} style={{ paddingHorizontal: 2, lineHeight: 20 }}>{T.rede.jaTenhoCodigo}</Txt>
+        </Pressable>
+      )}
     </View>
   );
 }
