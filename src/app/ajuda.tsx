@@ -6,6 +6,8 @@ import { TelaInterna, Titulao, Bloco, Sanfona, Cartao, Linha, Aviso } from '../u
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { T } from '../textos';
+import { CANAL } from '../logic/documentos';
+import { escreverParaNos } from '../ui/contato';
 
 /* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
    de módulo congela o idioma no import. As oito perguntas eram uma
@@ -81,6 +83,21 @@ export default function Ajuda() {
           <Linha ic="trend" titulo={K().integracoes} sub={K().integracoesSub} onPress={go('/integracoes')} />
           <Linha ic="lock" titulo={K().privacidade} sub={K().privacidadeSub} onPress={go('/privacidade')} />
           <Linha ic="doc" titulo={K().exportar} sub={K().exportarSub} onPress={go('/exportar')} />
+        </Cartao>
+      </Bloco>
+
+      {/* ⚠️ A LINHA DE CONTATO ENTROU QUANDO HOUVE CANAL (26/09/2026): a
+          caixa `contact@morphihealth.com`, que alguém lê. Antes dela, um
+          "fale com a gente" iria para o vazio — a pior linha que uma
+          ajuda pode ter, porque aparece para quem já não resolveu sozinho.
+
+          O endereço vai escrito no subtítulo, e não só no toque: sem
+          aplicativo de e-mail, o toque falha em silêncio, e quem não tem
+          onde tocar ainda tem o que copiar. E ela fica logo acima do aviso
+          de emergência, que lembra que e-mail não é canal de urgência. */}
+      <Bloco titulo={K().faleConosco}>
+        <Cartao>
+          <Linha ic="mail" titulo={K().escreverParaNos} sub={CANAL()} onPress={() => escreverParaNos(K().emailAssunto)} />
         </Cartao>
       </Bloco>
 

@@ -7,7 +7,15 @@ antes da primeira publicação. Cada item diz onde mexer.
 
 ## 🔴 Bloqueia a publicação
 
-### 1. O e-mail de contato é de marcação
+### ✅ 1. O e-mail de contato é de marcação — RESOLVIDO
+
+> **Resolvido em 26/09/2026:** `EMPRESA.email` é `contact@morphihealth.com`,
+> com a caixa na Hostinger. O dono confirmou que ela recebe. Ela vale em
+> todo lugar que dá um canal (a Política, os Termos, o "Reportar um
+> problema" do Perfil), e a Ajuda ganhou "Fale com a gente", que abre o
+> e-mail para ela (`ui/contato`). É também o canal do encarregado
+> (art. 41): alguém precisa ler essa caixa, com resposta em até quinze
+> dias para pedidos da LGPD.
 
 `src/logic/documentos.ts` → `EMPRESA.email`
 
@@ -2599,6 +2607,10 @@ disto trava a entrega; o que trava a publicação está nos itens 2 e 37.
    e-mail pode ser tratado nos Estados Unidos, que é o conservador.
    Conferir no painel do Resend a região do domínio: se for São Paulo, a
    frase muda para território nacional.
+   - O item 1 registra o domínio no Resend na região de São Paulo. Mesmo
+     assim, o Resend é uma empresa americana, e a conta e os registros de
+     envio ficam com ela. Por isso a Política continua com a frase
+     conservadora até a revisão jurídica decidir (item 2).
 4. **As cópias de segurança diante do pedido de eliminação.** A Política
    e a confirmação de apagar dizem até `DIAS_DAS_COPIAS_DE_SEGURANCA`
    dias (7, o do plano Pro do Supabase). Na virada, conferir o plano do

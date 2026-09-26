@@ -73,6 +73,11 @@ export const ajuda = {
   exportar: 'Deine Daten exportieren',
   exportarSub: 'Eine Datei mit dem bauen, was du eingetragen hast',
 
+  /* "Fale com a gente" — ver ../pt-BR/ajuda.ts */
+  faleConosco: 'Kontakt',
+  escreverParaNos: 'Schreib uns',
+  emailAssunto: 'Morphi — Hilfe',
+
   /* ⚠️⚠️ DAS IST DER EINZIGE SATZ DES BILDSCHIRMS, DER NICHT VON DER APP
      HANDELT, und genau deshalb steht er hier: wer die Hilfe mit einem
      Symptom öffnet, das Angst macht, braucht die richtige Tür — und die

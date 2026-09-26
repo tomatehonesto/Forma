@@ -67,6 +67,11 @@ export const ajuda = {
   exportar: 'Export your data',
   exportarSub: 'Build a file with what you logged',
 
+  /* "Fale com a gente" — ver ../pt-BR/ajuda.ts */
+  faleConosco: 'Talk to us',
+  escreverParaNos: 'Write to us',
+  emailAssunto: 'Morphi — help',
+
   emergenciaTitulo: 'If a symptom is serious',
   emergenciaTexto: 'This screen is about the app. If something in your body needs attention right now, reach your care team or emergency services — don’t wait for the next visit.',
 };

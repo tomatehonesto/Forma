@@ -76,6 +76,11 @@ export const ajuda = {
   exportar: 'Esporta i tuoi dati',
   exportarSub: 'Creare un file con quello che hai registrato',
 
+  /* "Fale com a gente" — ver ../pt-BR/ajuda.ts */
+  faleConosco: 'Parla con noi',
+  escreverParaNos: 'Scrivici',
+  emailAssunto: 'Morphi — aiuto',
+
   /* ⚠️⚠️ QUESTA È L'UNICA FRASE DELLA SCHERMATA CHE NON PARLA DELL'APP,
      ed è per questo che sta qui: chi apre l'aiuto con un sintomo che fa
      paura ha bisogno della porta giusta, e la porta giusta non è questa

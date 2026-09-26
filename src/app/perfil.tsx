@@ -1,10 +1,10 @@
 import React from 'react';
-import { View, Pressable, Platform, Linking, ScrollView } from 'react-native';
+import { View, Pressable, ScrollView } from 'react-native';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import { useRouter } from 'expo-router';
-import Constants from 'expo-constants';
+import { escreverParaNos, VERSAO_DO_APP } from '../ui/contato';
 import { useStore } from '../logic/store';
 import { RESTRICOES } from '../logic/restricoes';
 import { kgTxt as kg, nf, relDay, fmtDate } from '../logic/time';
@@ -26,7 +26,6 @@ import { modoFingido, NOME_DO_MODO, idiomaEmPrevia } from '../logic/modo';
    Ver `fotoDaEquipe`, em ui/retratos. */
 import { useTheme } from '../ui/useTheme';
 import { radius, space, font, paletaDe } from '../theme';
-import { CANAL } from '../logic/documentos';
 import { pesoTxt, sistemaDe, pesoU, pesoN, unidadesDe } from '../logic/medidas';
 import { NOME_DO_LOCAL, localAtual, type Local } from '../logic/local';
 import { BotaoDeSair } from '../ui/conta';
@@ -37,13 +36,8 @@ import { T } from '../textos';
    de módulo congela o idioma no import. */
 const K = () => T.perfil;
 
-/* ⚠️ A VERSÃO SAI DO app.json, e não de uma string escrita na tela.
-
-   Ela aparecia à mão no rodapé — "Morphi · versão 1.0.0" — e agora
-   também vai dentro de todo relato de problema. Duas cópias de um número
-   que muda a cada publicação é uma delas errada no dia seguinte, e a
-   errada seria justamente a que chega no suporte. */
-const VERSAO_DO_APP = (Constants.expoConfig?.version ?? '—');
+/* ⚠️ A VERSÃO SAI DO app.json, e não de uma string escrita na tela — e
+   mora em ui/contato, junto do e-mail que a leva (ver lá). */
 
 /* ============================================================
    PERFIL — a ficha e os controles
@@ -192,21 +186,13 @@ export default function Perfil() {
      não saem daqui sem a pessoa mandar, e um relato de bug não é mandar.
 
      Se não houver aplicativo de e-mail, a tentativa falha em silêncio —
-     e o endereço continua escrito na tela de Ajuda. */
-  const reportar = () => {
-    const contexto = [
-      '',
-      '',
-      '---',
-      `Morphi ${VERSAO_DO_APP}`,
-      K().problemaSistema(Platform.OS, String(Platform.Version)),
-      K().problemaPaleta(paletaDe((S as any).paleta).nome, isDark),
-      '',
-      K().problemaCorpo,
-    ].join('\n');
-    const url = `mailto:${CANAL()}?subject=${encodeURIComponent(K().problemaAssunto)}&body=${encodeURIComponent(contexto)}`;
-    Linking.openURL(url).catch(() => {});
-  };
+     e o endereço continua escrito na tela de Ajuda ("Fale com a gente").
+     O e-mail é montado em ui/contato, o mesmo da Ajuda; daqui vai a
+     paleta a mais, que é o que um relato de tela torta precisa. */
+  const reportar = () => escreverParaNos(K().problemaAssunto, {
+    extras: [K().problemaPaleta(paletaDe((S as any).paleta).nome, isDark)],
+    convite: K().problemaCorpo,
+  });
 
   /* ---- a foto do perfil ----
 

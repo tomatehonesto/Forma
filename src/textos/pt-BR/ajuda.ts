@@ -17,10 +17,11 @@
    resposta sobre desinstalar diz que o diário volta com a conta porque
    volta, e diz o que se perde sem conexão porque se perde.
 
-   ⚠️ E NÃO HÁ LINHA DE CONTATO, por enquanto. Um "fale com a gente" que
-   não vai a lugar nenhum é a pior linha que uma tela de ajuda pode ter:
-   ela aparece exatamente para quem já não conseguiu resolver sozinho.
-   Entra quando houver canal.
+   ⚠️ A LINHA DE CONTATO SÓ ENTROU QUANDO HOUVE CANAL (26/09/2026). Um
+   "fale com a gente" que não vai a lugar nenhum é a pior linha que uma
+   tela de ajuda pode ter: ela aparece exatamente para quem já não
+   conseguiu resolver sozinho. Agora há a caixa `contact@morphihealth.com`,
+   que alguém lê (`EMPRESA.email`, em logic/documentos).
 
    ⚠️ A ORDEM É A DA VIDA DE ALGUÉM: primeiro a desconfiança com os
    números, depois o que fazer com eles, e por último o que acontece com
@@ -88,6 +89,11 @@ export const ajuda = {
   privacidadeSub: 'Onde o seu diário fica e o que sai dele',
   exportar: 'Exportar seus dados',
   exportarSub: 'Montar um arquivo com o que você registrou',
+
+  /* "Fale com a gente": o e-mail do canal (ver ui/contato). O endereço entra como subtítulo, sem tradução. */
+  faleConosco: 'Fale com a gente',
+  escreverParaNos: 'Escrever para nós',
+  emailAssunto: 'Morphi — ajuda',
 
   /* ⚠️⚠️ ESTA É A ÚNICA FRASE DA TELA QUE NÃO É SOBRE O APLICATIVO, e é
      por isso que ela está aqui: quem abre a ajuda com um sintoma que

@@ -70,6 +70,11 @@ export const ajuda = {
   exportar: 'Exporter vos données',
   exportarSub: 'Construire un fichier avec ce que vous avez noté',
 
+  /* "Fale com a gente" — ver ../pt-BR/ajuda.ts */
+  faleConosco: 'Contactez-nous',
+  escreverParaNos: 'Nous écrire',
+  emailAssunto: 'Morphi — aide',
+
   emergenciaTitulo: 'En cas de symptôme grave',
   emergenciaTexto: 'Cet écran parle de l’application. Si quelque chose dans votre corps demande de l’attention maintenant, joignez votre équipe ou les urgences — n’attendez pas la prochaine consultation.',
 };

@@ -74,24 +74,21 @@ export const EMPRESA = {
      a valer no dia em que houver assinatura paga — e aí o certo é entrar
      com um endereço comercial ou fiscal, e não voltar com o de casa. */
   endereco: '',
-  /* ⚠️⚠️ ENDEREÇO DE MARCAÇÃO — TROCAR ANTES DE SUBIR PARA A LOJA. ⚠️⚠️
+  /* ⚠️ A CAIXA DE VERDADE (26/09/2026): `contact@morphihealth.com`, no
+     domínio do produto, com a caixa na Hostinger — o dono confirmou que
+     ela recebe. Até aqui era `contato@morphi.app.br`, um endereço de
+     marcação num domínio que nunca foi registrado (PENDENCIAS, item 1).
 
-     O domínio do Morphi ainda não foi registrado. Este endereço está aqui
-     para que os documentos existam e sejam lidos durante o
-     desenvolvimento, e ele NÃO RECEBE NADA: quem escrever para ele hoje
-     escreve para o vazio.
+     Ele aparece em todos os lugares que dão um canal — a abertura da
+     política, o controlador, os direitos, a revisão humana, os menores, o
+     encarregado, o contato dos termos, o relato de problema do perfil e a
+     linha "Fale com a gente" da ajuda —, e em todos sai deste campo.
+     Trocar é mudar esta linha.
 
-     Ele aparece em oito lugares — abertura da política, controlador,
-     direitos, revisão humana, menores, encarregado, contato dos termos e
-     o relato de problema do perfil —, e em todos sai deste campo. Trocar
-     é mudar esta linha.
-
-     O e-mail do cartão do CNPJ é o da contabilidade e não serve: quem
-     escreve para um canal de privacidade espera resposta de quem opera o
-     serviço, com prazo de quinze dias.
-
-     Ver PENDENCIAS.md, na raiz do projeto. */
-  email: 'contato@morphi.app.br',
+     ⚠️ É TAMBÉM O CANAL DO ENCARREGADO (LGPD, art. 41), com resposta em
+     até quinze dias: alguém precisa ler esta caixa. O e-mail do cartão do
+     CNPJ é o da contabilidade e não serve para isso. */
+  email: 'contact@morphihealth.com',
 };
 
 /* O ENCARREGADO É O MESMO CANAL, e isso é uma escolha declarada, não um
