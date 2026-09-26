@@ -1,8 +1,8 @@
 # Primeiros passos, e o fim das frases sobre o que não aconteceu
 
 **Data:** 26 de setembro de 2026
-**Estado:** decisões aprovadas em conversa, uma a uma; esta especificação espera a revisão do dono
-**Plano:** a escrever depois da revisão
+**Estado:** aprovado pelo dono em 26/09/2026
+**Plano:** [`../plans/2026-09-26-primeiros-passos-plano.md`](../plans/2026-09-26-primeiros-passos-plano.md)
 
 ---
 
