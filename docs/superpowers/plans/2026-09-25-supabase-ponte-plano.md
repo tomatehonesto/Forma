@@ -1719,8 +1719,18 @@ No navegador de testes (`127.0.0.1`), com um cadastro novo e sem conta:
      profissional com login): na volta ao aplicativo, a cópia saiu e o
      aviso "A clínica encerrou o acompanhamento" chegou ao sino.
 
-   ⏳ Faltam o pendente virando vínculo quando a conta nasce e apagar a
-   conta que conectou.
+   - o código guardado virando vínculo quando a conta nasce, com outra
+     descartável (`+teste2`): o `SANTANA26` foi guardado em `/planos`,
+     antes da conta, e a conta nasceu às 02:17:16. O vínculo saiu às
+     02:17:34, com a versão 1 do consentimento aceita antes de a conta
+     existir;
+   - apagar essa conta: no banco não sobrou usuário, perfil, registro
+     nem vínculo, e o `SANTANA26` ficou com `usado_por` nulo, que é o que
+     `usar_convite` confere; `usado_em` fica como registro. As outras
+     contas ficaram intactas.
+
+   **A fase 6 está verificada com o dono.** Não foi testada: a sessão
+   derrubada com um código conectado (o caminho `/conta?de=sessao`).
 10. ⚠️ **Na primeira tentativa (`PAULISTA26`), o aviso não chegou**, e a
     cópia já tinha saído sem ele. O caminho que tira a cópia sem aviso
     existia: a conferência do vínculo que a volta ao aplicativo dispara
