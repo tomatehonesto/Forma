@@ -142,6 +142,7 @@ export const cadastro = {
   pesoDeHoje: 'PESO DI OGGI',
   querPerder: 'Vuoi perdere',
   querGanhar: 'Vuoi prendere',
+  mesmoPeso: 'Lo stesso peso di oggi: mantenerlo è anche un obiettivo.',
 
   /* ⚠️ NESSUN RITMO PROMETTE NIENTE, ed è per questo che i nomi sono di
      RITMO e non di risultato. Quello che la letteratura descrive come

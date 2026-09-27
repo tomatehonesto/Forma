@@ -26,9 +26,15 @@ const K = () => T.tratamento.telaAplicacaoOk;
 
    O que ela faz é responder as duas perguntas que vêm logo depois de
    apertar salvar — quando é a próxima e se a caneta aguenta — e devolver
-   a pessoa para a Jornada. O caminho de volta é `replace` na origem: o
+   a pessoa para a Jornada. O caminho de volta é `dismissTo` nas abas: o
    formulário sai da pilha, então o botão de voltar do sistema não
    reabre um registro que já foi salvo.
+
+   ⚠️ E NÃO `replace`. As abas já estão embaixo destas folhas; `replace`
+   trocava a folha por um SEGUNDO conjunto de abas em cima do primeiro, e
+   o gesto de voltar levava de uma Home a outra Home. `dismissTo` desce
+   até as abas que já existem — e, quando não há nenhuma na pilha (quem
+   chega do cadastro), faz o mesmo que o `replace` fazia.
    ============================================================ */
 
 export default function AplicacaoOk() {
@@ -57,10 +63,10 @@ export default function AplicacaoOk() {
          "Dose registrada" em h2, centralizado, embaixo do visto. Dois
          títulos iguais a dois centímetros um do outro é o cabeçalho
          cobrando espaço para não acrescentar nada. */
-      onClose={() => router.replace('/(tabs)/jornada' as any)}
+      onClose={() => router.dismissTo('/(tabs)/jornada' as any)}
       rodape={
         <>
-          <Botao label={K().voltarParaJornada(T.comum.abas.jornada)} onPress={() => router.replace('/(tabs)/jornada' as any)} />
+          <Botao label={K().voltarParaJornada(T.comum.abas.jornada)} onPress={() => router.dismissTo('/(tabs)/jornada' as any)} />
           {acabou && vocab.injetavel
             ? <Botao label={K().registrarOutro(outro)} tom="fantasma" onPress={() => router.push('/caneta-nova' as any)} />
             : null}

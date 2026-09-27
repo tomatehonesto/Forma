@@ -139,6 +139,7 @@ export const cadastro = {
   pesoDeHoje: 'GEWICHT HEUTE',
   querPerder: 'Du willst abnehmen',
   querGanhar: 'Du willst zunehmen',
+  mesmoPeso: 'Dasselbe Gewicht wie heute – Halten ist auch ein Ziel.',
 
   /* ⚠️ KEIN TEMPO VERSPRICHT ETWAS, und deshalb sind die Namen Namen von
      TEMPO und nicht von Ergebnis. Was die Literatur als gehaltenen Verlust

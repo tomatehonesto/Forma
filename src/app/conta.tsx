@@ -190,7 +190,7 @@ export default function Conta() {
        aparelho. O portão não pode mandá-la responder tudo de novo. */
     update((s: any) => { s.onboardDone = true; });
     await depoisDeEntrar();
-    router.replace('/(tabs)' as any);
+    router.dismissTo('/(tabs)' as any);
   };
 
   /** Com a conta nascida ou a sessão de volta: o código de clínica
@@ -211,7 +211,7 @@ export default function Conta() {
     update((s: any) => { s.conta = quem; });
     await sincronizar();
     await depoisDeEntrar();
-    router.replace('/(tabs)' as any);
+    router.dismissTo('/(tabs)' as any);
   };
 
   /** "Ficar com o deste telefone": o da conta sai, e este sobe no lugar. */
@@ -223,7 +223,7 @@ export default function Conta() {
       await m?.substituirNoServidor();
       m?.iniciar();
       await depoisDeEntrar();
-      router.replace('/(tabs)' as any);
+      router.dismissTo('/(tabs)' as any);
     } catch {
       update((s: any) => { s.conta = null; });
       setPasso('dois-diarios');
@@ -243,7 +243,7 @@ export default function Conta() {
       await sincronizar();
       await depoisDeEntrar();
       if (router.canGoBack()) router.back();
-      else router.replace('/(tabs)' as any);
+      else router.dismissTo('/(tabs)' as any);
       return;
     }
 
@@ -279,7 +279,7 @@ export default function Conta() {
     }
     if (porta === 'cadastro') return router.replace('/planos?de=cadastro' as any);
     if (router.canGoBack()) router.back();
-    else router.replace('/(tabs)' as any);
+    else router.dismissTo('/(tabs)' as any);
   };
 
   /* ---------------- a tela ---------------- */

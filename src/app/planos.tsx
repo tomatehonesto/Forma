@@ -340,7 +340,7 @@ export default function Planos() {
       return;
     }
     if (router.canGoBack()) router.back();
-    else router.replace('/(tabs)' as any);
+    else router.dismissTo('/(tabs)' as any);
   };
 
   const aurora = useAurora();

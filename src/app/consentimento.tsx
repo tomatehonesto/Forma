@@ -53,7 +53,7 @@ export default function ConsentimentoNovo() {
       s.perguntasParaUso = LEITURA_DAS_PERGUNTAS && perguntas;
     });
     /* o portão decide o resto: sem conta, a tranca 3 leva à conta */
-    router.replace('/(tabs)' as any);
+    router.dismissTo('/(tabs)' as any);
   };
 
   const apagar = async () => {

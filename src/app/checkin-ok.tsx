@@ -128,7 +128,7 @@ export default function CheckinOk() {
      está procurando o passado. A Home responde 'como estou hoje', que é
      exatamente a pergunta que o check-in acabou de ajudar a responder: o
      streak que subiu aqui aparece lá, e a leitura do dia também. */
-  const sair = () => router.replace('/(tabs)' as any);
+  const sair = () => router.dismissTo('/(tabs)' as any);
 
   const subindo = {
     opacity: sobe,

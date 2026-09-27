@@ -133,6 +133,7 @@ export const cadastro = {
   pesoDeHoje: 'POIDS AUJOURD’HUI',
   querPerder: 'Vous voulez perdre',
   querGanhar: 'Vous voulez prendre',
+  mesmoPeso: 'Le même poids qu’aujourd’hui — maintenir, c’est aussi un objectif.',
 
   /* ⚠️ AUCUN RYTHME NE PROMET RIEN, et c'est pour ça que les noms sont des
      noms de RYTHME et pas de résultat. Ce que la littérature décrit comme

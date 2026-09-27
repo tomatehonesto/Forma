@@ -2104,7 +2104,7 @@ export default function Cadastro() {
                 subindo de volta, não erro para bloquear. */}
             {perder === 0 ? (
               <Txt v="caption" c={c.tx3} style={{ textAlign: 'center' }}>
-                Mesmo peso de hoje — manter também é meta.
+                {K().mesmoPeso}
               </Txt>
             ) : (
               <View style={{

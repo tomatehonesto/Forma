@@ -145,6 +145,7 @@ export const cadastro = {
   pesoDeHoje: 'PESO DE HOJE',
   querPerder: 'Você quer perder',
   querGanhar: 'Você quer ganhar',
+  mesmoPeso: 'Mesmo peso de hoje — manter também é meta.',
 
   /* ⚠️ NENHUM RITMO PROMETE NADA, e é por isso que os nomes são de RITMO
      e não de resultado. O que a literatura descreve como perda sustentada

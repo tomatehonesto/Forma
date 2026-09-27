@@ -105,6 +105,7 @@ export const cadastro = {
   pesoDeHoje: 'WEIGHT TODAY',
   querPerder: 'You want to lose',
   querGanhar: 'You want to gain',
+  mesmoPeso: 'Same as your weight today — maintaining is a goal too.',
 
   ritmoDevagar: 'Slow and steady',
   ritmoConstante: 'Steady pace',
