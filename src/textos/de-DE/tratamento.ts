@@ -298,6 +298,8 @@ export const tratamento = {
     novoF: 'Neu',
     encerradoM: 'aufgebraucht',
     encerradoF: 'aufgebraucht',
+    registradoM: 'eingetragen',
+    registradoF: 'eingetragen',
 
     nova: 'Neu',
     lembrarRenovar: 'Ans Rezept erinnern',
@@ -419,6 +421,17 @@ export const tratamento = {
       `Das ist die letzte Dosis ${deste} ${recipiente}.`,
     restamDoses: (quantas: number) => `Es bleiben ${quantas} Dosen.`,
     enesimaDose: (numero: number) => `${numero}. Dosis`,
+
+    escolherMedicamento: 'Medikament auswählen',
+    semMedicamentoAjuda: 'Eine Dosis wird mit ihrem Medikament eingetragen. Was du auswählst, bleibt in deiner Behandlung.',
+    doseDaReceita: 'Die Dosis von deinem Rezept. Sie bleibt in deiner Behandlung, und die nächsten übernehmen sie.',
+    jaEmUso: 'Schon angebrochen',
+    quantasJaSairam: (deste: string, recipiente: string) =>
+      `Wie viele Dosen hattest du schon ${deste} ${recipiente} genommen?`,
+    doses: (n: number) => (n === 1 ? '1 Dosis' : `${n} Dosen`),
+    /* Der Behälter steht hier im Nominativ — `oA` liefert nur den (siehe formas). */
+    registraJunto: (oRecipiente: string, total: number, recipiente: string) =>
+      `${oRecipiente.charAt(0).toUpperCase()}${oRecipiente.slice(1)} wird mit dieser Dosis eingetragen (${total} Dosen pro ${recipiente}), und ab jetzt zählen wir, wie viele bleiben.`,
   },
   telaTreino: {
     titulo: 'Einheit',

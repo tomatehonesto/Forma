@@ -20,13 +20,20 @@
      1. toda caneta entrega as doses da concentração DELA;
      2. nenhuma aplicação é contada duas vezes, e nenhuma some;
      3. quantas sobram é a subtração, e não um número gravado;
-     4. a fração da constância conta os mesmos pontos que a grade acende.
+     4. a fração da constância conta os mesmos pontos que a grade acende;
+     5. as previstas começam na primeira aplicação;
+     6. a dose só se registra com o medicamento, a dose e — para quem
+        injeta — o recipiente, e o recipiente registrado com ela é dono
+        dela, mesmo quando a dose é de ontem;
+     7. a caneta registrada já em uso conta as doses que já tinham saído,
+        sem inventá-las como aplicação e sem projetar um vencimento.
    ============================================================ */
 
-import { buildSeed, ensureDefaults, type State } from '../src/logic/seed';
+import { buildSeed, ensureDefaults, estadoVazio, type State } from '../src/logic/seed';
 import {
   canetas, canetaAtual, penStock, dosesPrevistas, adesao,
   constanciaDaGrade, injCalendar, cadenciaDias,
+  faltaNaDose, recipienteDaDose, instanteDaAplicacao,
 } from '../src/logic/derive';
 import { diffDays } from '../src/logic/time';
 
@@ -94,6 +101,50 @@ ok(dosesPrevistas(S) === esperado, `${dosesPrevistas(S)} encaixes desde ${d(injs
    91% porque a conta cobrava uma dose no dia em que o tratamento
    começou — quatro dias antes da primeira aplicação. */
 ok(adesao(S) === 100, `adesão de ${adesao(S)}% para dez aplicações em dia`);
+
+console.log('\n6. A DOSE SÓ SE REGISTRA COM O QUE A SUSTENTA');
+const clone = (x: State): State => JSON.parse(JSON.stringify(x));
+const novo = estadoVazio() as State;
+novo.onboardDone = true;
+const semMed = clone(novo);
+semMed.profile.med = 'indefinido';
+semMed.profile.dose = 0;
+ok(JSON.stringify(faltaNaDose(semMed, { dose: 2.5, usadasAntes: 0 })) === '["medicamento"]',
+  'sem medicamento falta o medicamento — e o resto nem se pergunta, porque é dele');
+const semDose = clone(novo);
+semDose.profile.med = 'mounjaro';
+semDose.profile.dose = 0;
+ok(JSON.stringify(faltaNaDose(semDose, { dose: 0, usadasAntes: null })) === '["dose","recipiente"]',
+  'sem dose e sem caneta registrada, faltam as duas');
+ok(faltaNaDose(semDose, { dose: 2.5, usadasAntes: 0 }).length === 0, 'com a dose escolhida e a caneta dita nova, nada falta');
+const oral = clone(novo);
+oral.profile.med = 'rybelsus';
+oral.profile.dose = 3;
+ok(faltaNaDose(oral, { dose: 3, usadasAntes: null }).length === 0, 'comprimido não tem caneta a registrar');
+
+const hoje0 = new Date(); hoje0.setHours(0, 0, 0, 0);
+const tOntem = instanteDaAplicacao(+hoje0 - 864e5);
+const primeira = clone(semDose);
+primeira.profile.dose = 2.5;
+(primeira as any).pens = [recipienteDaDose({ t: tOntem, med: 'mounjaro', dose: 2.5, dosesPerPen: 4, usadasAntes: 0 })];
+(primeira as any).injections = [{ t: tOntem, med: 'mounjaro', dose: 2.5, site: 'abd-e', note: '' }];
+ok(penStock(primeira).registrada && penStock(primeira).left === 3,
+  'a caneta registrada com a dose de ontem abre no instante dela, e é dona dela: restam 3 de 4');
+ok(faltaNaDose(primeira, { dose: 2.5, usadasAntes: null }).length === 0, 'e a dose seguinte já não pede caneta');
+ok(!('usadasAntes' in recipienteDaDose({ t: 1, med: 'mounjaro', dose: 2.5, dosesPerPen: 4, usadasAntes: 0 })),
+  'a caneta nova não carrega o campo das doses de antes');
+
+console.log('\n7. A CANETA REGISTRADA JÁ EM USO');
+const emUso = clone(primeira);
+(emUso as any).pens = [recipienteDaDose({ t: tOntem, med: 'mounjaro', dose: 2.5, dosesPerPen: 4, usadasAntes: 2 })];
+const k7 = canetas(emUso)[0];
+ok(k7.usadas === 3 && penStock(emUso).left === 1, `as duas que já tinham saído contam: ${k7.usadas} usadas, resta ${penStock(emUso).left}`);
+ok(k7.aplicacoes.length === 1, 'e não viram aplicação: a lista da caneta tem só a registrada');
+ok(k7.jaEmUso && canetaAtual(emUso).vence === null && canetaAtual(primeira).vence !== null,
+  'sem dia de abertura, nenhum vencimento projetado — a caneta nova tem o dela');
+const acabou = clone(primeira);
+(acabou as any).pens = [recipienteDaDose({ t: tOntem, med: 'mounjaro', dose: 2.5, dosesPerPen: 4, usadasAntes: 3 })];
+ok(canetas(acabou)[0].estado === 'fim' && penStock(acabou).left === 0, 'com a última dose dela, a caneta acaba');
 
 console.log(falhas ? `\n${falhas} afirmação(ões) falharam\n` : '\ntodas as afirmações passaram\n');
 process.exit(falhas ? 1 : 0);

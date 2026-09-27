@@ -719,7 +719,7 @@ export default function Home() {
             snapToInterval={GOAL_W + GOAL_GAP} decelerationRate="fast"
             contentContainerStyle={{ paddingHorizontal: PAD, gap: GOAL_GAP, paddingTop: 16 }}
           >
-            {targets.map((t) => <GoalCard key={t.key} t={t} onRegister={go('/registrar')} />)}
+            {targets.map((t) => <GoalCard key={t.key} t={t} onRegister={go(t.registrarEm)} />)}
           </Rolagem>
 
           {/* ---- evolucao ----

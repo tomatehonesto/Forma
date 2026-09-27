@@ -3,32 +3,17 @@ import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { MEDS } from '../logic/meds';
-import { FORMAS, concordar, formaDe, faixaDaMolecula } from '../logic/formas';
+import { FORMAS, concordar, formaDe, faixaDaMolecula, meioDaFaixa } from '../logic/formas';
 import { doseTxt, now } from '../logic/time';
 import { dosesPorRecipiente } from '../logic/derive';
 import { SheetScreen } from '../ui/kit';
 import { Campo, Opcoes, Opc, Regua, Botao } from '../ui/internas';
+import { PerguntaDaValidade } from '../ui/recipiente';
 import { T } from '../textos';
 
 /* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
    de módulo congela o idioma no import. */
 const K = () => T.tratamento.telaRecipienteNovo;
-
-/* ⚠️⚠️ A FAIXA DA PERGUNTA DE VALIDADE É ESCOLHA MINHA, e está no
-   PENDENCIAS junto com os limiares de platô.
-
-   Sete dias porque nada desta classe se guarda aberto por menos de uma
-   semana; noventa porque nada se guarda por mais de três meses. Não
-   consegui derivar isso de nada: os prazos que o catálogo conhece — 14,
-   21, 30 e 56 — são de produto industrializado, e um manipulado não
-   herda nenhum deles.
-
-   O ponto de partida da régua é o meio da faixa, e é só isso: o lugar
-   onde o controle abre. Não é recomendação, e a régua só aparece depois
-   de a pessoa dizer que TEM a informação. */
-const VALIDADE_MIN = 7;
-const VALIDADE_MAX = 90;
-const VALIDADE_MEIO = Math.round((VALIDADE_MIN + VALIDADE_MAX) / 2);
 
 /* ============================================================
    NOVA CANETA
@@ -52,7 +37,9 @@ export default function CanetaNova() {
   const router = useRouter();
 
   const [med, setMed] = useState<string>(S.profile.med);
-  const [dose, setDose] = useState<number>(S.profile.dose);
+  /* Sem dose no perfil — "ainda não sei", no cadastro —, a régua abre no
+     meio da faixa e a escada não traz degrau escolhido; o botão espera. */
+  const [dose, setDose] = useState<number>(S.profile.dose || meioDaFaixa(S.profile.med) || 0);
   /* null é "não sabemos", e é o estado INICIAL. Nada se grava sem um
      toque — deixar um número pré-escolhido num campo destes é exatamente
      inventar o dado que a pergunta existe para não inventar. */
@@ -167,47 +154,18 @@ export default function CanetaNova() {
           ) : null}
         </Campo>
 
-        {/* ⚠️ A PERGUNTA É OPCIONAL, E COMEÇA EM "NÃO SEI".
-
-            Quem recebe um manipulado nem sempre tem o rótulo à mão na
-            hora de registrar, e travar o registro nisso seria cobrar um
-            dado para deixar a pessoa guardar outro. Sem resposta, o
-            aplicativo simplesmente não fala de vencimento para ela — que
-            é melhor do que mandar descartar o que está bom ou autorizar o
-            que não está.
-
-            A régua só aparece depois do toque em "está no rótulo": assim
-            nenhum número chega à tela antes de alguém pedir por ele. */}
+        {/* Opcional, e começa em "não sei" — ver ui/recipiente. */}
         {perguntaValidade ? (
-          <Campo
-            rotulo={K().validadeRotulo(aberto)}
-            ajuda={K().validadeAjuda}
-          >
-            <Opcoes>
-              <Opc
-                label={K().naoSei}
-                on={validade == null}
-                onPress={() => setValidade(null)}
-              />
-              <Opc
-                label={K().estaNoRotulo}
-                on={validade != null}
-                onPress={() => setValidade((v) => v ?? VALIDADE_MEIO)}
-              />
-            </Opcoes>
-            {validade != null ? (
-              <Regua
-                min={VALIDADE_MIN} max={VALIDADE_MAX} passo={1} tracoCada={7} casas={0}
-                esp={7} salto={1}
-                valor={validade} unidade={K().dias} onEscolhe={setValidade}
-              />
-            ) : null}
-          </Campo>
+          <PerguntaDaValidade aberto={aberto} valor={validade} onMuda={setValidade} />
         ) : null}
 
+        {/* ⚠️ SEM MEDICAMENTO OU SEM DOSE, NÃO HÁ RECIPIENTE. O botão
+            registrava "Ainda não definido · 0 mg" — uma caneta de nada, que
+            a conta de doses passaria a tratar como de verdade. */}
         <Botao
           label={K().registrar(novo)}
           onPress={registrar}
+          desligado={med === 'indefinido' || !(dose > 0)}
         />
       </View>
     </SheetScreen>

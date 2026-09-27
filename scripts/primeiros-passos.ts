@@ -29,7 +29,8 @@
         ela vira a primeira do diário — sem local, e sem o local vazio
         contar para o rodízio nem sobrar como " · " numa linha;
      8. o cartão de quem cuida não sai sem nome: a pessoa, a clínica, ou
-        cartão nenhum.
+        cartão nenhum;
+     9. o "+ Registrar" de cada meta do dia abre a folha dela.
    ============================================================ */
 
 import { buildSeed, estadoVazio, type State } from '../src/logic/seed';
@@ -42,7 +43,7 @@ import {
   balanceRead, recommendations, radar, libraryPicks, companionSuggestions,
   cicloFases, injCalendar, protocoloDaSemana,
   aplicacaoDoCadastro, diaDoTratamento, nextInjectionDate, rodizioDeLocais, timelineEvents,
-  semanasDaGrade, timelineWeeks, comecouAntesDoApp, nomeDeQuemCuida,
+  semanasDaGrade, timelineWeeks, comecouAntesDoApp, nomeDeQuemCuida, dailyTargets,
 } from '../src/logic/derive';
 import { semanaDoTratamento } from '../src/logic/time';
 import { proximasDe, type Alerta } from '../src/logic/alertas';
@@ -304,6 +305,11 @@ const ninguem = clone(soClinica);
 ninguem.profile.clinic = '';
 ok(nomeDeQuemCuida(comPessoa) === 'Júlia Tavares' && nomeDeQuemCuida(soClinica) === 'Clínica Tavares' && nomeDeQuemCuida(ninguem) === '',
   'a pessoa, quando há; a clínica, quando o código não trouxe pessoa; e nada — e nenhum cartão — quando não há nenhum dos dois');
+
+console.log('\n9. CADA META ABRE O PRÓPRIO REGISTRO');
+const metasDoDia = Object.fromEntries(dailyTargets(novo).map((m) => [m.key, m.registrarEm]));
+ok(JSON.stringify(metasDoDia) === JSON.stringify({ prot: '/medir-refeicao', agua: '/medir-agua', exerc: '/medir-exercicio' }),
+  'o "+ Registrar" de cada meta abre a folha dela — a proteína pela refeição —, e não a lista de todos');
 
 console.log(falhas ? `\n${falhas} afirmação(ões) falharam\n` : '\ntodas as afirmações passaram\n');
 process.exit(falhas ? 1 : 0);

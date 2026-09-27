@@ -48,6 +48,10 @@ export default function Caneta() {
   const forma = formaDe(S);
   const vocab = FORMAS()[forma];
   const aberto = concordar(forma, K().abertoM, K().abertoF);
+  /* A caneta registrada já em uso não tem dia de abertura conhecido: a
+     data que existe é a do registro, e é ela que se diz — ver
+     `recipienteDaDose`, em logic/derive. */
+  const registrado = concordar(forma, K().registradoM, K().registradoF);
   const med = M(S);
   const atual = k.atual;
 
@@ -65,7 +69,7 @@ export default function Caneta() {
       <Titulao
         titulo={K().tituloDose(med.label, doseTxt(dose), med.unit)}
         lead={atual?.abertaEm
-          ? K().leadAberto(maiuscula(vocab.recipiente), aberto, dataLonga(atual.abertaEm), total, vocab.recipiente)
+          ? K().leadAberto(maiuscula(vocab.recipiente), atual.jaEmUso ? registrado : aberto, dataLonga(atual.abertaEm), total, vocab.recipiente)
           : K().leadSemAberto(concordar(forma, K().nenhumM, K().nenhumF), vocab.recipiente, aberto, total)}
       />
 
@@ -120,8 +124,10 @@ export default function Caneta() {
           nome={k.vence ? K().venceEm : K().validadeApos(aberto)}
           selo={k.vence && k.validadeDias ? K().validadeDias(k.validadeDias) : undefined}
           seloTom="neutra"
+          /* Sem data de abertura — nenhum recipiente, ou um registrado já
+             em uso —, o prazo do produto, e não um vencimento. */
           para={k.vence ? fmtDate(k.vence)
-            : !atual && k.validadeDias ? K().validadeDias(k.validadeDias)
+            : (!atual || atual.jaEmUso) && k.validadeDias ? K().validadeDias(k.validadeDias)
               : K().validadeNaoInformada}
           nota={k.vence || k.validadeDias ? undefined : K().quemPreparaDefine}
         />
@@ -169,7 +175,7 @@ export default function Caneta() {
               selo={p.estado === 'uso' ? K().emUso : concordar(forma, K().encerradoM, K().encerradoF)}
               seloTom="neutra"
               sub={p.estado === 'uso'
-                ? K().itemEmUso(maiuscula(aberto), fmtDate(p.abertaEm!), p.usadas, p.total)
+                ? K().itemEmUso(maiuscula(p.jaEmUso ? registrado : aberto), fmtDate(p.abertaEm!), p.usadas, p.total)
                 : K().itemEncerrado(fmtPeriodo(new Date(p.abertaEm!), new Date(p.ultimaEm!)), p.usadas, p.total)}
               itens={p.aplicacoes.map((a) => [fmtDate(a.t), T.comum.noMeio(a.site ? siteLabel(a.site) : T.tratamento.localNaoInformado)] as [string, string])}
             />

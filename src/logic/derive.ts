@@ -2730,6 +2730,18 @@ export type DailyTarget = {
   cur: number; target: number; pct: number;
   remain: string; done: boolean;
   from: string; to: string;   // chaves da Palette p/ o gradiente da barra
+  /** a folha que registra ESTA meta — e não a lista de todos os registros */
+  registrarEm: string;
+};
+
+/* ⚠️ O "+ REGISTRAR" DE CADA META ABRIA A LISTA DE TODOS OS REGISTROS
+   (/registrar), e quem tocou no da água tinha de achar a água de novo lá
+   dentro. Cada meta sabe onde se registra: a proteína entra pela
+   refeição, como no atalho da própria lista. */
+const REGISTRO_DA_META: Record<DailyTarget['key'], string> = {
+  prot: '/medir-refeicao',
+  agua: '/medir-agua',
+  exerc: '/medir-exercicio',
 };
 
 /* As três metas do dia. Vêm do check-in de hoje contra profile.targets —
@@ -2747,7 +2759,7 @@ export function dailyTargets(S: State): DailyTarget[] {
   ): DailyTarget => ({
     key, label, cur, target, num, unit, maxLabel,
     pct: Math.max(0, Math.min(1, target ? cur / target : 0)),
-    remain, done: cur >= target, from, to,
+    remain, done: cur >= target, from, to, registrarEm: REGISTRO_DA_META[key],
   });
   const faltaMl = Math.max(0, t.waterMl - ml);
   const G = T.home.metas;
@@ -5872,7 +5884,52 @@ export type Recipiente = {
   dose: number;
   dosesPerPen: number;
   validadeDias?: number;
+  /** ⚠️ AS DOSES QUE JÁ TINHAM SAÍDO quando ele foi registrado. Existe
+      porque o primeiro registro pode chegar no meio de uma caneta — de
+      quem começou antes do aplicativo —, e sem isto ela seria contada
+      como cheia. Com ele, o dia da abertura não é conhecido: `t` é o dia
+      do registro, e a validade não se projeta (ver `canetaAtual`). */
+  usadasAntes?: number;
 };
+
+/** O recipiente registrado junto com uma dose, na folha da aplicação.
+
+    ⚠️ ELE ABRE NO INSTANTE DA DOSE, e não no do toque. A caneta de
+    índice i é dona das aplicações a partir da abertura dela; com o
+    instante do toque, a dose de ontem que a pessoa acabou de dizer que
+    saiu desta caneta cairia antes dela, e a caneta nasceria sem a dose. */
+export const recipienteDaDose = (r: {
+  t: number; med: string; dose: number; dosesPerPen: number; usadasAntes?: number; validadeDias?: number;
+}): Recipiente => ({
+  t: r.t, med: r.med, dose: r.dose, dosesPerPen: r.dosesPerPen,
+  ...(r.usadasAntes ? { usadasAntes: r.usadasAntes } : {}),
+  ...(r.validadeDias ? { validadeDias: r.validadeDias } : {}),
+});
+
+/* ============================================================
+   O QUE FALTA PARA REGISTRAR UMA DOSE
+
+   A dose só se registra com o medicamento, a dose dele e — para quem
+   injeta — o recipiente de onde ela sai (pedido do dono, 26/09). Antes a
+   folha salvava "Ainda não definido · 0 mg", e sem caneta registrada a
+   dose saía de caneta nenhuma.
+
+   A folha de registrar pergunta ali mesmo o que faltar; isto diz o que
+   falta, e o botão de salvar espera a lista esvaziar. `usadasAntes` é a
+   resposta sobre o recipiente que ainda não existe: nula enquanto a
+   pessoa não disse se ele é novo.
+   ============================================================ */
+export type FaltaNaDose = 'medicamento' | 'dose' | 'recipiente';
+
+export function faltaNaDose(S: State, r: { dose: number; usadasAntes: number | null }): FaltaNaDose[] {
+  /* Sem medicamento, o resto nem se pergunta: a escada de doses e o
+     recipiente são dele. */
+  if (S.profile.med === 'indefinido') return ['medicamento'];
+  const falta: FaltaNaDose[] = [];
+  if (!(r.dose > 0)) falta.push('dose');
+  if (FORMAS()[formaDe(S)].injetavel && !penStock(S).registrada && r.usadasAntes == null) falta.push('recipiente');
+  return falta;
+}
 
 const recipientes = (S: State): Recipiente[] =>
   (((S as any).pens as Recipiente[]) ?? []).slice().sort((a, b) => a.t - b.t);
@@ -5896,6 +5953,8 @@ export type Caneta = {
   usadas: number; total: number;
   /** timestamp da primeira aplicação da caneta; null se ainda não foi aberta */
   abertaEm: number | null;
+  /** registrada já em uso: `abertaEm` é o dia do registro, e não o da abertura */
+  jaEmUso: boolean;
   ultimaEm: number | null;
   aplicacoes: { t: number; site: string; dose: number }[];
 };
@@ -5908,6 +5967,9 @@ export function canetas(S: State): Caneta[] {
   const lista: Caneta[] = abert.map((ab, i) => {
     const ate = abert[i + 1]?.t ?? Infinity;
     const bl = injs.filter((x) => x.t >= ab.t && x.t < ate);
+    /* As que saíram antes do registro contam como usadas, e não viram
+       aplicação: a pessoa disse quantas foram, e não quando. */
+    const usadas = (ab.usadasAntes ?? 0) + bl.length;
     /* O catálogo do recipiente, e não o do perfil: quem trocou de
        medicamento continua vendo o nome certo no que já usou. */
     const cat = MEDS[ab.med] ?? M(S);
@@ -5915,16 +5977,17 @@ export function canetas(S: State): Caneta[] {
       /* A abertura é única no tempo, e é ela que identifica a caneta —
          índice mudaria de dono a cada recipiente novo. */
       id: ab.t,
-      estado: (i === abert.length - 1 && bl.length < ab.dosesPerPen ? 'uso' : 'fim') as 'uso' | 'fim',
+      estado: (i === abert.length - 1 && usadas < ab.dosesPerPen ? 'uso' : 'fim') as 'uso' | 'fim',
       label: cat.label,
       /* A CONCENTRAÇÃO É A QUE ELA DECLAROU AO ABRIR, e não a da última
          aplicação. Uma caneta de 2,5 mg não vira de 5 porque a dose do
          tratamento subiu. */
       dose: ab.dose,
       unit: cat.unit,
-      usadas: bl.length,
+      usadas,
       total: ab.dosesPerPen,
       abertaEm: ab.t,
+      jaEmUso: !!ab.usadasAntes,
       ultimaEm: bl.length ? bl[bl.length - 1].t : null,
       aplicacoes: bl.map((x) => ({ t: x.t, site: x.site, dose: x.dose })),
     };
@@ -5957,7 +6020,10 @@ export function canetaAtual(S: State) {
   const doCatalogo = SHELF_DAYS(S.profile.med);
   const validadeDias: number | null = recipientes(S)[recipientes(S).length - 1]?.validadeDias
     ?? (doCatalogo > 0 ? doCatalogo : null);
-  const vence = atual?.abertaEm && validadeDias
+  /* ⚠️ E A CANETA REGISTRADA JÁ EM USO NÃO TEM DIA DE ABERTURA: `abertaEm`
+     é o dia do registro, e contar a validade dele afirmaria um vencimento
+     mais tarde do que o de verdade. Cala, pelo mesmo motivo de cima. */
+  const vence = atual?.abertaEm && validadeDias && !atual.jaEmUso
     ? addDays(new Date(atual.abertaEm), validadeDias)
     : null;
   /* Cobertura da receita: o que ainda há de dose vezes a cadência, contado

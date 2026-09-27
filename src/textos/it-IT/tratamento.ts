@@ -350,6 +350,8 @@ export const tratamento = {
     novoF: 'Nuova',
     encerradoM: 'finito',
     encerradoF: 'finita',
+    registradoM: 'registrato',
+    registradoF: 'registrata',
 
     nova: 'Nuova',
     lembrarRenovar: 'Ricordami di rinnovare',
@@ -491,6 +493,16 @@ export const tratamento = {
       `Questa è l’ultima dose ${deste} ${recipiente}.`,
     restamDoses: (quantas: number) => `Restano ${quantas} dosi.`,
     enesimaDose: (numero: number) => `${numero}ª dose`,
+
+    escolherMedicamento: 'Scegli il farmaco',
+    semMedicamentoAjuda: 'Una dose si registra con il suo farmaco. Quello che scegli resta nella tua terapia.',
+    doseDaReceita: 'La dose della tua ricetta. Resta nella tua terapia, e le prossime la riprendono.',
+    jaEmUso: 'Già in uso',
+    quantasJaSairam: (deste: string, recipiente: string) =>
+      `Quante dosi ${deste} ${recipiente} avevi già usato?`,
+    doses: (n: number) => (n === 1 ? '1 dose' : `${n} dosi`),
+    registraJunto: (oRecipiente: string, total: number, recipiente: string) =>
+      `Registriamo ${oRecipiente} insieme a questa dose (${total} dosi per ${recipiente}) e iniziamo a contare quelle rimaste.`,
   },
 
   /* ============================================================

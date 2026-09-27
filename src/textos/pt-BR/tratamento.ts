@@ -385,6 +385,10 @@ export const tratamento = {
     novoF: 'Nova',
     encerradoM: 'usado',
     encerradoF: 'usada',
+    /* A caneta registrada já em uso: a data que se sabe é a do registro,
+       e não a da abertura — o cabeçalho e o histórico dizem isso. */
+    registradoM: 'registrado',
+    registradoF: 'registrada',
 
     nova: 'Nova',
     lembrarRenovar: 'Lembrar de renovar',
@@ -575,6 +579,19 @@ export const tratamento = {
       `Esta é a última dose ${deste} ${recipiente}.`,
     restamDoses: (quantas: number) => `Restam ${quantas} doses.`,
     enesimaDose: (numero: number) => `${numero}ª dose`,
+
+    /* ---------- sem medicamento, sem dose ou sem recipiente ----------
+       A dose só se registra com o medicamento e o recipiente dela, e o
+       que faltar se preenche aqui mesmo, sem sair do registro. */
+    escolherMedicamento: 'Escolher o medicamento',
+    semMedicamentoAjuda: 'A dose se registra com o medicamento dela. O que você escolher fica no seu tratamento.',
+    doseDaReceita: 'A dose da sua receita. Ela fica no seu tratamento, e as próximas já vêm com ela.',
+    jaEmUso: 'Já estava em uso',
+    quantasJaSairam: (deste: string, recipiente: string) =>
+      `Quantas doses já tinham saído ${deste} ${recipiente}?`,
+    doses: (n: number) => (n === 1 ? '1 dose' : `${n} doses`),
+    registraJunto: (oRecipiente: string, total: number, recipiente: string) =>
+      `Registramos ${oRecipiente} junto com esta dose (${total} doses por ${recipiente}), e passamos a contar as que restam.`,
   },
   /* ============================================================
      UM TREINO — a folha que abre ao tocar na linha do diário

@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
   M, nextSite, siteLabel, penStock, instanteDaAplicacao, rodizioDeLocais,
+  dosesPorRecipiente, recipienteDaDose, faltaNaDose,
 } from '../logic/derive';
-import { FORMAS, concordar, formaDe, faixaDaMolecula, umOutro } from '../logic/formas';
+import { FORMAS, concordar, formaDe, faixaDaMolecula, meioDaFaixa, umOutro, oA } from '../logic/formas';
+import { PerguntaDaValidade } from '../ui/recipiente';
 import { now, fmtTime, doseTxt, dataComDiaDaSemana, maiuscula, startOfDay } from '../logic/time';
 import { radius } from '../theme';
 import { Txt, Row, SheetScreen } from '../ui/kit';
@@ -14,6 +16,8 @@ import { T } from '../textos';
 /* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
    de módulo congela o idioma no import. */
 const K = () => T.tratamento.telaRegistrarAplicacao;
+/* As grafias do recipiente que concordam — "nova/novo", "desta/deste". */
+const KC = () => T.tratamento.telaCaneta;
 import { Campo, Opcoes, Opc, Regua, Botao } from '../ui/internas';
 import { Calendario } from '../ui/calendario';
 import { Icon } from '../ui/Icon';
@@ -86,18 +90,84 @@ export default function Aplicacao() {
 
   const [quandoT, setQuandoT] = useState(hoje);
   const [calAberto, setCalAberto] = useState(false);
-  const [dose, setDose] = useState<number>(S.profile.dose);
+  /* Sem dose no perfil, com escada, nenhum degrau vem escolhido; sem
+     escada, a régua abre no meio da faixa, como no cadastro. */
+  const [dose, setDose] = useState<number>(S.profile.dose || meioDaFaixa(S.profile.med) || 0);
   const [mudandoDose, setMudandoDose] = useState(false);
   const [site, setSite] = useState(sugerido);
   const [outroRecipiente, setOutroRecipiente] = useState(false);
+
+  /* ============================================================
+     O QUE FALTA SE PREENCHE AQUI (pedido do dono, 26/09)
+
+     ⚠️ A DOSE SE REGISTRAVA SEM MEDICAMENTO E SEM CANETA. Quem respondeu
+     "ainda não sei" no cadastro via "Ainda não definido · 0 mg" e salvava
+     assim; e sem recipiente registrado o campo dele dizia "1ª dose ·
+     Restam 4 doses" — a conta de uma caneta que ninguém registrou —, e a
+     dose saía sem caneta nenhuma.
+
+     Agora a dose só se registra com os dois, e o que faltar se responde
+     aqui mesmo, sem sair do registro: o medicamento pela lista do
+     cadastro (que grava e volta para cá), a dose pela escada ou pela
+     régua, e o recipiente num campo que o registra junto com a dose. O
+     botão de salvar espera as respostas.
+     ============================================================ */
+  const semMedicamento = S.profile.med === 'indefinido';
+  /* O medicamento pode mudar no meio do registro — quem chegou sem ele
+     escolhe na lista e volta —, e a dose que estava na folha era a do
+     medicamento de antes. */
+  const [medAoAbrir] = useState(S.profile.med);
+  const medMudou = S.profile.med !== medAoAbrir;
+  useEffect(() => {
+    if (medMudou) setDose(S.profile.dose || meioDaFaixa(S.profile.med) || 0);
+  }, [S.profile.med]);
+  /* Sem dose no perfil, ou com o medicamento trocado agora, a escolha
+     abre sozinha: não há "mudei a dose" para quem ainda não tinha uma. */
+  const escolhendoDose = !semMedicamento && (mudandoDose || medMudou || !(S.profile as any).dose);
+
+  /* O RECIPIENTE VEM JUNTO quando ainda não há nenhum registrado — e só
+     para quem injeta. A pergunta é se ele é novo, porque o primeiro
+     registro pode chegar no meio de uma caneta (de quem começou antes do
+     aplicativo), e contar essa como cheia seria a mesma conta inventada
+     de antes. */
+  const registraRecipiente = vocab.injetavel && !est.registrada && !semMedicamento;
+  const porCaneta = dosesPorRecipiente(S);
+  const [estadoDoRecipiente, setEstadoDoRecipiente] = useState<'novo' | 'emUso' | null>(null);
+  const [jaSairam, setJaSairam] = useState<number | null>(null);
+  const [validade, setValidade] = useState<number | null>(null);
+  const usadasAntes = estadoDoRecipiente === 'novo' ? 0 : estadoDoRecipiente === 'emUso' ? jaSairam : null;
+  /* A validade só se pergunta quando o catálogo não sabe — ver ui/recipiente. */
+  const perguntaValidade = registraRecipiente && med.shelf === 0;
+  const aberto = concordar(forma, KC().abertoM, KC().abertoF);
+  const deste = concordar(forma, KC().desteM, KC().desteF);
+
+  const podeSalvar = faltaNaDose(S, { dose, usadasAntes }).length === 0;
+
+  /* Quantos recipientes havia quando a folha abriu: se a pessoa abrir
+     outro daqui, é isto que diz que o último da lista é o dela. */
+  const [recipientesAoAbrir] = useState((((S as any).pens ?? []) as unknown[]).length);
 
   /* Sem escada de bula — manipulado — a dose é um número livre, e a faixa
      vem da molécula NA MESMA VIA. Ver a nota em logic/formas. */
   const faixa = med.doses.length ? null : faixaDaMolecula(med.mol, forma);
 
   const salvar = () => {
+    if (!podeSalvar) return;
+    const t = instanteDaAplicacao(quandoT);
     update((s: any) => {
-      s.injections.push({ t: instanteDaAplicacao(quandoT), med: s.profile.med, dose, site, note: '' });
+      if (registraRecipiente) {
+        s.pens = [...(s.pens ?? []), recipienteDaDose({
+          t, med: s.profile.med, dose, dosesPerPen: porCaneta,
+          usadasAntes: usadasAntes ?? 0, validadeDias: validade ?? undefined,
+        })];
+      } else if (outroRecipiente && (s.pens?.length ?? 0) > recipientesAoAbrir) {
+        /* ⚠️ O RECIPIENTE ABERTO AGORA, EM /caneta-nova, NASCEU NO TOQUE —
+           e a dose pode ser de ontem. Sem isto ela cairia no recipiente
+           anterior, justo o que a pessoa disse que não usou. */
+        const novo = s.pens[s.pens.length - 1];
+        if (novo.t > t) novo.t = t;
+      }
+      s.injections.push({ t, med: s.profile.med, dose, site, note: '' });
       s.profile.dose = dose;
       /* Nada a decrementar: quantas doses saíram do recipiente é quantas
          aplicações caíram na janela dele. Ver `canetas` em logic/derive. */
@@ -118,7 +188,7 @@ export default function Aplicacao() {
       /* Sem subtítulo: a data agora tem campo próprio, e o cabeçalho
          escrevia a mesma frase três centímetros acima dele. */
       onClose={() => router.back()}
-      rodape={<Botao label={K().salvar(vocab.acao)} onPress={salvar} />}
+      rodape={<Botao label={K().salvar(vocab.acao)} onPress={salvar} desligado={!podeSalvar} />}
     >
       <View style={{ marginTop: 18, gap: 10 }}>
         {/* ⚠️⚠️ A DATA É UM CAMPO QUE ABRE O CALENDÁRIO — e este campo já
@@ -195,28 +265,53 @@ export default function Aplicacao() {
             mesma linha: ele estava repetido embaixo, no campo do
             recipiente, e agora é dito uma vez só. */}
         <Campo
-          rotulo={med.doses.length ? K().medicamentoEDose : K().medicamentoEDoseDaReceita}
-          ajuda={mudandoDose && !med.doses.length
-            ? K().manipuladoSemEscada
-            : undefined}
+          rotulo={med.doses.length || semMedicamento ? K().medicamentoEDose : K().medicamentoEDoseDaReceita}
+          ajuda={semMedicamento
+            ? K().semMedicamentoAjuda
+            : escolhendoDose && !med.doses.length
+              ? K().manipuladoSemEscada
+              : escolhendoDose && !(S.profile as any).dose
+                ? K().doseDaReceita
+                : undefined}
         >
-          <Row style={{ justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
-            <Txt v="bodyMed">{K().medComDose(med.label, doseTxt(dose), med.unit)}</Txt>
-            {!mudandoDose ? (
-              <Pressable
-                onPress={() => setMudandoDose(true)}
-                hitSlop={8}
-                style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
-              >
-                <Row gap={4} style={{ alignItems: 'center' }}>
-                  <Txt v="label" c={c.accent}>{K().mudeiADose}</Txt>
-                  <Icon name="chev" size={12} color={c.accent} sw={2.2} />
-                </Row>
-              </Pressable>
-            ) : null}
-          </Row>
+          {semMedicamento ? (
+            /* Sem medicamento, a lista do cadastro — a mesma de Seus
+               dados —, que grava no tratamento e volta para cá. Uma lista
+               de marcas em pastilhas aqui dentro seria a terceira cópia
+               dela, sem a ordem por país. */
+            <Pressable
+              onPress={() => router.push('/cadastro?editar=medicamento' as any)}
+              style={({ pressed }) => [{
+                backgroundColor: c.bg2, borderRadius: radius.md,
+                paddingHorizontal: 14, paddingVertical: 13,
+                opacity: pressed ? 0.7 : 1,
+              }]}
+            >
+              <Row style={{ justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+                <Txt v="bodyMed" c={c.accent}>{K().escolherMedicamento}</Txt>
+                <Icon name="chev" size={14} color={c.accent} sw={2.2} />
+              </Row>
+            </Pressable>
+          ) : (
+            <Row style={{ justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+              {/* Sem dose escolhida, o nome sozinho: "· 0 mg" seria uma dose. */}
+              <Txt v="bodyMed">{dose ? K().medComDose(med.label, doseTxt(dose), med.unit) : med.label}</Txt>
+              {!escolhendoDose ? (
+                <Pressable
+                  onPress={() => setMudandoDose(true)}
+                  hitSlop={8}
+                  style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
+                >
+                  <Row gap={4} style={{ alignItems: 'center' }}>
+                    <Txt v="label" c={c.accent}>{K().mudeiADose}</Txt>
+                    <Icon name="chev" size={12} color={c.accent} sw={2.2} />
+                  </Row>
+                </Pressable>
+              ) : null}
+            </Row>
+          )}
 
-          {mudandoDose ? (
+          {escolhendoDose ? (
             med.doses.length ? (
               <Opcoes>
                 {med.doses.map((d) => (
@@ -242,6 +337,54 @@ export default function Aplicacao() {
             )
           ) : null}
         </Campo>
+
+        {/* O RECIPIENTE QUE AINDA NÃO EXISTE entra logo abaixo do
+            medicamento, e não no pé da folha, onde mora o de quem já tem
+            um: é uma resposta que o botão de salvar espera, e no pé ela
+            ficaria abaixo da dobra, com o botão apagado sem motivo à
+            vista. */}
+        {registraRecipiente ? (
+          <>
+            <Campo
+              rotulo={maiuscula(vocab.recipiente)}
+              ajuda={usadasAntes == null
+                ? K().registraJunto(`${oA(forma)} ${vocab.recipiente}`, porCaneta, vocab.recipiente)
+                : porCaneta - usadasAntes <= 1
+                  ? K().ultimaDose(deste, vocab.recipiente)
+                  : K().restamDoses(porCaneta - usadasAntes)}
+            >
+              <Opcoes>
+                <Opc
+                  label={concordar(forma, KC().novoM, KC().novoF)}
+                  on={estadoDoRecipiente === 'novo'}
+                  onPress={() => setEstadoDoRecipiente('novo')}
+                />
+                {porCaneta > 1 ? (
+                  <Opc
+                    label={K().jaEmUso}
+                    on={estadoDoRecipiente === 'emUso'}
+                    onPress={() => setEstadoDoRecipiente('emUso')}
+                  />
+                ) : null}
+              </Opcoes>
+              {/* Em uso, quantas já tinham saído — de uma até a penúltima:
+                  com todas fora, esta dose não sairia dele. */}
+              {estadoDoRecipiente === 'emUso' ? (
+                <>
+                  <Txt v="caption" c={c.tx2}>{K().quantasJaSairam(deste, vocab.recipiente)}</Txt>
+                  <Opcoes>
+                    {Array.from({ length: porCaneta - 1 }, (_, i) => i + 1).map((n) => (
+                      <Opc key={n} label={K().doses(n)} on={jaSairam === n} onPress={() => setJaSairam(n)} />
+                    ))}
+                  </Opcoes>
+                </>
+              ) : null}
+            </Campo>
+            {perguntaValidade ? (
+              <PerguntaDaValidade aberto={aberto} valor={validade} onMuda={setValidade} />
+            ) : null}
+          </>
+        ) : null}
 
         {vocab.injetavel ? (
           <>
@@ -293,29 +436,29 @@ export default function Aplicacao() {
 
             {/* O medicamento saiu deste rótulo: ele agora é dito uma vez
                 só, lá em cima. O que é DESTE campo é o recipiente — qual
-                está em uso e quantas doses restam nele. */}
-            <Campo
-              rotulo={maiuscula(vocab.recipiente)}
-              ajuda={est.left <= 1
-                ? K().ultimaDose(
-                  concordar(forma, T.tratamento.telaCaneta.desteM, T.tratamento.telaCaneta.desteF),
-                  vocab.recipiente,
-                )
-                : K().restamDoses(est.left)}
-            >
-              <Opcoes>
-                <Opc
-                  label={K().enesimaDose(est.total - est.left + 1)}
-                  on={!outroRecipiente}
-                  onPress={() => setOutroRecipiente(false)}
-                />
-                <Opc
-                  label={`${umOutro(forma, true)} ${vocab.recipiente}`}
-                  on={outroRecipiente}
-                  onPress={() => { setOutroRecipiente(true); router.push('/caneta-nova' as any); }}
-                />
-              </Opcoes>
-            </Campo>
+                está em uso e quantas doses restam nele. Sem nenhum
+                registrado, ele é o campo de cima, que o registra. */}
+            {est.registrada ? (
+              <Campo
+                rotulo={maiuscula(vocab.recipiente)}
+                ajuda={est.left <= 1
+                  ? K().ultimaDose(deste, vocab.recipiente)
+                  : K().restamDoses(est.left)}
+              >
+                <Opcoes>
+                  <Opc
+                    label={K().enesimaDose(est.total - est.left + 1)}
+                    on={!outroRecipiente}
+                    onPress={() => setOutroRecipiente(false)}
+                  />
+                  <Opc
+                    label={`${umOutro(forma, true)} ${vocab.recipiente}`}
+                    on={outroRecipiente}
+                    onPress={() => { setOutroRecipiente(true); router.push('/caneta-nova' as any); }}
+                  />
+                </Opcoes>
+              </Campo>
+            ) : null}
           </>
         ) : null}
       </View>

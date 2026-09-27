@@ -112,6 +112,16 @@ para onde a resposta muda. O que o aplicativo não tem como saber não entra.
   marcar "fiz o primeiro check-in".
 - **A forma decide a palavra**: quem toma comprimido registra a primeira
   dose, com o desenho do comprimido (`FORMAS().injetavel`).
+- **A dose só se registra com o que a sustenta** (pedido do dono, 26/09):
+  o medicamento, a dose e — para quem injeta — o recipiente. O que faltar
+  se responde na própria folha de registrar (`faltaNaDose`, logic/derive):
+  sem medicamento ("ainda não sei", no cadastro), a lista do cadastro, que
+  grava e volta; sem dose, a escada ou a régua; sem caneta registrada, um
+  campo logo abaixo do medicamento — "Nova" ou "Já estava em uso", e
+  então quantas doses já tinham saído — que a registra junto com a dose,
+  aberta no instante dela. Registrada já em uso, a caneta conta as doses
+  de antes e não projeta vencimento: o dia da abertura não é conhecido. O
+  botão de salvar espera as respostas.
 - **A permissão se lê de novo** ao abrir a Home e na volta ao aplicativo —
   é ela que muda fora do app, nos ajustes do sistema.
 - Na linha do Perfil, o total é o número de itens que aparecem: "2 de 5" no
@@ -190,7 +200,9 @@ da casa — "nós" é o produto — e sem pressupor equipe nem consulta.
 
 - **Suas metas diárias:** ficam desde o primeiro dia. Meta é destino, e não
   juízo — "Faltam 95 g" e "+ Registrar" servem a quem começa. A varredura
-  confirma que nenhum cartão dela julga antes do primeiro registro.
+  confirma que nenhum cartão dela julga antes do primeiro registro. O "+
+  Registrar" de cada cartão abre a folha dele — a proteína pela refeição,
+  a água, o exercício —, e não a lista de todos os registros (26/09).
 - **Sua evolução:** aparece quando existem **duas pesagens em dias
   diferentes** — o mínimo para "peso perdido" querer dizer alguma coisa.
   Quem já tinha começado e informou o peso inicial no cadastro já tem

@@ -15,7 +15,7 @@ import { ISENCAO, ESCOLHA_DAS_PERGUNTAS, LEITURA_DAS_PERGUNTAS, VERSAO as VERSAO
 import { ListaDoAviso, FraseDoAceite } from '../ui/consentimento';
 import { IDADE_MINIMA } from '../logic/documentos';
 import { MEDS, MEDS_POR_PAIS, CADENCE_DAYS } from '../logic/meds';
-import { FORMAS, faixaDaMolecula, doDa, nomeDaMolecula, type Forma } from '../logic/formas';
+import { FORMAS, faixaDaMolecula, meioDaFaixa, doDa, nomeDaMolecula, type Forma } from '../logic/formas';
 import type { Sistema } from '../logic/medidas';
 import { ATIVIDADES, MOTIVOS, curWeight, planoDoCadastro, emTratamento, aplicacaoDoCadastro } from '../logic/derive';
 import { MO_LONG, doseTxt, kgTxt, now, startOfDay, nf, dataComAno, maiuscula } from '../logic/time';
@@ -87,23 +87,8 @@ type Id = 'idioma' | 'nome' | 'identidade' | 'nascimento' | 'tratamento' | 'inic
    importa é a da primeira dose, e ela vai ser registrada quando
    acontecer. Para quem já aplicou, a pergunta fica: é ela que dá sentido
    a "semana 11 do tratamento". */
-/* ⚠️ O MEIO DA FAIXA, para uma régua que precisa abrir em algum lugar.
-
-   Não é recomendação de dose, e o texto da pergunta diz isso: é onde o
-   controle nasce, do mesmo jeito que a régua de peso deste formulário
-   nasce em 80 kg. Mora fora do componente porque o seletor de medicamento
-   precisa dele no mesmo toque em que troca o medicamento — antes de
-   qualquer coisa derivada do novo medicamento existir.
-
-   ⚠️ A VIA VEM DO PRÓPRIO CATÁLOGO, e não da resposta da pessoa: ela
-   ainda não respondeu a forma quando isto roda. Para manipulado as duas
-   formas possíveis são injetáveis, então a faixa é a mesma nas duas. */
-const meioDaFaixa = (id: string): number | null => {
-  const m = MEDS[id];
-  if (!m || m.doses.length) return null;
-  const f = faixaDaMolecula(m.mol, m.formas[0]);
-  return f ? Math.round(((f.min + f.max) / 2) * 20) / 20 : null;
-};
+/* O meio da faixa, onde a régua da dose abre sem escada — mora em
+   logic/formas, porque a folha de registrar a dose precisa dele também. */
 
 const TODOS: Id[] = [
   /* ⚠️ A FORMA VEM LOGO DEPOIS DO MEDICAMENTO, e antes da dose, porque é

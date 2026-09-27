@@ -182,3 +182,22 @@ export function faixaDaMolecula(mol: string, forma: Forma): { min: number; max: 
     .flatMap((m) => m.doses);
   return todas.length ? { min: Math.min(...todas), max: Math.max(...todas) } : null;
 }
+
+/* ⚠️ O MEIO DA FAIXA, para uma régua que precisa abrir em algum lugar.
+
+   Não é recomendação de dose, e o texto da pergunta diz isso: é onde o
+   controle nasce, do mesmo jeito que a régua de peso do cadastro nasce em
+   80 kg. Serve ao cadastro, que precisa dele no mesmo toque em que troca o
+   medicamento, e à folha de registrar a dose, quando ela chega sem dose.
+
+   ⚠️ A VIA VEM DO PRÓPRIO CATÁLOGO, e não da resposta da pessoa: no
+   cadastro ela ainda não respondeu a forma quando isto roda. Para
+   manipulado as duas formas possíveis são injetáveis, então a faixa é a
+   mesma nas duas. Com escada, nulo: ali se escolhe um degrau, e nenhum
+   degrau é "o do meio". */
+export const meioDaFaixa = (id: string): number | null => {
+  const m = MEDS[id];
+  if (!m || m.doses.length) return null;
+  const f = faixaDaMolecula(m.mol, m.formas[0]);
+  return f ? Math.round(((f.min + f.max) / 2) * 20) / 20 : null;
+};
