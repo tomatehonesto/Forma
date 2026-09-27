@@ -16,7 +16,7 @@ import { BEBIDA_PADRAO, bebidaDe, type Bebida } from './bebidas';
 import { faixaDe } from './escalas';
 import { ENERGIA, FOME, HUMOR, SINTOMA, SINTOMAS_LIDOS, SONO, grauDoSintoma, paraTela } from './escalas';
 import type { State } from './seed';
-import { pesoTxt, pesoProsaTxt, compTxt, pesoU, pesoV, pesoN, aguaTxt, aguaU, aguaN, pesoProsa, compU, compV } from './medidas';
+import { pesoTxt, pesoProsaTxt, compTxt, pesoU, pesoV, pesoN, aguaTxt, aguaU, aguaN, pesoProsa, compU, compV, compN } from './medidas';
 
 /* A META DE ÁGUA SAI DO PERFIL, como a de proteína e a de exercício.
 
@@ -3306,6 +3306,131 @@ export function journeyChanges(S: State): Change[] {
   }
 
   return out;
+}
+
+/* ============================================================
+   OS DOIS INDICADORES DE "SUA EVOLUÇÃO", NA HOME
+
+   ⚠️ ERAM FIXOS, E UM DELES QUASE NUNCA TINHA DADO. Embaixo do peso iam
+   sempre "Ingestão de proteína" — que repetia a meta do dia, duas seções
+   acima — e "Gordura corporal", que pede bioimpedância e saía "— sem
+   medida" para quase todo mundo, para sempre.
+
+   Decisão do dono (27/09): o peso fica, e ao lado dele vão os dois que
+   mais fazem sentido para ESTA pessoa acompanhar. A ordem abaixo é a da
+   relevância num tratamento com GLP-1 — a cintura primeiro (a fita que
+   qualquer um tem, e a medida que mais anda); a massa magra, porque
+   perder músculo é o risco do tratamento; a gordura; os dois números
+   clínicos que o tratamento costuma mover; e, para quem ainda não mede
+   nada disso, os dois hábitos que seguram o músculo: proteína e força.
+
+   Entra só quem tem evolução — dois registros em dias diferentes, a
+   mesma regra da seção inteira —, ou, nos hábitos, registro recente. Sem
+   nenhum, a seção fica só com o peso: nenhum cartão diz "sem medida".
+   ============================================================ */
+export type IndicadorDaEvolucao = {
+  id: 'cintura' | 'massaMagra' | 'gordura' | 'hba1c' | 'pressao' | 'proteina' | 'forca';
+  titulo: string;
+  valor: string;
+  unidade: string;
+  /** a variação, ou o veredito, embaixo do número */
+  nota: string;
+  tom: TomDaVariacao;
+  /** para onde o número andou desde o primeiro registro; nulo sem direção */
+  sobe: boolean | null;
+  to: string;
+};
+
+/** O primeiro e o último registro de uma medida do corpo — em dias
+    diferentes, ou nada. Registro sem aquele campo não conta. */
+function pontasDaMedida(S: State, campo: 'cintura' | 'gordura' | 'musculo') {
+  const com = ((S.measures ?? []) as any[])
+    .filter((m) => typeof m[campo] === 'number')
+    .sort((a, b) => a.t - b.t);
+  if (com.length < 2) return null;
+  const f = com[0], l = com[com.length - 1];
+  if (+startOfDay(new Date(f.t)) === +startOfDay(new Date(l.t))) return null;
+  return { f: f[campo] as number, l: l[campo] as number };
+}
+
+const direcao = (d: number): boolean | null => (d > 0 ? true : d < 0 ? false : null);
+
+export function indicadoresDaEvolucao(S: State, quantos = 2): IndicadorDaEvolucao[] {
+  const M_ = T.home.mudancas;
+  const out: IndicadorDaEvolucao[] = [];
+
+  const cin = pontasDaMedida(S, 'cintura');
+  if (cin) {
+    const v = variacaoDe(compV(S, cin.l - cin.f), compU(S));
+    out.push({
+      id: 'cintura', titulo: M_.cintura, valor: compN(S, cin.l, 0), unidade: compU(S),
+      nota: v.delta, tom: v.tom, sobe: direcao(cin.l - cin.f), to: '/marcador?m=cintura',
+    });
+  }
+  const mus = pontasDaMedida(S, 'musculo');
+  if (mus) {
+    /* A única em que subir é a boa notícia — ver `journeyChanges`. */
+    const v = variacaoDe(pesoV(S, mus.l - mus.f), pesoU(S), false);
+    out.push({
+      id: 'massaMagra', titulo: M_.massaMagra, valor: pesoN(S, mus.l), unidade: pesoU(S),
+      nota: v.delta, tom: v.tom, sobe: direcao(mus.l - mus.f), to: '/marcador?m=musculo',
+    });
+  }
+  const gor = pontasDaMedida(S, 'gordura');
+  if (gor) {
+    const v = variacaoDe(gor.l - gor.f, T.medidas.pontosPercentuais);
+    out.push({
+      id: 'gordura', titulo: M_.gorduraCorporal, valor: nf(gor.l, 1), unidade: '%',
+      nota: v.delta, tom: v.tom, sobe: direcao(gor.l - gor.f), to: '/marcador?m=gordura',
+    });
+  }
+
+  const a1c = examBy(S, 'HbA1c');
+  if (a1c && a1c.values.length >= 2) {
+    const f = examFirst(a1c), l = examLast(a1c);
+    const naRef = examStatus(a1c) === 'ok';
+    out.push({
+      id: 'hba1c', titulo: 'HbA1c', valor: nf(l.v, 1), unidade: '%',
+      nota: naRef ? M_.naReferencia : M_.foraDaReferencia, tom: naRef ? 'bom' : 'ruim',
+      sobe: direcao(l.v - f.v), to: '/exames?m=HbA1c',
+    });
+  }
+
+  const pa = (S.vitals as any)?.pa as { sys: number; dia: number }[] | undefined;
+  if (pa && pa.length >= 2) {
+    const f = pa[0], l = pa[pa.length - 1];
+    out.push({
+      id: 'pressao', titulo: M_.pressao, valor: `${l.sys}/${l.dia}`, unidade: 'mmHg',
+      nota: l.sys < f.sys ? M_.pressaoEmQueda : l.sys > f.sys ? M_.pressaoEmAlta : M_.pressaoEstavel,
+      tom: l.sys < f.sys ? 'bom' : l.sys > f.sys ? 'ruim' : 'neutro',
+      sobe: direcao(l.sys - f.sys), to: '/saude',
+    });
+  }
+
+  /* OS HÁBITOS, para quem ainda não mede o corpo. A proteína pede dois
+     dias com registro na semana — com um, a média é um dia só —, e a
+     força pede algum treino registrado nas duas últimas semanas: sem
+     nenhum, "0 dias" seria veredito sobre quem só não anotou. */
+  const desde = +daysAgo(7);
+  const diasComProteina = new Set(
+    (S.checkins as any[]).filter((c) => c.t >= desde && (c.prot ?? 0) > 0).map((c) => +startOfDay(new Date(c.t))),
+  ).size;
+  if (diasComProteina >= 2) {
+    const p = protein7d(S);
+    out.push({
+      id: 'proteina', titulo: T.home.metas.proteina, valor: `${Math.round(p.avg)}`, unidade: T.home.telaInicio.gPorDia,
+      nota: p.verdict.label, tom: p.verdict.good ? 'bom' : 'ruim', sobe: null, to: '/alimentacao',
+    });
+  }
+  if (treinosRecentes(S, 14).length) {
+    const n = diasDeForca(S);
+    out.push({
+      id: 'forca', titulo: T.home.telaInicio.forca, valor: `${n}`, unidade: T.home.telaInicio.dias(n),
+      nota: T.home.telaInicio.nosUltimos7, tom: 'neutro', sobe: null, to: '/exercicio',
+    });
+  }
+
+  return out.slice(0, quantos);
 }
 
 /* AS METAS, prontas para a tela — a medida com a conta que o indicador

@@ -303,7 +303,9 @@ export const home = {
     evolucao: 'Dein Verlauf',
     evolucaoLink: 'Verlauf',
     gPorDia: 'g/Tag',
-    semMedida: 'keine Messung',
+    forca: 'Krafttraining',
+    dias: (n: number): string => (n === 1 ? 'Tag' : 'Tage'),
+    nosUltimos7: 'In den letzten 7 Tagen',
 
     quemCuida: 'Wer sich um dich kümmert',
     areaMedica: 'Arztbereich',

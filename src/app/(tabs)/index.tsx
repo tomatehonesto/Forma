@@ -12,7 +12,7 @@ import { EstrelaIA } from '../../ui/marca';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { mensagemDoDia } from '../../logic/etapa';
 import {
-  dailyTargets, weightCard, weightSeries, protein7d, bodyFat,
+  dailyTargets, weightCard, weightSeries, indicadoresDaEvolucao,
   nextInjectionDate, siteLabel, nextSite, streak, temAcompanhamento, clinicaConectada, temConsulta, M,
   lastInjection, penStock,
   checkinFeito, diaDoTratamento, temEvolucao, temCiclo, nomeDeQuemCuida,
@@ -171,8 +171,7 @@ export default function Home() {
   const targets = dailyTargets(S);
   const wc = weightCard(S);
   const wSeries = weightSeries(S);
-  const prot7 = protein7d(S);
-  const bf = bodyFat(S);
+  const evolucaoExtra = indicadoresDaEvolucao(S);
   const stk = streak(S);
   const feitoHoje = checkinFeito(S);
   const linked = temAcompanhamento(S);
@@ -748,6 +747,7 @@ export default function Home() {
               )}
             </View>
 
+            {evolucaoExtra.length ? (
             <Row gap={4} style={{ marginTop: 4, alignItems: 'stretch' }}>
               {/* OS DOIS NÚMEROS SE ALINHAM PELO PÉ, e não pelo topo.
 
@@ -761,31 +761,32 @@ export default function Home() {
                   bloco de baixo ganhou um marginTop automatico para o dia em que
                   um dos dois títulos mudar de tamanho outra vez. O 28
                   continua sendo o mínimo. */}
-              <View style={{ flex: 1, backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16 }}>
-                <Txt v="body">{T.home.metas.proteina}</Txt>
-                <View style={{ marginTop: 'auto' }}>
-                  <Row style={{ marginTop: 28, alignItems: 'center' }}>
-                    <Txt v="metric">{Math.round(prot7.avg)}</Txt>
-                    <Txt v="caption" c={c.tx3} style={{ marginLeft: 3, marginTop: 6 }}>{K().gPorDia}</Txt>
-                    <TrendDot up good={prot7.verdict.good} c={c} />
-                  </Row>
-                  <Txt v="note" c={prot7.verdict.good ? c.tx3 : c.bad} style={{ marginTop: 4 }}>{prot7.verdict.label}</Txt>
-                </View>
-              </View>
-              <View style={{ flex: 1, backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16 }}>
-                <Txt v="body">{T.medidas.corpo.gordura}</Txt>
-                <View style={{ marginTop: 'auto' }}>
-                  <Row style={{ marginTop: 28, alignItems: 'center' }}>
-                    <Txt v="metric">{bf ? nf(bf.v, bf.v % 1 ? 1 : 0) : '—'}</Txt>
-                    {bf && <Txt v="caption" c={c.tx3} style={{ marginLeft: 3, marginTop: 6 }}>%</Txt>}
-                    {bf && <TrendDot up={!bf.above} good={bf.verdict.good} c={c} />}
-                  </Row>
-                  <Txt v="note" c={bf && !bf.verdict.good ? c.bad : c.tx3} style={{ marginTop: 4 }}>
-                    {bf ? bf.verdict.label : K().semMedida}
-                  </Txt>
-                </View>
-              </View>
+              {/* ⚠️ OS DOIS DE BAIXO NÃO SÃO MAIS FIXOS (decisão do dono,
+                  27/09): são os que mais fazem sentido para esta pessoa,
+                  entre os que têm evolução — ver `indicadoresDaEvolucao`.
+                  Sem nenhum, a fileira não existe. Cada um abre a tela do
+                  próprio número. */}
+              {evolucaoExtra.map((i) => (
+                <Pressable
+                  key={i.id}
+                  onPress={go(i.to)}
+                  style={({ pressed }) => [{
+                    flex: 1, backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16, opacity: pressed ? 0.7 : 1,
+                  }]}
+                >
+                  <Txt v="body">{i.titulo}</Txt>
+                  <View style={{ marginTop: 'auto' }}>
+                    <Row style={{ marginTop: 28, alignItems: 'center' }}>
+                      <Txt v="metric">{i.valor}</Txt>
+                      <Txt v="caption" c={c.tx3} style={{ marginLeft: 3, marginTop: 6 }}>{i.unidade}</Txt>
+                      {i.sobe != null && i.tom !== 'neutro' ? <TrendDot up={i.sobe} good={i.tom === 'bom'} c={c} /> : null}
+                    </Row>
+                    <Txt v="note" c={i.tom === 'ruim' ? c.bad : c.tx3} style={{ marginTop: 4 }}>{i.nota}</Txt>
+                  </View>
+                </Pressable>
+              ))}
             </Row>
+            ) : null}
           </View>
           ) : null}
 

@@ -299,7 +299,9 @@ export const home = {
     evolucao: 'Votre évolution',
     evolucaoLink: 'Évolution',
     gPorDia: 'g/jour',
-    semMedida: 'pas de mesure',
+    forca: 'Renforcement musculaire',
+    dias: (n: number): string => (n < 2 ? 'jour' : 'jours'),
+    nosUltimos7: 'Sur les 7 derniers jours',
 
     quemCuida: 'Qui prend soin de vous',
     areaMedica: 'Espace médical',

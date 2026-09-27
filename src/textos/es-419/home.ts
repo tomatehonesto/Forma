@@ -278,7 +278,9 @@ export const home = {
     evolucao: 'Tu evolución',
     evolucaoLink: 'Evolución',
     gPorDia: 'g/día',
-    semMedida: 'sin medida',
+    forca: 'Entrenamiento de fuerza',
+    dias: (n: number): string => (n === 1 ? 'día' : 'días'),
+    nosUltimos7: 'En los últimos 7 días',
 
     quemCuida: 'Quién te cuida',
     areaMedica: 'Área médica',

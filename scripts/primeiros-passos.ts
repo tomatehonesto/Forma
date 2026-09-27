@@ -19,7 +19,8 @@
         eles;
      4. esconder, reabrir e concluir, e concluído vence escondido; o
         diário de exemplo não tem cartão;
-     5. "Sua evolução" pede duas pesagens em dias diferentes;
+     5. "Sua evolução" pede duas pesagens em dias diferentes, e os dois
+        cartões de baixo são os que têm evolução, na ordem de relevância;
      6. nenhuma frase afirma o que não aconteceu (Peça 3 da especificação):
         sem aplicação registrada não há ciclo, próxima dose, fase, adesão
         nem aviso de dose; sem pesagens bastantes não há ritmo nem
@@ -43,7 +44,7 @@ import {
   balanceRead, recommendations, radar, libraryPicks, companionSuggestions,
   cicloFases, injCalendar, protocoloDaSemana,
   aplicacaoDoCadastro, diaDoTratamento, nextInjectionDate, rodizioDeLocais, timelineEvents,
-  semanasDaGrade, timelineWeeks, comecouAntesDoApp, nomeDeQuemCuida, dailyTargets,
+  semanasDaGrade, timelineWeeks, comecouAntesDoApp, nomeDeQuemCuida, dailyTargets, indicadoresDaEvolucao,
 } from '../src/logic/derive';
 import { semanaDoTratamento } from '../src/logic/time';
 import { proximasDe, type Alerta } from '../src/logic/alertas';
@@ -146,6 +147,23 @@ ok(!temEvolucao(mesmoDia), 'duas no mesmo dia: sem evolução');
 const doisDias = clone(umaPesagem);
 (doisDias.weights as any[]).push({ t: +hoje - 21 * DIA, kg: 85 });
 ok(temEvolucao(doisDias), 'duas em dias diferentes: com evolução — quem já tinha começado a tem no primeiro dia');
+
+/* Os dois de baixo do peso: os que mais fazem sentido, entre os que têm
+   evolução — nenhum "sem medida". */
+const ids = (x: State) => indicadoresDaEvolucao(x).map((i) => i.id).join(',');
+ok(ids(doisDias) === '', 'só com o peso, a seção fica só com o peso — nenhum cartão de "sem medida"');
+const umaFita = clone(doisDias);
+(umaFita.measures as any[]).push({ t: +hoje, cintura: 98 });
+ok(ids(umaFita) === '', 'uma medida da cintura ainda não é evolução');
+const duasFitas = clone(umaFita);
+(duasFitas.measures as any[]).unshift({ t: +hoje - 20 * DIA, cintura: 104 });
+const cin = indicadoresDaEvolucao(duasFitas)[0];
+ok(ids(duasFitas) === 'cintura' && cin.nota === '−6,0 cm' && cin.tom === 'bom' && cin.sobe === false,
+  `duas medidas em dias diferentes: a cintura entra, com a variação (${cin?.nota})`);
+const comProteina = clone(doisDias);
+(comProteina.checkins as any[]).push({ t: +hoje, prot: 80 }, { t: +hoje - DIA, prot: 70 });
+ok(ids(comProteina) === 'proteina', 'quem não mede o corpo vê a proteína, com dois dias registrados na semana');
+ok(ids(buildSeed() as State) === 'cintura,massaMagra', 'no diário de exemplo, cintura e massa magra — e nunca mais de dois');
 
 console.log('\n6. NENHUMA FRASE SOBRE O QUE NÃO ACONTECEU');
 /* Uma pessoa com dose definida, uma pesagem e nada registrado. */

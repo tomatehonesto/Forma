@@ -424,7 +424,11 @@ export const home = {
     evolucao: 'Sua evolução',
     evolucaoLink: 'Evolução',
     gPorDia: 'g/dia',
-    semMedida: 'sem medida',
+    /* Os hábitos que entram em "Sua evolução" para quem ainda não mede o
+       corpo — ver `indicadoresDaEvolucao`, em logic/derive. */
+    forca: 'Treinos de força',
+    dias: (n: number): string => (n === 1 ? 'dia' : 'dias'),
+    nosUltimos7: 'Nos últimos 7 dias',
 
     /* ---------- quem cuida ---------- */
     quemCuida: 'Quem cuida de você',

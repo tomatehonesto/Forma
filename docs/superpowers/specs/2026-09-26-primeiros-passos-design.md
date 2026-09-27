@@ -62,9 +62,7 @@ Tomadas em conversa, em 26/09/2026:
 Perfil, a condição de "Sua evolução", as correções das frases das quatro
 abas listadas acima, e a varredura das telas internas com a mesma regra.
 
-**Fica para depois, a pedido do dono:** decidir se os itens de "Sua
-evolução" (peso perdido, ingestão de proteína, gordura corporal) são fixos
-ou podem mudar — ver **Questões em aberto**.
+**Decidido depois (27/09):** os itens de "Sua evolução" — ver a Peça 2.
 
 ---
 
@@ -208,9 +206,16 @@ da casa — "nós" é o produto — e sem pressupor equipe nem consulta.
   Quem já tinha começado e informou o peso inicial no cadastro já tem
   evolução no primeiro dia; quem começa hoje, não. Até lá, a seção não
   aparece.
-- **Dentro de "Sua evolução"**, até a questão em aberto se resolver: o item
-  sem dado diz "sem registro", neutro — o veredito em vermelho da proteína
-  só com registro.
+- **Dentro de "Sua evolução"** (decisão do dono, 27/09): o peso fica, e ao
+  lado dele vão os dois indicadores que mais fazem sentido para a pessoa,
+  escolhidos pelo app, sem personalização por enquanto
+  (`indicadoresDaEvolucao`, logic/derive). A ordem: cintura, massa magra,
+  gordura corporal, HbA1c, pressão e, para quem ainda não mede o corpo,
+  proteína média e treinos de força. Entra só quem tem evolução — dois
+  registros em dias diferentes, ou, nos hábitos, registro recente —, e
+  sem nenhum a seção fica só com o peso: nenhum cartão "sem medida". Cada
+  cartão abre a tela do próprio número. Deixar a pessoa fixar os seus fica
+  para depois.
 - **Quem cuida de você:** como hoje, com uma correção (26/09). O cartão
   saía sem nome — e com o rosto da responsável da semente — quando o
   vínculo não trazia pessoa: o código de uma clínica sem profissional, ou
@@ -329,10 +334,8 @@ por tela, antes de ser corrigido.
 
 ## Questões em aberto
 
-- **Os itens de "Sua evolução" são fixos ou mutáveis?** Hoje são três:
-  peso perdido, ingestão de proteína e gordura corporal. O dono quer decidir
-  depois se continuam fixos ou se podem mudar (conforme o que a pessoa
-  registra, ou por escolha dela). Até lá, vale a Peça 2.
+- **A pessoa escolher os indicadores de "Sua evolução".** Por enquanto o
+  app escolhe (Peça 2); fixar os seus fica para quando o dono quiser.
 
 ---
 
@@ -341,7 +344,6 @@ por tela, antes de ser corrigido.
 - Não muda o cadastro.
 - Não cria tela nova: é um cartão na Home e uma linha no Perfil.
 - Não muda o contrato da sincronia: as marcas moram num campo que já sobe.
-- Não decide o futuro de "Sua evolução".
 
 ---
 
