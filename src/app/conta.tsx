@@ -76,10 +76,13 @@ export default function Conta() {
   const router = useRouter();
   const { c, isDark } = useTheme();
   const update = useStore((s) => s.update);
-  const { de } = useLocalSearchParams<{ de?: string }>();
+  const { de, passo: passoDoLink } = useLocalSearchParams<{ de?: string; passo?: string }>();
   const porta: Porta = de === 'abertura' || de === 'sessao' ? de : 'cadastro';
 
-  const [passo, setPasso] = React.useState<Passo>('escolha');
+  /* `?passo=email` abre direto no e-mail — o atalho dos testes (a entrada
+     e a criação da conta sem passar pela escolha). O voltar ainda leva à
+     escolha, como no caminho normal. */
+  const [passo, setPasso] = React.useState<Passo>(passoDoLink === 'email' ? 'email' : 'escolha');
   const [email, setEmail] = React.useState('');
   const [codigo, setCodigo] = React.useState('');
   const [erro, setErro] = React.useState<ErroDaConta | null>(null);
