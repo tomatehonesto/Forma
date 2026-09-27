@@ -949,6 +949,27 @@ nativo que o Expo Go não tem:
 o EAS compila na nuvem, mas a assinatura do aplicativo é da conta. Android
 não precisa de nada além da conta Expo para o perfil `development`.
 
+**E a entrada pela Apple e pelo Google** (fase 5 do plano do Supabase) —
+o código está pronto desde 27/09/2026 e espera isto, na ordem:
+
+1. **EAS:** `npx eas-cli login` e `npx eas-cli init` (grava o projectId).
+2. **Apple:** conta paga de desenvolvedor; registrar o iPhone
+   (`npx eas-cli device:create`); a capacidade "Sign in with Apple" no
+   identificador `com.morphihealth.app` (o EAS pergunta e liga na primeira
+   build). No Supabase, a Apple já aceita `com.morphihealth.app`.
+3. **Google Cloud:** a tela de consentimento OAuth e três clientes —
+   **web** (o que vai no Supabase), **iOS** (bundle `com.morphihealth.app`)
+   e **Android** (pacote `com.morphihealth.app` + o SHA-1 que o EAS mostra
+   em `npx eas-cli credentials`).
+4. **Supabase (morphi-dev):** Sign In / Providers → Google ligado, com o
+   ID do cliente **web** primeiro e depois os de iOS e Android, separados
+   por vírgula, e o segredo do cliente web. "Skip nonce check" desligado.
+5. **Me passar os IDs** (são públicos — o segredo do cliente web fica só
+   no painel): eu ponho os dois no .env.development e o plugin no
+   `app.json`.
+6. **A build:** `npx eas-cli build -p ios --profile development` (e/ou
+   `-p android`), instalar no aparelho, e abrir com `npm run start:build`.
+
 ## 🟡 17. O nome do marcador é chave de registro, e aparece na tela
 
 Não bloqueia a publicação em português. Bloqueia a versão em inglês.

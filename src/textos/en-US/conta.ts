@@ -11,6 +11,7 @@ export const conta = {
     abertura: 'We’ll bring your journal back to this phone.',
     sessao: 'Your session ended. What you logged is still here, and we’ll save it to your account as soon as you sign in.',
   },
+  comGoogle: 'Continue with Google',
   comEmail: 'Continue with email',
   semSenha: 'No password: we send a code to your email.',
 
@@ -38,6 +39,7 @@ export const conta = {
     codigoErrado: 'That code doesn’t match, or it has expired. Check the numbers, or send another one and use the newest.',
     muitosPedidos: 'Too many requests in a row. Wait a minute and try again.',
     apple: 'Apple didn’t confirm the sign-in. Try again, or continue with email.',
+    google: 'Google didn’t confirm the sign-in. Try again, or continue with email.',
     outro: 'We couldn’t do it right now. Try again in a moment.',
   },
 

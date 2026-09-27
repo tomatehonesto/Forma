@@ -11,6 +11,7 @@ export const conta = {
     abertura: 'Riportiamo il tuo diario su questo telefono.',
     sessao: 'La tua sessione è scaduta. Quello che hai registrato è ancora qui, e lo salviamo nel tuo account appena accedi.',
   },
+  comGoogle: 'Continua con Google',
   comEmail: 'Continua con l’e-mail',
   semSenha: 'Senza password: ti mandiamo un codice via e-mail.',
 
@@ -38,6 +39,7 @@ export const conta = {
     codigoErrado: 'Questo codice non corrisponde, o è scaduto. Controlla le cifre, o fatti mandare un altro codice e usa il più recente.',
     muitosPedidos: 'Troppe richieste di seguito. Aspetta un minuto e riprova.',
     apple: 'Apple non ha confermato l’accesso. Riprova, o continua con l’e-mail.',
+    google: 'Google non ha confermato l’accesso. Riprova, o continua con l’email.',
     outro: 'Non ci siamo riusciti ora. Riprova tra un attimo.',
   },
 

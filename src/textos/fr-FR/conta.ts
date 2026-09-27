@@ -11,6 +11,7 @@ export const conta = {
     abertura: 'Nous ramenons votre journal sur ce téléphone.',
     sessao: 'Votre session a pris fin. Ce que vous avez noté est toujours ici, et nous l’enregistrons dans votre compte dès que vous vous connectez.',
   },
+  comGoogle: 'Continuer avec Google',
   comEmail: 'Continuer avec l’e-mail',
   semSenha: 'Sans mot de passe : nous envoyons un code à votre e-mail.',
 
@@ -38,6 +39,7 @@ export const conta = {
     codigoErrado: 'Ce code ne correspond pas, ou il a expiré. Vérifiez les chiffres, ou demandez-en un autre et utilisez le plus récent.',
     muitosPedidos: 'Trop de demandes d’affilée. Attendez une minute et réessayez.',
     apple: 'Apple n’a pas confirmé la connexion. Réessayez, ou continuez avec l’e-mail.',
+    google: 'Google n’a pas confirmé la connexion. Réessayez, ou continuez avec l’e-mail.',
     outro: 'Nous n’avons pas pu pour le moment. Réessayez dans un instant.',
   },
 

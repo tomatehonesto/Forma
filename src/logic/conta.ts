@@ -3,8 +3,8 @@
 
    A conta liga o diário a uma pessoa (plano do Supabase, a decisão 1). A
    entrada é sem senha: pela Apple, ou por um código de seis números que
-   mandamos por e-mail. O Google chega na fase 5, com a build de
-   desenvolvimento.
+   mandamos por e-mail — e pelo Google, na build de desenvolvimento e na
+   da loja (fase 5).
 
    ⚠️ TUDO AQUI PASSA POR `nuvem()`. Sem as variáveis do projeto — as
    sondas de scripts/ e uma build sem as variáveis do projeto —, não há conta, e
@@ -22,6 +22,7 @@ import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import * as Crypto from 'expo-crypto';
+import Constants, { ExecutionEnvironment } from 'expo-constants';
 import {
   FunctionsFetchError, FunctionsHttpError, isAuthRetryableFetchError, type AuthError,
 } from '@supabase/supabase-js';
@@ -43,7 +44,7 @@ export const VALIDADE_DO_CODIGO_MIN = 10;
 /** O servidor recusa um código novo antes de um minuto. */
 export const ESPERA_PARA_REENVIAR_S = 60;
 
-export type ErroDaConta = 'sem-internet' | 'codigo-errado' | 'muitos-pedidos' | 'apple' | 'cancelado' | 'outro';
+export type ErroDaConta = 'sem-internet' | 'codigo-errado' | 'muitos-pedidos' | 'apple' | 'google' | 'cancelado' | 'outro';
 export type Entrada = { ok: true; id: string; email: string | null } | { ok: false; erro: ErroDaConta };
 
 function erroDe(e: unknown): ErroDaConta {
@@ -139,6 +140,61 @@ export async function entrarComApple(): Promise<Entrada> {
   } catch (e: any) {
     if (e?.code === 'ERR_REQUEST_CANCELED') return { ok: false, erro: 'cancelado' };
     return { ok: false, erro: 'apple' };
+  }
+}
+
+/* ============================================================
+   O GOOGLE (fase 5 do plano)
+
+   ⚠️ SÓ NA BUILD DE DESENVOLVIMENTO E NA DA LOJA. A biblioteca
+   (`react-native-nitro-google-signin`) é módulo nativo, e o Expo Go não o
+   traz: o `require` é preguiçoso, como em saude-do-aparelho, para o Expo
+   Go do dono continuar abrindo — sem o módulo, não há botão.
+
+   ⚠️ E SÓ COM OS IDS DO GOOGLE CLOUD, que são públicos e moram no
+   .env.development ao lado da chave pública do Supabase: o da web (que o
+   Supabase confere no token) e, no iPhone, o do iOS. Sem eles, também não
+   há botão — porta que não abre é pior que porta nenhuma.
+
+   ⚠️ O NONCE, como na Apple: o Google recebe o resumo (SHA-256 em
+   hexadecimal, que é o que a biblioteca pede) e o Supabase recebe o
+   original. Com ele, o "Skip nonce check" do painel fica desligado.
+   ============================================================ */
+const GOOGLE_WEB = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
+const GOOGLE_IOS = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
+
+function moduloDoGoogle(): any {
+  if (Platform.OS === 'web' || Constants.executionEnvironment === ExecutionEnvironment.StoreClient) return null;
+  try { return require('react-native-nitro-google-signin'); } catch { return null; }
+}
+
+export function googleDisponivel(): boolean {
+  if (!nuvem() || !GOOGLE_WEB || (Platform.OS === 'ios' && !GOOGLE_IOS)) return false;
+  return !!moduloDoGoogle();
+}
+
+export async function entrarComGoogle(): Promise<Entrada> {
+  const cliente = nuvem();
+  const G = moduloDoGoogle();
+  if (!cliente || !G || !GOOGLE_WEB) return semNuvem;
+  try {
+    const cru = Crypto.randomUUID();
+    const resumo = await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, cru);
+    G.GoogleOneTapSignIn.configure({ webClientId: GOOGLE_WEB, iosClientId: GOOGLE_IOS ?? null, nonce: resumo });
+    if (Platform.OS === 'android') await G.GoogleOneTapSignIn.checkPlayServices();
+    /* A escolha de conta explícita: é o toque num botão "Continuar com o
+       Google", e não a entrada silenciosa de quem já entrou antes. */
+    const resposta = await G.GoogleOneTapSignIn.presentExplicitSignIn();
+    if (G.isCancelledResponse(resposta)) return { ok: false, erro: 'cancelado' };
+    if (!G.isSuccessResponse(resposta) || !resposta.data.idToken) return { ok: false, erro: 'google' };
+    const { data, error } = await cliente.auth.signInWithIdToken({
+      provider: 'google', token: resposta.data.idToken, nonce: cru,
+    });
+    if (error || !data.user) return { ok: false, erro: erroDe(error) === 'sem-internet' ? 'sem-internet' : 'google' };
+    return { ok: true, id: data.user.id, email: data.user.email ?? null };
+  } catch (e: any) {
+    if (e?.code === 'SIGN_IN_CANCELLED') return { ok: false, erro: 'cancelado' };
+    return { ok: false, erro: 'google' };
   }
 }
 

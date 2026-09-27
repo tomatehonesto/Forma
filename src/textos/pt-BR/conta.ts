@@ -34,6 +34,7 @@ export const conta = {
     abertura: 'Trazemos o seu diário de volta para este telefone.',
     sessao: 'A sua sessão terminou. O que você registrou continua aqui, e guardamos na sua conta assim que você entrar.',
   },
+  comGoogle: 'Continuar com o Google',
   comEmail: 'Continuar com e-mail',
   semSenha: 'Sem senha: mandamos um código para o seu e-mail.',
 
@@ -67,6 +68,7 @@ export const conta = {
     codigoErrado: 'Esse código não confere, ou já venceu. Confira os números, ou mande outro e use o mais novo.',
     muitosPedidos: 'Foram muitos pedidos seguidos. Espere um minuto e tente de novo.',
     apple: 'A Apple não confirmou a entrada. Tente de novo, ou continue com e-mail.',
+    google: 'O Google não confirmou a entrada. Tente de novo, ou continue com e-mail.',
     outro: 'Não conseguimos agora. Tente de novo em instantes.',
   },
 

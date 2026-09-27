@@ -10,7 +10,8 @@ import { useStore } from '../logic/store';
 import { estadoVazio } from '../logic/seed';
 import {
   DIGITOS_DO_CODIGO, ESPERA_PARA_REENVIAR_S, VALIDADE_DO_CODIGO_MIN,
-  appleDisponivel, atualizarVinculo, confirmarCodigo, contaTemDiario, entrarComApple, pedirCodigo, sair, sincronia,
+  appleDisponivel, atualizarVinculo, confirmarCodigo, contaTemDiario, entrarComApple, entrarComGoogle, googleDisponivel,
+  pedirCodigo, sair, sincronia,
   usarConvitePendente,
   type ErroDaConta,
 } from '../logic/conta';
@@ -66,6 +67,7 @@ const fraseDoErro = (e: ErroDaConta) => ({
   'codigo-errado': K().erro.codigoErrado,
   'muitos-pedidos': K().erro.muitosPedidos,
   apple: K().erro.apple,
+  google: K().erro.google,
   cancelado: '',
   outro: K().erro.outro,
 }[e]);
@@ -83,6 +85,8 @@ export default function Conta() {
   const [erro, setErro] = React.useState<ErroDaConta | null>(null);
   const [ocupado, setOcupado] = React.useState(false);
   const [apple, setApple] = React.useState(false);
+  /* Síncrono: o módulo nativo e os IDs estão ou não estão — ver logic/conta. */
+  const [google] = React.useState(googleDisponivel);
   const [espera, setEspera] = React.useState(0);
   /* quem entrou, enquanto o caminho do diário não termina */
   const [dono, setDono] = React.useState<Dono | null>(null);
@@ -153,6 +157,13 @@ export default function Conta() {
   const viaApple = async () => {
     limpar();
     const r = await entrarComApple();
+    if (!r.ok) return falhou(r.erro);
+    await entrou({ id: r.id, ...(r.email ? { email: r.email } : {}) });
+  };
+
+  const viaGoogle = async () => {
+    limpar();
+    const r = await entrarComGoogle();
     if (!r.ok) return falhou(r.erro);
     await entrou({ id: r.id, ...(r.email ? { email: r.email } : {}) });
   };
@@ -471,9 +482,9 @@ export default function Conta() {
           do sistema já sai certo em qualquer idioma. A altura é a da
           pílula do app, para as portas empilhadas terem o mesmo tamanho.
 
-          O GOOGLE ENTRA AQUI, com o mesmo desenho do e-mail, quando a
-          entrada dele existir (fase 5 do plano do Supabase). Até lá, sem
-          botão: porta que não abre é pior que porta nenhuma. */}
+          O GOOGLE VEM LOGO DEPOIS, na pílula do app, e só onde ele abre:
+          na build com o módulo nativo e com os IDs do Google Cloud (ver
+          logic/conta). No Expo Go, e sem os IDs, não há botão. */}
       {apple ? (
         <AppleAuthentication.AppleAuthenticationButton
           buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
@@ -483,7 +494,10 @@ export default function Conta() {
           onPress={viaApple}
         />
       ) : null}
-      <Botao label={K().comEmail} pilula tom={apple ? 'fantasma' : 'cheio'} onPress={() => { limpar(); setPasso('email'); }} />
+      {google ? (
+        <Botao label={K().comGoogle} pilula tom={apple ? 'fantasma' : 'cheio'} onPress={viaGoogle} />
+      ) : null}
+      <Botao label={K().comEmail} pilula tom={apple || google ? 'fantasma' : 'cheio'} onPress={() => { limpar(); setPasso('email'); }} />
       <Txt v="caption" c={c.tx3} style={{ textAlign: 'center', marginTop: 6 }}>{K().semSenha}</Txt>
     </CapaDaConta>
   );

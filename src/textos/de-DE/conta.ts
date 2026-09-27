@@ -11,6 +11,7 @@ export const conta = {
     abertura: 'Wir holen dein Tagebuch auf dieses Handy zurück.',
     sessao: 'Deine Sitzung ist abgelaufen. Was du eingetragen hast, ist noch hier, und wir speichern es in deinem Konto, sobald du dich anmeldest.',
   },
+  comGoogle: 'Weiter mit Google',
   comEmail: 'Mit E-Mail weiter',
   semSenha: 'Ohne Passwort: Wir schicken dir einen Code per E-Mail.',
 
@@ -38,6 +39,7 @@ export const conta = {
     codigoErrado: 'Dieser Code stimmt nicht oder ist abgelaufen. Prüf die Ziffern, oder lass dir einen neuen schicken und nimm den neuesten.',
     muitosPedidos: 'Zu viele Anfragen hintereinander. Warte eine Minute und versuch es noch einmal.',
     apple: 'Apple hat die Anmeldung nicht bestätigt. Versuch es noch einmal, oder mach mit E-Mail weiter.',
+    google: 'Google hat die Anmeldung nicht bestätigt. Versuch es noch einmal oder mach mit E-Mail weiter.',
     outro: 'Das hat gerade nicht geklappt. Versuch es gleich noch einmal.',
   },
 

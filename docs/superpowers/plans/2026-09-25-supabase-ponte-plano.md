@@ -1497,6 +1497,37 @@ mesma conta pelo e-mail do Google cai no mesmo usuário (a ligação
 automática por e-mail verificado). No Expo Go, o botão não aparece e nada
 quebra. Os achados vão para o item 16.
 
+### ⚠️ CORRIGIDO AO EXECUTAR (27/09/2026) — a parte do código
+
+1. **Instalados** `expo-dev-client ~57.0.19` e
+   `react-native-nitro-google-signin 2.3.0` (exato).
+   `react-native-nitro-modules` já estava, pelo HealthKit, e ficou como
+   estava.
+2. **O `npm start` continua abrindo no Expo Go** (`expo start --go`): com o
+   `expo-dev-client` instalado, o `expo start` passaria a mirar a build de
+   desenvolvimento, e o Expo Go do dono deixaria de abrir pelo QR. A build
+   de desenvolvimento abre com `npm run start:build`.
+3. **`entrarComGoogle()`** em logic/conta, no molde da Apple: o Google
+   recebe o SHA-256 do nonce (a biblioteca aceita — `configure({ nonce })`)
+   e o Supabase recebe o original, então o "Skip nonce check" fica
+   **desligado**. A entrada é `presentExplicitSignIn()`, a escolha de conta
+   explícita. O `require` é preguiçoso e não roda no Expo Go nem na web.
+4. **O botão** fica entre a Apple e o e-mail, na pílula do app, e só
+   aparece com o módulo nativo **e** os IDs públicos
+   (`EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` e, no iPhone,
+   `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID`, comentados no .env.development até
+   existirem).
+5. ⏳ **O plugin da biblioteca ainda não está no `app.json`**: ele recusa a
+   configuração sem o `iosUrlScheme` (o ID do cliente iOS ao contrário,
+   `com.googleusercontent.apps.…`), que só existe depois de o dono criar
+   os clientes no Google Cloud. Entra junto com os IDs.
+6. ⚠️ **A marca do Google no botão.** O botão é o do app, só com o texto
+   "Continuar com o Google". A diretriz do Google pede o "G" colorido ao
+   lado; antes da loja, ou entra o logotipo, ou o botão oficial da
+   biblioteca (48 de altura, que destoaria da pílula de 64 da Apple).
+
+**⏳ O resto depende do dono** — ver PENDENCIAS, item 16.
+
 ---
 
 ## Fase 6 — o vínculo e a rede no servidor
