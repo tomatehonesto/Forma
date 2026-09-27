@@ -14,7 +14,9 @@
      1. o diário novo começa com o plano pronto e o resto por fazer;
      2. no navegador, sem aviso nem depósito de saúde, sobram três itens;
      3. cada item se marca com o que de fato aconteceu — e um copo d'água
-        não é check-in; quem toma comprimido registra a primeira dose;
+        não é check-in; quem toma comprimido registra a primeira dose; o
+        aviso e o app de saúde são opcionais, e o cartão se conclui sem
+        eles;
      4. esconder, reabrir e concluir, e concluído vence escondido; o
         diário de exemplo não tem cartão;
      5. "Sua evolução" pede duas pesagens em dias diferentes;
@@ -25,12 +27,14 @@
         respondido não há leitura do equilíbrio;
      7. quem já tinha começado responde no cadastro a última aplicação, e
         ela vira a primeira do diário — sem local, e sem o local vazio
-        contar para o rodízio nem sobrar como " · " numa linha.
+        contar para o rodízio nem sobrar como " · " numa linha;
+     8. o cartão de quem cuida não sai sem nome: a pessoa, a clínica, ou
+        cartão nenhum.
    ============================================================ */
 
 import { buildSeed, estadoVazio, type State } from '../src/logic/seed';
 import {
-  passos, passosNaHome, passosParaReabrir, esconderPassos, reabrirPassos, concluirPassos,
+  passos, passosNaHome, passosParaReabrir, esconderPassos, reabrirPassos, concluirPassos, essencialPronto,
   type DoAparelho,
 } from '../src/logic/primeirosPassos';
 import {
@@ -38,7 +42,7 @@ import {
   balanceRead, recommendations, radar, libraryPicks, companionSuggestions,
   cicloFases, injCalendar, protocoloDaSemana,
   aplicacaoDoCadastro, diaDoTratamento, nextInjectionDate, rodizioDeLocais, timelineEvents,
-  semanasDaGrade, timelineWeeks, comecouAntesDoApp,
+  semanasDaGrade, timelineWeeks, comecouAntesDoApp, nomeDeQuemCuida,
 } from '../src/logic/derive';
 import { semanaDoTratamento } from '../src/logic/time';
 import { proximasDe, type Alerta } from '../src/logic/alertas';
@@ -67,7 +71,7 @@ novo.onboardDone = true;
 console.log('\n1. O DIÁRIO NOVO');
 const nIphone = passos(novo, IPHONE);
 ok(nIphone.length === 5, `no iPhone são cinco itens (${nIphone.map((p) => p.id).join(', ')})`);
-ok(JSON.stringify(prontos(novo, IPHONE)) === '["plano"]', 'só o plano começa pronto: o cartão abre em "1 de 5"');
+ok(JSON.stringify(prontos(novo, IPHONE)) === '["plano"]', 'só o plano começa pronto: o cartão abre com um visto, e não do zero');
 ok(nIphone.every((p) => p.id === 'plano' ? !p.to : !!p.to), 'todo item por fazer leva a uma tela, e o plano a nenhuma');
 ok(nIphone.find((p) => p.id === 'saude')!.titulo.includes('Apple Saúde'), 'o item da saúde diz o nome do aparelho');
 
@@ -101,6 +105,13 @@ const ligou = clone(novo);
 ok(prontos(ligou, IPHONE).includes('saude'), 'o Apple Saúde ligado marca a saúde');
 ok(!prontos(ligou, { ...IPHONE, aparelho: { id: 'healthConnect', nome: 'Health Connect' } }).includes('saude'),
   'no Android, quem conta é o Health Connect, e não o Apple Saúde');
+ok(JSON.stringify(nIphone.filter((p) => p.opcional).map((p) => p.id)) === '["lembretes","saude"]',
+  'o aviso e o app de saúde são os opcionais');
+const essencial = clone(novo);
+(essencial.injections as any[]).push({ t: +hoje, dose: 2.5 });
+(essencial.checkins as any[]).push({ t: +hoje, energia: 3 });
+ok(!essencialPronto(nIphone) && essencialPronto(passos(essencial, IPHONE)) && !passos(essencial, IPHONE).every((p) => p.pronto),
+  'com a aplicação e o check-in, o essencial está pronto — sem aviso nem app de saúde, o cartão não fica pendente para sempre');
 
 console.log('\n4. ESCONDER, REABRIR E CONCLUIR');
 ok(passosNaHome(novo) && !passosParaReabrir(novo), 'o diário novo tem o cartão na Home, e nada a reabrir no Perfil');
@@ -282,6 +293,17 @@ ok(comecouAntesDoApp(jaComecou) && comecouAntesDoApp(antigo(40)) && !comecouAnte
 const semanaDaDose = semanaDoTratamento(doCadastro.t, jaComecou.profile.startT);
 ok(timelineWeeks(jaComecou)[0]?.semana === semanaDaDose && timelineWeeks(aplicou5)[0]?.semana === 1,
   `a linha do tempo de quem já tinha começado abre na semana do tratamento (${semanaDaDose}), e a de quem começou no app, na 1`);
+
+console.log('\n8. QUEM CUIDA TEM NOME');
+const soClinica = clone(novo);
+soClinica.profile.doctor = '';
+soClinica.profile.clinic = 'Clínica Tavares';
+const comPessoa = clone(soClinica);
+comPessoa.profile.doctor = 'Júlia Tavares';
+const ninguem = clone(soClinica);
+ninguem.profile.clinic = '';
+ok(nomeDeQuemCuida(comPessoa) === 'Júlia Tavares' && nomeDeQuemCuida(soClinica) === 'Clínica Tavares' && nomeDeQuemCuida(ninguem) === '',
+  'a pessoa, quando há; a clínica, quando o código não trouxe pessoa; e nada — e nenhum cartão — quando não há nenhum dos dois');
 
 console.log(falhas ? `\n${falhas} afirmação(ões) falharam\n` : '\ntodas as afirmações passaram\n');
 process.exit(falhas ? 1 : 0);

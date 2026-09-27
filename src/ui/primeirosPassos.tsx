@@ -8,7 +8,7 @@ import { useStore } from '../logic/store';
 import { estadoDaPermissao, pedirPermissao, reagendar, type Permissao } from '../logic/avisos';
 import { aparelhoDaVez } from '../logic/integracoes';
 import {
-  passos, passosNaHome, passosParaReabrir, esconderPassos, concluirPassos, type Passo,
+  passos, passosNaHome, passosParaReabrir, esconderPassos, concluirPassos, essencialPronto, type Passo,
 } from '../logic/primeirosPassos';
 import { Txt, Row } from './kit';
 import { Icon } from './Icon';
@@ -26,13 +26,13 @@ const K = () => T.home.primeirosPassos;
 
    A lista sai de logic/primeirosPassos; aqui mora o que é do aparelho —
    a permissão de aviso, que se lê de forma assíncrona e muda fora do app
-   — e o desenho: o progresso, as linhas, a comemoração e a saída.
+   — e o desenho: as linhas, a comemoração e a saída.
    ============================================================ */
 
 /* ⚠️ A PERMISSÃO É NULA ATÉ A PRIMEIRA LEITURA, e o cartão espera por ela.
-   Contar antes seria abrir em "1 de 5" e pular para "2 de 5" na frente da
-   pessoa, quando a leitura chega dizendo que os avisos já estavam
-   permitidos. Relê na volta ao aplicativo, que é quando ela pode ter
+   Desenhar antes seria abrir com os lembretes por fazer e trocar para o
+   visto na frente da pessoa, quando a leitura chega dizendo que os avisos
+   já estavam permitidos. Relê na volta ao aplicativo, que é quando ela pode ter
    mudado nos ajustes do sistema — o mesmo cuidado de app/lembretes. */
 function usePassos() {
   const S = useStore((s) => s.S);
@@ -50,14 +50,14 @@ function usePassos() {
 
 /** A linha do Perfil que reabre o cartão: os números dela, ou nulo quando ela não existe.
 
-    Com tudo cumprido enquanto o cartão estava escondido, a linha some:
-    reabrir só para ver "5 de 5" e uma comemoração de algo que a pessoa
-    fez sem o cartão seria ruído no Perfil. */
+    Com o essencial cumprido enquanto o cartão estava escondido, a linha
+    some: reabrir só para ver uma comemoração de algo que a pessoa fez sem
+    o cartão seria ruído no Perfil. */
 export function usePassosParaReabrir(): { feitos: number; total: number } | null {
   const { S, lista } = usePassos();
   if (!lista || !passosParaReabrir(S)) return null;
   const feitos = lista.filter((p) => p.pronto).length;
-  return feitos < lista.length ? { feitos, total: lista.length } : null;
+  return essencialPronto(lista) ? null : { feitos, total: lista.length };
 }
 
 const ESPERA_MS = 2000;       // quanto o "Tudo pronto!" fica à vista
@@ -75,21 +75,17 @@ export function PrimeirosPassos({ style }: { style?: StyleProp<ViewStyle> }) {
   const { S, lista, permissao, setPermissao } = usePassos();
 
   const naHome = passosNaHome(S);
-  const feitos = lista ? lista.filter((p) => p.pronto).length : 0;
-  const total = lista ? lista.length : 0;
-  const tudo = !!lista && feitos === total;
+  /* O CARTÃO SE CONCLUI COM O ESSENCIAL, e não com todos: os opcionais (o
+     aviso e o app de saúde) não seguram ninguém — ver logic/primeirosPassos.
+     Com tudo feito, a comemoração diz "tudo"; com só o essencial, diz o
+     essencial, e que o resto fica no Perfil. */
+  const tudo = !!lista && essencialPronto(lista);
+  const completo = !!lista && lista.every((p) => p.pronto);
 
-  /* A BARRA ANDA quando um item se cumpre com o cartão à vista — a
-     permissão concedida aqui mesmo, ou a volta de outra tela. A primeira
-     leitura entra sem animação: a barra nasce onde está. */
-  const barra = React.useRef(new Animated.Value(0)).current;
-  const medida = React.useRef(false);
-  React.useEffect(() => {
-    if (!total) return;
-    const alvo = feitos / total;
-    if (!medida.current) { barra.setValue(alvo); medida.current = true; return; }
-    Animated.timing(barra, { toValue: alvo, duration: 450, easing: Easing.out(Easing.cubic), useNativeDriver: false }).start();
-  }, [feitos, total]);
+  /* ⚠️ A BARRA E O "2 DE 5" SAÍRAM (decisão do dono, 26/09). Os vistos de
+     cada linha já contam o progresso, e o canto de cima passou a ser o
+     lugar de fechar — que ficava no pé, em texto pequeno, depois da lista
+     inteira. */
 
   /* A SAÍDA — apaga e depois recolhe a altura, para o que vem embaixo
      subir sem salto. Serve às duas: a comemoração e o "esconder".
@@ -185,7 +181,19 @@ export function PrimeirosPassos({ style }: { style?: StyleProp<ViewStyle> }) {
     >
       <Row style={{ justifyContent: 'space-between', alignItems: 'center' }}>
         <Txt v="h2">{K().titulo}</Txt>
-        <Txt v="label" c={c.tx3}>{K().progresso(feitos, total)}</Txt>
+        {/* "FECHAR", NO LUGAR DO LINK DE SEÇÃO: é onde a Home põe a ação de
+            cada bloco. Não pede confirmação — o Perfil reabre. Some na
+            comemoração, que se fecha sozinha. */}
+        {!tudo ? (
+          <Pressable
+            onPress={() => sair(() => update(esconderPassos))}
+            hitSlop={10}
+            accessibilityRole="button"
+            style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
+          >
+            <Txt v="label" c={c.accent2}>{K().fechar}</Txt>
+          </Pressable>
+        ) : null}
       </Row>
 
       <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 16, overflow: 'hidden' }}>
@@ -201,19 +209,13 @@ export function PrimeirosPassos({ style }: { style?: StyleProp<ViewStyle> }) {
             <View style={{ width: 52, height: 52, borderRadius: 26, backgroundColor: c.lime, alignItems: 'center', justifyContent: 'center' }}>
               <Icon name="check" size={24} color={c.limeInk} sw={2.6} />
             </View>
-            <Txt v="h2" style={{ textAlign: 'center' }}>{K().tudoPronto}</Txt>
-            <Txt v="note" c={c.tx2} style={{ textAlign: 'center', maxWidth: 290 }}>{K().tudoProntoTexto}</Txt>
+            <Txt v="h2" style={{ textAlign: 'center' }}>{completo ? K().tudoPronto : K().essencialPronto}</Txt>
+            <Txt v="note" c={c.tx2} style={{ textAlign: 'center', maxWidth: 290 }}>
+              {completo ? K().tudoProntoTexto : K().essencialProntoTexto}
+            </Txt>
           </View>
         ) : (
           <>
-            <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 4 }}>
-              <View style={{ height: 6, borderRadius: radius.pill, backgroundColor: c.bg2, overflow: 'hidden' }}>
-                <Animated.View style={{
-                  height: 6, borderRadius: radius.pill, backgroundColor: c.accent,
-                  width: barra.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] }),
-                }} />
-              </View>
-            </View>
             {lista.map((p, i) => (
               <View key={p.id}>
                 {i > 0 ? <View style={{ height: StyleSheet.hairlineWidth, backgroundColor: c.line, marginLeft: 64 }} /> : null}
@@ -223,18 +225,6 @@ export function PrimeirosPassos({ style }: { style?: StyleProp<ViewStyle> }) {
           </>
         )}
       </View>
-
-      {/* "ESCONDER POR AGORA" não pede confirmação: o Perfil reabre. */}
-      {!tudo ? (
-        <Pressable
-          onPress={() => sair(() => update(esconderPassos))}
-          hitSlop={10}
-          accessibilityRole="button"
-          style={({ pressed }) => [{ alignSelf: 'center', marginTop: 14, opacity: pressed ? 0.6 : 1 }]}
-        >
-          <Txt v="label" c={c.tx3}>{K().esconder}</Txt>
-        </Pressable>
-      ) : null}
     </Animated.View>
   );
 }
@@ -262,7 +252,11 @@ function Linha({ p, onPress }: { p: Passo; onPress?: () => void }) {
         </View>
         <View style={{ flex: 1 }}>
           <Txt v="body" c={p.pronto ? c.tx3 : c.tx}>{p.titulo}</Txt>
-          {!p.pronto && p.sub ? <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>{p.sub}</Txt> : null}
+          {/* O opcional se diz opcional, para ninguém se sentir devendo o
+              que pode deixar de lado. */}
+          {!p.pronto && p.sub ? (
+            <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>{p.opcional ? K().opcional(p.sub) : p.sub}</Txt>
+          ) : null}
         </View>
         {p.pronto ? (
           <View style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: c.lime, alignItems: 'center', justifyContent: 'center' }}>

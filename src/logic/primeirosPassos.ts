@@ -34,6 +34,8 @@ export type Passo = {
   pronto: boolean;
   /** para onde o toque leva — o plano não leva a lugar nenhum */
   to?: string;
+  /** não segura o cartão: sem ele, o essencial já está feito */
+  opcional?: boolean;
 };
 
 export type DoAparelho = {
@@ -44,16 +46,18 @@ export type DoAparelho = {
 
 const K = () => T.home.primeirosPassos;
 
-/* A ORDEM É A DO PRIMEIRO DIA: o plano, que já está feito, abre a lista em
-   "1 de 5" e não em zero; depois o que conta o tratamento (a aplicação), o
-   que conta o dia (o check-in), e por fim o que deixa o resto automático
-   (os lembretes e a saúde do aparelho). */
+/* A ORDEM É A DO PRIMEIRO DIA: o plano, que já está feito, abre a lista
+   com um visto, e não do zero; depois o que conta o tratamento (a
+   aplicação), o que conta o dia (o check-in), e por fim o que deixa o resto
+   automático (os lembretes e a saúde do aparelho), que são opcionais. */
 export function passos(S: State, { permissao, aparelho }: DoAparelho): Passo[] {
   /* Quem toma comprimido registra a primeira dose, e não a primeira
      aplicação — a forma decide a palavra e o desenho (logic/formas). */
   const injetavel = FORMAS()[formaDe(S)].injetavel;
   const lista: Passo[] = [
-    { id: 'plano', ic: 'target', titulo: K().plano, pronto: true },
+    /* A prancheta, e não o alvo: o alvo é o desenho das metas diárias, que
+       ficam logo abaixo do cartão na mesma folha. */
+    { id: 'plano', ic: 'plano', titulo: K().plano, pronto: true },
     {
       id: 'aplicacao', ic: injetavel ? 'syringe' : 'pill', titulo: K().aplicacao(injetavel), sub: K().aplicacaoSub,
       pronto: (S.injections?.length ?? 0) > 0, to: '/aplicacao',
@@ -63,22 +67,31 @@ export function passos(S: State, { permissao, aparelho }: DoAparelho): Passo[] {
       pronto: ((S.checkins ?? []) as any[]).some(respostaNoDia), to: '/checkin',
     },
   ];
+  /* ⚠️ OS DOIS ÚLTIMOS SÃO OPCIONAIS. Aviso e app de saúde são do aparelho,
+     e quem não quer nenhum dos dois não está atrasado em nada — sem esta
+     marca, o cartão ficava para sempre esperando uma permissão que a
+     pessoa decidiu não dar. Eles continuam na lista, porque são bons de
+     ter; só não seguram o cartão, que se conclui com o essencial. */
   /* Sem aviso possível (o navegador), não há o que permitir. */
   if (permissao !== 'indisponivel') {
     lista.push({
       id: 'lembretes', ic: 'bell', titulo: K().lembretes, sub: K().lembretesSub,
-      pronto: permissao === 'concedida', to: '/lembretes',
+      pronto: permissao === 'concedida', to: '/lembretes', opcional: true,
     });
   }
   /* Só o depósito do sistema em que o app roda — ver logic/integracoes. */
   if (aparelho) {
     lista.push({
       id: 'saude', ic: 'heart', titulo: K().saude(aparelho.nome), sub: K().saudeSub,
-      pronto: !!(S as any).integrations?.[aparelho.id], to: '/integracoes',
+      pronto: !!(S as any).integrations?.[aparelho.id], to: '/integracoes', opcional: true,
     });
   }
   return lista;
 }
+
+/** O essencial está feito: todo item que não é opcional está pronto. É isto
+    que conclui o cartão. */
+export const essencialPronto = (lista: Passo[]) => lista.every((p) => p.pronto || p.opcional);
 
 /* ============================================================
    AS DUAS MARCAS

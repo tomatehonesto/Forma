@@ -9,7 +9,7 @@ import {
   clinicaConectada, temAcompanhamento, nextConsult, lastMessage, carePending, careState,
   examesComValor, examesForaDaRef,
   doseContext, doseCycle, penStock, weekGrid, M, cadenciaCurta,
-  medComDose, fichaDe, temCiclo,
+  medComDose, fichaDe, temCiclo, nomeDeQuemCuida,
 } from '../../logic/derive';
 import { Nivel, Malha } from '../../ui/instrumentos';
 import { fmtDate, diasDaSemana, MO } from '../../logic/time';
@@ -24,7 +24,7 @@ import {
 import { pontoSemPedir, type Ponto } from '../../logic/localizacao';
 import { useTheme } from '../../ui/useTheme';
 import { radius, RESPIRO_ABAS } from '../../theme';
-import { fotoDaEquipe, focoDaEquipe, fotoDaRede, focoDaRede, inicialDoNome } from '../../ui/retratos';
+import { fotoDaEquipe, focoDaEquipe, fotoDaRede, focoDaRede, inicialDoNome, iniciaisDeQuemCuida } from '../../ui/retratos';
 import { noNa, formaDe, oA, FORMAS } from '../../logic/formas';
 import { T } from '../../textos';
 
@@ -415,13 +415,16 @@ function BannerMedica() {
                 width: 44, height: 44, borderRadius: radius.sm,
                 backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center',
               }}>
-                <Txt v="bodyMed" c={c.accent}>{inicialDoNome(S.profile.doctor || '?')}</Txt>
+                <Txt v="bodyMed" c={c.accent}>{iniciaisDeQuemCuida(S)}</Txt>
               </View>
             )}
             <View style={{ flex: 1 }}>
-              <Txt v="bodyMed" numberOfLines={1}>{S.profile.doctor}</Txt>
-              {!!medica?.papel && (
-                <Txt v="micro" c={c.tx3} numberOfLines={1} style={{ marginTop: 2 }}>{medica.papel}</Txt>
+              {/* Sem pessoa, a clínica é o nome — ver `nomeDeQuemCuida`. */}
+              <Txt v="bodyMed" numberOfLines={1}>{nomeDeQuemCuida(S)}</Txt>
+              {!!(S.profile.doctor ? medica?.papel : (S.profile as any).clinicInfo?.especialidade) && (
+                <Txt v="micro" c={c.tx3} numberOfLines={1} style={{ marginTop: 2 }}>
+                  {S.profile.doctor ? medica?.papel : (S.profile as any).clinicInfo?.especialidade}
+                </Txt>
               )}
             </View>
             <Chevron />
@@ -1193,7 +1196,8 @@ export default function Cuidado() {
 
             <Pendencias />
             <Consulta />
-            <BannerMedica />
+            {/* Sem pessoa nem clínica, não há porta a desenhar. */}
+            {nomeDeQuemCuida(S) ? <BannerMedica /> : null}
             <Tratamento />
             <Exames />
           </>

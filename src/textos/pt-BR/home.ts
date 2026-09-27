@@ -669,7 +669,6 @@ export const home = {
      ============================================================ */
   primeirosPassos: {
     titulo: 'Primeiros passos',
-    progresso: (feitos: number, total: number) => `${feitos} de ${total}`,
     /** o que o leitor de tela diz depois do título de um item cumprido */
     feito: 'Feito',
     plano: 'Seu plano está pronto',
@@ -681,9 +680,16 @@ export const home = {
     lembretesSub: 'Para o aviso da dose tocar na hora',
     saude: (app: string) => `Conecte o ${app}`,
     saudeSub: 'O peso da balança entra sozinho',
+    /* Os dois do aparelho — aviso e app de saúde — não seguram o cartão, e
+       o subtítulo diz isso antes do porquê. */
+    opcional: (porque: string) => `Opcional · ${porque}`,
     tudoPronto: 'Tudo pronto!',
     tudoProntoTexto: 'Seu diário está montado. Daqui em diante, é só registrar — o resto acompanhamos com você.',
-    esconder: 'Esconder por agora',
+    /* Com só o essencial feito — os opcionais ficaram —, a comemoração
+       não diz "tudo": diz o que é, e onde o resto mora. */
+    essencialPronto: 'O essencial está pronto!',
+    essencialProntoTexto: 'O que ficou é opcional, e está no Perfil para quando você quiser.',
+    fechar: 'Fechar',
     reabrir: 'Primeiros passos',
     reabrirSub: (feitos: number, total: number) => `${feitos} de ${total} feitos · mostrar na Home`,
   },

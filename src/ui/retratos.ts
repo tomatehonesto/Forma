@@ -134,8 +134,15 @@ export const focoDaRede = (_p?: { id: string; foto?: string }) => 'top center' a
    fixo porque a semente tem uma responsável só; quem se conecta pelo
    código de uma clínica da rede ganha outra pessoa nesse papel, e o
    retrato fixo poria o rosto de uma ao lado do nome de outra. Sem retrato
-   na rede, a inicial — que é o que a vitrine já mostra para ela. */
-type ComVinculo = { profile?: any };
+   na rede, a inicial — que é o que a vitrine já mostra para ela.
+
+   ⚠️ E SEM NINGUÉM DA REDE NO PAPEL, O RETRATO FIXO É SÓ DA SEMENTE. O
+   vínculo com uma clínica que não mandou profissional (o código é da
+   clínica, e não de alguém) caía no retrato fixo, e o cartão da Home
+   punha o rosto da responsável da semente ao lado do nome da clínica —
+   ou, com a ficha vazia, ao lado de nome nenhum. O nome de quem cuida
+   é real (`profile.doctor`); o rosto só pode ser o que veio com ele. */
+type ComVinculo = { profile?: any; semente?: boolean };
 
 const daRedeNoPapel = (S: ComVinculo | undefined, id?: string) => {
   const v = id === 'responsavel'
@@ -147,7 +154,9 @@ const daRedeNoPapel = (S: ComVinculo | undefined, id?: string) => {
 /** A foto de alguém da equipe da pessoa, pelo papel ou pelo id. */
 export const fotoDaEquipe = (S: ComVinculo | undefined, id?: string) => {
   const r = daRedeNoPapel(S, id);
-  return r ? fotoDaRede(r) : fotoDe(id);
+  if (r) return fotoDaRede(r);
+  if (id === 'responsavel' && !S?.semente) return undefined;
+  return fotoDe(id);
 };
 
 export const focoDaEquipe = (S: ComVinculo | undefined, id?: string) => {
@@ -169,3 +178,9 @@ export const iniciaisDaClinica = (n: string) =>
 /** A inicial do nome, pulando o tratamento: "Dra. Helena Costa" dá "H". */
 export const inicialDoNome = (n: string) =>
   (n.split(/\s+/).find((w) => !w.endsWith('.')) ?? n).charAt(0).toUpperCase();
+
+/** O quadrado de quem cuida, sem retrato: a inicial da pessoa, ou as duas
+    da clínica quando o vínculo não trouxe pessoa — ver `nomeDeQuemCuida`,
+    em logic/derive. */
+export const iniciaisDeQuemCuida = (S: ComVinculo) =>
+  S?.profile?.doctor ? inicialDoNome(S.profile.doctor) : iniciaisDaClinica(S?.profile?.clinic || '');

@@ -10,14 +10,14 @@ import { RESTRICOES } from '../logic/restricoes';
 import { kgTxt as kg, nf, relDay, fmtDate } from '../logic/time';
 import {
   journeyDay, clinicaConectada, idadeDe, medComDose, ATIVIDADES, MOTIVOS, curWeight,
-  lostKg, diaDoTratamento, temEvolucao,
+  lostKg, diaDoTratamento, temEvolucao, nomeDeQuemCuida, temConsulta,
 } from '../logic/derive';
 import { Screen, Txt, Row, SectionHead, CircleBtn, ListRow, Grupo, Retrato, Rolagem } from '../ui/kit';
 import { marcosDeConquista, emTratamento } from '../logic/derive';
 import { Selo, Cartao, Linha } from '../ui/internas';
 import { tipoDaAssinatura, NOME_DO_TIPO } from '../logic/assinatura';
 import { Icon } from '../ui/Icon';
-import { fotoDaEquipe, focoDaEquipe, inicialDoNome } from '../ui/retratos';
+import { fotoDaEquipe, focoDaEquipe, iniciaisDeQuemCuida } from '../ui/retratos';
 import { modoFingido, NOME_DO_MODO, idiomaEmPrevia } from '../logic/modo';
 
 /* A MESMA FOTO DA ABA CUIDADO — e agora pelo mesmo mapa, e não por uma
@@ -235,6 +235,9 @@ export default function Perfil() {
   };
 
   const conectada = clinicaConectada(S);
+  /* O cartão de quem cuida só com nome — ver `nomeDeQuemCuida`, em derive.
+     O selo da assinatura continua lendo o vínculo, que é o que ele diz. */
+  const cartaoDeQuemCuida = conectada && !!nomeDeQuemCuida(S);
   /* A especialidade vem do perfil do profissional, e não de um texto
      fixo: no dia em que quem acompanha for nutricionista, o card diz
      nutricionista. Sem ela, a linha fica só com a clínica. */
@@ -419,7 +422,7 @@ export default function Perfil() {
           enquanto o nome estiver em branco. O que deixou de haver é a
           terceira cópia da mesma porta, numa tela que fala de outra
           coisa. */}
-      {conectada ? (
+      {cartaoDeQuemCuida ? (
         <View style={{ marginTop: 32 }}>
           {/* O mesmo título da Home e da aba Cuidado: é a mesma médica
               nas três telas, e ela não pode ser apresentada com um nome
@@ -453,13 +456,16 @@ export default function Perfil() {
                         contentPosition={focoDaEquipe(S, 'responsavel')}
                       />
                     ) : (
-                      <Txt v="h2" c={c.accent}>{inicialDoNome(S.profile.doctor || '?')}</Txt>
+                      <Txt v="h2" c={c.accent}>{iniciaisDeQuemCuida(S)}</Txt>
                     )}
                   </View>
                   <View style={{ flex: 1 }}>
-                    <Txt v="bodyMed">{S.profile.doctor}</Txt>
+                    <Txt v="bodyMed">{nomeDeQuemCuida(S)}</Txt>
                     <Txt v="micro" c={c.tx3} style={{ marginTop: 3, lineHeight: 17 }}>
-                      {especialidade} · {S.profile.clinic}
+                      {/* Sem pessoa, a clínica já é o nome: embaixo, o que ela faz. */}
+                      {S.profile.doctor
+                        ? `${especialidade} · ${S.profile.clinic}`
+                        : ((S.profile as any).clinicInfo?.especialidade || especialidade)}
                     </Txt>
                   </View>
                   <Icon name="chev" size={14} color={c.tx4} sw={2} />
@@ -469,7 +475,11 @@ export default function Perfil() {
                 <Row gap={16} style={{ paddingHorizontal: 16, paddingVertical: 12 }}>
                   <Row gap={7} style={{ alignItems: 'center' }}>
                     <Icon name="cal" size={14} color={c.tx3} sw={1.9} />
-                    <Txt v="micro" c={c.tx2}>{K().consultaEm(relDay(new Date(S.consult.t)))}</Txt>
+                    {/* ⚠️ SEM CONSULTA, SEM DATA. Ela saía de `consult.t` zerado —
+                        uma consulta em 31 de dezembro de 1969. */}
+                    <Txt v="micro" c={c.tx2}>
+                      {temConsulta(S) ? K().consultaEm(relDay(new Date(S.consult.t))) : T.home.telaInicio.semConsulta}
+                    </Txt>
                   </Row>
                   {/* O recado sem ler só aparece quando existe: "0 não
                       lidas" é o app puxando assunto sobre nada. */}

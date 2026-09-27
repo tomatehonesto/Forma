@@ -15,7 +15,7 @@ import {
   dailyTargets, weightCard, weightSeries, protein7d, bodyFat,
   nextInjectionDate, siteLabel, nextSite, streak, temAcompanhamento, clinicaConectada, temConsulta, M,
   lastInjection, penStock,
-  checkinFeito, diaDoTratamento, temEvolucao, temCiclo,
+  checkinFeito, diaDoTratamento, temEvolucao, temCiclo, nomeDeQuemCuida,
   type DailyTarget,
   doseDoPerfil, temDose,
   diasAteAplicar,
@@ -29,7 +29,7 @@ import { useTheme } from '../../ui/useTheme';
 import { useLarguraApp } from '../../ui/useLarguraApp';
 import { useLightStatusBar } from '../../ui/useLightStatusBar';
 import { radius, alfa, type Palette, RESPIRO_ABAS } from '../../theme';
-import { fotoDaEquipe, focoDaEquipe, inicialDoNome } from '../../ui/retratos';
+import { fotoDaEquipe, focoDaEquipe, iniciaisDeQuemCuida } from '../../ui/retratos';
 import { FaixaDaConta } from '../../ui/conta';
 import { PrimeirosPassos } from '../../ui/primeirosPassos';
 import { T } from '../../textos';
@@ -176,7 +176,11 @@ export default function Home() {
   const stk = streak(S);
   const feitoHoje = checkinFeito(S);
   const linked = temAcompanhamento(S);
-  const conectada = clinicaConectada(S);
+  /* ⚠️ CONECTADA SÓ CONTA COM NOME. Sem pessoa nem clínica, o cartão da
+     clínica sairia com um "?" e o nome em branco (ver `nomeDeQuemCuida`);
+     esse estado cai no cartão de preencher a ficha, logo abaixo. */
+  const quemCuida = nomeDeQuemCuida(S);
+  const conectada = clinicaConectada(S) && !!quemCuida;
   const consultD = new Date(S.consult.t);
 
   /* ⚠️⚠️ A ESTRELINHA NÃO É ENFEITE DE BOTÃO, e estava em todos.
@@ -859,7 +863,7 @@ export default function Home() {
                         contentPosition={focoDaEquipe(S, 'responsavel')}
                       />
                     ) : (
-                      <Txt v="h1" c={c.accent}>{inicialDoNome(S.profile.doctor || '?')}</Txt>
+                      <Txt v="h1" c={c.accent}>{iniciaisDeQuemCuida(S)}</Txt>
                     )}
                   </View>
                   <View style={{ flex: 1, marginLeft: 16, justifyContent: 'center' }}>
@@ -868,8 +872,14 @@ export default function Home() {
                         "Quem cuida de você" — duas etiquetas para a mesma
                         pessoa, uma em cima da outra. Com o título acima do
                         cartão, ele virou eco. */}
-                    <Txt v="h2">{S.profile.doctor}</Txt>
-                    <Txt v="caption" c={c.tx2} style={{ marginTop: 3 }}>{S.profile.clinic}</Txt>
+                    {/* Sem pessoa, a clínica é o nome, e embaixo vai o que
+                        ela faz — e não o nome dela de novo. */}
+                    <Txt v="h2">{quemCuida}</Txt>
+                    {(S.profile.doctor ? S.profile.clinic : (S.profile as any).clinicInfo?.especialidade) ? (
+                      <Txt v="caption" c={c.tx2} style={{ marginTop: 3 }}>
+                        {S.profile.doctor ? S.profile.clinic : (S.profile as any).clinicInfo?.especialidade}
+                      </Txt>
+                    ) : null}
                   </View>
                 </Row>
 

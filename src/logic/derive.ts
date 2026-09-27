@@ -713,6 +713,24 @@ export const semAcompanhamento = (S: State) => !temAcompanhamento(S);
     é ele que libera mensagem, envio do resumo, receita e a isenção. */
 export const clinicaConectada = (S: State) => !!(S.profile as any).vinculo;
 
+/* ============================================================
+   O NOME DE QUEM CUIDA
+
+   ⚠️ O CARTÃO SAÍA SEM NOME. Home, Cuidado e Perfil escreviam
+   `profile.doctor` cru, e ele fica vazio em dois casos: o código de uma
+   clínica que não traz profissional (o convite é da clínica, e não de
+   alguém), e o vínculo antigo que uma regra do `ensureDefaults` inventava
+   a partir do código guardado (ver logic/store). Nos dois, o cartão
+   mostrava o rosto da responsável da semente (ver `fotoDaEquipe`, em
+   ui/retratos) e uma linha em branco no lugar do nome.
+
+   Agora é uma fonte só: a pessoa, quando há; a clínica, quando o vínculo
+   não trouxe pessoa; e vazio quando não há nenhum dos dois — e aí quem
+   desenha o cartão não o desenha.
+   ============================================================ */
+export const nomeDeQuemCuida = (S: State): string =>
+  ((S.profile as any).doctor || (S.profile as any).clinic || '') as string;
+
 /* ⚠️ VÍNCULO IMPLICA ACOMPANHAMENTO, e a recíproca não vale. São duas
    perguntas separadas no cadastro — uma sobre o tratamento, outra sobre
    por onde a pessoa entrou —, e elas podem sair de lá em desacordo: quem

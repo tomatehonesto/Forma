@@ -40,13 +40,19 @@ Tomadas em conversa, em 26/09/2026:
 2. **Cinco itens:** o plano pronto, a primeira aplicação, o primeiro
    check-in, a permissão dos lembretes e o Apple Saúde ou Health Connect.
 3. **Ao completar, comemora e some na hora** — nada fica na tela o dia
-   inteiro. Antes disso, um "Esconder por agora" discreto tira o checklist
-   da Home, e ele pode ser reaberto no Perfil.
+   inteiro. Antes disso, "Fechar", no canto de cima do cartão, tira o
+   checklist da Home, e ele pode ser reaberto no Perfil. (Revisto no mesmo
+   dia: o fechar era um "Esconder por agora" no pé, e saíram a barra e o
+   "N de M" do cabeçalho — ver **O desenho**.)
 4. **O checklist mora na folha clara, e não na aurora:** logo acima de
    "Suas metas diárias".
 5. **"Sua evolução" só aparece quando existe evolução.**
 6. **Nenhuma frase afirma o que não aconteceu** — a regra da varredura dos
    estados vazios, no app inteiro.
+7. **O aviso e o app de saúde são opcionais** (revisão do mesmo dia). O
+   cartão se conclui com o essencial — o plano, a primeira aplicação e o
+   primeiro check-in —, e quem não quer dar a permissão nem conectar a
+   saúde não fica com o cartão pendente para sempre.
 
 ---
 
@@ -82,7 +88,11 @@ para onde a resposta muda. O que o aplicativo não tem como saber não entra.
 | `saude` | Conecte o Apple Saúde / o Health Connect | `S.integrations.appleHealth` no iPhone, `healthConnect` no Android | `/integracoes` | `aparelhoDaVez()` é nulo (o navegador) |
 
 - **O plano já vem feito**, de propósito: a pessoa começa com um item
-  cumprido, e o cartão abre em "1 de 5", e não em zero.
+  cumprido, e o cartão abre com um visto, e não do zero.
+- **Os lembretes e a saúde são opcionais** (`Passo.opcional`): continuam na
+  lista, porque são bons de ter, e o subtítulo começa com "Opcional ·"
+  antes do porquê. Não seguram o cartão: ele se conclui quando todo item
+  que não é opcional está pronto (`essencialPronto`, logic/primeirosPassos).
 - **O subtítulo diz o porquê**, numa linha: o dos lembretes, "para o aviso
   da dose tocar"; o da saúde, "o peso da balança entra sozinho". O nome do
   aplicativo de saúde é o do aparelho (`aparelhoDaVez()`), como no cadastro.
@@ -104,17 +114,22 @@ para onde a resposta muda. O que o aplicativo não tem como saber não entra.
   dose, com o desenho do comprimido (`FORMAS().injetavel`).
 - **A permissão se lê de novo** ao abrir a Home e na volta ao aplicativo —
   é ela que muda fora do app, nos ajustes do sistema.
-- O total é o número de itens que aparecem: "3 de 5" no iPhone, "2 de 3" no
-  navegador.
+- Na linha do Perfil, o total é o número de itens que aparecem: "2 de 5" no
+  iPhone, "2 de 3" no navegador.
 
 ### O desenho
 
 Um cartão da folha clara, no mesmo vocabulário das telas internas: título
-"Primeiros passos", o "N de M" à direita, uma barra de progresso fina, e
-uma linha por item — ícone, título, subtítulo e seta. O item pronto troca a
-seta por um visto e perde o subtítulo; ele fica na lista até o cartão sair,
-para a pessoa ver o que já fez. No pé do cartão, "Esconder por agora", em
-texto.
+"Primeiros passos" e, à direita, "Fechar" — no lugar onde a Home põe a ação
+de cada seção —, e uma linha por item: ícone, título, subtítulo e seta. O
+item pronto troca a seta por um visto e perde o subtítulo; ele fica na
+lista até o cartão sair, para a pessoa ver o que já fez.
+
+- **Sem barra e sem "N de M"** (decisão do dono, 26/09). Os vistos de cada
+  linha já contam o progresso, e o canto de cima passou a ser o do fechar,
+  que antes ficava no pé, em texto pequeno, depois da lista inteira.
+- **O plano leva a prancheta** (`plano`, ClipboardList), e não o alvo: o
+  alvo é o desenho das metas diárias, logo abaixo do cartão.
 
 ### O lugar
 
@@ -124,13 +139,16 @@ check-in.
 
 ### A conclusão
 
-- Quando o último item fica pronto, o cartão vira "Tudo pronto!" — o visto
-  em lima, a cor do feito, e uma frase curta —, fica por uns dois segundos
-  e se recolhe. Nada fica na Home o dia inteiro.
+- Quando o último item essencial fica pronto, o cartão vira "Tudo pronto!"
+  — o visto em lima, a cor do feito, e uma frase curta —, fica por uns
+  dois segundos e se recolhe. Nada fica na Home o dia inteiro.
+- **Com opcional por fazer, a comemoração não diz "tudo"**: diz "O
+  essencial está pronto!", e que o que ficou é opcional e está no Perfil
+  (Lembretes, e Dispositivos e integrações).
 - Os itens se cumprem em outras telas (`/aplicacao`, `/checkin`, os ajustes
   do sistema). A comemoração acontece na próxima vez em que a Home aparece
-  com tudo pronto, e uma vez só.
-- **Os dois segundos correm com o "Tudo pronto!" à vista**: a Home em foco
+  com o essencial pronto, e uma vez só.
+- **Os dois segundos correm com a comemoração à vista**: a Home em foco
   e o cartão na tela. Ele mora abaixo da aurora, e quem volta para a Home
   chega no alto dela — sem esta espera, a comemoração acontecia fora da
   vista e o cartão sumia sem ser visto. Rolar para longe antes do fim
@@ -140,12 +158,14 @@ check-in.
 - **Concluído não volta**, nem se a permissão for revogada depois, nem num
   aparelho novo: a marca sobe com o diário.
 
-### Esconder por agora
+### Fechar
 
-- O toque tira o cartão da Home e não pede confirmação — é reversível.
+- O toque em "Fechar" tira o cartão da Home e não pede confirmação — é
+  reversível. Some na comemoração, que se fecha sozinha.
 - No Perfil, uma linha "Primeiros passos · N de M" reabre o cartão. Ela só
-  existe enquanto ele estiver escondido e não concluído — e some se tudo
-  ficar pronto com ele escondido: reabrir para ver "5 de 5" seria ruído.
+  existe enquanto ele estiver escondido e não concluído — e some se o
+  essencial ficar pronto com ele escondido: reabrir só para ver uma
+  comemoração seria ruído.
 - **O diário de exemplo (a semente) não tem cartão**, nem linha no Perfil:
   ela é alguém com meses de tratamento, e é assim que serve de vitrine.
 
@@ -159,10 +179,10 @@ campo novo em parte existente não se aplica, porque o campo é o mesmo.
 
 ### Os textos
 
-Um grupo novo em `home.ts`, nos seis idiomas: título, progresso, os cinco
-itens (título e subtítulo), "Tudo pronto!" e a frase dele, "Esconder por
-agora" e a linha do Perfil. Com a voz da casa — "nós" é o produto — e sem
-pressupor equipe nem consulta.
+Um grupo novo em `home.ts`, nos seis idiomas: título, os cinco itens
+(título e subtítulo), a marca "Opcional ·", "Tudo pronto!" e "O essencial
+está pronto!" com as frases deles, "Fechar" e a linha do Perfil. Com a voz
+da casa — "nós" é o produto — e sem pressupor equipe nem consulta.
 
 ---
 
@@ -179,7 +199,16 @@ pressupor equipe nem consulta.
 - **Dentro de "Sua evolução"**, até a questão em aberto se resolver: o item
   sem dado diz "sem registro", neutro — o veredito em vermelho da proteína
   só com registro.
-- **Quem cuida de você:** como hoje.
+- **Quem cuida de você:** como hoje, com uma correção (26/09). O cartão
+  saía sem nome — e com o rosto da responsável da semente — quando o
+  vínculo não trazia pessoa: o código de uma clínica sem profissional, ou
+  um vínculo antigo sem ficha. Agora o nome tem uma fonte só
+  (`nomeDeQuemCuida`, logic/derive): a pessoa, quando há; a clínica,
+  quando não há pessoa (com as iniciais dela no quadrado e, embaixo, o que
+  ela faz); e, sem nenhum dos dois, cartão nenhum — a Home cai no convite
+  de preencher a ficha. O retrato fixo da responsável ficou só para a
+  semente (`fotoDaEquipe`, ui/retratos): fora dela, o rosto só pode ser o
+  que veio da rede com o nome. Vale para Home, Cuidado e Perfil.
 
 ---
 
@@ -308,7 +337,8 @@ por tela, antes de ser corrigido.
 
 - **A permissão é assíncrona e do aparelho.** O item dos lembretes pode
   aparecer pendente por um instante antes da leitura chegar; a leitura
-  precisa acontecer antes de o cartão contar o progresso, ou a barra pula.
+  precisa acontecer antes de o cartão se desenhar, ou o item troca de
+  estado na frente da pessoa.
 - **A comemoração depende de a Home aparecer.** Quem completa o último item
   e fecha o aplicativo vê a comemoração na próxima abertura — e é o certo,
   porque é ali que ela é notada.

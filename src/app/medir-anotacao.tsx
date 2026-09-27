@@ -40,7 +40,7 @@ export default function MedirAnotacao() {
   };
 
   return (
-    <SheetScreen titulo="O que você quer lembrar?" sub={`com ${S.profile.doctor}`} onClose={() => router.back()}>
+    <SheetScreen titulo="O que você quer lembrar?" sub={S.profile.doctor ? `com ${S.profile.doctor}` : undefined} onClose={() => router.back()}>
       <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 18, paddingHorizontal: 18, paddingVertical: 6 }}>
         <TextInput
           value={texto} onChangeText={setTexto} autoFocus multiline

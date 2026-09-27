@@ -63,6 +63,13 @@ fino.
   para uma saída no meio da animação repetir a comemoração na próxima
   abertura, e não perdê-la.
 
+**Revisto depois da Etapa 3 (26/09, pedido do dono):** saíram a barra e o
+"N de M"; "Fechar" subiu para o cabeçalho, no lugar do "Esconder por
+agora" do pé; o plano trocou o alvo pela prancheta; e o aviso e o app de
+saúde viraram opcionais — o cartão se conclui com o essencial, e a
+comemoração diz "O essencial está pronto!" quando sobra opcional. O
+desenho atual está na especificação.
+
 ### 1.4 A Home
 
 - `<PrimeirosPassos />` na folha, depois de `FaixaDaConta` e antes de
