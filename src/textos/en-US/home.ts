@@ -430,19 +430,49 @@ export const home = {
   },
   /* ---- a apresentação: como podemos ajudar (app/apresentacao) ---- */
   apresentacao: {
-    chapeu: 'HOW WE CAN HELP',
-    fechar: 'Close',
-    proximo: 'Next',
+    pular: 'Skip',
+    continuar: 'Continue',
     comecar: 'Get started',
     /** o leitor de tela diz em que página está */
     pagina: (i: number, n: number): string => `${i} of ${n}`,
     /* quem toma comprimido não tem local de aplicação: a frase da dose muda */
-    dose: { titulo: 'Dose and cycle', texto: 'We remind you of your dose on time, suggest where to inject next and let you know before your medication runs out.', textoOral: 'We remind you of your dose on time and let you know before your medication runs out.', cta: 'Log a dose' },
-    estado: { titulo: 'How you’re feeling', texto: 'A check-in that takes under a minute a day. Over time, we show what affects your appetite, sleep and mood.', cta: 'Do the check-in' },
-    comida: { titulo: 'Food', texto: 'We track the day’s protein and water, and read a photo of your plate when you ask.', cta: 'Log a meal' },
-    evolucao: { titulo: 'Progress', texto: 'Your weight, measurements and the goals that go beyond the scale, all in one place.', cta: 'See goals' },
-    consultas: { titulo: 'Appointments', texto: 'We put together a summary to take to your appointment, with what changed since the last one.', cta: 'See the summary' },
-    companheiro: { titulo: 'Companion', texto: 'A question about your treatment, any time: just ask.', cta: 'Ask a question' },
+    dose: { titulo: 'Dose and cycle', texto: 'We remind you of your dose on time, suggest where to inject next and let you know before your medication runs out.', textoOral: 'We remind you of your dose on time and let you know before your medication runs out.' },
+    estado: { titulo: 'How you’re feeling', texto: 'A check-in that takes under a minute a day. Over time, we show what affects your appetite, sleep and mood.' },
+    comida: { titulo: 'Food', texto: 'We track the day’s protein and water, and read a photo of your plate when you ask.' },
+    evolucao: { titulo: 'Progress', texto: 'Your weight, measurements and the goals that go beyond the scale, all in one place.' },
+    consultas: { titulo: 'Appointments', texto: 'We put together a summary to take to your appointment, with what changed since the last one.' },
+    companheiro: { titulo: 'Companion', texto: 'A question about your treatment, any time: just ask.' },
+    /* ⚠️ AS VITRINES SÃO EXEMPLO, e não o diário de ninguém: números e
+       frases de ilustração, sem o nome da pessoa. As unidades seguem o
+       mercado (libras e onças no inglês). */
+    vitrine: {
+      proxima: 'NEXT DOSE',
+      dia: 'Thursday, October 2',
+      dose: '5 mg',
+      local: 'Abdomen, left side',
+      lembrete: 'Reminder at 8:00 PM',
+      energia: 'Energy',
+      fome: 'Hunger',
+      humor: 'Mood',
+      padraoChapeu: 'A PATTERN',
+      padrao: 'On days with more water, afternoon hunger is lower.',
+      proteina: 'Protein',
+      proteinaValor: '62 of 90 g',
+      agua: 'Water',
+      aguaValor: '48 of 85 fl oz',
+      prato: 'Roast chicken',
+      pratoProteina: '38 g of protein',
+      peso: 'Weight',
+      pesoValor: '−14 lb in 12 weeks',
+      meta1: 'Run a 5K',
+      meta2: 'Wear the blue dress',
+      resumo: 'Summary for your appointment',
+      r1: 'Weight: −14 lb since the last one',
+      r2: 'Nausea on 2 of 14 days',
+      r3: '5 mg dose, no delays',
+      pergunta: 'What should I log today?',
+      resposta: 'How about the check-in and water? It takes less than a minute.',
+    },
   },
 
   primeirosPassos: {

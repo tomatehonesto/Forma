@@ -70,7 +70,8 @@ function giro(hex: string, graus: number, sat: number): string {
   return `#${to(r)}${to(g)}${to(b)}`;
 }
 
-function useCores() {
+/** As cores da luz, na paleta da vez — também para quem desenha brilhos por perto (a apresentação). */
+export function useCoresDaLuz() {
   const id = useStore((s) => (s.S as any).paleta as string | undefined);
   const p = PALETAS.find((x) => x.id === id) ?? PALETAS[0];
   return React.useMemo(() => ({
@@ -104,7 +105,7 @@ export function ManchaDeLuz({ p = PARADO, largura: W, altura: H, papel: T, viva 
   altura: number;
   papel: number;
 }) {
-  const cor = useCores();
+  const cor = useCoresDaLuz();
   /* ⚠️ A LUZ SE MEXE ENQUANTO ESPERA (pedido do dono). Cada mancha deriva
      num pequeno círculo, cada uma num ponto diferente da volta, e a
      deriva some conforme a luz sobe — no cabeçalho ela está parada, e o

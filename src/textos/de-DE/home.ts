@@ -466,19 +466,49 @@ export const home = {
   },
   /* ---- a apresentação: como podemos ajudar (app/apresentacao) ---- */
   apresentacao: {
-    chapeu: 'WIE WIR HELFEN',
-    fechar: 'Schließen',
-    proximo: 'Weiter',
+    pular: 'Überspringen',
+    continuar: 'Weiter',
     comecar: 'Los geht’s',
     /** o leitor de tela diz em que página está */
     pagina: (i: number, n: number): string => `${i} von ${n}`,
     /* quem toma comprimido não tem local de aplicação: a frase da dose muda */
-    dose: { titulo: 'Dosis und Zyklus', texto: 'Wir erinnern dich pünktlich an die Dosis, schlagen die nächste Injektionsstelle vor und sagen dir Bescheid, bevor das Medikament ausgeht.', textoOral: 'Wir erinnern dich pünktlich an die Dosis und sagen dir Bescheid, bevor das Medikament ausgeht.', cta: 'Dosis eintragen' },
-    estado: { titulo: 'Wie es dir geht', texto: 'Ein Check-in, der weniger als eine Minute am Tag dauert. Mit der Zeit zeigen wir, was deinen Appetit, deinen Schlaf und deine Stimmung beeinflusst.', cta: 'Check-in machen' },
-    comida: { titulo: 'Ernährung', texto: 'Wir behalten Eiweiß und Wasser des Tages im Blick und lesen das Foto deines Tellers, wenn du darum bittest.', cta: 'Mahlzeit eintragen' },
-    evolucao: { titulo: 'Fortschritt', texto: 'Gewicht, Maße und die Ziele jenseits der Waage, an einem Ort.', cta: 'Ziele ansehen' },
-    consultas: { titulo: 'Arzttermine', texto: 'Wir stellen eine Zusammenfassung für deinen Termin zusammen, mit dem, was sich seit dem letzten geändert hat.', cta: 'Zusammenfassung ansehen' },
-    companheiro: { titulo: 'Begleiter', texto: 'Eine Frage zur Behandlung, jederzeit: Frag einfach.', cta: 'Eine Frage stellen' },
+    dose: { titulo: 'Dosis und Zyklus', texto: 'Wir erinnern dich pünktlich an die Dosis, schlagen die nächste Injektionsstelle vor und sagen dir Bescheid, bevor das Medikament ausgeht.', textoOral: 'Wir erinnern dich pünktlich an die Dosis und sagen dir Bescheid, bevor das Medikament ausgeht.' },
+    estado: { titulo: 'Wie es dir geht', texto: 'Ein Check-in, der weniger als eine Minute am Tag dauert. Mit der Zeit zeigen wir, was deinen Appetit, deinen Schlaf und deine Stimmung beeinflusst.' },
+    comida: { titulo: 'Ernährung', texto: 'Wir behalten Eiweiß und Wasser des Tages im Blick und lesen das Foto deines Tellers, wenn du darum bittest.' },
+    evolucao: { titulo: 'Fortschritt', texto: 'Gewicht, Maße und die Ziele jenseits der Waage, an einem Ort.' },
+    consultas: { titulo: 'Arzttermine', texto: 'Wir stellen eine Zusammenfassung für deinen Termin zusammen, mit dem, was sich seit dem letzten geändert hat.' },
+    companheiro: { titulo: 'Begleiter', texto: 'Eine Frage zur Behandlung, jederzeit: Frag einfach.' },
+    /* ⚠️ AS VITRINES SÃO EXEMPLO, e não o diário de ninguém: números e
+       frases de ilustração, sem o nome da pessoa. As unidades seguem o
+       mercado (libras e onças no inglês). */
+    vitrine: {
+      proxima: 'NÄCHSTE DOSIS',
+      dia: 'Donnerstag, 2. Oktober',
+      dose: '5 mg',
+      local: 'Bauch, linke Seite',
+      lembrete: 'Erinnerung um 20:00',
+      energia: 'Energie',
+      fome: 'Hunger',
+      humor: 'Stimmung',
+      padraoChapeu: 'EIN MUSTER',
+      padrao: 'An Tagen mit mehr Wasser ist der Hunger am Nachmittag geringer.',
+      proteina: 'Eiweiß',
+      proteinaValor: '62 von 90 g',
+      agua: 'Wasser',
+      aguaValor: '1,4 von 2,5 l',
+      prato: 'Brathähnchen',
+      pratoProteina: '38 g Eiweiß',
+      peso: 'Gewicht',
+      pesoValor: '−6,4 kg in 12 Wochen',
+      meta1: '5 km laufen',
+      meta2: 'Das blaue Kleid tragen',
+      resumo: 'Zusammenfassung für den Termin',
+      r1: 'Gewicht: −6,4 kg seit dem letzten',
+      r2: 'Übelkeit an 2 von 14 Tagen',
+      r3: '5-mg-Dosis, ohne Verspätung',
+      pergunta: 'Was trage ich heute ein?',
+      resposta: 'Wie wär’s mit dem Check-in und dem Wasser? Dauert keine Minute.',
+    },
   },
 
   primeirosPassos: {

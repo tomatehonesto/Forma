@@ -596,19 +596,49 @@ export const home = {
   },
   /* ---- a apresentação: como podemos ajudar (app/apresentacao) ---- */
   apresentacao: {
-    chapeu: 'COME POSSIAMO AIUTARTI',
-    fechar: 'Chiudi',
-    proximo: 'Avanti',
+    pular: 'Salta',
+    continuar: 'Continua',
     comecar: 'Inizia',
     /** o leitor de tela diz em que página está */
     pagina: (i: number, n: number): string => `${i} di ${n}`,
     /* quem toma comprimido não tem local de aplicação: a frase da dose muda */
-    dose: { titulo: 'Dose e ciclo', texto: 'Ti ricordiamo la dose all’ora giusta, suggeriamo dove fare la prossima iniezione e ti avvisiamo prima che il farmaco finisca.', textoOral: 'Ti ricordiamo la dose all’ora giusta e ti avvisiamo prima che il farmaco finisca.', cta: 'Registra una dose' },
-    estado: { titulo: 'Come stai', texto: 'Un check-in di meno di un minuto al giorno. Col tempo, ti mostriamo cosa influisce su appetito, sonno e umore.', cta: 'Fai il check-in' },
-    comida: { titulo: 'Alimentazione', texto: 'Seguiamo le proteine e l’acqua della giornata, e leggiamo la foto del tuo piatto quando lo chiedi.', cta: 'Registra un pasto' },
-    evolucao: { titulo: 'Progressi', texto: 'Il peso, le misure e gli obiettivi che vanno oltre la bilancia, in un unico posto.', cta: 'Vedi gli obiettivi' },
-    consultas: { titulo: 'Visite', texto: 'Prepariamo un riepilogo da portare alla visita, con quello che è cambiato dall’ultima.', cta: 'Vedi il riepilogo' },
-    companheiro: { titulo: 'Compagno', texto: 'Una domanda sulla terapia, a qualsiasi ora: basta chiedere.', cta: 'Fai una domanda' },
+    dose: { titulo: 'Dose e ciclo', texto: 'Ti ricordiamo la dose all’ora giusta, suggeriamo dove fare la prossima iniezione e ti avvisiamo prima che il farmaco finisca.', textoOral: 'Ti ricordiamo la dose all’ora giusta e ti avvisiamo prima che il farmaco finisca.' },
+    estado: { titulo: 'Come stai', texto: 'Un check-in di meno di un minuto al giorno. Col tempo, ti mostriamo cosa influisce su appetito, sonno e umore.' },
+    comida: { titulo: 'Alimentazione', texto: 'Seguiamo le proteine e l’acqua della giornata, e leggiamo la foto del tuo piatto quando lo chiedi.' },
+    evolucao: { titulo: 'Progressi', texto: 'Il peso, le misure e gli obiettivi che vanno oltre la bilancia, in un unico posto.' },
+    consultas: { titulo: 'Visite', texto: 'Prepariamo un riepilogo da portare alla visita, con quello che è cambiato dall’ultima.' },
+    companheiro: { titulo: 'Compagno', texto: 'Una domanda sulla terapia, a qualsiasi ora: basta chiedere.' },
+    /* ⚠️ AS VITRINES SÃO EXEMPLO, e não o diário de ninguém: números e
+       frases de ilustração, sem o nome da pessoa. As unidades seguem o
+       mercado (libras e onças no inglês). */
+    vitrine: {
+      proxima: 'PROSSIMA DOSE',
+      dia: 'Giovedì 2 ottobre',
+      dose: '5 mg',
+      local: 'Addome, lato sinistro',
+      lembrete: 'Promemoria alle 20:00',
+      energia: 'Energia',
+      fome: 'Fame',
+      humor: 'Umore',
+      padraoChapeu: 'UNO SCHEMA',
+      padrao: 'Nei giorni con più acqua, la fame del pomeriggio è minore.',
+      proteina: 'Proteine',
+      proteinaValor: '62 di 90 g',
+      agua: 'Acqua',
+      aguaValor: '1,4 di 2,5 L',
+      prato: 'Pollo arrosto',
+      pratoProteina: '38 g di proteine',
+      peso: 'Peso',
+      pesoValor: '−6,4 kg in 12 settimane',
+      meta1: 'Correre 5 km',
+      meta2: 'Indossare il vestito blu',
+      resumo: 'Riepilogo per la visita',
+      r1: 'Peso: −6,4 kg dall’ultima',
+      r2: 'Nausea in 2 giorni su 14',
+      r3: 'Dose da 5 mg, senza ritardi',
+      pergunta: 'Cosa registro oggi?',
+      resposta: 'Che ne dici del check-in e dell’acqua? Ci vuole meno di un minuto.',
+    },
   },
 
   primeirosPassos: {
