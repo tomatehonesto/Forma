@@ -18,7 +18,6 @@ import {
 import { TelaInterna, Titulao, Botao, Aviso, Cartao, Linha, SEM_ANEL } from '../ui/internas';
 import { Txt } from '../ui/kit';
 import { BotaoDaApple, BotaoDoGoogle } from '../ui/marcas';
-import { Marca } from '../ui/marca';
 import { Icon } from '../ui/Icon';
 import { TelaDePergunta } from '../ui/pergunta';
 import { useTheme } from '../ui/useTheme';
@@ -584,11 +583,10 @@ function CapaDaConta({ titulo, lead, onVoltar, children }: {
      com referências). A frase centrada no alto deixava meia tela vazia
      entre ela e os botões, e o cartão de três pontos que tentou preencher
      isso virou lista. Agora a aurora fica com o alto inteiro, e embaixo,
-     alinhados à esquerda, vêm a marca, o título e a frase, e logo as
-     portas.
+     alinhados à esquerda, vêm o título e a frase, e logo as portas.
 
      O texto mora no papel, e não na luz: a imagem sobe até o branco (ou o
-     preto) começar um pouco acima da marca, medida depois de o texto se
+     preto) começar um pouco acima do título, medido depois de o texto se
      desenhar. O que sai pelo alto é a parte mais escura da aurora; até a
      medida chegar, a imagem espera invisível, para não dar um pulo. */
   const papel = isDark ? '#000000' : '#FFFFFF';
@@ -620,15 +618,12 @@ function CapaDaConta({ titulo, lead, onVoltar, children }: {
       }}>
         <View
           onLayout={(e) => setTopoDoTexto(e.nativeEvent.layout.y)}
-          style={{ gap: 14, marginBottom: 22 }}
+          /* SEM A MARCA (28/09/2026, pedido do dono): o M lima não se lia
+             sobre o branco, e o título já abre a tela sozinho. */
+          style={{ gap: 10, marginBottom: 22 }}
         >
-          {/* O M no lima da marca nos dois temas (pedido do dono), e o nome
-              na tinta do texto: preto no claro, branco no escuro. */}
-          <Marca altura={24} tinta={c.tx} />
-          <View style={{ gap: 10 }}>
-            <Txt v="h1">{titulo}</Txt>
-            <Txt v="note" c={c.tx2} style={{ lineHeight: 23 }}>{lead}</Txt>
-          </View>
+          <Txt v="h1">{titulo}</Txt>
+          <Txt v="note" c={c.tx2} style={{ lineHeight: 23 }}>{lead}</Txt>
         </View>
         {children}
       </View>
