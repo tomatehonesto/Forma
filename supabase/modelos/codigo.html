@@ -59,41 +59,43 @@
 
   Quem fala é o produto ("nós"), e o nome dele é Morphi.
 -->
+{{/* o idioma lido com cuidado: sem .Data, ou sem idioma nele, fica o português — comparar "nada" com texto é erro no Go */}}
+{{ $idioma := "pt-BR" }}{{ with .Data }}{{ with .idioma }}{{ $idioma = printf "%v" . }}{{ end }}{{ end }}
 {{ $titulo := "Seu código de acesso" }}
 {{ $lead := "Use este código para entrar no Morphi." }}
 {{ $validade := "Ele vale por 10 minutos. Digite no aplicativo, na tela em que você pediu." }}
 {{ $ignore := "Se não foi você, pode ignorar este e-mail — nada muda na sua conta." }}
 {{ $rodape := "Morphi · o seu tratamento, organizado" }}
 {{ $toque := "Toque no código para selecioná-lo e copiar." }}
-{{ if eq .Data.idioma "en-US" }}
+{{ if eq $idioma "en-US" }}
   {{ $titulo = "Your sign-in code" }}
   {{ $lead = "Use this code to sign in to Morphi." }}
   {{ $validade = "It’s valid for 10 minutes. Type it in the app, on the screen where you asked for it." }}
   {{ $ignore = "If it wasn’t you, you can ignore this email — nothing changes in your account." }}
   {{ $rodape = "Morphi · your treatment, organized" }}
   {{ $toque = "Tap the code to select it and copy." }}
-{{ else if eq .Data.idioma "es-419" }}
+{{ else if eq $idioma "es-419" }}
   {{ $titulo = "Tu código de acceso" }}
   {{ $lead = "Usa este código para entrar a Morphi." }}
   {{ $validade = "Vale por 10 minutos. Escríbelo en la aplicación, en la pantalla donde lo pediste." }}
   {{ $ignore = "Si no fuiste tú, puedes ignorar este correo — nada cambia en tu cuenta." }}
   {{ $rodape = "Morphi · tu tratamiento, organizado" }}
   {{ $toque = "Toca el código para seleccionarlo y copiarlo." }}
-{{ else if eq .Data.idioma "fr-FR" }}
+{{ else if eq $idioma "fr-FR" }}
   {{ $titulo = "Votre code de connexion" }}
   {{ $lead = "Utilisez ce code pour vous connecter à Morphi." }}
   {{ $validade = "Il est valable 10 minutes. Saisissez-le dans l’application, sur l’écran où vous l’avez demandé." }}
   {{ $ignore = "Si ce n’était pas vous, vous pouvez ignorer cet e-mail — rien ne change dans votre compte." }}
   {{ $rodape = "Morphi · votre traitement, organisé" }}
   {{ $toque = "Touchez le code pour le sélectionner et le copier." }}
-{{ else if eq .Data.idioma "it-IT" }}
+{{ else if eq $idioma "it-IT" }}
   {{ $titulo = "Il tuo codice di accesso" }}
   {{ $lead = "Usa questo codice per accedere a Morphi." }}
   {{ $validade = "Vale 10 minuti. Scrivilo nell’app, nella schermata in cui l’hai chiesto." }}
   {{ $ignore = "Se non hai chiesto tu questo codice, puoi ignorare questa e-mail — nel tuo account non cambia niente." }}
   {{ $rodape = "Morphi · la tua terapia, in ordine" }}
   {{ $toque = "Tocca il codice per selezionarlo e copiarlo." }}
-{{ else if eq .Data.idioma "de-DE" }}
+{{ else if eq $idioma "de-DE" }}
   {{ $titulo = "Dein Anmeldecode" }}
   {{ $lead = "Mit diesem Code meldest du dich bei Morphi an." }}
   {{ $validade = "Er gilt 10 Minuten. Gib ihn in der App ein, auf dem Bildschirm, auf dem du ihn angefordert hast." }}
