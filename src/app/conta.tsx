@@ -22,6 +22,9 @@ import { Icon } from '../ui/Icon';
 import { TelaDePergunta } from '../ui/pergunta';
 import { useTheme } from '../ui/useTheme';
 import { useAurora, PROPORCAO_DA_CAPA, PAPEL_COMECA } from '../ui/aurora';
+import { ManchaDeLuz } from '../ui/mancha';
+import { BrilhoNoTexto, RodaQueViraVisto, FASE_ATIVA } from '../ui/espera';
+import { PAPEL_DO_PLANO } from './plano';
 import { ty, font, radius } from '../theme';
 import { T } from '../textos';
 
@@ -309,7 +312,12 @@ export default function Conta() {
   /* ---------------- a tela ---------------- */
   const aviso = erro ? <Aviso ic="info" texto={fraseDoErro(erro)} /> : null;
 
-  if (passo === 'entrando') {
+  /* ⚠️ SÓ EM DESENVOLVIMENTO: `?passo=entrando` mostra a espera parada, para
+     o desenho ser visto sem entrar numa conta de verdade. */
+  if (__DEV__ && passoDoLink === 'entrando') {
+    return <EsperaDaConta titulo={K().titulo[porta]} frase={porta === 'cadastro' ? K().guardando : K().trazendo} />;
+  }
+  if (passo === 'entrando' && erro) {
     return (
       <TelaInterna titulo={K().titulo[porta]} onVoltar={() => {}}>
         {erro ? (
@@ -319,14 +327,12 @@ export default function Conta() {
               <Botao label={K().tentarDeNovo} onPress={() => { const r = repetir.current; limpar(); r?.(); }} />
             ) : null}
           </View>
-        ) : (
-          <View style={{ alignItems: 'center', gap: 16, paddingTop: 80 }}>
-            <ActivityIndicator color={c.accent} />
-            <Txt v="body" c={c.tx2}>{porta === 'cadastro' ? K().guardando : K().trazendo}</Txt>
-          </View>
-        )}
+        ) : null}
       </TelaInterna>
     );
+  }
+  if (passo === 'entrando') {
+    return <EsperaDaConta titulo={K().titulo[porta]} frase={porta === 'cadastro' ? K().guardando : K().trazendo} />;
   }
 
   if (passo === 'dois-diarios' && dono) {
@@ -628,30 +634,60 @@ function CapaDaConta({ titulo, lead, onVoltar, children }: {
 }
 
 /* ------------------------------------------------------------------ */
+/* A ESPERA DA CONTA — enquanto o diário desce da conta (ou sobe para ela).
+
+   ⚠️ A MESMA LÍNGUA DA ESPERA DO PLANO (28/09/2026, pedido do dono: o
+   carregador pequeno e cinza embaixo do cabeçalho estava feio). A luz em
+   repouso no pé da tela, derivando devagar; no alto, o cumprimento e a
+   frase da vez grande, com o brilho passando; a roda embaixo dela. Não
+   há visto no fim: quem decide quando acaba é a sincronia, e a tela
+   seguinte entra no lugar desta. As peças são as mesmas da espera do
+   plano (ui/espera, ui/mancha). */
+const REPOUSO = new Animated.Value(0);
+function EsperaDaConta({ titulo, frase }: { titulo: string; frase: string }) {
+  const { c } = useTheme();
+  const insets = useSafeAreaInsets();
+  const { width, height } = useWindowDimensions();
+  const chega = React.useRef(new Animated.Value(0)).current;
+  React.useEffect(() => {
+    Animated.timing(chega, { toValue: 1, duration: 520, useNativeDriver: true }).start();
+  }, []);
+  const sobe = (de: number) => ({
+    opacity: chega.interpolate({ inputRange: [de, Math.min(1, de + 0.6)], outputRange: [0, 1], extrapolate: 'clamp' }),
+    transform: [{ translateY: chega.interpolate({ inputRange: [de, Math.min(1, de + 0.6)], outputRange: [16, 0], extrapolate: 'clamp' }) }],
+  });
+  return (
+    <View style={{ flex: 1, backgroundColor: c.bg, overflow: 'hidden' }}>
+      <ManchaDeLuz p={REPOUSO} largura={width} altura={height} papel={insets.top + PAPEL_DO_PLANO} viva />
+      <View accessibilityLiveRegion="polite" style={{ paddingTop: insets.top + 72, paddingHorizontal: 28, gap: 14 }}>
+        <Animated.View style={sobe(0)}>
+          <Txt v="h1">{titulo}</Txt>
+        </Animated.View>
+        <Animated.View style={sobe(0.25)}>
+          <Txt style={{ ...FASE_ATIVA, fontFamily: font.body, color: c.tx2 }}>{frase}</Txt>
+          <BrilhoNoTexto texto={frase} estilo={{ ...FASE_ATIVA, fontFamily: font.body }} cor={c.tx4} />
+        </Animated.View>
+        <Animated.View style={[{ marginTop: 6 }, sobe(0.4)]}>
+          <RodaQueViraVisto pronto={false} cor={c.accent} />
+        </Animated.View>
+      </View>
+    </View>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /* O BOTÃO DE COLAR
 
-   ⚠️ NO IPHONE É O BOTÃO DO SISTEMA (`ClipboardPasteButton`, iOS 16+):
-   ler a área de transferência por conta própria faz o iOS perguntar
-   "Permitir colar?" a cada vez, e o botão dele não pergunta — o toque já
-   é a permissão. O texto dele é o "Colar" do sistema, no idioma do
-   aparelho. No Android e na web, o nosso, que lê direto. */
+   ⚠️ É O NOSSO EM TODO LUGAR (28/09/2026, pedido do dono). No iPhone era o
+   botão do sistema (`ClipboardPasteButton`), que não pede licença para
+   ler — o toque nele já é a permissão —, mas a palavra dele vem do
+   idioma que o aplicativo declara, e no Expo Go ele dizia "Paste" numa
+   tela toda em português. O preço do nosso: o iOS pergunta "Permitir
+   colar?" quando o aplicativo lê a área de transferência sozinho, até a
+   pessoa liberar nos ajustes. Vale pela palavra certa — e o código ainda
+   chega sem colar, pela sugestão do teclado (`oneTimeCode`). */
 function BotaoDeColar({ onTexto }: { onTexto: (texto: string) => void }) {
   const { c } = useTheme();
-  if (Platform.OS === 'ios' && Clipboard.isPasteButtonAvailable) {
-    return (
-      <Clipboard.ClipboardPasteButton
-        acceptedContentTypes={['plain-text']}
-        displayMode="iconAndLabel"
-        cornerStyle="capsule"
-        /* Sem chip (pedido do dono): o fundo do botão do sistema é o da
-           própria tela, e sobram o ícone e a palavra. */
-        backgroundColor={c.bg}
-        foregroundColor={c.accent}
-        style={{ width: 96, height: 32, marginLeft: -12 }}
-        onPress={(d) => onTexto(d.type === 'text' ? d.text : '')}
-      />
-    );
-  }
   return (
     <Pressable
       onPress={async () => onTexto(await Clipboard.getStringAsync().catch(() => ''))}
