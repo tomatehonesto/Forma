@@ -12,7 +12,7 @@
     Morphi · {{ .Token }}
 
   ⚠️ COLAR TUDO, NA ABA DE CÓDIGO (28/09/2026). O corpo vai inteiro, das
-  variáveis ao </html>, na aba do código-fonte do editor — e não na
+  variáveis ao último </div>, na aba do código-fonte do editor — e não na
   visual. Colado pela metade (só as variáveis do alto, que não desenham
   nada), o e-mail chega em branco: foi o que aconteceu no primeiro teste.
   Este comentário pode ir junto ou ficar de fora.
@@ -40,8 +40,7 @@
   flexíveis e estilo em cada elemento, porque boa parte dos leitores de
   e-mail ignora o <style> e o flex. A faixa do alto é o degradê da marca;
   quem não desenha degradê (o Outlook) fica com o azul sólido do
-  `background-color`. O esquema de cor é declarado claro, para o leitor
-  não inverter o código no modo escuro.
+  `background-color`.
 
   ⚠️ O LOGO VEM DE UM ENDEREÇO PÚBLICO: e-mail não carrega arquivo do
   aplicativo, e o Gmail bloqueia imagem embutida. Hoje é o arquivo cru do
@@ -53,6 +52,14 @@
   precisa de um. O que existe é o código se selecionar inteiro num toque
   (user-select: all, que o Apple Mail e o Gmail respeitam), com a frase
   dizendo isso. No iPhone o teclado já oferece o código do Mail sozinho.
+
+  ⚠️ É UM PEDAÇO DE HTML, E NÃO UM DOCUMENTO (28/09/2026). Com
+  <!doctype>, <html>, <head> e <body>, o e-mail chegava em BRANCO em todo
+  leitor (Outlook e o Mail do iPhone). O motivo exato não está na
+  documentação do Supabase; o que o teste mostrou é que o mesmo conteúdo,
+  sem a casca — seis linhas numeradas com texto, variável, idioma, tabela
+  e logo —, chegou inteiro. Por isso também não
+  há <meta name="color-scheme">: ele morava no <head>.
 
   UM DESENHO SÓ, SEIS IDIOMAS: as frases são variáveis, trocadas no alto
   por idioma, e o corpo aparece uma vez. Mudar o desenho é mudar num lugar.
@@ -103,16 +110,7 @@
   {{ $rodape = "Morphi · deine Behandlung, geordnet" }}
   {{ $toque = "Tippe auf den Code, um ihn auszuwählen und zu kopieren." }}
 {{ end }}
-<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="color-scheme" content="light">
-  <meta name="supported-color-schemes" content="light">
-  <title>{{ $titulo }}</title>
-</head>
-<body style="margin:0; padding:0; background-color:#F5F6FA;">
+<div style="margin:0; padding:0; background-color:#F5F6FA;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F5F6FA;">
     <tr>
       <td align="center" style="padding:32px 16px;">
@@ -171,5 +169,4 @@
       </td>
     </tr>
   </table>
-</body>
-</html>
+</div>
