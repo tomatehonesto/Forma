@@ -427,6 +427,8 @@ export const home = {
     titulo: 'First steps',
     feito: 'Done',
     plano: 'Your plan is ready',
+    medicacao: 'Choose your medication',
+    medicacaoSub: 'Your dose, cycle and reminders all come from it',
     aplicacao: (injetavel: boolean): string => (injetavel ? 'Log your first shot' : 'Log your first dose'),
     aplicacaoSub: 'We count your cycle and next dose from it',
     checkin: 'Do your first check-in',

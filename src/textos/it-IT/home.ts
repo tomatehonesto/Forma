@@ -593,6 +593,8 @@ export const home = {
     titulo: 'Primi passi',
     feito: 'Fatto',
     plano: 'Il tuo piano è pronto',
+    medicacao: 'Scegli il tuo farmaco',
+    medicacaoSub: 'Da qui dipendono la dose, il ciclo e i promemoria',
     aplicacao: (injetavel: boolean): string => (injetavel ? 'Registra la tua prima puntura' : 'Registra la tua prima dose'),
     aplicacaoSub: 'Da lì contiamo il ciclo e la prossima dose',
     checkin: 'Fai il primo check-in',

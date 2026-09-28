@@ -23,7 +23,7 @@ import { T } from '../textos';
    marcar "fiz o primeiro check-in" — é a regra de `respostaNoDia`.
    ============================================================ */
 
-export type PassoId = 'plano' | 'aplicacao' | 'checkin' | 'lembretes' | 'saude';
+export type PassoId = 'plano' | 'medicacao' | 'aplicacao' | 'checkin' | 'lembretes' | 'saude';
 
 export type Passo = {
   id: PassoId;
@@ -67,6 +67,19 @@ export function passos(S: State, { permissao, aparelho }: DoAparelho): Passo[] {
       pronto: ((S.checkins ?? []) as any[]).some(respostaNoDia), to: '/checkin',
     },
   ];
+  /* ⚠️ A MEDICAÇÃO, PARA QUEM AINDA NÃO DECIDIU (28/09/2026, pedido do
+     dono). Quem respondeu "ainda não decidi" no cadastro ganha o item logo
+     depois do plano: sem medicação, a dose, o ciclo e os lembretes não têm
+     de onde sair. Ele fica na lista depois de feito, com o visto — a marca
+     `MEDICACAO` lembra que ele existiu, porque a medicação escolhida, sozinha,
+     não diz que um dia ela esteve em aberto. */
+  const semMedicacao = (S.profile as any)?.med === 'indefinido';
+  if (semMedicacao || vistas(S)[MEDICACAO]) {
+    lista.splice(1, 0, {
+      id: 'medicacao', ic: 'pill', titulo: K().medicacao, sub: K().medicacaoSub,
+      pronto: !semMedicacao, to: '/cadastro?editar=medicamento',
+    });
+  }
   /* ⚠️ OS DOIS ÚLTIMOS SÃO OPCIONAIS. Aviso e app de saúde são do aparelho,
      e quem não quer nenhum dos dois não está atrasado em nada — sem esta
      marca, o cartão ficava para sempre esperando uma permissão que a
@@ -106,6 +119,7 @@ export const essencialPronto = (lista: Passo[]) => lista.every((p) => p.pronto |
    ============================================================ */
 const ESCONDIDOS = 'primeiros-passos-escondidos';
 const CONCLUIDOS = 'primeiros-passos-concluidos';
+const MEDICACAO = 'primeiros-passos-medicacao';
 
 const vistas = (S: any): Record<string, number> => S?.apresentacoesVistas ?? {};
 const marcar = (s: any, chave: string, quando: number | null) => {
@@ -120,6 +134,9 @@ export const passosConcluidos = (S: State) => !!vistas(S)[CONCLUIDOS];
 export const esconderPassos = (s: State) => marcar(s, ESCONDIDOS, Date.now());
 export const reabrirPassos = (s: State) => marcar(s, ESCONDIDOS, null);
 export const concluirPassos = (s: State) => marcar(s, CONCLUIDOS, Date.now());
+/** Guarda que a medicação esteve em aberto — o item dela fica, com o visto. */
+export const lembrarMedicacao = (s: State) => marcar(s, MEDICACAO, Date.now());
+export const medicacaoLembrada = (S: State) => !!vistas(S)[MEDICACAO];
 
 /* ⚠️ O DIÁRIO DE EXEMPLO NÃO TEM PRIMEIROS PASSOS. A semente é alguém
    com meses de tratamento, e é assim que ela serve de vitrine; um cartão

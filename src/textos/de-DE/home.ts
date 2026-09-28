@@ -463,6 +463,8 @@ export const home = {
     titulo: 'Erste Schritte',
     feito: 'Erledigt',
     plano: 'Dein Plan ist fertig',
+    medicacao: 'Lege dein Medikament fest',
+    medicacaoSub: 'Dosis, Zyklus und Erinnerungen hängen davon ab',
     aplicacao: (injetavel: boolean): string => (injetavel ? 'Trag deine erste Spritze ein' : 'Trag deine erste Einnahme ein'),
     aplicacaoSub: 'Von ihr aus zählen wir den Zyklus und die nächste Dosis',
     checkin: 'Mach deinen ersten Check-in',

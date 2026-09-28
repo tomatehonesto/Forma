@@ -676,6 +676,8 @@ export const home = {
     /** o que o leitor de tela diz depois do título de um item cumprido */
     feito: 'Feito',
     plano: 'Seu plano está pronto',
+    medicacao: 'Defina a sua medicação',
+    medicacaoSub: 'É dela que saem a dose, o ciclo e os lembretes',
     aplicacao: (injetavel: boolean): string => (injetavel ? 'Registre a sua primeira aplicação' : 'Registre a sua primeira dose'),
     aplicacaoSub: 'É dela que contamos o ciclo e a próxima dose',
     checkin: 'Faça o primeiro check-in',

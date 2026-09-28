@@ -456,6 +456,8 @@ export const home = {
     titulo: 'Premiers pas',
     feito: 'Fait',
     plano: 'Votre plan est prêt',
+    medicacao: 'Choisissez votre traitement',
+    medicacaoSub: 'La dose, le cycle et les rappels en dépendent',
     aplicacao: (injetavel: boolean): string => (injetavel ? 'Enregistrez votre première piqûre' : 'Enregistrez votre première prise'),
     aplicacaoSub: 'C’est à partir d’elle que nous comptons le cycle et la prochaine dose',
     checkin: 'Faites votre premier check-in',

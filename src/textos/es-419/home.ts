@@ -433,6 +433,8 @@ export const home = {
     titulo: 'Primeros pasos',
     feito: 'Hecho',
     plano: 'Tu plan está listo',
+    medicacao: 'Define tu medicamento',
+    medicacaoSub: 'De él salen la dosis, el ciclo y los recordatorios',
     aplicacao: (injetavel: boolean): string => (injetavel ? 'Registra tu primera inyección' : 'Registra tu primera dosis'),
     aplicacaoSub: 'A partir de ella contamos el ciclo y la próxima dosis',
     checkin: 'Haz tu primer check-in',

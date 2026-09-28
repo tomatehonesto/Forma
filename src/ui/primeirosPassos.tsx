@@ -9,6 +9,7 @@ import { estadoDaPermissao, pedirPermissao, reagendar, type Permissao } from '..
 import { aparelhoDaVez } from '../logic/integracoes';
 import {
   passos, passosNaHome, passosParaReabrir, esconderPassos, concluirPassos, essencialPronto, type Passo,
+  lembrarMedicacao, medicacaoLembrada,
 } from '../logic/primeirosPassos';
 import { Txt, Row } from './kit';
 import { Icon } from './Icon';
@@ -44,6 +45,12 @@ function usePassos() {
     const sub = AppState.addEventListener('change', (e) => { if (e === 'active') ler(); });
     return () => { vivo = false; sub.remove(); };
   }, []);
+  /* A medicação em aberto vira item e fica marcada (ver logic/primeirosPassos). */
+  const update = useStore((s) => s.update);
+  const emAberto = (S.profile as any)?.med === 'indefinido' && !!S.onboardDone;
+  React.useEffect(() => {
+    if (emAberto && !medicacaoLembrada(S)) update(lembrarMedicacao);
+  }, [emAberto]);
   const lista = permissao ? passos(S, { permissao, aparelho: aparelhoDaVez() }) : null;
   return { S, lista, permissao, setPermissao };
 }

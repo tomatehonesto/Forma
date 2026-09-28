@@ -31,12 +31,15 @@
         contar para o rodízio nem sobrar como " · " numa linha;
      8. o cartão de quem cuida não sai sem nome: a pessoa, a clínica, ou
         cartão nenhum;
-     9. o "+ Registrar" de cada meta do dia abre a folha dela.
+     9. o "+ Registrar" de cada meta do dia abre a folha dela;
+    10. quem respondeu "ainda não decidi" ganha o item da medicação, e
+        ele fica com o visto depois de escolhida.
    ============================================================ */
 
 import { buildSeed, estadoVazio, type State } from '../src/logic/seed';
 import {
   passos, passosNaHome, passosParaReabrir, esconderPassos, reabrirPassos, concluirPassos, essencialPronto,
+  lembrarMedicacao,
   type DoAparelho,
 } from '../src/logic/primeirosPassos';
 import {
@@ -328,6 +331,19 @@ console.log('\n9. CADA META ABRE O PRÓPRIO REGISTRO');
 const metasDoDia = Object.fromEntries(dailyTargets(novo).map((m) => [m.key, m.registrarEm]));
 ok(JSON.stringify(metasDoDia) === JSON.stringify({ prot: '/medir-refeicao', agua: '/medir-agua', exerc: '/medir-exercicio' }),
   'o "+ Registrar" de cada meta abre a folha dela — a proteína pela refeição —, e não a lista de todos');
+
+console.log('\n10. QUEM AINDA NÃO DECIDIU A MEDICAÇÃO');
+const semMed = clone(novo);
+(semMed.profile as any).med = 'indefinido';
+const aberta = passos(semMed, IPHONE);
+ok(aberta[1]?.id === 'medicacao' && !aberta[1].pronto && !aberta[1].opcional && aberta[1].to === '/cadastro?editar=medicamento',
+  'o item "defina a medicação" entra logo depois do plano, por fazer, segura o cartão e leva ao passo do medicamento');
+ok(!passos(novo, IPHONE).some((p) => p.id === 'medicacao'), 'quem escolheu a medicação no cadastro não ganha o item');
+const decidiu = clone(semMed);
+lembrarMedicacao(decidiu);
+(decidiu.profile as any).med = 'mounjaro';
+const feita = passos(decidiu, IPHONE).find((p) => p.id === 'medicacao');
+ok(!!feita && feita.pronto, 'depois de escolhida, a medicação continua na lista, com o visto — a marca lembra que ela esteve em aberto');
 
 console.log(falhas ? `\n${falhas} afirmação(ões) falharam\n` : '\ntodas as afirmações passaram\n');
 process.exit(falhas ? 1 : 0);
