@@ -23,6 +23,8 @@
 
 import { buildSeed, ensureDefaults, type State } from '../src/logic/seed';
 import { mascarar } from '../src/logic/store';
+import { boasVindasNaHome } from '../src/logic/apresentacao';
+import { passosNaHome } from '../src/logic/primeirosPassos';
 import { clinicaConectada, temAcompanhamento, semAcompanhamento } from '../src/logic/derive';
 
 let falhas = 0;
@@ -79,6 +81,16 @@ for (const [nome, S] of [['sem-parceira', semParceira], ['sozinha', sozinha]] as
 console.log('\n4. E A VERDADE NÃO FOI TOCADA');
 ok(clinicaConectada(verdade), 'o estado de origem continua com vínculo');
 ok(q(verdade).messages.length > 0, 'e continua com as mensagens');
+
+console.log('\n5. O PRIMEIRO ACESSO');
+const primeiro = q(mascarar(verdade, 'primeiro-acesso'));
+ok(primeiro.onboardDone && !primeiro.semente, 'é um diário de verdade, com o cadastro feito — e não a vitrine');
+ok(!primeiro.injections.length && !primeiro.checkins.length && !primeiro.goals.length && primeiro.weights.length === 1,
+  'sem aplicação, sem check-in, sem meta — e um peso só, o do cadastro');
+ok(primeiro.profile.name === q(verdade).profile.name, 'com o perfil de quem finge');
+ok(boasVindasNaHome(primeiro as State) && passosNaHome(primeiro as State),
+  'as boas-vindas e os primeiros passos estão na Home');
+ok(q(verdade).injections.length > 0 && q(verdade).semente, 'e a verdade continua com os registros dela');
 
 console.log(falhas ? `\n${falhas} afirmação(ões) falharam\n` : '\ntodas as afirmações passaram\n');
 process.exit(falhas ? 1 : 0);

@@ -7,6 +7,7 @@ import { trocarLocal, type Local } from './local';
 import { carimbar } from './identidade';
 import { esquecerSincronia } from './sincronia';
 import { contaLigada } from './nuvem';
+import { VERSAO as VERSAO_DO_AVISO } from './consentimento';
 
 const KEY = 'norte.v1';
 const clone = (s: any) => JSON.parse(JSON.stringify(s));
@@ -60,6 +61,7 @@ const semente = () => ensureDefaults(comNotificacoesDeExemplo(buildSeed()));
 /** Exportada para a sonda de scripts/modos.mjs poder afirmar o que ela
     apaga. Nenhuma tela a chama: quem finge é a ação `fingir`. */
 export const mascarar = (verdade: State, modo: Modo): State => {
+  if (modo === 'primeiro-acesso') return primeiroAcesso(verdade);
   const S: any = clone(verdade);
 
   /* ---- o que sai nos DOIS modos: tudo que só existe com plataforma ---- */
@@ -96,6 +98,33 @@ export const mascarar = (verdade: State, modo: Modo): State => {
   S.consultsHistory = [];
   S.protocol = { ...S.protocol, metas: {} };
 
+  return S as State;
+};
+
+/* ⚠️ O PRIMEIRO ACESSO NÃO APAGA O DADO: ELE TROCA O DIÁRIO. É o estado
+   vazio do cadastro recém-terminado, com o perfil de quem finge — nome,
+   medicamento, dose, metas do dia, paleta — e um peso só, o de hoje. O
+   aceite ganha a hora de agora, que é o que faz as boas-vindas da primeira
+   semana aparecerem (ver logic/apresentacao), e as marcas de "já visto"
+   começam vazias, para os primeiros passos e a apresentação estarem por
+   fazer. A conta continua a de verdade. */
+const primeiroAcesso = (verdade: State): State => {
+  const v: any = clone(verdade);
+  const S: any = estadoVazio();
+  const agora = Date.now();
+  S.profile = {
+    ...v.profile,
+    consentimento: { ...(v.profile?.consentimento ?? {}), em: agora, versao: VERSAO_DO_AVISO },
+  };
+  const pesos = v.weights ?? [];
+  const ultimo = pesos[pesos.length - 1];
+  S.weights = ultimo ? [{ ...ultimo, t: agora }] : [];
+  S.onboardDone = true;
+  S.semente = false;
+  S.conta = v.conta ?? null;
+  S.paleta = v.paleta;
+  S.theme = v.theme;
+  S.apresentacoesVistas = {};
   return S as State;
 };
 

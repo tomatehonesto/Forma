@@ -28,8 +28,12 @@
    ============================================================ */
 
 /** `sem-parceira` é o modo 2 do MODOS.md — médico próprio, fora da
-    plataforma. `sozinha` é o modo 3 — ninguém acompanhando. */
-export type Modo = 'sem-parceira' | 'sozinha';
+    plataforma. `sozinha` é o modo 3 — ninguém acompanhando.
+    `primeiro-acesso` é o diário de quem acabou de sair do cadastro, com o
+    perfil de quem finge: as boas-vindas, os primeiros passos e a Home sem
+    registro nenhum (28/09/2026, pedido do dono — rever o primeiro contato
+    sem apagar nada). */
+export type Modo = 'sem-parceira' | 'sozinha' | 'primeiro-acesso';
 
 let fingido: Modo | null = null;
 
@@ -45,6 +49,7 @@ export const fingirModo = (m: Modo | null) => { fingido = m; };
 export const NOME_DO_MODO: Record<Modo, string> = {
   'sem-parceira': 'sem clínica parceira',
   'sozinha': 'sem acompanhamento',
+  'primeiro-acesso': 'o primeiro acesso',
 };
 
 /* ============================================================

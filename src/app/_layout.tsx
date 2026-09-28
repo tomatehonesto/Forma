@@ -103,7 +103,9 @@ function Portao({ children }: { children: React.ReactNode }) {
   const segmentos = useSegments();
   const router = useRouter();
   const precisaDoAceite = contaLigada() && pendente;
-  const precisaDeConta = contaLigada() && feito && semDono && !(semente && __DEV__);
+  /* Fingindo um modo, o diário servido é uma prévia de desenvolvimento, e
+     não o de alguém sem conta: o portão não manda para "crie a sua conta". */
+  const precisaDeConta = contaLigada() && feito && semDono && !(semente && __DEV__) && !modoFingido();
   const [conexao, setConexao] = useState(false);
 
   useEffect(() => {

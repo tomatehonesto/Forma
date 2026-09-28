@@ -858,6 +858,26 @@ export default function Perfil() {
             selo={modoAtual === 'sozinha' ? 'agora' : undefined}
             onPress={() => fingir('sozinha')}
           />
+          {/* O PRIMEIRO CONTATO, REVISTO SEM APAGAR NADA (28/09/2026, pedido
+              do dono): o diário de quem acabou de sair do cadastro, com o
+              perfil de agora — as boas-vindas na Home, os primeiros passos
+              por fazer. É um modo fingido como os de cima: nada é gravado,
+              e "Voltar" (ou recarregar) devolve o diário de verdade. */}
+          <Linha
+            ic="bolt"
+            titulo="Ver o primeiro acesso"
+            sub="Diário novo, com o seu perfil — nada é gravado"
+            selo={modoAtual === 'primeiro-acesso' ? 'agora' : undefined}
+            /* a árvore remonta com o modo; depois dela, a Home, que é onde o
+               primeiro contato acontece */
+            onPress={() => { fingir('primeiro-acesso'); setTimeout(() => router.replace('/' as any), 80); }}
+          />
+          <Linha
+            ic="bolt"
+            titulo="Ver a apresentação"
+            sub="Como podemos ajudar — atalho de desenvolvimento"
+            onPress={() => router.push('/apresentacao' as any)}
+          />
 
           {/* ⚠️ ESTA NÃO É A LINHA "IDIOMA", que está logo acima em
               Personalize e troca de verdade — escreve `profile.idioma` e
