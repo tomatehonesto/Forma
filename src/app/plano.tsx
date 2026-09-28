@@ -15,9 +15,7 @@ import { Txt, Row, Rolagem } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { Botao, Grade2 } from '../ui/internas';
 import { AreaCurve } from '../ui/charts';
-import { Image } from 'expo-image';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useAurora, PROPORCAO_DA_CAPA, PAPEL_COMECA } from '../ui/aurora';
+import { ManchaDeLuz } from '../ui/mancha';
 import { useTheme } from '../ui/useTheme';
 import { radius, font, ty, alfa } from '../theme';
 import { pesoTxt, pesoProsaTxt, pesoN, pesoU, sistemaDe, aguaU, aguaN } from '../logic/medidas';
@@ -117,21 +115,15 @@ export function Plano({ dados: d, aoSair, rotuloSair, aoVoltar, semChegada }: {
       chega pela rolagem, e não surgindo */
   semChegada?: boolean;
 }) {
-  const { c, isDark } = useTheme();
-  const aurora = useAurora();
+  const { c } = useTheme();
   const insets = useSafeAreaInsets();
-  /* ⚠️ A AURORA NO ALTO (28/09/2026, prova pedida pelo dono): a mesma da
-     capa da conta e da espera, com o visto lima sobre ela, e o título já
-     no papel. A imagem sobe até o branco (ou o preto) começar logo acima
-     do título; embaixo dela, um degradê curto passa do papel da imagem
-     para o fundo do app, que não é branco puro. */
-  const { width: larguraDaTela } = useWindowDimensions();
-  /* O conteúdo sobe sobre a aurora (pedido do dono): o visto fica no azul
-     e o título na parte clara dela; o papel começa só depois do título. */
+  /* ⚠️ A LUZ NO ALTO (28/09/2026, pedido do dono): é a mancha da espera do
+     cadastro parada no último quadro dela (ver ui/mancha) — a espera
+     termina exatamente no desenho com que o plano começa. O visto fica no
+     azul e o título na parte clara; o papel começa só depois do título. */
+  const { width: larguraDaTela, height: alturaDaTela } = useWindowDimensions();
   const CABECA = insets.top + 110;
   const papelAlvo = insets.top + PAPEL_DO_PLANO;
-  const alturaDaImagem = larguraDaTela * PROPORCAO_DA_CAPA;
-  const sobeImagem = Math.max(0, alturaDaImagem * PAPEL_COMECA[isDark ? 'escuro' : 'claro'] - papelAlvo);
   /* ⚠️ O PLANO CHEGA, E NÃO APARECE. No cadastro ele vem logo depois do
      "Pronto! O seu plano está feito.", que sai subindo; aqui o conteúdo
      entra fazendo o mesmo gesto — surge e sobe um pouco —, para as duas
@@ -308,33 +300,16 @@ export function Plano({ dados: d, aoSair, rotuloSair, aoVoltar, semChegada }: {
   const cartao = { backgroundColor: c.bg1, borderRadius: radius.lg };
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
-      <Animated.View style={{
-        flex: 1, opacity: chegada,
-        transform: [{ translateY: chegada.interpolate({ inputRange: [0, 1], outputRange: [24, 0] }) }],
-      }}>
+      {/* A aurora só surge; quem sobe é o conteúdo. No cadastro o plano
+          entra por cima da mancha da espera, que já está onde a aurora
+          dele fica — se ela subisse junto, o alto tremeria. */}
+      <Animated.View style={{ flex: 1, opacity: chegada }}>
       <Rolagem contentContainerStyle={{ paddingBottom: 28 }}>
-        <View pointerEvents="none" style={{
-          /* A caixa termina junto com o degradê: se passasse dele, sobrava
-             uma faixa da imagem por baixo, e ela desenhava uma linha. */
-          position: 'absolute', top: 0, left: 0, right: 0, height: papelAlvo + 170, overflow: 'hidden',
-        }}>
-          <Image
-            source={isDark ? aurora.contaEscuro : aurora.contaClaro}
-            style={{ position: 'absolute', top: -sobeImagem, left: 0, width: larguraDaTela, height: alturaDaImagem }}
-            contentFit="cover"
-            contentPosition="top"
-          />
-          {/* Começa transparente: a imagem ainda não é branco puro na
-              beira direita, e um degradê que começasse no branco desenhava
-              uma linha. */}
-          <LinearGradient
-            colors={[alfa(c.bg, 0), c.bg]}
-            style={{ position: 'absolute', left: 0, right: 0, top: papelAlvo - 30, height: 200 }}
-          />
-        </View>
-        <View style={{
+        <ManchaDeLuz largura={larguraDaTela} altura={alturaDaTela} papel={papelAlvo} />
+        <Animated.View style={{
           paddingTop: CABECA, paddingHorizontal: 24, paddingBottom: 32,
           alignItems: 'center', gap: 14,
+          transform: [{ translateY: chegada.interpolate({ inputRange: [0, 1], outputRange: [24, 0] }) }],
         }}>
           <View style={{
             width: 58, height: 58, borderRadius: 29, backgroundColor: c.lime,
@@ -386,9 +361,12 @@ export function Plano({ dados: d, aoSair, rotuloSair, aoVoltar, semChegada }: {
                 </Row>
               ))}
           </Row>
-        </View>
+        </Animated.View>
 
-        <View style={{ paddingHorizontal: 20, gap: 30 }}>
+        <Animated.View style={{
+          paddingHorizontal: 20, gap: 30,
+          transform: [{ translateY: chegada.interpolate({ inputRange: [0, 1], outputRange: [24, 0] }) }],
+        }}>
           {/* ---------- o dia ---------- */}
           <View>
             <Secao t={K().secaoMetas} />
@@ -713,7 +691,7 @@ export function Plano({ dados: d, aoSair, rotuloSair, aoVoltar, semChegada }: {
                 trabalho que a pessoa precisa entender para usar o app. */}
             <Txt v="caption" c={c.tx3} style={{ marginTop: 10 }}>{K().rodape}</Txt>
           </View>
-        </View>
+        </Animated.View>
       </Rolagem>
       </Animated.View>
       {/* A SETA NUA, como nas perguntas do cadastro: é por ela que se volta

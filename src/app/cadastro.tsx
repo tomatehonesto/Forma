@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  Animated, Easing, View, Image, Pressable, ScrollView, TextInput, Platform, useWindowDimensions, ActivityIndicator,
+  Animated, Easing, View, Image, Pressable, ScrollView, TextInput, Platform, useWindowDimensions, ActivityIndicator, StyleSheet,
   KeyboardAvoidingView, Keyboard, Switch,
 } from 'react-native';
-import { useAurora, PROPORCAO_DA_CAPA, PAPEL_COMECA } from '../ui/aurora';
+import { useAurora } from '../ui/aurora';
+import { ManchaDeLuz } from '../ui/mancha';
 import { PlanoDaLoja, PAPEL_DO_PLANO } from './plano';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -757,20 +758,21 @@ function Abertura({ onComecar, onJaTenho }: { onComecar: () => void; onJaTenho?:
    acima da atual. A última diz que acabou, fica um pouco mais, e abre o
    plano. Saiu a barra de progresso: a pilha já conta onde a espera está.
 
-   ⚠️ UMA AURORA SÓ PARA AS DUAS TELAS (28/09/2026, pedido do dono). Aqui
-   ela está de ponta-cabeça, no pé da tela; no fim, a tela rola para cima
-   e a mesma aurora vira o alto do plano, que estava logo embaixo. É o
-   espelho que faz a emenda sumir: a imagem invertida termina, na borda de
-   baixo, exatamente na linha em que a do plano começa, então as duas
-   metades mostram o mesmo pixel dos dois lados do corte. A conta usa a
-   mesma medida do plano (`PAPEL_DO_PLANO`) — mudar uma sem a outra abre
-   uma costura. */
+   ⚠️ A MANCHA SOBE E VIRA O ALTO DO PLANO (28/09/2026, referência do dono).
+   A luz repousa no pé da tela; no fim, ela salta para cima até cobrir a
+   tela inteira e recua devagar para o alto, onde para como o cabeçalho do
+   plano. Só então o plano aparece por cima, com o texto. É SVG, e não a
+   imagem da aurora: esticar a imagem deformava as faixas de luz (ver
+   ui/mancha). O plano desenha a mesma mancha parada no último quadro, com
+   a mesma medida (`PAPEL_DO_PLANO`) — mudar uma sem a outra faz o alto
+   do plano pular no fim. */
 /* ⚠️ É FUNÇÃO, porque lê o catálogo. */
 const FASES = () => [K().faseAgrupando, K().faseCalculando, K().faseMontando, K().fasePronto];
 const PASSO_MS = 950;        // entre uma fase e a seguinte
 const ULTIMA_MS = 1200;      // quanto o "Pronto!" fica à vista
 const SAIDA_MS = 380;        // a pilha se apagando antes do plano, sem ele embaixo
-const ROLAGEM_MS = 1100;     // a tela rolando da espera até o plano
+const MANCHA_SOBE_MS = 380;  // a mancha saltando do pé até cobrir a tela
+const MANCHA_VOLTA_MS = 800; // e recuando até virar o alto do plano
 /* a opacidade de uma fase pela distância até a da vez: 0 é ela mesma */
 const BRILHO_POR_DISTANCIA = [1, 0.62, 0.36, 0.2];
 
@@ -779,8 +781,7 @@ function Montando({ onFim, depois }: {
   /** o plano, montado já embaixo da espera, para onde ela rola no fim */
   depois?: React.ReactNode;
 }) {
-  const { c, isDark } = useTheme();
-  const aurora = useAurora();
+  const { c } = useTheme();
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
   const fases = FASES();
@@ -802,7 +803,10 @@ function Montando({ onFim, depois }: {
   /* A SAÍDA: depois do "Pronto!", a pilha se apaga subindo, e o plano
      entra fazendo o mesmo gesto (ver `Plano`, em app/plano). */
   const saida = React.useRef(new Animated.Value(0)).current;
-  const rolar = React.useRef(new Animated.Value(0)).current;
+  /* 0 → 1: a mancha de baixo se esticando (até a metade) e a de cima
+     encolhendo (depois dela). */
+  const mancha = React.useRef(new Animated.Value(0)).current;
+  const [comPlano, setComPlano] = React.useState(false);
   const medidas = React.useRef(new Set<number>()).current;
   const mediu = (i: number, altura: number) => {
     if (i === 0 || medidas.has(i)) return;
@@ -818,9 +822,24 @@ function Montando({ onFim, depois }: {
     const t = fases.slice(1).map((_, k) => setTimeout(() => setFase(k + 1), PASSO_MS * (k + 1)));
     t.push(setTimeout(() => {
       if (depois) {
-        Animated.timing(rolar, {
-          toValue: 1, duration: ROLAGEM_MS, easing: Easing.inOut(Easing.cubic), useNativeDriver: true,
-        }).start(() => onFim());
+        /* a pilha sai antes de a mancha cobrir a tela */
+        Animated.timing(saida, {
+          toValue: 1, duration: 220, easing: Easing.out(Easing.quad), useNativeDriver: false,
+        }).start();
+        /* O ritmo da referência: a subida é um salto, e a volta para o
+           alto é lenta — o branco vai entrando por baixo. */
+        Animated.sequence([
+          Animated.timing(mancha, {
+            toValue: 0.5, duration: MANCHA_SOBE_MS, easing: Easing.inOut(Easing.quad), useNativeDriver: true,
+          }),
+          Animated.timing(mancha, {
+            toValue: 1, duration: MANCHA_VOLTA_MS, easing: Easing.out(Easing.cubic), useNativeDriver: true,
+          }),
+        ]).start(() => {
+          /* o plano entra por cima e, quando acaba de entrar, fica sozinho */
+          setComPlano(true);
+          setTimeout(onFim, 560);
+        });
         return;
       }
       Animated.timing(saida, {
@@ -842,28 +861,13 @@ function Montando({ onFim, depois }: {
     ]).start();
   }, [fase]);
 
-  /* A conta do plano (ver o alto dele, em app/plano): lá a imagem sobe
-     `sobeImagem` para o papel começar em `papelAlvo`. Aqui, invertida, a
-     borda de baixo da tela mostra essa mesma linha da imagem. */
-  const alturaDaImagem = width * PROPORCAO_DA_CAPA;
+  /* O cabeçalho do plano termina onde o papel dele começa: é até ali que a
+     mancha recua no fim (ver ui/mancha). */
   const papelAlvo = insets.top + PAPEL_DO_PLANO;
-  const sobeImagem = Math.max(0, alturaDaImagem * PAPEL_COMECA[isDark ? 'escuro' : 'claro'] - papelAlvo);
 
   return (
     <View style={{ flex: 1, overflow: 'hidden', backgroundColor: c.bg }}>
-    <Animated.View style={{
-      height: depois ? height * 2 : height,
-      transform: [{ translateY: rolar.interpolate({ inputRange: [0, 1], outputRange: [0, -height] }) }],
-    }}>
-    <View style={{ height, overflow: 'hidden', backgroundColor: isDark ? '#000000' : '#FFFFFF' }}>
-      <Image
-        source={isDark ? aurora.contaEscuro : aurora.contaClaro}
-        style={{
-          position: 'absolute', left: 0, top: height - alturaDaImagem + sobeImagem,
-          width, height: alturaDaImagem, transform: [{ scaleY: -1 }],
-        }}
-        resizeMode="cover"
-      />
+      <ManchaDeLuz p={mancha} largura={width} altura={height} papel={papelAlvo} />
       <View
         accessibilityLiveRegion="polite"
         style={{
@@ -917,9 +921,13 @@ function Montando({ onFim, depois }: {
         </View>
         </Animated.View>
       </View>
-    </View>
-    {depois ? <View style={{ height }}>{depois}</View> : null}
-    </Animated.View>
+      {/* O plano entra por cima da mancha, que já está onde a dele fica: ele
+          chega com a entrada de sempre, e o que aparece é o texto. */}
+      {depois && comPlano ? (
+        <View style={StyleSheet.absoluteFill}>
+          {React.isValidElement(depois) ? React.cloneElement(depois as React.ReactElement<any>, { semChegada: false }) : depois}
+        </View>
+      ) : null}
     </View>
   );
 }
