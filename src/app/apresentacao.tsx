@@ -61,9 +61,13 @@ export default function Apresentacao() {
   const injetavel = FORMAS()[formaDe(S)].injetavel;
   /* as fotos das telas reais, no idioma da vez (ver o script que as tira) */
   const fotos = TELAS_DA_APRESENTACAO[localAtual()] ?? TELAS_DA_APRESENTACAO['pt-BR'];
-  /* O branco da página — no escuro, o fundo do tema. O pé do telefone some
-     nesta mesma cor. */
+  /* O branco da página — no escuro, o fundo do tema. */
   const fundo = isDark ? c.bg : '#FFFFFF';
+  /* ⚠️ O PAINEL: UMA COR SÓ ATRÁS DO TELEFONE (pedido do dono). Em vez de
+     luz espalhada pela página, um bloco de cantos redondos no tom claro da
+     cor de ação, com o telefone em cima dele e o pé do aparelho sumindo
+     nessa mesma cor. O texto fica embaixo, no branco. */
+  const painel = mistura(c.accent, fundo, isDark ? 0.16 : 0.09);
 
   const pilares: Pilar[] = [
     { id: 'dose', titulo: K().dose.titulo, texto: injetavel ? K().dose.texto : K().dose.textoOral },
@@ -96,9 +100,13 @@ export default function Apresentacao() {
     if (p !== pagina) setPagina(Math.max(0, Math.min(ultima, p)));
   };
 
-  /* O telefone ocupa mais da metade da tela: é ele o assunto da página. */
-  const alturaDoTelefone = Math.round(Math.min(height * 0.56, 500));
-  const larguraDoTelefone = Math.round(Math.min(width * 0.68, 280));
+  /* ⚠️ O TEXTO MANDA NA ALTURA, E O TELEFONE FICA COM O QUE SOBRA. Com o
+     telefone numa altura fixa, a frase mais longa (a dos sintomas, num
+     iPhone 12) invadia a paginação. Agora a página tem a altura da rolagem,
+     o texto ocupa o que precisa, e o painel do telefone estica no resto —
+     o aparelho é mais alto que o painel, e o painel o corta. */
+  const larguraDoTelefone = Math.round(Math.min(width * 0.62, 260));
+  const [alturaDaPagina, setAlturaDaPagina] = React.useState(0);
 
   return (
     <View style={{ flex: 1, backgroundColor: fundo }}>
@@ -123,6 +131,7 @@ export default function Apresentacao() {
         onScroll={Animated.event([{ nativeEvent: { contentOffset: { x } } }], { useNativeDriver: true, listener: aoRolar })}
         scrollEventThrottle={16}
         style={{ flex: 1 }}
+        onLayout={(e) => setAlturaDaPagina(e.nativeEvent.layout.height)}
       >
         {pilares.map((p, i) => {
           const faixa = [(i - 1) * width, i * width, (i + 1) * width];
@@ -135,16 +144,27 @@ export default function Apresentacao() {
               key={p.id}
               accessibilityLabel={K().pagina(i + 1, pilares.length)}
               /* cada página corta na própria borda, para nada alargar a rolagem */
-              style={{ width, paddingTop: insets.top + 52, overflow: 'hidden', alignItems: 'center' }}
+              style={{ width, height: alturaDaPagina || undefined, paddingTop: insets.top + 48, overflow: 'hidden' }}
             >
-              <Animated.View
+              <View
                 accessibilityElementsHidden importantForAccessibility="no-hide-descendants"
-                style={{ opacity: some, transform: [{ translateX: anda(0.25) }] }}
+                style={{
+                  flex: 1, marginHorizontal: 16, borderRadius: 32, backgroundColor: painel,
+                  overflow: 'hidden', alignItems: 'center', paddingTop: 28,
+                }}
               >
-                <Telefone largura={larguraDoTelefone} altura={alturaDoTelefone} foto={fotos[p.id]} fundo={fundo} />
-              </Animated.View>
+                <Animated.View style={{ opacity: some, transform: [{ translateX: anda(0.25) }] }}>
+                  <Telefone largura={larguraDoTelefone} foto={fotos[p.id]} />
+                </Animated.View>
+                {/* o pé do telefone some na cor do painel */}
+                <LinearGradient
+                  colors={[alfa(painel, 0), alfa(painel, 0.6), alfa(painel, 0.94), painel]}
+                  locations={[0, 0.35, 0.7, 1]}
+                  style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: '46%' }}
+                />
+              </View>
               <Animated.View style={{
-                paddingHorizontal: 32, marginTop: 8, gap: 10, alignItems: 'center',
+                paddingHorizontal: 32, paddingTop: 22, paddingBottom: 8, gap: 10, alignItems: 'center',
                 opacity: some, transform: [{ translateX: anda(0.4) }],
               }}>
                 <Txt style={{ fontFamily: font.display, fontSize: 30, lineHeight: 36, color: c.tx, textAlign: 'center' }}>{p.titulo}</Txt>
@@ -156,7 +176,7 @@ export default function Apresentacao() {
       </Animated.ScrollView>
 
       {/* o pé: os pontos e o seguir */}
-      <View style={{ paddingHorizontal: 20, paddingBottom: insets.bottom + 20, gap: 18 }}>
+      <View style={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: insets.bottom + 20, gap: 18 }}>
         <Row gap={6} style={{ justifyContent: 'center' }}>
           {pilares.map((p, i) => (
             <View key={p.id} style={{
@@ -173,18 +193,22 @@ export default function Apresentacao() {
 
 /* ------------------------------------------------------------------ */
 /* O TELEFONE: moldura escura, a ilha no alto, e a FOTO da tela real
-   dentro. Ele não aparece inteiro — some embaixo no fundo da página.
-
-   ⚠️ O PÉ SE MESCLA COM O FUNDO DE VERDADE (pedido do dono, duas vezes):
-   o degradê começa antes da metade, chega à cor cheia antes do fim e passa
-   das bordas e do pé — a sombra do aparelho vai junto, e não sobra
-   contorno nenhum embaixo. */
+   dentro. Ele é mais alto que o painel: o painel o corta, e o degradê do
+   painel apaga o pé dele (ver acima). */
 const FUNDO_DA_FOTO = '#F5F6FA';
 
-function Telefone({ largura, altura, foto, fundo }: { largura: number; altura: number; foto: number; fundo: string }) {
+/** Uma cor sólida entre duas: `t` da primeira, o resto da segunda. */
+function mistura(a: string, b: string, t: number): string {
+  const n = (h: string) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+  const [x, y] = [n(a), n(b)];
+  return '#' + x.map((v, i) => Math.round(v * t + y[i] * (1 - t)).toString(16).padStart(2, '0')).join('');
+}
+
+function Telefone({ largura, foto }: { largura: number; foto: number }) {
   const { isDark } = useTheme();
   const moldura = isDark ? '#2A2E36' : '#0E1116';
   const tela = largura - 14;
+  const altura = tela * (ALTO_DA_FOTO / LARGURA_DA_FOTO) + 7;
   return (
     <View style={{ width: largura, height: altura }}>
       <View style={{
@@ -200,11 +224,6 @@ function Telefone({ largura, altura, foto, fundo }: { largura: number; altura: n
           <View style={{ position: 'absolute', top: 9, alignSelf: 'center', width: 66, height: 19, borderRadius: 10, backgroundColor: moldura }} />
         </View>
       </View>
-      <LinearGradient
-        colors={[alfa(fundo, 0), alfa(fundo, 0.55), alfa(fundo, 0.93), fundo]}
-        locations={[0, 0.3, 0.62, 0.82]}
-        style={{ position: 'absolute', left: -50, right: -50, bottom: -60, height: altura * 0.62 + 60 }}
-      />
     </View>
   );
 }
