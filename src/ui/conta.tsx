@@ -14,7 +14,7 @@ import React from 'react';
 import { Pressable, View, type StyleProp, type ViewStyle } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
-import { contaLigada } from '../logic/nuvem';
+import { contaLigada, nuvem } from '../logic/nuvem';
 import { sair, sincronia, useEstadoDaSincronia } from '../logic/conta';
 import type { EstadoDaSincronia } from '../logic/sincronia';
 import { Txt, Row } from './kit';
@@ -134,10 +134,26 @@ export function BotaoDeSair({ refazer }: { refazer: () => void }) {
   const conta = useStore((s) => (s.S as any).conta);
   const [armado, setArmado] = React.useState(false);
   const [pendentes, setPendentes] = React.useState(0);
+  /* ⚠️ ENTRADO É TER SESSÃO, E NÃO SÓ TER DONO GRAVADO (28/09/2026). O
+     botão só olhava `S.conta`, e quem estava com a sessão aberta num
+     diário sem dono gravado — o caso do plano do Supabase, fase 4,
+     correção 11, e o do diário de exemplo — via "Refazer o cadastro".
+     Agora a sessão também conta. Sem dono, o diário não está na conta, e
+     sair não pode tirá-lo do telefone: encerra a sessão, o diário fica, e
+     a pessoa vai para "Entre de novo". */
+  const [sessao, setSessao] = React.useState(false);
+  React.useEffect(() => {
+    let vivo = true;
+    nuvem()?.auth.getSession()
+      .then(({ data }) => { if (vivo) setSessao(!!data.session); })
+      .catch(() => {});
+    return () => { vivo = false; };
+  }, [conta]);
+  const entrado = !!conta || sessao;
 
   const tocar = async () => {
-    if (!conta) return refazer();
-    setPendentes((await sincronia()?.pendentes()) ?? 0);
+    if (!entrado) return refazer();
+    setPendentes(conta ? ((await sincronia()?.pendentes()) ?? 0) : 0);
     setArmado(true);
   };
 
@@ -150,17 +166,21 @@ export function BotaoDeSair({ refazer }: { refazer: () => void }) {
           paddingVertical: 15,
         }}>
           <Icon name="logout" size={18} color={c.tx2} sw={1.9} />
-          <Txt v="bodyMed" c={c.tx2}>{conta ? K().sair.rotulo : K().sair.semConta}</Txt>
+          <Txt v="bodyMed" c={c.tx2}>{entrado ? K().sair.rotulo : K().sair.semConta}</Txt>
         </Row>
       </Pressable>
       {armado ? (
         <View style={{ gap: 8, paddingHorizontal: 4 }}>
-          <Txt v="caption" c={c.tx2}>{K().sair.pergunta}</Txt>
+          <Txt v="caption" c={c.tx2}>{conta ? K().sair.pergunta : K().sair.perguntaSemDono}</Txt>
           {pendentes > 0 ? <Txt v="caption" c={c.cta}>{K().sair.pendente}</Txt> : null}
           <Botao
             label={K().sair.confirmar}
             tom={pendentes > 0 ? 'perigo' : 'cheio'}
-            onPress={async () => { await tirarDiarioDoTelefone(); router.replace('/cadastro' as any); }}
+            onPress={async () => {
+              if (conta) { await tirarDiarioDoTelefone(); router.replace('/cadastro' as any); return; }
+              await sair();
+              router.replace('/conta?de=sessao' as any);
+            }}
           />
           <Botao label={K().sair.cancelar} tom="fantasma" onPress={() => setArmado(false)} />
         </View>

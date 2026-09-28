@@ -12,7 +12,7 @@
 
 export const aviso = {
   isencaoTitulo: 'We don’t replace medical care',
-  isencaoTexto: 'We organize what you log and show patterns in your own data. We don’t diagnose or prescribe, and nothing you see here replaces the advice of a health professional.',
+  isencaoTexto: 'We organize your entries, with no diagnosis or prescription — nothing here replaces advice from a health professional.',
 
   guardadoTitulo: 'Your diary is kept safe',
   guardadoTexto: 'In your account, securely, and only you can access it. If you switch phones, it comes back in full.',

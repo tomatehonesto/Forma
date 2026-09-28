@@ -85,6 +85,7 @@ export const conta = {
   sair: {
     rotulo: 'Cerrar sesión',
     pergunta: 'El diario sale de este teléfono y sigue guardado en tu cuenta. Para verlo aquí de nuevo, solo entra.',
+    perguntaSemDono: 'Sales de tu cuenta, y el diario sigue en este teléfono. Para guardarlo en la cuenta, solo vuelve a entrar.',
     pendente: 'Todavía hay registros que no llegaron a tu cuenta. Si sales ahora, se pierden.',
     confirmar: 'Salir',
     cancelar: 'Quedarme',

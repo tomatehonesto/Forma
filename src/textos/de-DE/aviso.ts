@@ -18,7 +18,7 @@
 
 export const aviso = {
   isencaoTitulo: 'Wir ersetzen keine ärztliche Betreuung',
-  isencaoTexto: 'Wir ordnen, was du einträgst, und zeigen Muster in deinen eigenen Daten. Wir stellen keine Diagnosen und verschreiben nichts, und nichts von dem, was du hier siehst, ersetzt den Rat einer medizinischen Fachkraft.',
+  isencaoTexto: 'Wir ordnen deine Einträge, ohne Diagnose oder Verschreibung – nichts hier ersetzt den Rat einer medizinischen Fachkraft.',
 
   /* Die vier Datenkarten, in der Reihenfolge, in der die Frage aufkommt. */
   guardadoTitulo: 'Dein Tagebuch ist sicher aufbewahrt',

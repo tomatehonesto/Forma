@@ -12,7 +12,7 @@ import { useStore } from '../logic/store';
 import { normalizarConvite, vinculoDoConvite } from '../logic/assinatura';
 import { recomecarDoZero, type State } from '../logic/seed';
 import { marcarComoVistas } from '../logic/conquistas';
-import { ISENCAO, ESCOLHA_DAS_PERGUNTAS, LEITURA_DAS_PERGUNTAS, VERSAO as VERSAO_DO_AVISO } from '../logic/consentimento';
+import { ESCOLHA_DAS_PERGUNTAS, LEITURA_DAS_PERGUNTAS, VERSAO as VERSAO_DO_AVISO } from '../logic/consentimento';
 import { ListaDoAviso, FraseDoAceite } from '../ui/consentimento';
 import { IDADE_MINIMA } from '../logic/documentos';
 import { MEDS, MEDS_POR_PAIS, CADENCE_DAYS } from '../logic/meds';
@@ -2600,27 +2600,20 @@ export default function Cadastro() {
 
         {id === 'consentimento' ? (
           <View style={{ gap: 12 }}>
-            {/* ⚠️ A ISENÇÃO VEM PRIMEIRO, E EM DESTAQUE. Ver o alto de
+            {/* ⚠️ A ISENÇÃO VEM PRIMEIRO. Ver o alto de
                 logic/consentimento: o resto do aviso é sobre dado, e esta
                 é sobre tratamento — é a que alguém pode entender errado de
                 um jeito que faz mal. Não tem mais chave: o Continuar é o
                 aceite, e a frase acima dele diz isso (pedido do dono).
 
+                ⚠️ NO MESMO CARTÃO DA LISTA (28/09/2026, pedido do dono): era
+                um cartão à parte, em cima, e a tela lia como dois avisos. O
+                primeiro lugar da lista continua dizendo que ela vem antes.
+
                 ⚠️ O RECADO ÂMBAR SAIU (26/09/2026, pedido do dono). Ele
                 repetia em tom de alerta o que o texto já diz, e numa tela
                 de boas-vindas o alerta pesava mais do que informava. */}
-            <View style={{
-              backgroundColor: c.bg1, borderRadius: radius.lg, padding: 18, gap: 12,
-              borderWidth: 1, borderColor: c.line,
-            }}>
-              <Row gap={10} style={{ alignItems: 'center' }}>
-                <Icon name="shield" size={19} color={c.accent} sw={1.9} />
-                <Txt v="bodyMed" style={{ flex: 1 }}>{ISENCAO().titulo}</Txt>
-              </Row>
-              <Txt v="caption" c={c.tx2} style={{ lineHeight: 21 }}>{ISENCAO().texto}</Txt>
-            </View>
-
-            <ListaDoAviso />
+            <ListaDoAviso comIsencao />
             {/* ⚠️ A ESCOLHA DAS PERGUNTAS TEM CHAVE PRÓPRIA, E NÃO TRAVA O
                 BOTÃO. É outra finalidade, sobre texto de saúde, e com a
                 conta obrigatória ela não pode virar condição para usar o

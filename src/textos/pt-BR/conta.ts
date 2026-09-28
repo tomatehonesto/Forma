@@ -132,6 +132,8 @@ export const conta = {
     /* com conta */
     rotulo: 'Sair da conta',
     pergunta: 'O diário sai deste telefone e continua guardado na sua conta. Para vê-lo aqui de novo, é só entrar.',
+    /* sessão aberta num diário sem dono gravado: o diário fica */
+    perguntaSemDono: 'Você sai da sua conta, e o diário continua neste telefone. Para guardá-lo na conta, é só entrar de novo.',
     pendente: 'Ainda há registros que não chegaram à sua conta. Se sair agora, eles se perdem.',
     confirmar: 'Sair',
     cancelar: 'Ficar',

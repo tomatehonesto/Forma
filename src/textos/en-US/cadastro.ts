@@ -47,7 +47,7 @@ export const cadastro = {
     saude: 'Connect your health app',
     acompanhamentoFuturo: 'Do you plan to have a clinician following your care?',
     acompanhamentoAgora: 'Do you have a clinician following your care?',
-    consentimento: 'Before we start',
+    consentimento: 'Our agreement',
   },
 
   subs: {
@@ -71,7 +71,7 @@ export const cadastro = {
     atividade: 'It goes into your daily water goal — moving more means losing more fluid — and it tells us where you’re starting from.',
     saude: 'Your health data helps make sense of your progress — without you having to log everything.',
     acompanhamento: 'This answer opens up what’s tied to medical follow-up — notes, and getting ready for appointments.',
-    consentimento: 'Two things: what we do for your treatment, and what happens to what you log.',
+    consentimento: 'What we do with what you log — and what we don’t.',
   },
 
   seuNome: 'Your name',

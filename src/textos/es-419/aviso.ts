@@ -12,7 +12,7 @@
 
 export const aviso = {
   isencaoTitulo: 'No reemplazamos el acompañamiento médico',
-  isencaoTexto: 'Ordenamos lo que registras y mostramos patrones en tus propios datos. No hacemos diagnósticos ni recetamos, y nada de lo que aparece aquí reemplaza la orientación de un profesional de la salud.',
+  isencaoTexto: 'Organizamos tus registros, sin diagnóstico ni prescripción: nada aquí reemplaza la orientación de un profesional de salud.',
 
   guardadoTitulo: 'Tu diario queda guardado',
   guardadoTexto: 'En tu cuenta, con seguridad, y solo tú tienes acceso. Si cambias de celular, vuelve completo.',

@@ -64,7 +64,7 @@ export const cadastro = {
     saude: 'Collega la tua app di salute',
     acompanhamentoFuturo: 'Pensi di farti seguire da uno specialista?',
     acompanhamentoAgora: 'Ti fai seguire da uno specialista?',
-    consentimento: 'Prima di cominciare',
+    consentimento: 'Il nostro accordo',
   },
 
   /* ============================================================
@@ -96,7 +96,7 @@ export const cadastro = {
     atividade: 'Entra nel tuo obiettivo quotidiano di acqua — muoversi di più fa perdere più liquidi — e dice da dove parti.',
     saude: 'I tuoi dati di salute aiutano a capire il tuo andamento — senza che tu debba registrare tutto.',
     acompanhamento: 'Questa risposta apre quello che è legato al monitoraggio medico, come gli appunti e la preparazione delle visite.',
-    consentimento: 'Due cose: che cosa facciamo per la tua terapia, e che cosa succede a quello che registri.',
+    consentimento: 'Cosa facciamo con quello che registri, e cosa non facciamo.',
   },
 
   /* ============================================================

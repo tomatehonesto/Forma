@@ -85,6 +85,7 @@ export const conta = {
   sair: {
     rotulo: 'Esci dall’account',
     pergunta: 'Il diario esce da questo telefono e resta salvato nel tuo account. Per rivederlo qui, basta accedere.',
+    perguntaSemDono: 'Esci dal tuo account, e il diario resta su questo telefono. Per salvarlo nell’account, basta rientrare.',
     pendente: 'Ci sono ancora registrazioni che non sono arrivate al tuo account. Se esci ora, si perdono.',
     confirmar: 'Esci',
     cancelar: 'Resta',

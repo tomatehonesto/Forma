@@ -16,7 +16,7 @@
 
 export const aviso = {
   isencaoTitulo: 'Non sostituiamo l’assistenza medica',
-  isencaoTexto: 'Mettiamo in ordine quello che registri e mostriamo andamenti nei tuoi dati. Non facciamo diagnosi e non prescriviamo, e niente di quello che vedi qui sostituisce il parere di un professionista sanitario.',
+  isencaoTexto: 'Organizziamo le tue registrazioni, senza diagnosi né prescrizioni: niente qui sostituisce il parere di un professionista della salute.',
 
   /* Le quattro schede sui dati, nell'ordine in cui arriva il dubbio. */
   guardadoTitulo: 'Il tuo diario è al sicuro',

@@ -85,6 +85,7 @@ export const conta = {
   sair: {
     rotulo: 'Se déconnecter',
     pergunta: 'Le journal quitte ce téléphone et reste enregistré dans votre compte. Pour le revoir ici, il suffit de vous connecter.',
+    perguntaSemDono: 'Vous vous déconnectez, et le journal reste sur ce téléphone. Pour le garder dans votre compte, reconnectez-vous.',
     pendente: 'Certaines entrées ne sont pas encore arrivées dans votre compte. Si vous vous déconnectez maintenant, elles seront perdues.',
     confirmar: 'Se déconnecter',
     cancelar: 'Rester',

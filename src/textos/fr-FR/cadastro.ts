@@ -61,7 +61,7 @@ export const cadastro = {
     saude: 'Connectez votre application de santé',
     acompanhamentoFuturo: 'Pensez-vous être suivi·e par un·e spécialiste ?',
     acompanhamentoAgora: 'Êtes-vous suivi·e par un·e spécialiste ?',
-    consentimento: 'Avant de commencer',
+    consentimento: 'Notre accord',
   },
 
   subs: {
@@ -92,7 +92,7 @@ export const cadastro = {
        application qui se met à lui parler de consultations qu'elle n'a
        pas. */
     acompanhamento: 'Cette réponse ouvre ce qui est lié au suivi médical — les notes, et la préparation des consultations.',
-    consentimento: 'Deux choses : ce que nous faisons pour votre traitement, et ce qui arrive à ce que vous notez.',
+    consentimento: 'Ce que nous faisons de ce que vous notez, et ce que nous ne faisons pas.',
   },
 
   seuNome: 'Votre prénom',

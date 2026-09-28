@@ -85,6 +85,7 @@ export const conta = {
   sair: {
     rotulo: 'Abmelden',
     pergunta: 'Das Tagebuch verschwindet von diesem Handy und bleibt in deinem Konto gespeichert. Um es hier wiederzusehen, melde dich einfach an.',
+    perguntaSemDono: 'Du meldest dich ab, und das Tagebuch bleibt auf diesem Handy. Um es im Konto zu sichern, melde dich einfach wieder an.',
     pendente: 'Einige Einträge sind noch nicht in deinem Konto angekommen. Wenn du dich jetzt abmeldest, gehen sie verloren.',
     confirmar: 'Abmelden',
     cancelar: 'Bleiben',

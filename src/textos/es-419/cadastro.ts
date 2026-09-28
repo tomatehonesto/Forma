@@ -51,7 +51,7 @@ export const cadastro = {
     saude: 'Conecta tu aplicación de salud',
     acompanhamentoFuturo: '¿Piensas tener el seguimiento de un especialista?',
     acompanhamentoAgora: '¿Tienes el seguimiento de un especialista?',
-    consentimento: 'Antes de empezar',
+    consentimento: 'Nuestro acuerdo',
   },
 
   subs: {
@@ -77,7 +77,7 @@ export const cadastro = {
     atividade: 'Entra en tu meta diaria de agua — quien se mueve más pierde más líquido — y dice de dónde estás partiendo.',
     saude: 'Tus datos de salud ayudan a entender tu evolución — sin que tengas que registrarlo todo.',
     acompanhamento: 'Esta respuesta abre lo que está ligado al seguimiento médico — notas y preparación para las consultas.',
-    consentimento: 'Dos cosas: qué hacemos por tu tratamiento, y qué pasa con lo que registras.',
+    consentimento: 'Lo que hacemos con lo que registras, y lo que no hacemos.',
   },
 
   seuNome: 'Tu nombre',

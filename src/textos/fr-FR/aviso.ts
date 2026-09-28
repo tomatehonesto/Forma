@@ -13,7 +13,7 @@
 
 export const aviso = {
   isencaoTitulo: 'Nous ne remplaçons pas le suivi médical',
-  isencaoTexto: 'Nous organisons ce que vous notez et montrons des tendances dans vos propres données. Nous ne posons pas de diagnostic et ne prescrivons pas, et rien de ce qui apparaît ici ne remplace l’avis d’un professionnel de santé.',
+  isencaoTexto: 'Nous organisons vos saisies, sans diagnostic ni prescription : rien ici ne remplace l’avis d’un professionnel de santé.',
 
   guardadoTitulo: 'Votre journal est à l’abri',
   guardadoTexto: 'Dans votre compte, en sécurité, et vous seul y avez accès. Si vous changez de téléphone, il revient en entier.',

@@ -85,6 +85,7 @@ export const conta = {
   sair: {
     rotulo: 'Sign out',
     pergunta: 'The journal leaves this phone and stays saved in your account. To see it here again, just sign in.',
+    perguntaSemDono: 'You’ll sign out, and your journal stays on this phone. To keep it in your account, just sign in again.',
     pendente: 'Some entries haven’t reached your account yet. If you sign out now, they’ll be lost.',
     confirmar: 'Sign out',
     cancelar: 'Stay',

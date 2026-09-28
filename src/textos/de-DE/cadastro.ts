@@ -62,7 +62,7 @@ export const cadastro = {
        niemand kennt. */
     acompanhamentoFuturo: 'Willst du dich ärztlich begleiten lassen?',
     acompanhamentoAgora: 'Wirst du ärztlich begleitet?',
-    consentimento: 'Bevor es losgeht',
+    consentimento: 'Unsere Abmachung',
   },
 
   subs: {
@@ -93,7 +93,7 @@ export const cadastro = {
        lügt, bekommt eine App, die ihr von Terminen erzählt, die sie nicht
        hat. */
     acompanhamento: 'Diese Antwort öffnet, was mit der ärztlichen Begleitung zu tun hat — Notizen und die Vorbereitung von Terminen.',
-    consentimento: 'Zwei Dinge: was wir für deine Behandlung tun, und was mit dem passiert, was du einträgst.',
+    consentimento: 'Was wir mit deinen Einträgen machen – und was nicht.',
   },
 
   seuNome: 'Dein Vorname',

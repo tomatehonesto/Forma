@@ -28,7 +28,7 @@
 
 export const aviso = {
   isencaoTitulo: 'Não substituímos o acompanhamento médico',
-  isencaoTexto: 'Organizamos o que você registra e mostramos padrões nos seus próprios dados. Não fazemos diagnóstico nem prescrição, e nada do que aparece aqui substitui a orientação de um profissional de saúde.',
+  isencaoTexto: 'Organizamos os seus registros, sem diagnóstico nem prescrição — nada aqui substitui a orientação de um profissional de saúde.',
 
   /* Os quatro cartões de dado, na ordem em que a dúvida aparece.
 

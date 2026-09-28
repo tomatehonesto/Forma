@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { AVISO, TERMOS, POLITICA } from '../logic/consentimento';
+import { AVISO, ISENCAO, TERMOS, POLITICA } from '../logic/consentimento';
 import { temIdentificacao } from '../logic/documentos';
 import { Txt, Row } from './kit';
 import { Icon } from './Icon';
@@ -23,11 +23,17 @@ import { T } from '../textos';
    a versão nova leem o mesmo aviso; duas cópias divergiriam na primeira
    vez que alguém mexesse numa.
    ============================================================ */
-export function ListaDoAviso() {
+/** Os cartões do aviso. `comIsencao` põe o "Não substituímos o
+    acompanhamento médico" como o primeiro deles, no mesmo cartão (o
+    cadastro, 28/09/2026, pedido do dono: era um cartão à parte, em cima). */
+export function ListaDoAviso({ comIsencao }: { comIsencao?: boolean } = {}) {
   const { c } = useTheme();
+  const itens = comIsencao
+    ? [{ ic: 'shield', titulo: ISENCAO().titulo, texto: ISENCAO().texto }, ...AVISO()]
+    : AVISO();
   return (
     <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, paddingVertical: 6 }}>
-      {AVISO().map((a, i) => (
+      {itens.map((a, i) => (
         <Row key={a.titulo} gap={14} style={{
           alignItems: 'flex-start', paddingHorizontal: 16, paddingVertical: 12,
           borderTopWidth: i ? 1 : 0, borderTopColor: c.line2,
