@@ -53,7 +53,7 @@ import {
   cicloFases, injCalendar, protocoloDaSemana,
   aplicacaoDoCadastro, diaDoTratamento, nextInjectionDate, rodizioDeLocais, timelineEvents,
   semanasDaGrade, timelineWeeks, comecouAntesDoApp, nomeDeQuemCuida, dailyTargets, indicadoresDaEvolucao,
-  diasDeRefeicao, diasDeAgua,
+  diasDeRefeicao, diasDeAgua, diasDoPeriodo,
 } from '../src/logic/derive';
 import { semanaDoTratamento } from '../src/logic/time';
 import { boasVindasNaHome, marcarApresentacaoVista } from '../src/logic/apresentacao';
@@ -416,9 +416,9 @@ ok(companionMemoria(zero) === companionMemoria(semente), 'a memória é uma fras
 console.log('\n14. AS TELAS INTERNAS DE QUEM ACABOU DE CHEGAR');
 const chegouHoje = clone(zero);
 chegouHoje.profile.startT = +hoje + 9 * 3600e3;
-ok(diasDeRefeicao(chegouHoje, 29).length === 1 && diasDeAgua(chegouHoje, 29).length === 1,
-  'a tira de refeições e a de água começam no dia do começo, e não um mês antes');
-ok(diasDeRefeicao(semente, 29).length === 29 && diasDeAgua(semente, 29).length === 29,
+ok(diasDeRefeicao(chegouHoje, 29).length === 1 && diasDeAgua(chegouHoje, 29).length === 1 && diasDoPeriodo(chegouHoje, 30).length === 1,
+  'as tiras de refeições, água e exercício começam no dia do começo, e não um mês antes');
+ok(diasDeRefeicao(semente, 29).length === 29 && diasDeAgua(semente, 29).length === 29 && diasDoPeriodo(semente, 30).length === 30,
   'com mais de um mês de diário, a tira tem o tamanho de sempre');
 const resumo0 = resumoDoTratamento(chegouHoje);
 const linhasDe = (id: string) => resumo0.find((s) => s.id === id)?.linhas ?? [];

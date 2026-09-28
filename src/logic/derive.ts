@@ -3764,9 +3764,11 @@ export function diasDeForca(S: State): number {
     outro a ler `d.treinos` para contar refeições. */
 export type DiaDaTira = { t: number; itens: number; hoje: boolean };
 
-export function diasDoPeriodo(S: State, dias: number): DiaDaTira[] {
+export function diasDoPeriodo(S: State, total: number): DiaDaTira[] {
   const hoje = +startOfDay(now());
   const porT = new Map((S.checkins as any[]).map((c) => [c.t, c]));
+  /* Desde o começo, como as tiras de refeição e de água — ver `diasDaTira`. */
+  const dias = diasDaTira(S, total, (S.checkins as any[]).filter((c) => (c.treinos || []).length).map((c) => c.t));
   /* `hoje` sai daqui e não da tela porque quem sabe que dia é hoje é esta
      camada — a tela que recalculasse isso teria a sua própria meia-noite,
      e as duas divergiriam justamente na virada. */
