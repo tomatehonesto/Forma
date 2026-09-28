@@ -32,7 +32,7 @@ import { PALETAS } from '../theme';
    ============================================================ */
 
 type Mancha = {
-  cor: string; meio: number;
+  cor: string;
   /** o centro, o tamanho (fixo) e a opacidade */
   x: number; rx: number; ry: number; o: number;
   /** a altura do centro na partida e na chegada */
@@ -83,6 +83,14 @@ function useCores() {
   }), [p.auroraHue, p.auroraSat]);
 }
 
+/* ⚠️ A BORDA SOME AOS POUCOS (pedido do dono: "os raios ainda estão muito
+   marcados"). Com três paradas — cheio, meio, nada — o olho achava a
+   borda de cada elipse. Seis paradas numa curva de sino (a opacidade cai
+   devagar no começo, rápido no meio e devagar de novo no fim) apagam a
+   borda; e a mancha cresce um pouco para a cor ocupar o mesmo lugar. */
+const DESFOQUE: [number, number][] = [[0, 0.95], [0.2, 0.85], [0.4, 0.6], [0.6, 0.32], [0.8, 0.1], [1, 0]];
+const CRESCE = 1.18;
+
 const PARADO = new Animated.Value(1);
 const R = 400;   // o raio da mancha desenhada; o tamanho vem da escala
 
@@ -128,20 +136,20 @@ export function ManchaDeLuz({ p = PARADO, largura: W, altura: H, papel: T, viva 
        esquerda, o ciano e o segundo céu ficam mais altos à direita, e a
        faixa média faz uma barriga do lado esquerdo. Com uma mancha larga
        só, a luz terminava numa linha, como um degradê linear. */
-    { cor: cor.ceu, meio: 0.55, x: W * 0.3, rx: W * 1.15, ry: T * 1.2, o: 0.95, de: H * 1.9, ate: T * 0.02 },
-    { cor: cor.ceu, meio: 0.5, x: W * 0.88, rx: W * 0.85, ry: T * 0.85, o: 0.85, de: H * 1.8, ate: -T * 0.12 },
-    { cor: cor.ciano, meio: 0.45, x: W * 0.72, rx: W * 0.95, ry: T * 0.95, o: 0.9, de: H * 1.57, ate: -T * 0.02 },
-    { cor: cor.funda, meio: 0.5, x: W * 0.45, rx: W * 0.95, ry: H * 0.36, o: 1, de: H * 1.02, ate: -T * 0.55 },
-    { cor: cor.faixa, meio: 0.35, x: W * 0.28, rx: W * 0.95, ry: T * 0.5, o: 0.6, de: H * 2.35, ate: T * 0.72 },
+    { cor: cor.ceu, x: W * 0.3, rx: W * 1.15, ry: T * 1.2, o: 0.95, de: H * 1.9, ate: T * 0.02 },
+    { cor: cor.ceu, x: W * 0.88, rx: W * 0.85, ry: T * 0.85, o: 0.85, de: H * 1.8, ate: -T * 0.12 },
+    { cor: cor.ciano, x: W * 0.72, rx: W * 0.95, ry: T * 0.95, o: 0.9, de: H * 1.57, ate: -T * 0.02 },
+    { cor: cor.funda, x: W * 0.45, rx: W * 0.95, ry: H * 0.36, o: 1, de: H * 1.02, ate: -T * 0.55 },
+    { cor: cor.faixa, x: W * 0.28, rx: W * 0.95, ry: T * 0.5, o: 0.6, de: H * 2.35, ate: T * 0.72 },
     /* Os tons de apoio. Na espera eles já aparecem no pé, em volta da
        funda — o anil à esquerda, um ciano à direita e o brilho no meio —,
        para a mancha em repouso não ser um azul só. Na subida o anil e o
        ciano de baixo atravessam e saem; no cabeçalho ficam um anil no
        canto e o brilho sobre o céu. */
-    { cor: cor.anil, meio: 0.4, x: W * 0.12, rx: W * 0.7, ry: H * 0.26, o: 0.75, de: H * 1.06, ate: -T * 0.75 },
-    { cor: cor.ciano, meio: 0.4, x: W * 0.85, rx: W * 0.65, ry: H * 0.2, o: 0.85, de: H * 0.98, ate: -T * 0.2 },
-    { cor: cor.anil, meio: 0.4, x: W * 0.95, rx: W * 0.55, ry: T * 0.5, o: 0.45, de: H * 1.75, ate: -T * 0.2 },
-    { cor: cor.brilho, meio: 0.35, x: W * 0.4, rx: W * 0.5, ry: H * 0.12, o: 0.55, de: H * 1.0, ate: T * 0.25 },
+    { cor: cor.anil, x: W * 0.12, rx: W * 0.7, ry: H * 0.26, o: 0.75, de: H * 1.06, ate: -T * 0.75 },
+    { cor: cor.ciano, x: W * 0.85, rx: W * 0.65, ry: H * 0.2, o: 0.85, de: H * 0.98, ate: -T * 0.2 },
+    { cor: cor.anil, x: W * 0.95, rx: W * 0.55, ry: T * 0.5, o: 0.45, de: H * 1.75, ate: -T * 0.2 },
+    { cor: cor.brilho, x: W * 0.4, rx: W * 0.5, ry: H * 0.12, o: 0.55, de: H * 1.0, ate: T * 0.25 },
   ];
 
   return (
@@ -157,17 +165,17 @@ export function ManchaDeLuz({ p = PARADO, largura: W, altura: H, papel: T, viva 
               { translateY: viva
                 ? Animated.add(p.interpolate({ inputRange: [0, 1], outputRange: [m.de, m.ate] }), onda(i * 0.21 + 0.25, H * 0.035))
                 : p.interpolate({ inputRange: [0, 1], outputRange: [m.de, m.ate] }) },
-              { scaleX: m.rx / R },
-              { scaleY: m.ry / R },
+              { scaleX: (m.rx * CRESCE) / R },
+              { scaleY: (m.ry * CRESCE) / R },
             ],
           }}
         >
           <Svg width={2 * R} height={2 * R}>
             <Defs>
               <RadialGradient id={`${id}m${i}`} cx="50%" cy="50%" r="50%">
-                <Stop offset="0" stopColor={m.cor} stopOpacity={1} />
-                <Stop offset={m.meio} stopColor={m.cor} stopOpacity={0.6} />
-                <Stop offset="1" stopColor={m.cor} stopOpacity={0} />
+                {DESFOQUE.map(([onde, quanto]) => (
+                  <Stop key={onde} offset={onde} stopColor={m.cor} stopOpacity={quanto} />
+                ))}
               </RadialGradient>
             </Defs>
             <Rect x={0} y={0} width={2 * R} height={2 * R} fill={`url(#${id}m${i})`} />

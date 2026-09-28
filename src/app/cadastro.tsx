@@ -771,7 +771,8 @@ const FASES = () => [K().faseAgrupando, K().faseCalculando, K().faseMontando, K(
 const PASSO_MS = 1500;       // entre uma fase e a seguinte (mais tempo: pedido do dono)
 const ULTIMA_MS = 1400;      // quanto o "Pronto!" fica à vista
 const SAIDA_MS = 380;        // a pilha se apagando antes do plano, sem ele embaixo
-const MANCHA_MS = 1400;      // a luz subindo do pé até virar o alto do plano
+const MANCHA_MS = 1600;      // a luz subindo do pé até virar o alto do plano
+const SAIDA_DA_PILHA_MS = 320; // as frases saindo antes da luz
 /* a opacidade de uma fase pela distância até a da vez: 0 é ela mesma */
 const BRILHO_POR_DISTANCIA = [1, 0.62, 0.36, 0.2];
 
@@ -821,21 +822,25 @@ function Montando({ onFim, depois }: {
     const t = fases.slice(1).map((_, k) => setTimeout(() => setFase(k + 1), PASSO_MS * (k + 1)));
     t.push(setTimeout(() => {
       if (depois) {
-        /* a pilha sai antes de a mancha cobrir a tela */
+        /* Primeiro a pilha sai, subindo e se apagando; a luz começa logo
+           depois, para nenhuma frase ficar por cima do azul. */
         Animated.timing(saida, {
-          toValue: 1, duration: 220, easing: Easing.out(Easing.quad), useNativeDriver: false,
+          toValue: 1, duration: SAIDA_DA_PILHA_MS, easing: Easing.in(Easing.quad), useNativeDriver: false,
         }).start();
-        /* O ritmo da referência: um movimento só, que arranca rápido e
-           demora a assentar (a curva é a de "sai rápido", exponencial).
-           O plano começa a entrar quando a luz está quase parada, e não
-           depois: no vídeo o texto chega enquanto ela ainda assenta. */
-        Animated.timing(mancha, {
-          toValue: 1, duration: MANCHA_MS, easing: Easing.bezier(0.16, 1, 0.3, 1), useNativeDriver: true,
-        }).start();
+        /* O ritmo da referência: um movimento só. Ele arranca macio (a
+           curva começava na velocidade máxima, e a luz dava um tranco),
+           corre no meio e demora a assentar. O plano começa a entrar
+           quando a luz está quase parada — no vídeo o texto chega
+           enquanto ela ainda assenta. */
+        t.push(setTimeout(() => {
+          Animated.timing(mancha, {
+            toValue: 1, duration: MANCHA_MS, easing: Easing.bezier(0.45, 0, 0.12, 1), useNativeDriver: true,
+          }).start();
+        }, SAIDA_DA_PILHA_MS * 0.55));
         t.push(setTimeout(() => {
           setComPlano(true);
           setTimeout(onFim, 1400);   // a cascata do plano (ver `chegada`, em app/plano)
-        }, MANCHA_MS * 0.6));
+        }, (SAIDA_DA_PILHA_MS * 0.55 + MANCHA_MS * 0.62)));
         return;
       }
       Animated.timing(saida, {

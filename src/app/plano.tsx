@@ -102,7 +102,7 @@ function empacotar(nomes: string[], largura: number): string[][] {
 
 /** Onde o papel começa no alto do plano, abaixo da área segura. A espera
     do cadastro usa a mesma medida para a aurora dela emendar nesta. */
-export const PAPEL_DO_PLANO = 280;
+export const PAPEL_DO_PLANO = 215;   // mais alto (pedido do dono): o título fica no claro
 
 export function Plano({ dados: d, aoSair, rotuloSair, aoVoltar, semChegada }: {
   dados: DadosDoPlano;
