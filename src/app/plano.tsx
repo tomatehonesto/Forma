@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Pressable, ScrollView, useWindowDimensions } from 'react-native';
+import { Animated, Easing, View, Pressable, ScrollView, useWindowDimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
@@ -100,13 +100,26 @@ function empacotar(nomes: string[], largura: number): string[][] {
   return linhas;
 }
 
-export function Plano({ dados: d, aoSair, rotuloSair }: {
+export function Plano({ dados: d, aoSair, rotuloSair, aoVoltar }: {
   dados: DadosDoPlano;
   aoSair: () => void;
   rotuloSair: string;
+  /** a seta de voltar, no alto — no fim do cadastro, para mudar uma
+      resposta antes de seguir (28/09/2026, pedido do dono) */
+  aoVoltar?: () => void;
 }) {
   const { c } = useTheme();
   const insets = useSafeAreaInsets();
+  /* ⚠️ O PLANO CHEGA, E NÃO APARECE. No cadastro ele vem logo depois do
+     "Pronto! O seu plano está feito.", que sai subindo; aqui o conteúdo
+     entra fazendo o mesmo gesto — surge e sobe um pouco —, para as duas
+     telas se lerem como uma passagem, e não como um corte. */
+  const chegada = React.useRef(new Animated.Value(0)).current;
+  React.useEffect(() => {
+    Animated.timing(chegada, {
+      toValue: 1, duration: 480, easing: Easing.out(Easing.cubic), useNativeDriver: true,
+    }).start();
+  }, []);
   /* A largura da coluna de conteúdo, para o empacotador saber onde a linha
      acaba: a tela menos o respiro lateral da seção e o do cartão. */
   const { width: largura } = useWindowDimensions();
@@ -272,6 +285,10 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
   const cartao = { backgroundColor: c.bg1, borderRadius: radius.lg };
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
+      <Animated.View style={{
+        flex: 1, opacity: chegada,
+        transform: [{ translateY: chegada.interpolate({ inputRange: [0, 1], outputRange: [24, 0] }) }],
+      }}>
       <Rolagem contentContainerStyle={{ paddingBottom: 28 }}>
         <Lavagem altura={insets.top + 380} />
         <View style={{
@@ -657,13 +674,28 @@ export function Plano({ dados: d, aoSair, rotuloSair }: {
           </View>
         </View>
       </Rolagem>
+      </Animated.View>
+      {/* A SETA NUA, como nas perguntas do cadastro: é por ela que se volta
+          para mudar uma resposta. Fora do cadastro (/plano), não há. */}
+      {aoVoltar ? (
+        <View style={{ position: 'absolute', top: insets.top + 12, left: 16 }}>
+          <Pressable
+            onPress={aoVoltar}
+            hitSlop={14}
+            accessibilityRole="button"
+            style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1 }]}
+          >
+            <Icon name="back" size={26} color={c.tx} sw={2} />
+          </Pressable>
+        </View>
+      ) : null}
 
-      <View style={{
+      <Animated.View style={{
         paddingHorizontal: 20, paddingTop: 12, paddingBottom: insets.bottom + 20,
-        backgroundColor: c.bg,
+        backgroundColor: c.bg, opacity: chegada,
       }}>
         <Botao pilula label={rotuloSair} onPress={aoSair} />
-      </View>
+      </Animated.View>
     </View>
   );
 }

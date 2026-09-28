@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  Animated, Easing, View, Image, Pressable, ScrollView, TextInput, Platform, useWindowDimensions,
+  Animated, Easing, View, Image, Pressable, ScrollView, TextInput, Platform, useWindowDimensions, ActivityIndicator,
   KeyboardAvoidingView, Keyboard, Switch,
 } from 'react-native';
 import { useAurora, PROPORCAO_DA_CAPA, PAPEL_COMECA } from '../ui/aurora';
+import PlanoDaLoja from './plano';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -760,14 +761,12 @@ function Abertura({ onComecar, onJaTenho }: { onComecar: () => void; onJaTenho?:
    A aurora é a da capa da conta, que termina no papel: a imagem sobe até
    o branco (ou o preto) começar no meio da tela, onde a pilha mora. */
 /* ⚠️ É FUNÇÃO, porque lê o catálogo. */
-const FASES = (): [string, string][] => [
-  ['plano', K().faseAgrupando],
-  ['chart', K().faseCalculando],
-  ['spark', K().faseMontando],
-  ['check', K().fasePronto],
-];
+const FASES = () => [K().faseAgrupando, K().faseCalculando, K().faseMontando, K().fasePronto];
 const PASSO_MS = 950;        // entre uma fase e a seguinte
 const ULTIMA_MS = 1200;      // quanto o "Pronto!" fica à vista
+const SAIDA_MS = 380;        // a pilha se apagando antes do plano
+/* a opacidade de uma fase pela distância até a da vez: 0 é ela mesma */
+const BRILHO_POR_DISTANCIA = [1, 0.62, 0.36, 0.2];
 
 function Montando({ onFim }: { onFim: () => void }) {
   const { c, isDark } = useTheme();
@@ -781,11 +780,18 @@ function Montando({ onFim }: { onFim: () => void }) {
      o driver nativo, que não anima nem uma nem outra. */
   const entrada = React.useRef(fases.map(() => new Animated.Value(0))).current;
   const passado = React.useRef(fases.map(() => new Animated.Value(0))).current;
+  /* ⚠️ AS MAIS ANTIGAS SE APAGAM (pedido do dono): quanto mais longe da da
+     vez, mais transparente — como os números da roda de data, que somem
+     conforme se afastam do centro. Anda junto com a passagem. */
+  const brilho = React.useRef(fases.map(() => new Animated.Value(1))).current;
   /* ⚠️ A PILHA SOBE DESLIZANDO. Ela é presa embaixo: quando uma fase
      entra, as de cima subiam num salto, da altura da nova. A nova se mede
      ao se desenhar, a pilha inteira começa deslocada para baixo dessa
      altura e desliza até o lugar — é a subida que a referência mostra. */
   const pilha = React.useRef(new Animated.Value(0)).current;
+  /* A SAÍDA: depois do "Pronto!", a pilha se apaga subindo, e o plano
+     entra fazendo o mesmo gesto (ver `Plano`, em app/plano). */
+  const saida = React.useRef(new Animated.Value(0)).current;
   const medidas = React.useRef(new Set<number>()).current;
   const mediu = (i: number, altura: number) => {
     if (i === 0 || medidas.has(i)) return;
@@ -799,7 +805,11 @@ function Montando({ onFim }: { onFim: () => void }) {
   React.useEffect(() => {
     Animated.timing(entrada[0], { toValue: 1, duration: 420, useNativeDriver: false }).start();
     const t = fases.slice(1).map((_, k) => setTimeout(() => setFase(k + 1), PASSO_MS * (k + 1)));
-    t.push(setTimeout(onFim, PASSO_MS * (fases.length - 1) + ULTIMA_MS));
+    t.push(setTimeout(() => {
+      Animated.timing(saida, {
+        toValue: 1, duration: SAIDA_MS, easing: Easing.in(Easing.cubic), useNativeDriver: false,
+      }).start(() => onFim());
+    }, PASSO_MS * (fases.length - 1) + ULTIMA_MS));
     return () => t.forEach(clearTimeout);
   }, []);
 
@@ -808,6 +818,10 @@ function Montando({ onFim }: { onFim: () => void }) {
     Animated.parallel([
       Animated.timing(passado[fase - 1], { toValue: 1, duration: 420, useNativeDriver: false }),
       Animated.timing(entrada[fase], { toValue: 1, duration: 420, useNativeDriver: false }),
+      ...fases.slice(0, fase).map((_, i) => Animated.timing(brilho[i], {
+        toValue: BRILHO_POR_DISTANCIA[Math.min(fase - i, BRILHO_POR_DISTANCIA.length - 1)],
+        duration: 420, useNativeDriver: false,
+      })),
     ]).start();
   }, [fase]);
 
@@ -828,9 +842,17 @@ function Montando({ onFim }: { onFim: () => void }) {
           paddingHorizontal: 28, paddingBottom: insets.bottom + Math.round(height * 0.22),
         }}
       >
-        <Animated.View style={{ gap: 14, transform: [{ translateY: pilha }] }}>
-        {fases.slice(0, fase + 1).map(([ic, texto], i) => {
+        <Animated.View style={{
+          gap: 14,
+          opacity: saida.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }),
+          transform: [
+            { translateY: pilha },
+            { translateY: saida.interpolate({ inputRange: [0, 1], outputRange: [0, -28] }) },
+          ],
+        }}>
+        {fases.slice(0, fase + 1).map((texto, i) => {
           const atual = i === fase;
+          const ultima = i === fases.length - 1;
           return (
             <Animated.View
               key={i}
@@ -838,23 +860,34 @@ function Montando({ onFim }: { onFim: () => void }) {
               style={{
                 /* O ícone fica na primeira linha: o "Pronto!" quebra em duas. */
                 flexDirection: 'row', alignItems: 'flex-start', gap: 12,
-                opacity: entrada[i],
+                opacity: Animated.multiply(entrada[i], brilho[i]),
                 transform: [{ translateY: entrada[i].interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) }],
               }}
             >
-              <View style={{ marginTop: atual ? 4 : 2 }}>
-                <Icon name={ic} size={atual ? 24 : 18} color={atual ? c.accent : c.tx3} sw={2} />
+              {/* ⚠️ A RODA GIRANDO, E NÃO UM ÍCONE POR FASE (pedido do dono): ela
+                  fica ao lado da da vez e diz que ainda está andando; no
+                  "Pronto!", vira o visto. As que já passaram guardam o lugar
+                  dela vazio — o texto não pula quando a fase vira cinza, e
+                  as frases ficam alinhadas numa coluna só. */}
+              <View style={{ width: 24, height: atual ? 32 : 22, alignItems: 'center', justifyContent: 'center' }}>
+                {atual ? (ultima
+                  ? <Icon name="check" size={24} color={c.accent} sw={2.4} />
+                  : <ActivityIndicator size="small" color={c.accent} />)
+                  : null}
               </View>
               <Animated.Text
                 style={{
                   flex: 1,
-                  fontFamily: atual ? font.bold : font.body,
+                  /* Sem negrito (pedido do dono): a da vez se distingue pelo
+                     tamanho e pela tinta, e não pelo peso. */
+                  fontFamily: font.body,
                   fontSize: passado[i].interpolate({ inputRange: [0, 1], outputRange: [26, 16] }),
                   lineHeight: passado[i].interpolate({ inputRange: [0, 1], outputRange: [32, 22] }),
                   color: passado[i].interpolate({ inputRange: [0, 1], outputRange: [c.tx, c.tx3] }),
                 }}
               >
-                {texto}
+                {/* A que já passou perde as reticências: ela terminou. */}
+                {atual ? texto : texto.replace(/\s*…$/, '')}
               </Animated.Text>
             </Animated.View>
           );
@@ -865,10 +898,17 @@ function Montando({ onFim }: { onFim: () => void }) {
   );
 }
 
-/** A espera do plano em volta, para a prévia de desenvolvimento. */
+/** A espera do plano e a chegada dele, em volta, para a prévia de
+    desenvolvimento. O plano é o de /plano, montado com o diário da loja. */
 function PreviaDaEspera() {
   const [volta, setVolta] = React.useState(0);
-  return <Montando key={volta} onFim={() => setTimeout(() => setVolta((v) => v + 1), 900)} />;
+  const [noPlano, setNoPlano] = React.useState(false);
+  React.useEffect(() => {
+    if (!noPlano) return;
+    const t = setTimeout(() => { setNoPlano(false); setVolta((v) => v + 1); }, 3500);
+    return () => clearTimeout(t);
+  }, [noPlano]);
+  return noPlano ? <PlanoDaLoja /> : <Montando key={volta} onFim={() => setNoPlano(true)} />;
 }
 
 /* ------------------------------------------------------------------ */
@@ -1509,6 +1549,11 @@ export default function Cadastro() {
            lá — ele pergunta se há história antes de tentar voltar. */
         aoSair={() => router.replace('/planos?de=cadastro' as any)}
         rotuloSair={K().verPlanos}
+        /* ⚠️ VOLTAR PARA MUDAR UMA RESPOSTA (pedido do dono): leva à última
+           pergunta, e dali a seta de sempre volta por todas. Seguir de
+           novo grava as respostas e monta o plano outra vez — o diário
+           acabou de nascer, e não há nada nele além delas. */
+        aoVoltar={() => setN(passos.length - 1)}
       />
     );
   }
