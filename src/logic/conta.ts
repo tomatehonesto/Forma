@@ -81,6 +81,15 @@ export async function pedirCodigo(email: string): Promise<{ ok: true } | { ok: f
   }
 }
 
+/** O código dentro do que a pessoa copiou — o e-mail inteiro, a linha do
+    código, ou só os números, com ou sem espaço ou traço no meio ("123 456").
+    Nulo quando não há um bloco de exatamente seis números: sete seguidos
+    não são um código, e colar um pedaço deles só daria "código errado". */
+export function codigoNoTexto(texto: string | null | undefined): string | null {
+  const m = (texto ?? '').match(/(?:^|\D)(\d{3})[\s-]?(\d{3})(?!\d)/);
+  return m ? m[1] + m[2] : null;
+}
+
 export async function confirmarCodigo(email: string, codigo: string): Promise<Entrada> {
   const cliente = nuvem();
   if (!cliente) return semNuvem;

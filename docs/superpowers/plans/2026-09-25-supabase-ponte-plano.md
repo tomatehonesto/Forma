@@ -1521,10 +1521,10 @@ quebra. Os achados vão para o item 16.
    configuração sem o `iosUrlScheme` (o ID do cliente iOS ao contrário,
    `com.googleusercontent.apps.…`), que só existe depois de o dono criar
    os clientes no Google Cloud. Entra junto com os IDs.
-6. ⚠️ **A marca do Google no botão.** O botão é o do app, só com o texto
-   "Continuar com o Google". A diretriz do Google pede o "G" colorido ao
-   lado; antes da loja, ou entra o logotipo, ou o botão oficial da
-   biblioteca (48 de altura, que destoaria da pílula de 64 da Apple).
+6. **A marca do Google no botão** (resolvido no mesmo dia): o botão tem o
+   "G" nas quatro cores e as cores da diretriz (ui/marcas), com a altura
+   da pílula do app. Em desenvolvimento, a Apple e o Google aparecem mesmo
+   onde não abrem, para o desenho ser visto; o toque explica.
 
 **⏳ O resto depende do dono** — ver PENDENCIAS, item 16.
 

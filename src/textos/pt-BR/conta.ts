@@ -34,7 +34,13 @@ export const conta = {
     abertura: 'Trazemos o seu diário de volta para este telefone.',
     sessao: 'A sua sessão terminou. O que você registrou continua aqui, e guardamos na sua conta assim que você entrar.',
   },
+  comApple: 'Continuar com a Apple',
   comGoogle: 'Continuar com o Google',
+  /* Na prévia (Expo Go, ou build sem o módulo), o toque na Apple ou no
+     Google explica por que não entra — ver app/conta. */
+  previaSoNaBuild: 'Esta entrada só funciona na versão instalada do aplicativo. Por aqui, continue com o e-mail.',
+  colarCodigo: 'Colar código',
+  colarNada: (n: number) => `Não achamos um código de ${n} números no que você copiou.`,
   comEmail: 'Continuar com e-mail',
   semSenha: 'Sem senha: mandamos um código para o seu e-mail.',
 

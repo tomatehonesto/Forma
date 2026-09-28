@@ -2,6 +2,7 @@ import React from 'react';
 import { ActivityIndicator, Animated, AppState, Platform, Pressable, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as AppleAuthentication from 'expo-apple-authentication';
+import * as Clipboard from 'expo-clipboard';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { setStatusBarStyle } from 'expo-status-bar';
@@ -11,12 +12,13 @@ import { estadoVazio } from '../logic/seed';
 import {
   DIGITOS_DO_CODIGO, ESPERA_PARA_REENVIAR_S, VALIDADE_DO_CODIGO_MIN,
   appleDisponivel, atualizarVinculo, confirmarCodigo, contaTemDiario, entrarComApple, entrarComGoogle, googleDisponivel,
-  pedirCodigo, sair, sincronia,
+  pedirCodigo, sair, sincronia, codigoNoTexto,
   usarConvitePendente,
   type ErroDaConta,
 } from '../logic/conta';
 import { TelaInterna, Titulao, Botao, Aviso, Cartao, Linha, SEM_ANEL } from '../ui/internas';
 import { Txt } from '../ui/kit';
+import { BotaoDaApple, BotaoDoGoogle } from '../ui/marcas';
 import { Icon } from '../ui/Icon';
 import { TelaDePergunta } from '../ui/pergunta';
 import { useAurora } from '../ui/aurora';
@@ -90,6 +92,14 @@ export default function Conta() {
   const [apple, setApple] = React.useState(false);
   /* Síncrono: o módulo nativo e os IDs estão ou não estão — ver logic/conta. */
   const [google] = React.useState(googleDisponivel);
+  /* ⚠️ A PRÉVIA DAS DUAS PORTAS (27/09/2026, pedido do dono): em
+     desenvolvimento, a Apple e o Google aparecem mesmo onde não abrem — o
+     Expo Go e a web —, para o desenho ser visto com as três portas. O
+     toque explica por que não entra. Fora do desenvolvimento, continua a
+     regra de sempre: porta que não abre não aparece. */
+  const previaDasPortas = __DEV__;
+  const [previa, setPrevia] = React.useState(false);
+  const [nadaParaColar, setNadaParaColar] = React.useState(false);
   const [espera, setEspera] = React.useState(0);
   /* quem entrou, enquanto o caminho do diário não termina */
   const [dono, setDono] = React.useState<Dono | null>(null);
@@ -428,10 +438,30 @@ export default function Conta() {
           valor={codigo}
           onMuda={(so) => {
             setCodigo(so);
+            setNadaParaColar(false);
             /* Colado ou digitado até o fim, entra sozinho. */
             if (so.length === DIGITOS_DO_CODIGO) confirmar(so);
           }}
         />
+        {/* COLAR O CÓDIGO (27/09/2026, pedido do dono): quem copiou o código
+            do e-mail — ou o e-mail inteiro — cola com um toque, e o código
+            confere sozinho. Some quando já há número digitado. */}
+        {!codigo && !ocupado ? (
+          <View style={{ marginTop: 16, alignItems: 'flex-start', gap: 10 }}>
+            <BotaoDeColar
+              onTexto={(texto) => {
+                const so = codigoNoTexto(texto);
+                if (!so) return setNadaParaColar(true);
+                setNadaParaColar(false);
+                setCodigo(so);
+                confirmar(so);
+              }}
+            />
+            {nadaParaColar ? (
+              <Txt v="caption" c={c.tx3}>{K().colarNada(DIGITOS_DO_CODIGO)}</Txt>
+            ) : null}
+          </View>
+        ) : null}
         {aviso ? <View style={{ marginTop: 20 }}>{aviso}</View> : null}
         {/* ⚠️ AS SAÍDAS SÃO TEXTO, e não botão. Eram dois botões do
             tamanho do principal, empilhados logo abaixo do código, e a
@@ -485,9 +515,13 @@ export default function Conta() {
           do sistema já sai certo em qualquer idioma. A altura é a da
           pílula do app, para as portas empilhadas terem o mesmo tamanho.
 
-          O GOOGLE VEM LOGO DEPOIS, na pílula do app, e só onde ele abre:
-          na build com o módulo nativo e com os IDs do Google Cloud (ver
-          logic/conta). No Expo Go, e sem os IDs, não há botão. */}
+          O GOOGLE VEM LOGO DEPOIS, com o "G" e as cores da marca (ui/marcas),
+          e só onde ele abre: na build com o módulo nativo e com os IDs do
+          Google Cloud (ver logic/conta). Fora do desenvolvimento, no Expo
+          Go e sem os IDs, não há botão — ver `previaDasPortas`. */}
+      {!apple && previaDasPortas ? (
+        <BotaoDaApple label={K().comApple} escuro={isDark} onPress={() => setPrevia(true)} />
+      ) : null}
       {apple ? (
         <AppleAuthentication.AppleAuthenticationButton
           buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
@@ -497,11 +531,16 @@ export default function Conta() {
           onPress={viaApple}
         />
       ) : null}
-      {google ? (
-        <Botao label={K().comGoogle} pilula tom={apple ? 'fantasma' : 'cheio'} onPress={viaGoogle} />
+      {google || previaDasPortas ? (
+        <BotaoDoGoogle label={K().comGoogle} escuro={isDark} onPress={google ? viaGoogle : () => setPrevia(true)} />
       ) : null}
-      <Botao label={K().comEmail} pilula tom={apple || google ? 'fantasma' : 'cheio'} onPress={() => { limpar(); setPasso('email'); }} />
-      <Txt v="caption" c={c.tx3} style={{ textAlign: 'center', marginTop: 6 }}>{K().semSenha}</Txt>
+      <Botao
+        label={K().comEmail} pilula tom={apple || google || previaDasPortas ? 'fantasma' : 'cheio'}
+        onPress={() => { limpar(); setPrevia(false); setPasso('email'); }}
+      />
+      <Txt v="caption" c={previa ? c.tx2 : c.tx3} style={{ textAlign: 'center', marginTop: 6 }}>
+        {previa ? K().previaSoNaBuild : K().semSenha}
+      </Txt>
     </CapaDaConta>
   );
 }
@@ -537,15 +576,21 @@ function CapaDaConta({ titulo, lead, onVoltar, children }: {
   const aurora = useAurora();
   const insets = useSafeAreaInsets();
   const { height } = useWindowDimensions();
-  const alto = Math.round(height * 0.62);
-  const pe = Math.round(alto * 0.46);
+  /* ⚠️ A AURORA NO ALTO, E EMBAIXO BRANCO OU PRETO (27/09/2026, pedido do
+     dono, com referência): o papel das portas é o branco puro no claro e o
+     preto puro no escuro — e não o fundo do app, que é um cinza-lavanda e
+     fazia a aurora esmaecer num degradê longo, sem borda. A aurora ocupa
+     metade da tela, e a passagem é curta, com a luz na borda. */
+  const papel = isDark ? '#000000' : '#FFFFFF';
+  const alto = Math.round(height * 0.52);
+  const pe = Math.round(alto * 0.36);
   const luz = mix(c.accent, '#FFFFFF', 0.3);
   /* o degrau entre a luz e o papel: a cor de ação quase toda papel. Sem
      ele, a rampa ia do azul direto ao fundo e passava por um cinza. */
-  const clarao = mix(c.accent, c.bg, 0.84);
+  const clarao = mix(c.accent, papel, 0.84);
 
   return (
-    <View style={{ flex: 1, backgroundColor: c.bg }}>
+    <View style={{ flex: 1, backgroundColor: papel }}>
       <View style={{ height: alto }}>
         <Image source={aurora.hero} style={StyleSheet.absoluteFill} contentFit="cover" contentPosition="top" />
         {/* O VÉU: mais pesado no alto, onde moram a seta e o relógio em
@@ -560,8 +605,8 @@ function CapaDaConta({ titulo, lead, onVoltar, children }: {
             escurece a rampa antes de chegar na cor. */}
         <LinearGradient
           colors={isDark
-            ? [alfa(c.bg, 0), c.bg]
-            : [alfa(luz, 0), alfa(luz, 0.85), clarao, c.bg]}
+            ? [alfa(papel, 0), papel]
+            : [alfa(luz, 0), alfa(luz, 0.85), clarao, papel]}
           locations={isDark ? [0, 1] : [0, 0.42, 0.72, 1]}
           style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: pe }}
           pointerEvents="none"
@@ -590,6 +635,45 @@ function CapaDaConta({ titulo, lead, onVoltar, children }: {
         {children}
       </View>
     </View>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* O BOTÃO DE COLAR
+
+   ⚠️ NO IPHONE É O BOTÃO DO SISTEMA (`ClipboardPasteButton`, iOS 16+):
+   ler a área de transferência por conta própria faz o iOS perguntar
+   "Permitir colar?" a cada vez, e o botão dele não pergunta — o toque já
+   é a permissão. O texto dele é o "Colar" do sistema, no idioma do
+   aparelho. No Android e na web, o nosso, que lê direto. */
+function BotaoDeColar({ onTexto }: { onTexto: (texto: string) => void }) {
+  const { c } = useTheme();
+  if (Platform.OS === 'ios' && Clipboard.isPasteButtonAvailable) {
+    return (
+      <Clipboard.ClipboardPasteButton
+        acceptedContentTypes={['plain-text']}
+        displayMode="iconAndLabel"
+        cornerStyle="capsule"
+        backgroundColor={c.accentWeak}
+        foregroundColor={c.accent}
+        style={{ width: 120, height: 40 }}
+        onPress={(d) => onTexto(d.type === 'text' ? d.text : '')}
+      />
+    );
+  }
+  return (
+    <Pressable
+      onPress={async () => onTexto(await Clipboard.getStringAsync().catch(() => ''))}
+      accessibilityRole="button"
+      style={({ pressed }) => [{
+        flexDirection: 'row', alignItems: 'center', gap: 8,
+        height: 40, paddingHorizontal: 16, borderRadius: radius.pill,
+        backgroundColor: c.accentWeak, opacity: pressed ? 0.7 : 1,
+      }]}
+    >
+      <Icon name="colar" size={16} color={c.accent} sw={2} />
+      <Txt v="label" c={c.accent}>{K().colarCodigo}</Txt>
+    </Pressable>
   );
 }
 

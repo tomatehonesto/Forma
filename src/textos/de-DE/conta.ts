@@ -11,7 +11,11 @@ export const conta = {
     abertura: 'Wir holen dein Tagebuch auf dieses Handy zurück.',
     sessao: 'Deine Sitzung ist abgelaufen. Was du eingetragen hast, ist noch hier, und wir speichern es in deinem Konto, sobald du dich anmeldest.',
   },
+  comApple: 'Weiter mit Apple',
   comGoogle: 'Weiter mit Google',
+  previaSoNaBuild: 'Diese Anmeldung funktioniert nur in der installierten App. Hier geht es mit E-Mail weiter.',
+  colarCodigo: 'Code einfügen',
+  colarNada: (n: number) => `In dem, was du kopiert hast, ist kein ${n}-stelliger Code.`,
   comEmail: 'Mit E-Mail weiter',
   semSenha: 'Ohne Passwort: Wir schicken dir einen Code per E-Mail.',
 

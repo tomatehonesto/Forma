@@ -11,7 +11,11 @@ export const conta = {
     abertura: 'Nous ramenons votre journal sur ce téléphone.',
     sessao: 'Votre session a pris fin. Ce que vous avez noté est toujours ici, et nous l’enregistrons dans votre compte dès que vous vous connectez.',
   },
+  comApple: 'Continuer avec Apple',
   comGoogle: 'Continuer avec Google',
+  previaSoNaBuild: 'Cette connexion ne fonctionne que dans l’application installée. Ici, continuez avec l’e-mail.',
+  colarCodigo: 'Coller le code',
+  colarNada: (n: number) => `Nous n’avons pas trouvé de code à ${n} chiffres dans ce que vous avez copié.`,
   comEmail: 'Continuer avec l’e-mail',
   semSenha: 'Sans mot de passe : nous envoyons un code à votre e-mail.',
 

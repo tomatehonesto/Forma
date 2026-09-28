@@ -39,6 +39,7 @@ import Brain from 'lucide-react-native/icons/brain';
 import CakeSlice from 'lucide-react-native/icons/cake-slice';
 import Calendar from 'lucide-react-native/icons/calendar';
 import ClipboardList from 'lucide-react-native/icons/clipboard-list';
+import ClipboardPaste from 'lucide-react-native/icons/clipboard-paste';
 import Camera from 'lucide-react-native/icons/camera';
 import ChartColumn from 'lucide-react-native/icons/chart-column';
 import ChartLine from 'lucide-react-native/icons/chart-line';
@@ -195,6 +196,8 @@ const MAPA: Record<string, React.ComponentType<any>> = {
   /* O plano montado no cadastro — a prancheta com a lista, e não o alvo,
      que já é das metas diárias (ver logic/primeirosPassos). */
   plano: ClipboardList,
+  /* colar o código que chegou no e-mail (app/conta) */
+  colar: ClipboardPaste,
   clock: Clock,
   steth: Stethoscope,
   send: Send,

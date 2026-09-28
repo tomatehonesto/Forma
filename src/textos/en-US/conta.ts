@@ -11,7 +11,11 @@ export const conta = {
     abertura: 'We’ll bring your journal back to this phone.',
     sessao: 'Your session ended. What you logged is still here, and we’ll save it to your account as soon as you sign in.',
   },
+  comApple: 'Continue with Apple',
   comGoogle: 'Continue with Google',
+  previaSoNaBuild: 'This sign-in only works in the installed app. Here, continue with email.',
+  colarCodigo: 'Paste code',
+  colarNada: (n: number) => `We couldn’t find a ${n}-digit code in what you copied.`,
   comEmail: 'Continue with email',
   semSenha: 'No password: we send a code to your email.',
 

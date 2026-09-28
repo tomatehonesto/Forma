@@ -11,7 +11,11 @@ export const conta = {
     abertura: 'Traemos tu diario de vuelta a este teléfono.',
     sessao: 'Tu sesión terminó. Lo que registraste sigue aquí, y lo guardamos en tu cuenta en cuanto entres.',
   },
+  comApple: 'Continuar con Apple',
   comGoogle: 'Continuar con Google',
+  previaSoNaBuild: 'Este ingreso solo funciona en la app instalada. Aquí, continúa con correo.',
+  colarCodigo: 'Pegar código',
+  colarNada: (n: number) => `No encontramos un código de ${n} números en lo que copiaste.`,
   comEmail: 'Continuar con correo',
   semSenha: 'Sin contraseña: te mandamos un código a tu correo.',
 
