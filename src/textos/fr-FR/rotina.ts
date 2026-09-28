@@ -31,6 +31,10 @@ export const rotina = {
        — un conseil au lieu d'un travail fait. */
     meuProgresso: 'Analysez mon évolution',
     prepararConsulta: 'Préparez ma consultation',
+    primeiraDose: 'À quoi m’attendre avec la première dose ?',
+    porQueEnjoo: 'Pourquoi le traitement donne-t-il la nausée ?',
+    oQueRegistrar: 'Que noter au début ?',
+    comoFunciona: 'Comment agit le médicament ?',
   },
 
   /* ⚠️⚠️ L'IMPÉRATIF ICI EST VOULU — « Buvez encore de l'eau », « Demandez

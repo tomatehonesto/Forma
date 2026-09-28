@@ -21,6 +21,10 @@ export const rotina = {
     meusExames: 'What do my labs show?',
     meuProgresso: 'Look at my progress',
     prepararConsulta: 'Prep my appointment',
+    primeiraDose: 'What to expect from my first dose?',
+    porQueEnjoo: 'Why does treatment cause nausea?',
+    oQueRegistrar: 'What should I log at the start?',
+    comoFunciona: 'How does the medication work?',
   },
 
   /* ⚠️⚠️ THE IMPERATIVE HERE IS ON PURPOSE — "Drink more water today",

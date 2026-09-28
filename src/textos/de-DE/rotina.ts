@@ -29,6 +29,10 @@ export const rotina = {
        baut die Auswertung und stellt die Übersicht zusammen. */
     meuProgresso: 'Analysiere meine Entwicklung',
     prepararConsulta: 'Bereite meinen Termin vor',
+    primeiraDose: 'Was erwartet mich bei der ersten Dosis?',
+    porQueEnjoo: 'Warum macht die Behandlung übel?',
+    oQueRegistrar: 'Was sollte ich am Anfang eintragen?',
+    comoFunciona: 'Wie wirkt das Medikament?',
   },
 
   /* ⚠️⚠️ DER IMPERATIV HIER IST GEWOLLT — „Trink noch etwas Wasser“,

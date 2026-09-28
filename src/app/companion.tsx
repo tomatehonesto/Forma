@@ -11,8 +11,10 @@ import {
   M, curWeight, lostKg, lostPct, adesao, hungerForecast, nextInjectionDate,
   lastInjection, siteLabel, waterMlToday, litros, companionSuggestions, companionMemoria,
   temConsulta, clinicaConectada, startWeight, variacaoDe,
+  temCiclo, temDose, medComDose, respostaNoDia, examFirst, examLast,
 } from '../logic/derive';
-import { now, diffDays, fmtDate, relDay, nf, doseTxt, kg } from '../logic/time';
+import { numeroEnxuto } from '../logic/local';
+import { now, diffDays, daysAgo, startOfDay, fmtDate, relDay, nf, kg } from '../logic/time';
 import { Txt, Row, CircleBtn, RichDoc, Rolagem } from '../ui/kit';
 import { EstrelaIA } from '../ui/marca';
 import { Icon } from '../ui/Icon';
@@ -109,11 +111,34 @@ function companionReply(S: State, text: string): Msg {
   const t = text.toLowerCase();
   const has = (...k: string[]) => k.some((x) => t.includes(x));
   const med = M(S);
+  /* ⚠️ NENHUMA RESPOSTA AFIRMA O QUE O DIÁRIO NÃO DIZ (28/09/2026). As
+     chips passaram a sair do momento e do que foi preenchido, e cada uma
+     cai numa destas respostas — que liam como se todo mundo fosse a
+     Mariana da semente: "já passou dos 5% de perda" para quem perdeu 1%,
+     "seus registros já mostram o enjoo melhorando" sem registro nenhum,
+     "reparei que aos fins de semana a hidratação cai", "média recente
+     perto de 90 g/dia" e "HbA1c 6,3 → 5,6%" escritos à mão. Agora cada
+     frase sobre a pessoa sai de uma conta sobre o diário dela, e quando
+     não há o que contar a resposta diz isso. */
   if (has('evolu', 'progress', 'como estou', 'como vou', 'peso')) {
+    const diasPesados = new Set((S.weights as any[]).map((w) => +startOfDay(new Date(w.t)))).size;
+    if (diasPesados < 2) {
+      return { who: 'ai', fonte: { rotulo: 'Suas pesagens', to: '/evolucao' },
+        text: S.weights.length
+          ? `Por enquanto tenho uma pesagem sua: <b>${pesoTxt(S, curWeight(S))}</b>. Com a próxima, em outro dia, já consigo mostrar a direção do seu peso.`
+          : `Ainda não tenho nenhuma pesagem sua. Com duas, em dias diferentes, já consigo mostrar a direção do seu peso.`,
+        mini: `Uma pesagem por semana, no mesmo horário, já basta para a linha ficar confiável.` };
+    }
     const days = diffDays(now(), new Date(S.profile.startT));
-    return { who: 'ai', text: `Nos <b>${days} dias</b> de tratamento você saiu de ${pesoTxt(S, S.profile.startWeight)} para <b>${pesoTxt(S, curWeight(S))}</b> — menos ${pesoTxt(S, lostKg(S))} (${nf(lostPct(S), 1)}%). Já passou dos 5% de perda, uma marca clínica que reduz riscos. Sua adesão às aplicações está em ${adesao(S)}%.`, fonte: { rotulo: 'Suas pesagens', to: '/evolucao' }, mini: `Ritmo saudável e constante: cerca de ${pesoTxt(S, lostKg(S) / (days / 7))} por semana. O peso é um sinal entre vários — energia, sono e exames também contam.` };
+    const perdeu = lostKg(S) > 0;
+    return { who: 'ai', fonte: { rotulo: 'Suas pesagens', to: '/evolucao' }, text: [
+      `Nos <b>${days} dias</b> de tratamento você saiu de ${pesoTxt(S, startWeight(S))} para <b>${pesoTxt(S, curWeight(S))}</b>${perdeu ? ` — menos ${pesoTxt(S, lostKg(S))} (${nf(lostPct(S), 1)}%)` : ''}.`,
+      perdeu && lostPct(S) >= 5 ? 'Já passou dos 5% de perda, uma marca clínica que reduz riscos.' : '',
+      S.injections.length >= 2 ? `Sua adesão às aplicações está em ${adesao(S)}%.` : '',
+    ].filter(Boolean).join(' '),
+      mini: `${perdeu && days >= 14 ? `Cerca de ${pesoTxt(S, lostKg(S) / (days / 7))} por semana até aqui. ` : ''}O peso é um sinal entre vários — energia, sono e exames também contam.` };
   }
-  if (has('consulta', 'prepar', 'médic', 'doutora', 'helena')) {
+  if (has('consulta', 'prepar', 'médic', 'doutora')) {
     /* ⚠️ ESTA RESPOSTA ERA UMA FRASE E UM BLOCO DE BULLETS À MÃO, com
        "•" digitados dentro de uma string e \n no meio. Ela sempre foi um
        documento — só não tinha como ser desenhada como um, porque o
@@ -121,16 +146,26 @@ function companionReply(S: State, text: string): Msg {
 
        Agora é ela quem mostra o RichDoc inteiro: manchete, lista,
        segunda manchete. A nota de rodapé fica no `mini`, que continua
-       sendo a voz mais baixa. */
+       sendo a voz mais baixa.
+
+       ⚠️ E CADA LINHA SÓ COM O DADO DELA: "náusea leve nos dias
+       pós-aplicação, já melhorando" era escrita para todo mundo. */
+    const pesou = new Set((S.weights as any[]).map((w) => +startOfDay(new Date(w.t)))).size >= 2;
+    const ultimos = (S.checkins as any[]).filter((x) => x.t >= +daysAgo(14) && respostaNoDia(x));
+    const comEnjoo = ultimos.filter((x) => (x.nausea ?? 0) >= 3).length;
     return { who: 'ai', fonte: { rotulo: 'Seu tratamento', to: '/resumo-medico' }, text: [
       temConsulta(S)
         ? `Montei um resumo para a sua ${S.consult.type.toLowerCase()} <b>${relDay(new Date(S.consult.t))}</b>${S.consult.doctor ? ` com ${S.consult.doctor}` : ''}.`
         : `Montei um resumo do seu tratamento para levar na consulta.`,
       '',
       '## O que levar',
-      `- Peso: <b>${pesoTxt(S, curWeight(S))}</b> (${variacaoDe(pesoV(S, curWeight(S) - startWeight(S)), pesoU(S)).delta} / ${nf(Math.abs(lostPct(S)), 1)}%) — [ver a linha](/evolucao)`,
-      `- Dose: ${med.label} ${doseTxt(S.profile.dose)} ${med.unit}, adesão ${adesao(S)}% — [ver as aplicações](/aplicacoes)`,
-      '- Sintomas: náusea leve nos dias pós-aplicação, já melhorando',
+      ...(S.weights.length ? [pesou
+        ? `- Peso: <b>${pesoTxt(S, curWeight(S))}</b> (${variacaoDe(pesoV(S, curWeight(S) - startWeight(S)), pesoU(S)).delta} / ${nf(Math.abs(lostPct(S)), 1)}%) — [ver a linha](/evolucao)`
+        : `- Peso: <b>${pesoTxt(S, curWeight(S))}</b>, uma pesagem até aqui — [ver a linha](/evolucao)`] : []),
+      `- Medicação: ${medComDose(S)}${S.injections.length >= 2 ? `, adesão ${adesao(S)}%` : ''} — [ver as aplicações](/aplicacoes)`,
+      ...(ultimos.length ? [comEnjoo
+        ? `- Sintomas: enjoo em ${comEnjoo} dos ${ultimos.length} check-ins das últimas duas semanas — [ver os registros](/sintomas)`
+        : `- Sintomas: sem enjoo nos ${ultimos.length} check-ins das últimas duas semanas — [ver os registros](/sintomas)`] : []),
       '',
       '## Perguntas que valem a pena',
       '- Manter ou ajustar a dose?',
@@ -139,11 +174,17 @@ function companionReply(S: State, text: string): Msg {
     ].join('\n'), mini: `Levo isso organizado, mas quem lê os seus números é ${quemAcompanha || 'quem acompanha você'}.` };
   }
   if (has('fome', 'saciedade', 'vontade de comer')) {
-    const hf = hungerForecast(S);
-    return { who: 'ai', text: `A fome acompanha o nível da ${med.mol.toLowerCase()} no seu corpo. Logo após a aplicação ele está alto e a saciedade é maior; <b>perto da próxima dose ele cai</b> e a fome volta. ${hf ? `No seu caso, esse ponto mais baixo é ${hf.inDays <= 1 ? 'nestes dias' : `em ${hf.inDays} dias`}.` : ''}`, fonte: { rotulo: 'Suas aplicações', to: '/aplicacoes' }, mini: `Ajuda nesses dias: priorizar proteína, hidratar bem e não pular refeições. Se a fome estiver difícil de controlar, vale anotar para conversar ${quemAcompanha ? `com ${quemAcompanha}` : 'na consulta'} — quem ajusta dose é quem acompanha você.` };
+    const hf = temCiclo(S) ? hungerForecast(S) : null;
+    return { who: 'ai', text: `A fome acompanha o nível da medicação no seu corpo. Logo após a aplicação ele está alto e a saciedade é maior; <b>perto da próxima dose ele cai</b> e a fome volta. ${hf ? `No seu caso, esse ponto mais baixo é ${hf.inDays <= 1 ? 'nestes dias' : `em ${hf.inDays} dias`}.` : ''}`, fonte: { rotulo: 'Suas aplicações', to: '/aplicacoes' }, mini: `Ajuda nesses dias: priorizar proteína, hidratar bem e não pular refeições. Se a fome estiver difícil de controlar, vale anotar para conversar ${quemAcompanha ? `com ${quemAcompanha}` : 'na consulta'} — quem ajusta dose é quem acompanha você.` };
   }
   if (has('náusea', 'nausea', 'enjoo', 'enjôo', 'mal estar', 'sintoma')) {
-    return { who: 'ai', text: `Sentir náusea leve, principalmente nos primeiros dias após aumentar a dose, é comum e costuma <b>diminuir com o tempo</b> — seus próprios registros já mostram isso melhorando.`, fonte: { rotulo: 'Seus sintomas', to: '/sintomas' }, mini: `O que costuma ajudar: refeições menores, evitar frituras e comer devagar. Se ficar forte, persistente ou vier com vômito, ${clinicaConectada(S) ? 'me avisa que eu destaco isso para a sua equipe' : 'procure quem acompanha você — isso não espera a próxima consulta'}.` };
+    /* "Diminuindo" só quando os registros dizem: a segunda metade dos
+       últimos seis dias com enjoo respondido abaixo da primeira. */
+    const ult = (S.checkins as any[]).filter((x) => x.nausea != null).slice(-6);
+    const media = (xs: any[]) => xs.reduce((s, x) => s + x.nausea, 0) / xs.length;
+    const meio = Math.floor(ult.length / 2);
+    const diminuindo = ult.length >= 4 && media(ult.slice(meio)) < media(ult.slice(0, meio)) - 0.5;
+    return { who: 'ai', text: `O enjoo vem de um dos efeitos que fazem o tratamento funcionar: a medicação deixa o estômago esvaziar mais devagar, e a comida fica mais tempo ali. É comum nos primeiros dias e depois de subir a dose, e costuma <b>diminuir com o tempo</b>.${diminuindo ? ' Nos seus próprios registros, ele já vem diminuindo.' : ''}`, fonte: { rotulo: 'Seus sintomas', to: '/sintomas' }, mini: `O que costuma ajudar: refeições menores, evitar frituras e comer devagar. Se ficar forte, persistente ou vier com vômito, ${clinicaConectada(S) ? 'me avisa que eu destaco isso para a sua equipe' : 'procure quem acompanha você — isso não espera a próxima consulta'}.` };
   }
   /* ⚠️ AS PALAVRAS DAS OUTRAS FORMAS ENTRARAM AQUI, e a varredura de
      "caneta" foi quem achou a falta.
@@ -154,30 +195,50 @@ function companionReply(S: State, text: string): Msg {
      para a resposta genérica do fim. Não era texto errado: era resposta
      perdida. */
   if (has('dose', 'aplica', 'aplicar', 'injeç', 'caneta', 'frasco', 'seringa', 'comprimido', 'tomar')) {
-    const nd = nextInjectionDate(S); const li = lastInjection(S);
-    return { who: 'ai', text: `Sua próxima aplicação é <b>${relDay(nd)}</b> (${fmtDate(nd)}), ${med.label} ${doseTxt(S.profile.dose)} ${med.unit}. Sugiro alternar o local${li?.site ? ` — da última vez foi ${siteLabel(li.site)}` : ''}.`, fonte: { rotulo: 'Suas aplicações', to: '/aplicacoes' }, mini: `Importante: eu não altero doses nem protocolos. Qualquer mudança é decisão de ${quemAcompanha || 'quem acompanha você'}. Posso te lembrar no dia e registrar a aplicação.` };
+    const li = lastInjection(S);
+    /* Sem aplicação registrada não há "próxima": a data saía do recuo de
+       `nextInjectionDate`, e a resposta marcava dia para uma dose que
+       nunca teve a primeira. Antes dela, a conversa é sobre ela. */
+    if (!li) {
+      return { who: 'ai', text: `Ainda não tenho nenhuma aplicação sua registrada. Nos primeiros dias depois da primeira dose é comum sentir <b>menos fome</b> e, às vezes, um enjoo leve — sinais de que a medicação começou a agir.`, fonte: { rotulo: 'Suas aplicações', to: '/aplicacoes' }, mini: `Quando aplicar, registre aqui: eu passo a contar o ciclo — o dia da próxima, a fase da fome e o local para alternar. Dose e medicação ficam com ${quemAcompanha || 'quem acompanha você'}.` };
+    }
+    const nd = nextInjectionDate(S);
+    return { who: 'ai', text: `Sua próxima aplicação é <b>${relDay(nd)}</b> (${fmtDate(nd)})${temDose(S) ? `, ${medComDose(S)}` : ''}. Sugiro alternar o local${li.site ? ` — da última vez foi ${siteLabel(li.site)}` : ''}.`, fonte: { rotulo: 'Suas aplicações', to: '/aplicacoes' }, mini: `Importante: eu não altero doses nem protocolos. Qualquer mudança é decisão de ${quemAcompanha || 'quem acompanha você'}. Posso te lembrar no dia e registrar a aplicação.` };
   }
   if (has('água', 'agua', 'hidrat')) {
-    return { who: 'ai', text: `Hoje você registrou <b>${aguaN(S, waterMlToday(S))} de ${aguaTxt(S, (S.profile as any).targets.waterMl)}</b>. Reparei que aos fins de semana a hidratação cai — e a água ajuda bastante com saciedade e com a náusea.`, fonte: { rotulo: 'Sua hidratação', to: '/agua' }, mini: `Quer que eu te lembre de beber água nos sábados e domingos?` };
+    const bebeu = waterMlToday(S);
+    const meta = aguaTxt(S, (S.profile as any).targets.waterMl);
+    return { who: 'ai', text: `${bebeu > 0 ? `Hoje você registrou <b>${aguaN(S, bebeu)} de ${meta}</b>.` : `Hoje ainda não tenho água registrada — a meta é <b>${meta}</b>.`} A água ajuda bastante com a saciedade e com o enjoo.`, fonte: { rotulo: 'Sua hidratação', to: '/agua' }, mini: `Cada copo registrado entra na conta do dia.` };
   }
   if (has('proteína', 'proteina')) {
-    return { who: 'ai', text: `Proteína é uma das suas metas — e você vem cumprindo bem. Manter a ingestão alta durante a perda de peso <b>protege sua massa magra</b>, o que sustenta seu metabolismo.`, fonte: { rotulo: 'Sua alimentação', to: '/alimentacao' }, mini: `Média recente perto de 90 g/dia. Boas fontes práticas: ovos, iogurte natural, frango, peixe e leguminosas.` };
+    const meta = (S.profile as any).targets.prot;
+    const dias = (S.checkins as any[]).filter((x) => (x.prot || 0) > 0);
+    const media = dias.length ? dias.reduce((s, x) => s + x.prot, 0) / dias.length : null;
+    return { who: 'ai', text: `${media == null ? 'Ainda não tenho proteína registrada.' : `Nos dias com proteína registrada, sua média é de <b>${Math.round(media)} g</b>, para uma meta de ${meta} g.`} Manter a ingestão alta durante a perda de peso <b>protege sua massa magra</b>, o que sustenta seu metabolismo.`, fonte: { rotulo: 'Sua alimentação', to: '/alimentacao' }, mini: `Boas fontes práticas: ovos, iogurte natural, frango, peixe e leguminosas.` };
   }
   if (has('meta', 'objetivo', 'jeans', 'roupa', 'energia', 'dormir', 'sono')) {
-    return { who: 'ai', text: `Suas metas vão além do peso, e é assim que deve ser. Sono e energia estão sendo acompanhados nos seus check-ins, e o peso segue uma tendência constante. Transformação é o conjunto, não só a balança.`, fonte: { rotulo: 'Suas metas', to: '/metas' }, mini: `Quer adicionar uma nova meta, além da balança? Posso te levar até lá.` };
+    const respondeu = (S.checkins as any[]).some(respostaNoDia);
+    return { who: 'ai', text: `Suas metas vão além do peso, e é assim que deve ser. ${respondeu ? 'Sono e energia entram pelos seus check-ins, ao lado da balança.' : 'Quando você responder o check-in, sono e energia entram na conta ao lado da balança.'} Transformação é o conjunto, não só a balança.`, fonte: { rotulo: 'Suas metas', to: '/metas' }, mini: `Quer adicionar uma nova meta, além da balança? Posso te levar até lá.` };
   }
   if (has('exame', 'hba1c', 'colesterol', 'glicemia', 'ldl', 'hdl', 'triglic', 'vitamina', 'ferritina', 'tsh', 'insulina', 'creatinina')) {
     /* Os marcadores viram termos que abrem a tela deles. É o que o
        sublinhado promete na referência, e aqui ele só existe porque o
-       destino existe: /exames?m=X abre o marcador. */
+       destino existe: /exames?m=X abre o marcador.
+
+       ⚠️ Os números eram os da semente, escritos à mão. Agora são os
+       marcadores com mais de uma medida, do primeiro valor ao último. */
+    const comHistoria = ((S.exams ?? []) as any[]).filter((e) => e.values?.length >= 2);
+    if (!comHistoria.length) {
+      return { who: 'ai', fonte: { rotulo: 'Seus exames', to: '/exames' }, text: ((S.exams ?? []) as any[]).length
+        ? 'Por enquanto tenho uma medida de cada exame. Com a próxima coleta, já consigo mostrar o que mudou.'
+        : 'Ainda não tenho exames seus. Quando você adicionar um resultado, eu mostro como cada marcador anda ao longo do tratamento.',
+        mini: `Não substituo a leitura de ${quemAcompanha || 'quem acompanha você'}.` };
+    }
     return { who: 'ai', fonte: { rotulo: 'Seus exames', to: '/exames' }, text: [
-      'Seus exames vêm melhorando junto com o tratamento.',
-      '',
-      '## Os que mais mudaram',
-      '- [HbA1c](/exames?m=HbA1c): <b>6,3 → 5,6%</b>, fora da faixa de risco',
-      '- [LDL](/exames?m=LDL) e [triglicerídeos](/exames?m=Triglicerídeos): em queda',
-      '- [HDL](/exames?m=HDL) e [vitamina D](/exames?m=Vitamina D): em alta',
-    ].join('\n'), mini: `Toque num marcador para ver a linha dele e o que ele significa. Não substituo a leitura da sua médica.` };
+      '## Do primeiro ao último resultado',
+      ...comHistoria.slice(0, 5).map((e) =>
+        `- [${e.marker}](/exames?m=${e.marker}): <b>${numeroEnxuto(examFirst(e).v, 1)} → ${numeroEnxuto(examLast(e).v, 1)} ${e.unit}</b>`),
+    ].join('\n'), mini: `Toque num marcador para ver a linha dele e o que ele significa. Não substituo a leitura de ${quemAcompanha || 'quem acompanha você'}.` };
   }
   if (has('medicament', 'remédio', 'remedio', 'tirzep', 'semaglut', 'bula', 'como funciona')) {
     return { who: 'ai', text: `${med.label} tem como princípio ativo a <b>${med.mol.toLowerCase()}</b>, aplicada ${med.cad === 'weekly' ? '1×/semana' : 'diariamente'}. Ela aumenta a saciedade e ajuda no controle da glicose.`, fonte: { rotulo: 'Sua medicação', to: '/protocolo' }, mini: `Efeitos comuns no começo: náusea leve e menos apetite. Dúvidas sobre dose ou troca de medicação são sempre com ${quemAcompanha || 'quem acompanha você'}.` };
@@ -186,6 +247,17 @@ function companionReply(S: State, text: string): Msg {
     const p = S.protocol, done = p.tasks.filter((x: any) => x.done).length;
     const next = p.tasks.find((x: any) => !x.done);
     return { who: 'ai', text: `No protocolo da <b>semana ${p.week}</b> você concluiu ${done} de ${p.tasks.length} itens. ${next ? `Falta: ${next.t}.` : 'Tudo em dia.'}`, fonte: { rotulo: 'Seu protocolo', to: '/protocolo' }, mini: `Quer que eu te lembre das tarefas ao longo da semana?` };
+  }
+  /* A pergunta do começo — ver `companionSuggestions`: com pouco
+     registrado, o que ajuda é saber o que registrar. */
+  if (has('registr', 'anotar', 'começo')) {
+    return { who: 'ai', text: [
+      'No começo, três coisas já me deixam ler o seu tratamento:',
+      '',
+      '- [O check-in do dia](/checkin): energia, sono, fome e sintomas, em menos de um minuto',
+      '- [Uma pesagem por semana](/evolucao), no mesmo horário',
+      '- [Cada aplicação](/aplicacoes), com o local',
+    ].join('\n'), mini: `Com alguns dias disso, começo a mostrar o que muda de uma semana para outra.` };
   }
   if (has('oi', 'olá', 'ola', 'bom dia', 'boa tarde', 'obrigad', 'valeu')) {
     return { who: 'ai', text: `Tô aqui com você. Pode me perguntar sobre sua evolução, sintomas, exames, a próxima dose ou a consulta — o que fizer sua semana mais leve.` };

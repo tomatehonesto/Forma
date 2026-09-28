@@ -22,6 +22,10 @@ export const rotina = {
     meusExames: '¿Qué muestran mis exámenes?',
     meuProgresso: 'Analiza mi progreso',
     prepararConsulta: 'Prepara mi consulta',
+    primeiraDose: '¿Qué esperar de la primera dosis?',
+    porQueEnjoo: '¿Por qué el tratamiento da náuseas?',
+    oQueRegistrar: '¿Qué conviene registrar al principio?',
+    comoFunciona: '¿Cómo funciona la medicación?',
   },
 
   /* ⚠️⚠️ EL IMPERATIVO AQUÍ ES A PROPÓSITO — "Toma más agua hoy mismo",

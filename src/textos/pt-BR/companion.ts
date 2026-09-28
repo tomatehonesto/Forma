@@ -23,13 +23,7 @@ export const companion = {
      A MEMÓRIA — quatro aberturas, que giram com os registros
      ============================================================ */
   memoria: {
-    desdeAPrimeira: (dias: number) =>
-      `Acompanho seu tratamento desde a primeira dose, há ${dias} dias.`,
-    desdeOPrimeiroDiaComSemanas: (semanas: number) =>
-      `Conheço sua jornada desde o primeiro dia — ${semanas} semanas até aqui.`,
-    desdeOPrimeiroDia: 'Conheço sua jornada desde o primeiro dia.',
-    dosesAtras: (doses: number) =>
-      `Estou com você desde a primeira dose, há ${doses} doses.`,
+    desdeOComeco: 'Conheço sua jornada desde o começo.',
   },
 
   /* ============================================================
@@ -160,10 +154,11 @@ export const companion = {
     hojeDeCem: 'hoje, de 100',
 
     proximasAcoes: 'Próximas ações',
-    proximasAcoesNota: 'Na ordem em que chegam — nada sobre dose ou protocolo.',
+    proximasAcoesNota: 'Na ordem em que chegam. Sugestões do dia a dia — dose e medicação são decisão de quem acompanha você.',
 
     resumos: 'Gerar resumos',
     resumosNota: 'Seus dados organizados para levar a alguém.',
+    disponivelDepois: 'disponível depois dos primeiros registros',
 
     resumoDaSemana: 'Resumo da semana',
     resumoDaSemanaSub: (semana: number, checkins: number, peso: string | null) =>

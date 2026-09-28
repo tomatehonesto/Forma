@@ -18,13 +18,7 @@
 
 export const companion = {
   memoria: {
-    desdeAPrimeira: (dias: number) =>
-      `Acompaño tu tratamiento desde la primera dosis, hace ${dias} días.`,
-    desdeOPrimeiroDiaComSemanas: (semanas: number) =>
-      `Conozco tu recorrido desde el primer día — ${semanas} semanas hasta aquí.`,
-    desdeOPrimeiroDia: 'Conozco tu recorrido desde el primer día.',
-    dosesAtras: (doses: number) =>
-      `Estoy contigo desde la primera dosis, hace ${doses} dosis.`,
+    desdeOComeco: 'Conozco tu recorrido desde el comienzo.',
   },
 
   biblioteca: {
@@ -97,10 +91,11 @@ export const companion = {
     hojeDeCem: 'hoy, de 100',
 
     proximasAcoes: 'Próximos pasos',
-    proximasAcoesNota: 'En el orden en que llegan — nada sobre la dosis ni el protocolo.',
+    proximasAcoesNota: 'En el orden en que llegan. Sugerencias del día a día — la dosis y la medicación las decide quien te acompaña.',
 
     resumos: 'Crear resúmenes',
     resumosNota: 'Tus datos ordenados para llevar a alguien.',
+    disponivelDepois: 'disponible después de los primeros registros',
 
     resumoDaSemana: 'Resumen de la semana',
     resumoDaSemanaSub: (semana: number, checkins: number, peso: string | null) =>

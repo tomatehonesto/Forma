@@ -1844,6 +1844,8 @@ export function balanceRead(S: State) {
       /** para onde o botão leva, quando não é uma pergunta ao Morphi */
       to: '/checkin' as string | undefined,
       serieDe: (_dias: number) => '',
+      /** sem leitura: o Insights esconde o cartão — ver app/(tabs)/insights */
+      vazia: true,
     };
   }
   const eixos = radar(S).slice().sort((a, b) => b.v - a.v);
@@ -1883,6 +1885,7 @@ export function balanceRead(S: State) {
     q: Q.perguntaMelhorar(fraco.k),
     to: undefined as string | undefined,
     serieDe: (dias: number) => Q.serieDe(fraco.k, dias),
+    vazia: false,
   };
 }
 
@@ -2406,41 +2409,18 @@ export function energiaDoDia(S: State, t: number) {
 /* ============================================================
    MEMÓRIA DO COMPANION
 
-   A frase que prova que ele conhece esta pessoa e não uma qualquer.
-   "Leu 51 registros" é verdadeiro mas soa a contador; o que constrói
-   confiança é a extensão do que ele acompanha — desde quando, e o quê.
+   A linha sob a pergunta do Insights e da conversa: a prova de que ele
+   conhece esta pessoa, em extensão de tempo e não em contagem.
 
-   O índice sai da quantidade de check-ins, e não de sorteio: a frase
-   muda quando a jornada muda, não a cada vez que a tela desenha.
+   ⚠️ UMA FRASE SÓ, E GENÉRICA (28/09/2026, pedido do dono). Eram quatro
+   girando — "desde a primeira dose, há N dias", "N semanas até aqui",
+   "há N doses" —, cada uma com a própria condição para não mentir, e
+   ainda assim a de primeiro acesso lia "desde o primeiro dia" no dia um.
+   "Desde o começo" é verdade no primeiro dia e no centésimo, e não
+   depende de conta nenhuma para continuar sendo.
    ============================================================ */
-export function companionMemoria(S: State): string {
-  const dias = diffDays(now(), new Date(S.profile.startT));
-  const semanas = Math.floor(dias / 7);
-  const nInj = S.injections.length;
-  const nCheck = S.checkins.length;
-  /* ⚠️ "DESDE A PRIMEIRA DOSE" CONTA DA PRIMEIRA DOSE, e não do cadastro.
-     Contava de `startT`, e a Mariana lia "há 70 dias" com a primeira
-     aplicação registrada há 67 — três dias que a frase inventava. */
-  const primeira = nInj ? Math.min(...S.injections.map((i) => i.t)) : 0;
-  /* Quem já tinha começado respondeu no cadastro a ÚLTIMA dose, e não a
-     primeira: para essa pessoa, "desde a primeira dose" contaria de uma
-     dose que não é a primeira. Ver `aplicacaoDoCadastro`. */
-  const primeiraConhecida = comecouNoApp(S);
-  const diasDaPrimeira = nInj ? diffDays(now(), new Date(primeira)) : 0;
-
-  const M = T.companion.memoria;
-  /* ⚠️ SÓ ENTRA A FRASE QUE É VERDADE HOJE. As quatro giravam sem olhar
-     para nada, e quem acabou de se cadastrar lia "desde a primeira dose,
-     há 0 dias" sem ter tomado dose nenhuma — ou "1 semanas", ou "desde a
-     primeira dose, já são 1". Com menos de dois dias, duas semanas ou
-     duas doses, a frase sai da roda; "desde o primeiro dia" vale sempre. */
-  const frases = [
-    ...(primeiraConhecida && diasDaPrimeira >= 2 ? [M.desdeAPrimeira(diasDaPrimeira)] : []),
-    ...(semanas >= 2 ? [M.desdeOPrimeiroDiaComSemanas(semanas)] : []),
-    M.desdeOPrimeiroDia,
-    ...(primeiraConhecida && nInj >= 2 ? [M.dosesAtras(nInj)] : []),
-  ];
-  return frases[nCheck % frases.length];
+export function companionMemoria(_S: State): string {
+  return T.companion.memoria.desdeOComeco;
 }
 
 /* ============================================================
@@ -2521,30 +2501,67 @@ export function recentQuestions(S: State): string[] {
 /* Sugestões para o Morphi — o que faz sentido perguntar AGORA.
 
    Pergunta sugerida é a porta de entrada da IA: se ela vier genérica
-   ("Como está minha evolução?" sempre), a inteligência não se prova. As
-   duas primeiras saem do momento do tratamento; as outras cobrem o que a
-   pessoa costuma querer saber. */
+   ("Como está minha evolução?" sempre), a inteligência não se prova.
+
+   ⚠️ CADA UMA TEM O SEU MOTIVO NO DIÁRIO (28/09/2026, pedido do dono). As
+   chips não são fixas: saem do momento do tratamento e do que a pessoa
+   preencheu — registrou enjoo, aparece "Por que o tratamento dá enjoo?".
+   E nenhuma é oferecida sem a resposta ter do que falar: "Analise meu
+   progresso" com uma pesagem só levava a uma análise de nada, e
+   "Prepare minha consulta" sem consulta marcada, a um preparo para
+   consulta nenhuma. A ordem é a prioridade — o que acabou de acontecer
+   vem antes do que vale sempre —, e o corte é de quatro.
+
+   Quando a IA do Morphi Intelligence chegar, é ela quem responde; quem
+   escolhe o que perguntar continua sendo este motor, que lê o diário. */
 export function companionSuggestions(S: State): string[] {
   const out: string[] = [];
   const cyc = doseCycle(S);
   const nd = diasAteAplicar(S);
   const ci: any = checkinToday(S);
-
+  const cs = (S.checkins ?? []) as any[];
   const P = T.rotina.perguntas;
-  if (cyc.phase.key === 'retorno' || cyc.phase.key === 'pre') out.push(P.maisFome);
-  else if (cyc.phase.key === 'pico') out.push(P.semFome);
-  else if (cyc.phase.key === 'aplic') out.push(P.depoisDaAplicacao);
 
+  /* O MOMENTO DO TRATAMENTO. Sem aplicação registrada não há ciclo — a
+     fase que `doseCycle` devolve é recuo, e "O que esperar depois da
+     aplicação?" aparecia para quem nunca aplicou. Antes da primeira, a
+     pergunta é sobre ela. */
+  if (temCiclo(S)) {
+    if (cyc.phase.key === 'retorno' || cyc.phase.key === 'pre') out.push(P.maisFome);
+    else if (cyc.phase.key === 'pico') out.push(P.semFome);
+    else if (cyc.phase.key === 'aplic') out.push(P.depoisDaAplicacao);
+  } else if (!(S.injections ?? []).length) {
+    out.push(P.primeiraDose);
+  }
+
+  /* O QUE FOI PREENCHIDO. O enjoo forte de hoje pede alívio; o enjoo dos
+     últimos dias, entender de onde ele vem. */
   if (ci && ci.nausea >= 5) out.push(P.diminuirEnjoo);
+  else if (cs.slice(-5).some((c) => (c.nausea ?? 0) >= 3)) out.push(P.porQueEnjoo);
   /* Trocar o dia da aplicação pede um dia de aplicação — sem ciclo, `nd` é
      zero por recuo, e a sugestão aparecia para quem ainda não começou. */
   if (temCiclo(S) && nd <= 2) out.push(P.trocarODia);
 
+  /* A consulta, quando está perto — nas duas semanas antes dela. */
+  if (temConsulta(S)) {
+    const cd = diffDays(new Date(S.consult.t), now());
+    if (cd >= 0 && cd <= 14) out.push(P.prepararConsulta);
+  }
+
+  /* O progresso, quando há o que comparar: duas pesagens em dias
+     diferentes. */
+  const diasPesados = new Set((S.weights ?? []).map((w: any) => +startOfDay(new Date(w.t)))).size;
+  if (diasPesados >= 2) out.push(P.meuProgresso);
+
+  /* Os exames depois do progresso: quando os quatro lugares acabam, o
+     que fica de fora é o que muda a cada coleta, e não a cada semana. */
   const a1c = examBy(S, 'HbA1c');
   if (a1c && a1c.values.length >= 2) out.push(P.meusExames);
 
-  out.push(P.meuProgresso);
-  if (temAcompanhamento(S)) out.push(P.prepararConsulta);
+  /* O COMEÇO. Com pouco registrado, o que ajuda é saber o que registrar e
+     como a medicação age — e não um menu de análises vazias. */
+  if (cs.filter(respostaNoDia).length < 3) out.push(P.oQueRegistrar);
+  if ((S.profile as any).med !== 'indefinido' && (S.injections ?? []).length < 3) out.push(P.comoFunciona);
 
   /* sem repetir e no máximo quatro — lista longa vira menu, não conversa */
   return [...new Set(out)].slice(0, 4);

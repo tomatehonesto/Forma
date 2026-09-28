@@ -213,6 +213,10 @@ export default function Insights() {
   const dSem = !vSem ? null : vSem.tom === 'neutro' ? vSem.delta.toLowerCase() : vSem.delta;
   /* Conta check-ins, e check-in é dia com resposta — não dia com linha. */
   const ci7 = S.checkins.filter((x: any) => x.t >= +daysAgo(7) && respostaNoDia(x)).length;
+  /* Os primeiros registros: um check-in respondido, uma segunda pesagem
+     ou uma segunda aplicação. A pesagem e a dose do cadastro não contam —
+     são o formulário, e não o diário. */
+  const comRegistros = S.checkins.some(respostaNoDia) || S.weights.length >= 2 || S.injections.length >= 2;
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
@@ -567,6 +571,12 @@ export default function Insights() {
             `overflow: hidden` porque a malha é absoluta e precisa ser
             recortada pelo raio; o conteúdo vai num filho, senão ele fica
             atrás do desenho. */}
+        {/* ⚠️ SÓ QUANDO HÁ O QUE DIZER (28/09/2026, pedido do dono). Sem
+            check-in respondido, o cartão abria "O que observamos" para dizer
+            que ainda não tinha o que ler — um título que promete observação
+            em cima de uma frase que admite não ter nenhuma. Sem leitura, ele
+            não aparece; o convite para o check-in já mora nas ações. */}
+        {!eq.vazia && (
         <View style={{ backgroundColor: c.altMid, borderRadius: radius.lg, marginTop: 40, overflow: 'hidden' }}>
           <Malha id="insightsEquilibrio" forca={1} escura />
           <View style={{ padding: 24 }}>
@@ -612,6 +622,7 @@ export default function Insights() {
           </Pressable>
           </View>
         </View>
+        )}
 
         {/* ---- ações: o entendimento vira tarefa ---- */}
         {/* ============================================================
@@ -685,17 +696,23 @@ export default function Insights() {
           <SectionHead title={K().resumos} />
           <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>{K().resumosNota}</Txt>
 
-          <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 16, padding: 16 }}>
+          {/* ⚠️ ANTES DOS PRIMEIROS REGISTROS, OS TRÊS ESPERAM (28/09/2026,
+              pedido do dono). Abertos, montavam documentos de nada — "semana
+              1 · 0 check-ins", um preparo de consulta sem peso nem sintoma.
+              Ficam na lista, porque dizem o que o app vai fazer, mas sem
+              toque e com o aviso de quando passam a existir. */}
+          <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 16, padding: 16, opacity: comRegistros ? 1 : 0.55 }}>
             <ListRow ic="chart" title={K().resumoDaSemana}
-              sub={K().resumoDaSemanaSub(r.semana, ci7, dSem)}
-              onPress={perguntar(T.rotina.perguntas.meuProgresso)} />
+              sub={comRegistros ? K().resumoDaSemanaSub(r.semana, ci7, dSem) : K().disponivelDepois}
+              onPress={comRegistros ? perguntar(T.rotina.perguntas.meuProgresso) : undefined} />
             <View style={{ height: 1, backgroundColor: c.line, marginVertical: 12 }} />
             <ListRow ic="cal" title={K().preparoDaConsulta}
-              sub={temAcompanhamento(S) ? K().preparoDaConsultaSub : K().preparoSemEquipe}
-              onPress={perguntar(T.rotina.perguntas.prepararConsulta)} />
+              sub={!comRegistros ? K().disponivelDepois : temAcompanhamento(S) ? K().preparoDaConsultaSub : K().preparoSemEquipe}
+              onPress={comRegistros ? perguntar(T.rotina.perguntas.prepararConsulta) : undefined} />
             <View style={{ height: 1, backgroundColor: c.line, marginVertical: 12 }} />
             <ListRow ic="doc" title={K().documento}
-              sub={K().documentoSub} onPress={go('/resumo-medico')} />
+              sub={comRegistros ? K().documentoSub : K().disponivelDepois}
+              onPress={comRegistros ? go('/resumo-medico') : undefined} />
           </View>
         </View>
 

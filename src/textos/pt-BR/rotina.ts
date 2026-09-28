@@ -28,6 +28,10 @@ export const rotina = {
     meusExames: 'O que meus exames mostram?',
     meuProgresso: 'Analise meu progresso',
     prepararConsulta: 'Prepare minha consulta',
+    primeiraDose: 'O que esperar da primeira dose?',
+    porQueEnjoo: 'Por que o tratamento dá enjoo?',
+    oQueRegistrar: 'O que vale registrar no começo?',
+    comoFunciona: 'Como a medicação funciona?',
   },
 
   /* ============================================================

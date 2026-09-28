@@ -23,6 +23,10 @@ export const rotina = {
     meusExames: 'Che cosa dicono i miei esami?',
     meuProgresso: 'Analizza i miei progressi',
     prepararConsulta: 'Prepara la mia visita',
+    primeiraDose: 'Cosa aspettarmi dalla prima dose?',
+    porQueEnjoo: 'Perché la terapia dà nausea?',
+    oQueRegistrar: 'Cosa conviene registrare all’inizio?',
+    comoFunciona: 'Come funziona il farmaco?',
   },
 
   /* ============================================================

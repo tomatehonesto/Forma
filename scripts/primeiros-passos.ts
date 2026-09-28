@@ -305,8 +305,8 @@ const memoria = [0, 1, 2, 3].map((n) => {
   (x.checkins as any[]).push(...Array.from({ length: n }, (_, k) => ({ t: +hoje - k * DIA, energia: 5 })));
   return companionMemoria(x);
 });
-ok(memoria.every((f) => !f.includes(T.companion.memoria.desdeAPrimeira(3).split(',')[0])),
-  'o Morphi não diz "desde a primeira dose" contando da dose do cadastro');
+ok(memoria.every((f) => f === T.companion.memoria.desdeOComeco),
+  'o Morphi diz "desde o começo", sem contar da dose do cadastro');
 ok((conquistas(jaComecou).find((q) => q.id === 'tempo')?.nivel ?? 0) >= 1,
   'o tempo de tratamento conta do início que a pessoa contou (40 dias: um mês)');
 const grade = semanasDaGrade(jaComecou);
@@ -396,6 +396,21 @@ const recemCadastrado = clone(novo);
 (recemCadastrado.profile as any).consentimento = { em: Date.now(), versao: 2 };
 (recemCadastrado.weights as any[]).push({ t: +hoje, kg: 90 });
 ok(marcoRecente(recemCadastrado) === null, 'o que veio com o cadastro — a primeira pesagem — não é marco na Home');
+
+console.log('\n13. O INSIGHTS DE QUEM ACABOU DE CHEGAR');
+const P = T.rotina.perguntas;
+const sz = companionSuggestions(zero);
+ok(sz.includes(P.primeiraDose) && ![P.depoisDaAplicacao, P.maisFome, P.semFome].some((q) => sz.includes(q)),
+  'sem aplicação, a pergunta é sobre a primeira dose, e não sobre uma fase do ciclo');
+ok(!sz.includes(P.meuProgresso) && !sz.includes(P.prepararConsulta),
+  'sem duas pesagens nem consulta perto, o Morphi não oferece progresso nem preparo');
+const enjoou = clone(zero);
+(enjoou.checkins as any[]).push({ t: +hoje - DIA, nausea: 4 });
+ok(companionSuggestions(enjoou).includes(P.porQueEnjoo), 'registrou enjoo, aparece "Por que o tratamento dá enjoo?"');
+ok(companionSuggestions(semente).includes(P.meuProgresso), 'com pesagens em dias diferentes, o progresso volta às sugestões');
+ok(companionSuggestions(semente).length <= 4 && sz.length <= 4, 'no máximo quatro sugestões');
+ok(balanceRead(zero).vazia && !balanceRead(respondeu6).vazia, 'sem check-in respondido, "O que observamos" não tem o que dizer');
+ok(companionMemoria(zero) === companionMemoria(semente), 'a memória é uma frase só, verdade no primeiro dia e no centésimo');
 
 console.log(falhas ? `\n${falhas} afirmação(ões) falharam\n` : '\ntodas as afirmações passaram\n');
 process.exit(falhas ? 1 : 0);
