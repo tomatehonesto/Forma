@@ -60,6 +60,8 @@ export const ajuda = {
     },
   ] as { q: string; a: string }[],
 
+  apresentacao: 'Comment nous pouvons aider',
+  apresentacaoSub: 'Un tour rapide de ce que fait Morphi',
   ondeResolver: 'Où le régler',
   lembretes: 'Rappels',
   lembretesSub: 'Créer, modifier et vérifier l’autorisation de notifications',

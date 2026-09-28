@@ -66,6 +66,8 @@ export const ajuda = {
      non portarci trasforma l'aiuto in una lezione: chi ha letto che il
      promemoria dipende dal permesso vuole andare a controllare il
      permesso, non imparare a memoria la strada. */
+  apresentacao: 'Come possiamo aiutarti',
+  apresentacaoSub: 'Un giro veloce di quello che fa Morphi',
   ondeResolver: 'Dove si risolve',
   lembretes: 'Promemoria',
   lembretesSub: 'Creare, modificare e controllare il permesso degli avvisi',

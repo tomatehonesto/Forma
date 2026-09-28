@@ -284,6 +284,11 @@ export const home = {
     verMedicamento: 'Medikament ansehen',
 
     entendaOPorQue: 'Verstehen, warum',
+    /* o destaque de boas-vindas, na primeira semana (logic/apresentacao) */
+    boasVindasChapeu: 'WILLKOMMEN',
+    boasVindasTitulo: (nome: string): string => (nome ? `Schön, dass du da bist, ${nome}` : 'Schön, dass du da bist'),
+    boasVindasCorpo: 'Du trägst deine Behandlung ein, und wir ordnen den Rest: Dosis, Symptome, Ernährung und Fortschritt.',
+    boasVindasCta: 'Sieh dir an, wie wir helfen',
 
     proximaAplicacao: 'NÄCHSTE SPRITZE',
     hojeEDiaDeAplicar: 'Heute ist dein Spritzentag.',
@@ -459,6 +464,23 @@ export const home = {
 
     semPrazo: 'Tage ohne Eintrag bleiben leer. Du kannst sie später nachtragen, ohne Frist.',
   },
+  /* ---- a apresentação: como podemos ajudar (app/apresentacao) ---- */
+  apresentacao: {
+    chapeu: 'WIE WIR HELFEN',
+    fechar: 'Schließen',
+    proximo: 'Weiter',
+    comecar: 'Los geht’s',
+    /** o leitor de tela diz em que página está */
+    pagina: (i: number, n: number): string => `${i} von ${n}`,
+    /* quem toma comprimido não tem local de aplicação: a frase da dose muda */
+    dose: { titulo: 'Dosis und Zyklus', texto: 'Wir erinnern dich pünktlich an die Dosis, schlagen die nächste Injektionsstelle vor und sagen dir Bescheid, bevor das Medikament ausgeht.', textoOral: 'Wir erinnern dich pünktlich an die Dosis und sagen dir Bescheid, bevor das Medikament ausgeht.', cta: 'Dosis eintragen' },
+    estado: { titulo: 'Wie es dir geht', texto: 'Ein Check-in, der weniger als eine Minute am Tag dauert. Mit der Zeit zeigen wir, was deinen Appetit, deinen Schlaf und deine Stimmung beeinflusst.', cta: 'Check-in machen' },
+    comida: { titulo: 'Ernährung', texto: 'Wir behalten Eiweiß und Wasser des Tages im Blick und lesen das Foto deines Tellers, wenn du darum bittest.', cta: 'Mahlzeit eintragen' },
+    evolucao: { titulo: 'Fortschritt', texto: 'Gewicht, Maße und die Ziele jenseits der Waage, an einem Ort.', cta: 'Ziele ansehen' },
+    consultas: { titulo: 'Arzttermine', texto: 'Wir stellen eine Zusammenfassung für deinen Termin zusammen, mit dem, was sich seit dem letzten geändert hat.', cta: 'Zusammenfassung ansehen' },
+    companheiro: { titulo: 'Begleiter', texto: 'Eine Frage zur Behandlung, jederzeit: Frag einfach.', cta: 'Eine Frage stellen' },
+  },
+
   primeirosPassos: {
     titulo: 'Erste Schritte',
     feito: 'Erledigt',

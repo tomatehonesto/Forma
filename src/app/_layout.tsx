@@ -400,6 +400,8 @@ export default function RootLayout() {
           <Stack.Screen name="evolucao" />
           <Stack.Screen name="historico" />
           <Stack.Screen name="perfil" />
+          {/* a apresentação de quem chega sobe devagar, como a espera do plano */}
+          <Stack.Screen name="apresentacao" options={{ animation: 'fade' }} />
           <Stack.Screen name="aplicacoes" />
           <Stack.Screen name="exames" />
           <Stack.Screen name="notificacoes" />

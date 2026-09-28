@@ -382,6 +382,11 @@ export const home = {
 
     /* ---------- a mensagem do dia ---------- */
     entendaOPorQue: 'Entenda o porquê',
+    /* o destaque de boas-vindas, na primeira semana (logic/apresentacao) */
+    boasVindasChapeu: 'BOAS-VINDAS',
+    boasVindasTitulo: (nome: string): string => (nome ? `Que bom ter você aqui, ${nome}` : 'Que bom ter você aqui'),
+    boasVindasCorpo: 'Você registra o tratamento, e nós organizamos o resto: dose, sintomas, alimentação e evolução.',
+    boasVindasCta: 'Veja como podemos ajudar',
 
     /* ---------- a próxima dose ---------- */
     proximaAplicacao: 'PRÓXIMA APLICAÇÃO',
@@ -652,6 +657,23 @@ export const home = {
 
     semPrazo: 'Dias sem registro ficam em branco. Você pode preencher depois, sem prazo.',
   },
+  /* ---- a apresentação: como podemos ajudar (app/apresentacao) ---- */
+  apresentacao: {
+    chapeu: 'COMO PODEMOS AJUDAR',
+    fechar: 'Fechar',
+    proximo: 'Próximo',
+    comecar: 'Começar',
+    /** o leitor de tela diz em que página está */
+    pagina: (i: number, n: number): string => `${i} de ${n}`,
+    /* quem toma comprimido não tem local de aplicação: a frase da dose muda */
+    dose: { titulo: 'Dose e ciclo', texto: 'Lembramos da dose na hora, sugerimos onde aplicar da próxima vez e avisamos antes de o remédio acabar.', textoOral: 'Lembramos da dose na hora e avisamos antes de o remédio acabar.', cta: 'Registrar uma dose' },
+    estado: { titulo: 'Como você está', texto: 'Um check-in de menos de um minuto por dia. Com o tempo, mostramos o que mexe com o seu apetite, o seu sono e o seu humor.', cta: 'Fazer o check-in' },
+    comida: { titulo: 'Alimentação', texto: 'Acompanhamos a proteína e a água do dia, e lemos a foto do seu prato quando você pede.', cta: 'Registrar uma refeição' },
+    evolucao: { titulo: 'Evolução', texto: 'O peso, as medidas e as metas que vão além da balança, num lugar só.', cta: 'Ver as metas' },
+    consultas: { titulo: 'Consultas', texto: 'Montamos um resumo para você levar à consulta, com o que mudou desde a última.', cta: 'Ver o resumo' },
+    companheiro: { titulo: 'Companheiro', texto: 'Uma dúvida sobre o tratamento, a qualquer hora: é só perguntar.', cta: 'Fazer uma pergunta' },
+  },
+
   /* ============================================================
      OS PRIMEIROS PASSOS — o cartão da Home de quem acabou de chegar
      (logic/primeirosPassos, ui/primeirosPassos)

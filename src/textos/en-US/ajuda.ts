@@ -57,6 +57,8 @@ export const ajuda = {
     },
   ] as { q: string; a: string }[],
 
+  apresentacao: 'How we can help',
+  apresentacaoSub: 'A quick tour of what Morphi does',
   ondeResolver: 'Where to sort it out',
   lembretes: 'Reminders',
   lembretesSub: 'Create, edit and check notification permission',

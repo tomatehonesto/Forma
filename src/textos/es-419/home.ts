@@ -259,6 +259,11 @@ export const home = {
     verMedicamento: 'Ver el medicamento',
 
     entendaOPorQue: 'Entender por qué',
+    /* o destaque de boas-vindas, na primeira semana (logic/apresentacao) */
+    boasVindasChapeu: 'BIENVENIDA',
+    boasVindasTitulo: (nome: string): string => (nome ? `Qué bueno tenerte aquí, ${nome}` : 'Qué bueno tenerte aquí'),
+    boasVindasCorpo: 'Tú registras el tratamiento y nosotros organizamos el resto: dosis, síntomas, alimentación y evolución.',
+    boasVindasCta: 'Mira cómo podemos ayudarte',
 
     proximaAplicacao: 'PRÓXIMA INYECCIÓN',
     hojeEDiaDeAplicar: 'Hoy es día de aplicar tu dosis.',
@@ -429,6 +434,23 @@ export const home = {
 
     semPrazo: 'Los días sin registro quedan en blanco. Puedes completarlos después, sin plazo.',
   },
+  /* ---- a apresentação: como podemos ajudar (app/apresentacao) ---- */
+  apresentacao: {
+    chapeu: 'CÓMO PODEMOS AYUDARTE',
+    fechar: 'Cerrar',
+    proximo: 'Siguiente',
+    comecar: 'Empezar',
+    /** o leitor de tela diz em que página está */
+    pagina: (i: number, n: number): string => `${i} de ${n}`,
+    /* quem toma comprimido não tem local de aplicação: a frase da dose muda */
+    dose: { titulo: 'Dosis y ciclo', texto: 'Te recordamos la dosis a tiempo, sugerimos dónde aplicarla la próxima vez y te avisamos antes de que se acabe el medicamento.', textoOral: 'Te recordamos la dosis a tiempo y te avisamos antes de que se acabe el medicamento.', cta: 'Registrar una dosis' },
+    estado: { titulo: 'Cómo te sientes', texto: 'Un check-in de menos de un minuto al día. Con el tiempo, te mostramos qué influye en tu apetito, tu sueño y tu ánimo.', cta: 'Hacer el check-in' },
+    comida: { titulo: 'Alimentación', texto: 'Seguimos la proteína y el agua del día, y leemos la foto de tu plato cuando lo pides.', cta: 'Registrar una comida' },
+    evolucao: { titulo: 'Evolución', texto: 'El peso, las medidas y las metas que van más allá de la báscula, en un solo lugar.', cta: 'Ver las metas' },
+    consultas: { titulo: 'Consultas', texto: 'Armamos un resumen para que lo lleves a la consulta, con lo que cambió desde la última.', cta: 'Ver el resumen' },
+    companheiro: { titulo: 'Compañero', texto: 'Una duda sobre el tratamiento, a cualquier hora: solo pregunta.', cta: 'Hacer una pregunta' },
+  },
+
   primeirosPassos: {
     titulo: 'Primeros pasos',
     feito: 'Hecho',

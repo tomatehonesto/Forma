@@ -276,6 +276,11 @@ export const home = {
     verMedicamento: 'Voir le médicament',
 
     entendaOPorQue: 'Comprendre pourquoi',
+    /* o destaque de boas-vindas, na primeira semana (logic/apresentacao) */
+    boasVindasChapeu: 'BIENVENUE',
+    boasVindasTitulo: (nome: string): string => (nome ? `Ravis de vous accueillir, ${nome}` : 'Ravis de vous accueillir'),
+    boasVindasCorpo: 'Vous notez votre traitement, et nous organisons le reste : doses, symptômes, alimentation et progrès.',
+    boasVindasCta: 'Découvrez comment nous pouvons aider',
 
     proximaAplicacao: 'PROCHAINE PIQÛRE',
     hojeEDiaDeAplicar: 'Aujourd’hui, c’est le jour de votre dose.',
@@ -452,6 +457,23 @@ export const home = {
 
     semPrazo: 'Les jours sans relevé restent vides. Vous pouvez les remplir plus tard, sans délai.',
   },
+  /* ---- a apresentação: como podemos ajudar (app/apresentacao) ---- */
+  apresentacao: {
+    chapeu: 'COMMENT NOUS POUVONS AIDER',
+    fechar: 'Fermer',
+    proximo: 'Suivant',
+    comecar: 'Commencer',
+    /** o leitor de tela diz em que página está */
+    pagina: (i: number, n: number): string => `${i} sur ${n}`,
+    /* quem toma comprimido não tem local de aplicação: a frase da dose muda */
+    dose: { titulo: 'Dose et cycle', texto: 'Nous vous rappelons la dose à l’heure, suggérons où faire la prochaine injection et vous prévenons avant que le traitement ne s’épuise.', textoOral: 'Nous vous rappelons la dose à l’heure et vous prévenons avant que le traitement ne s’épuise.', cta: 'Enregistrer une dose' },
+    estado: { titulo: 'Comment vous allez', texto: 'Un check-in de moins d’une minute par jour. Avec le temps, nous montrons ce qui influence votre appétit, votre sommeil et votre humeur.', cta: 'Faire le check-in' },
+    comida: { titulo: 'Alimentation', texto: 'Nous suivons les protéines et l’eau de la journée, et lisons la photo de votre assiette quand vous le demandez.', cta: 'Enregistrer un repas' },
+    evolucao: { titulo: 'Progrès', texto: 'Le poids, les mensurations et les objectifs qui vont au-delà de la balance, au même endroit.', cta: 'Voir les objectifs' },
+    consultas: { titulo: 'Consultations', texto: 'Nous préparons un résumé à apporter à votre consultation, avec ce qui a changé depuis la dernière.', cta: 'Voir le résumé' },
+    companheiro: { titulo: 'Compagnon', texto: 'Une question sur le traitement, à toute heure : il suffit de demander.', cta: 'Poser une question' },
+  },
+
   primeirosPassos: {
     titulo: 'Premiers pas',
     feito: 'Fait',

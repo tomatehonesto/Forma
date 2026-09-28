@@ -63,6 +63,8 @@ export const ajuda = {
     },
   ] as { q: string; a: string }[],
 
+  apresentacao: 'Wie wir helfen',
+  apresentacaoSub: 'Ein kurzer Rundgang durch das, was Morphi macht',
   ondeResolver: 'Wo du es löst',
   lembretes: 'Erinnerungen',
   lembretesSub: 'Anlegen, ändern und die Erlaubnis für Mitteilungen prüfen',

@@ -253,6 +253,11 @@ export const home = {
     verMedicamento: 'View the medication',
 
     entendaOPorQue: 'Understand why',
+    /* o destaque de boas-vindas, na primeira semana (logic/apresentacao) */
+    boasVindasChapeu: 'WELCOME',
+    boasVindasTitulo: (nome: string): string => (nome ? `Glad you’re here, ${nome}` : 'Glad you’re here'),
+    boasVindasCorpo: 'You log your treatment, and we organize the rest: doses, symptoms, food and progress.',
+    boasVindasCta: 'See how we can help',
 
     proximaAplicacao: 'NEXT SHOT',
     hojeEDiaDeAplicar: 'Today is shot day.',
@@ -423,6 +428,23 @@ export const home = {
 
     semPrazo: 'Days with no entry stay blank. You can fill them in later, with no deadline.',
   },
+  /* ---- a apresentação: como podemos ajudar (app/apresentacao) ---- */
+  apresentacao: {
+    chapeu: 'HOW WE CAN HELP',
+    fechar: 'Close',
+    proximo: 'Next',
+    comecar: 'Get started',
+    /** o leitor de tela diz em que página está */
+    pagina: (i: number, n: number): string => `${i} of ${n}`,
+    /* quem toma comprimido não tem local de aplicação: a frase da dose muda */
+    dose: { titulo: 'Dose and cycle', texto: 'We remind you of your dose on time, suggest where to inject next and let you know before your medication runs out.', textoOral: 'We remind you of your dose on time and let you know before your medication runs out.', cta: 'Log a dose' },
+    estado: { titulo: 'How you’re feeling', texto: 'A check-in that takes under a minute a day. Over time, we show what affects your appetite, sleep and mood.', cta: 'Do the check-in' },
+    comida: { titulo: 'Food', texto: 'We track the day’s protein and water, and read a photo of your plate when you ask.', cta: 'Log a meal' },
+    evolucao: { titulo: 'Progress', texto: 'Your weight, measurements and the goals that go beyond the scale, all in one place.', cta: 'See goals' },
+    consultas: { titulo: 'Appointments', texto: 'We put together a summary to take to your appointment, with what changed since the last one.', cta: 'See the summary' },
+    companheiro: { titulo: 'Companion', texto: 'A question about your treatment, any time: just ask.', cta: 'Ask a question' },
+  },
+
   primeirosPassos: {
     titulo: 'First steps',
     feito: 'Done',

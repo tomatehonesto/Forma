@@ -340,6 +340,11 @@ export const home = {
 
     /* ---------- il messaggio del giorno ---------- */
     entendaOPorQue: 'Scopri perché',
+    /* o destaque de boas-vindas, na primeira semana (logic/apresentacao) */
+    boasVindasChapeu: 'CIAO',
+    boasVindasTitulo: (nome: string): string => (nome ? `Che bello averti qui, ${nome}` : 'Che bello averti qui'),
+    boasVindasCorpo: 'Tu registri la terapia, e noi mettiamo in ordine il resto: dosi, sintomi, alimentazione e progressi.',
+    boasVindasCta: 'Scopri come possiamo aiutarti',
 
     /* ---------- la prossima dose ---------- */
     proximaAplicacao: 'PROSSIMA PUNTURA',
@@ -589,6 +594,23 @@ export const home = {
 
     semPrazo: 'I giorni senza registro restano vuoti. Puoi riempirli dopo, senza scadenza.',
   },
+  /* ---- a apresentação: como podemos ajudar (app/apresentacao) ---- */
+  apresentacao: {
+    chapeu: 'COME POSSIAMO AIUTARTI',
+    fechar: 'Chiudi',
+    proximo: 'Avanti',
+    comecar: 'Inizia',
+    /** o leitor de tela diz em que página está */
+    pagina: (i: number, n: number): string => `${i} di ${n}`,
+    /* quem toma comprimido não tem local de aplicação: a frase da dose muda */
+    dose: { titulo: 'Dose e ciclo', texto: 'Ti ricordiamo la dose all’ora giusta, suggeriamo dove fare la prossima iniezione e ti avvisiamo prima che il farmaco finisca.', textoOral: 'Ti ricordiamo la dose all’ora giusta e ti avvisiamo prima che il farmaco finisca.', cta: 'Registra una dose' },
+    estado: { titulo: 'Come stai', texto: 'Un check-in di meno di un minuto al giorno. Col tempo, ti mostriamo cosa influisce su appetito, sonno e umore.', cta: 'Fai il check-in' },
+    comida: { titulo: 'Alimentazione', texto: 'Seguiamo le proteine e l’acqua della giornata, e leggiamo la foto del tuo piatto quando lo chiedi.', cta: 'Registra un pasto' },
+    evolucao: { titulo: 'Progressi', texto: 'Il peso, le misure e gli obiettivi che vanno oltre la bilancia, in un unico posto.', cta: 'Vedi gli obiettivi' },
+    consultas: { titulo: 'Visite', texto: 'Prepariamo un riepilogo da portare alla visita, con quello che è cambiato dall’ultima.', cta: 'Vedi il riepilogo' },
+    companheiro: { titulo: 'Compagno', texto: 'Una domanda sulla terapia, a qualsiasi ora: basta chiedere.', cta: 'Fai una domanda' },
+  },
+
   primeirosPassos: {
     titulo: 'Primi passi',
     feito: 'Fatto',

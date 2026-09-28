@@ -32,6 +32,7 @@ import { radius, alfa, type Palette, RESPIRO_ABAS } from '../../theme';
 import { fotoDaEquipe, focoDaEquipe, iniciaisDeQuemCuida } from '../../ui/retratos';
 import { FaixaDaConta } from '../../ui/conta';
 import { PrimeirosPassos } from '../../ui/primeirosPassos';
+import { boasVindasNaHome } from '../../logic/apresentacao';
 import { T } from '../../textos';
 
 /* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
@@ -255,6 +256,18 @@ export default function Home() {
       ...(clinicaConectada(S)
         ? { cta: K().pedirRenovacao, to: '/conversa?pedir=receita', ic: 'doc' }
         : { cta: K().verMedicamento, to: '/caneta', ic: 'dose' }),
+    }] : []),
+
+    /* ⚠️ AS BOAS-VINDAS, NA PRIMEIRA SEMANA (28/09/2026, pedido do dono).
+       Antes da mensagem do dia, e depois dos três que pedem ação com hora
+       — um atraso continua vindo primeiro. Leva à apresentação ("como
+       podemos ajudar") e sai de cena quando ela foi vista, ou quando o
+       diário passa de uma semana. Ver logic/apresentacao. */
+    ...(boasVindasNaHome(S) ? [{
+      over: K().boasVindasChapeu,
+      title: K().boasVindasTitulo(((S.profile as any).name ?? '').trim().split(' ')[0] ?? ''),
+      body: K().boasVindasCorpo,
+      cta: K().boasVindasCta, to: '/apresentacao',
     }] : []),
 
     { over: brief.chapeu, title: brief.head, body: brief.body, cta: K().entendaOPorQue, to: `/companion?q=${encodeURIComponent(brief.q)}` },

@@ -80,6 +80,8 @@ export const ajuda = {
      e não levar até lá transforma a ajuda numa aula: quem leu que o
      lembrete depende da permissão quer ir conferir a permissão, e não
      decorar o caminho. */
+  apresentacao: 'Como podemos ajudar',
+  apresentacaoSub: 'Um passeio rápido pelo que o Morphi faz',
   ondeResolver: 'Onde resolver',
   lembretes: 'Lembretes',
   lembretesSub: 'Criar, editar e conferir a permissão de avisos',

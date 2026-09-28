@@ -33,7 +33,9 @@
         cartão nenhum;
      9. o "+ Registrar" de cada meta do dia abre a folha dela;
     10. quem respondeu "ainda não decidi" ganha o item da medicação, e
-        ele fica com o visto depois de escolhida.
+        ele fica com o visto depois de escolhida;
+    11. o destaque de boas-vindas vale na primeira semana do diário, até
+        a apresentação ser vista.
    ============================================================ */
 
 import { buildSeed, estadoVazio, type State } from '../src/logic/seed';
@@ -50,6 +52,7 @@ import {
   semanasDaGrade, timelineWeeks, comecouAntesDoApp, nomeDeQuemCuida, dailyTargets, indicadoresDaEvolucao,
 } from '../src/logic/derive';
 import { semanaDoTratamento } from '../src/logic/time';
+import { boasVindasNaHome, marcarApresentacaoVista } from '../src/logic/apresentacao';
 import { proximasDe, type Alerta } from '../src/logic/alertas';
 import { resumoEmTexto } from '../src/logic/resumo';
 import { conquistas } from '../src/logic/conquistas';
@@ -347,6 +350,21 @@ lembrarMedicacao(decidiu);
 (decidiu.profile as any).med = 'mounjaro';
 const feita = passos(decidiu, IPHONE).find((p) => p.id === 'medicacao');
 ok(!!feita && feita.pronto, 'depois de escolhida, a medicação continua na lista, com o visto — a marca lembra que ela esteve em aberto');
+
+console.log('\n11. AS BOAS-VINDAS DA PRIMEIRA SEMANA');
+const chegou = clone(novo);
+(chegou.profile as any).consentimento = { em: Date.now() - 2 * DIA, versao: 2 };
+ok(boasVindasNaHome(chegou), 'quem chegou há dois dias vê o destaque de boas-vindas');
+const viu = clone(chegou);
+marcarApresentacaoVista(viu);
+ok(!boasVindasNaHome(viu), 'depois de ver a apresentação, o destaque sai de cena');
+const semana = clone(chegou);
+(semana.profile as any).consentimento.em = Date.now() - 8 * DIA;
+ok(!boasVindasNaHome(semana), 'com mais de uma semana de diário, também');
+ok(!boasVindasNaHome(novo), 'sem a hora do aceite, não dá para saber se o diário é novo — e não há boas-vindas');
+const vitrine = clone(chegou);
+(vitrine as any).semente = true;
+ok(!boasVindasNaHome(vitrine), 'o diário de exemplo não é recebido');
 
 console.log(falhas ? `\n${falhas} afirmação(ões) falharam\n` : '\ntodas as afirmações passaram\n');
 process.exit(falhas ? 1 : 0);

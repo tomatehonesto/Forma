@@ -67,6 +67,13 @@ export default function Ajuda() {
     <TelaInterna titulo={K().titulo}>
       <Titulao titulo={K().titulo} lead={K().lead} />
 
+      {/* A APRESENTAÇÃO SE REVÊ DAQUI (28/09/2026): o destaque de boas-vindas
+          da Home some depois da primeira semana, e quem quiser rever o que
+          o aplicativo faz não pode depender dele. Ver logic/apresentacao. */}
+      <Cartao>
+        <Linha ic="spark" titulo={K().apresentacao} sub={K().apresentacaoSub} onPress={go('/apresentacao')} />
+      </Cartao>
+
       <Bloco titulo={K().perguntasFrequentes}>
         <Sanfona>
           {K().qa.map((qa) => <Pergunta key={qa.q} qa={qa} />)}
