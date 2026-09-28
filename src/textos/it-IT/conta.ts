@@ -6,8 +6,9 @@ export const conta = {
     abertura: 'Che bello rivederti',
     sessao: 'Manca solo rientrare',
   },
+  tituloDoFim: (nome: string) => (nome ? `Tutto pronto, ${nome}!` : 'Tutto pronto!'),
   lead: {
-    cadastro: 'Crea il tuo account in meno di un minuto.',
+    cadastro: 'Il tuo piano è pronto. Crea il tuo account per conservare tutto quello che ci hai raccontato, e iniziare.',
     abertura: 'Accedi, e riportiamo il tuo diario su questo telefono.',
     sessao: 'La tua sessione è scaduta — capita ogni tanto.',
   },

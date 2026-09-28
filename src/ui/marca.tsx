@@ -45,8 +45,8 @@ export const RAZAO_SIMBOLO = 533 / 222;
 /** símbolo e letreiro juntos, na proporção do arquivo */
 export function Marca({ altura = 22, tinta = '#FFFFFF', simbolo = LIMA_MARCA }: {
   altura?: number; tinta?: string;
-  /** a cor do M. Lima por padrão; sobre o branco ele sumiria, e a marca
-      inteira vai na tinta do letreiro — ver a capa da conta. */
+  /** a cor do M. Lima por padrão — é a cor da marca, e o dono a quer
+      lima também sobre o branco (a capa da conta). */
   simbolo?: string;
 }) {
   return (

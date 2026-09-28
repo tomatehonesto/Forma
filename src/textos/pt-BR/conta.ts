@@ -29,8 +29,13 @@ export const conta = {
     /* a sessão caiu: a pessoa já tem conta e diário aqui */
     sessao: 'Falta só entrar de novo',
   },
+  /* O FIM DO CADASTRO (28/09/2026, pedido do dono): quem chega aqui acabou
+     de responder o cadastro inteiro, e esta é a última etapa antes do
+     diário. O título comemora, com o nome; a frase diz o que a conta
+     guarda. O `titulo.cadastro` continua valendo onde não há capa. */
+  tituloDoFim: (nome: string) => (nome ? `Tudo pronto, ${nome}!` : 'Tudo pronto!'),
   lead: {
-    cadastro: 'Crie a sua conta em menos de um minuto.',
+    cadastro: 'O seu plano está montado. Crie a sua conta para guardar tudo o que você nos contou e começar.',
     abertura: 'Entre, e trazemos o seu diário para este celular.',
     sessao: 'A sua sessão terminou — acontece de vez em quando.',
   },

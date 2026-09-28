@@ -100,6 +100,7 @@ export default function Conta() {
   const previaDasPortas = __DEV__;
   const [previa, setPrevia] = React.useState(false);
   const [nadaParaColar, setNadaParaColar] = React.useState(false);
+  const primeiroNome = useStore((s) => ((s.S.profile.name ?? '') as string).trim().split(/\s+/)[0] ?? '');
   const [espera, setEspera] = React.useState(0);
   /* quem entrou, enquanto o caminho do diário não termina */
   const [dono, setDono] = React.useState<Dono | null>(null);
@@ -494,7 +495,11 @@ export default function Conta() {
 
   /* ---- a escolha ---- */
   return (
-    <CapaDaConta titulo={K().titulo[porta]} lead={K().lead[porta]} onVoltar={voltar}>
+    <CapaDaConta
+      /* No fim do cadastro, o título comemora com o primeiro nome. */
+      titulo={porta === 'cadastro' ? K().tituloDoFim(primeiroNome) : K().titulo[porta]}
+      lead={K().lead[porta]} onVoltar={voltar}
+    >
       {aviso}
       {/* ⚠️ O BOTÃO DA APPLE É O DELA, e não um desenhado aqui: a revisão
           da loja confere o desenho do "Continuar com a Apple", e o botão
@@ -617,9 +622,9 @@ function CapaDaConta({ titulo, lead, onVoltar, children }: {
           onLayout={(e) => setTopoDoTexto(e.nativeEvent.layout.y)}
           style={{ gap: 14, marginBottom: 22 }}
         >
-          {/* A marca inteira na tinta do texto no claro: o M lima sumiria
-              no branco. No escuro, ela é como em toda parte. */}
-          <Marca altura={24} tinta={c.tx} simbolo={isDark ? undefined : c.tx} />
+          {/* O M no lima da marca nos dois temas (pedido do dono), e o nome
+              na tinta do texto: preto no claro, branco no escuro. */}
+          <Marca altura={24} tinta={c.tx} />
           <View style={{ gap: 10 }}>
             <Txt v="h1">{titulo}</Txt>
             <Txt v="note" c={c.tx2} style={{ lineHeight: 23 }}>{lead}</Txt>

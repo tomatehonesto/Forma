@@ -6,8 +6,9 @@ export const conta = {
     abertura: 'Qué bueno verte de nuevo',
     sessao: 'Solo falta volver a entrar',
   },
+  tituloDoFim: (nome: string) => (nome ? `¡Todo listo, ${nome}!` : '¡Todo listo!'),
   lead: {
-    cadastro: 'Crea tu cuenta en menos de un minuto.',
+    cadastro: 'Tu plan está listo. Crea tu cuenta para guardar todo lo que nos contaste y empezar.',
     abertura: 'Entra, y traemos tu diario a este celular.',
     sessao: 'Tu sesión terminó — pasa de vez en cuando.',
   },
