@@ -200,16 +200,17 @@ export const home = {
     /* ⚠️ „Dosis“ GROSS, und im Portugiesischen klein: dort öffnet das Wort
        keinen Satz, hier ist es ein Substantiv. */
     doseEm: (quando: string) => `Dosis ${quando}`,
-    diasComCheckin: (feitos: number, aplicadas: number, vividas: number) =>
-      `${feitos} von 7 Tagen mit Check-in · ${aplicadas} von ${vividas} ${vividas === 1 ? 'Woche' : 'Wochen'} mit Spritze`,
-    diasComCheckinSo: (feitos: number) =>
-      `${feitos} von 7 Tagen mit Check-in`,
+    diasComCheckin: (feitos: number, dias: number, aplicadas: number, vividas: number) =>
+      `${feitos} von ${dias} ${dias === 1 ? 'Tag' : 'Tagen'} mit Check-in · ${aplicadas} von ${vividas} ${vividas === 1 ? 'Woche' : 'Wochen'} mit Spritze`,
+    diasComCheckinSo: (feitos: number, dias: number) =>
+      `${feitos} von ${dias} ${dias === 1 ? 'Tag' : 'Tagen'} mit Check-in`,
     primeiraDose: 'Erste Dosis',
     primeiraDoseTexto: 'Der Zyklus zählt ab der ersten Dosis, die du einträgst.',
     semanaASemana: 'Woche für Woche. Tipp darauf, um zu sehen, was jeden Zyklus geprägt hat.',
     verAsSemanas: (quantas: number) => `Alle ${quantas} Wochen ansehen`,
     semanaEDia: (semana: number, dia: number) => `WOCHE ${semana} · TAG ${dia}`,
     noInicio: (peso: string) => `${peso} am Anfang`,
+    primeiraPesagem: 'erstes Wiegen',
     hoje: 'heute',
     faltam: (peso: string) => `noch ${peso}`,
 
@@ -403,35 +404,20 @@ export const home = {
     anotacao: 'Ich habe etwas für den Termin notiert',
   },
   telaRitmo: {
-    titulo: 'Wie wir dein Tempo lesen',
-    sub: 'Das Etikett spricht von der Regelmäßigkeit der Behandlung, nicht vom Tempo der Gewichtsabnahme.',
-
-    aplicacoes: 'Spritzen im Plan',
-    aplicacoesSub: (aplicadas: number, vividas: number) =>
-      `${aplicadas} von ${vividas} ${vividas === 1 ? 'Woche' : 'Wochen'}`,
-
-    intervalo: 'Abstand zwischen den Dosen',
-    intervaloEmDia: (dias: number) => `${dias} ${dias === 1 ? 'Tag' : 'Tage'}, ohne lange Verzögerungen`,
-    intervaloMaior: (dias: number) => `längster Abstand: ${dias} ${dias === 1 ? 'Tag' : 'Tage'}`,
-
-    sintomas: 'Gemeldete Beschwerden',
-    sintomasLeves: 'Leicht',
-    sintomasModerados: 'Leicht bis mittel',
-    sintomasFortes: 'Mittel bis stark',
-
-    /* ⚠️ "auffällig" E NÃO "Achtung": os selos desta tela são
-       minúsculos, e no alemão só um adjetivo pode ficar minúsculo —
-       substantivo levaria maiúscula e quebraria a fileira. */
-    seloOk: 'ok',
-    seloAtencao: 'auffällig',
-    seloIrregular: 'unregelmäßig',
-    seloEstavel: 'stabil',
-    seloEmAlta: 'steigend',
-
-    avisoTitulo: 'Eine andere Woche ändert das Etikett nicht',
-    avisoTexto: (etiqueta: string) =>
-      `Es steigt und fällt nicht danach, wie viel du abgenommen hast, und es gibt keine Fassung davon, die sagt, die Woche sei schlecht gewesen. Heute steht da „${etiqueta}“.`,
-
+    titulo: 'Dein Abnehmtempo',
+    sub: 'Wie viel dein Gewicht im Schnitt pro Woche sinkt, neben dem Tempo, das du bei der Anmeldung gewählt hast.',
+    desdeOInicio: 'Seit dem Start',
+    media: (semanas: number) => `Schnitt über ${semanas} ${semanas === 1 ? 'Woche' : 'Wochen'}`,
+    recente: 'Letzte vier Wochen',
+    recenteSub: 'das jüngste Stück der Kurve',
+    escolhido: 'Das Tempo, das du gewählt hast',
+    semEscolha: 'Kein Tempo gewählt',
+    semEscolhaSub: 'Tippe, um eines zu wählen',
+    porSemana: (peso: string) => `${peso} pro Woche`,
+    avisoTitulo: 'Die Kurve fällt nicht gerade',
+    avisoTexto: 'Die ersten Wochen bringen meist mehr, und das Tempo lässt nach, während sich der Körper anpasst. Das gewählte Tempo ist der Schnitt des Weges, keine Vorgabe für jede Woche.',
+    aceleradoTitulo: 'Ein Tempo zum Besprechen',
+    aceleradoTexto: (limite: string) => `Über ${limite} pro Woche lohnt es sich, mit deiner Begleitung über Flüssigkeit und Muskelmasse zu sprechen. Das ist kein Fehler von dir: Dein Körper reagiert schnell.`,
     entendi: 'Verstanden',
   },
   telaProtocolos: {

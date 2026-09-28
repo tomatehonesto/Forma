@@ -230,10 +230,10 @@ export const home = {
   telaJornada: {
     ultimos7: 'I TUOI ULTIMI 7 GIORNI',
     doseEm: (quando: string) => `dose ${quando}`,
-    diasComCheckin: (feitos: number, aplicadas: number, vividas: number) =>
-      `${feitos} su 7 giorni con check-in · ${aplicadas} su ${vividas} ${vividas === 1 ? 'settimana' : 'settimane'} con puntura`,
-    diasComCheckinSo: (feitos: number) =>
-      `${feitos} su 7 giorni con check-in`,
+    diasComCheckin: (feitos: number, dias: number, aplicadas: number, vividas: number) =>
+      `${feitos} su ${dias} ${dias === 1 ? 'giorno' : 'giorni'} con check-in · ${aplicadas} su ${vividas} ${vividas === 1 ? 'settimana' : 'settimane'} con puntura`,
+    diasComCheckinSo: (feitos: number, dias: number) =>
+      `${feitos} su ${dias} ${dias === 1 ? 'giorno' : 'giorni'} con check-in`,
     primeiraDose: 'Prima dose',
     primeiraDoseTexto: 'Il ciclo inizia a contare dalla prima dose che registri.',
     semanaASemana: 'Settimana per settimana. Tocca per vedere che cosa ha segnato ogni ciclo.',
@@ -242,6 +242,7 @@ export const home = {
     semanaEDia: (semana: number, dia: number) => `SETTIMANA ${semana} · GIORNO ${dia}`,
     /* ⚠️ I TRE PESI ARRIVANO GIÀ SCRITTI, con l'unità di chi legge. */
     noInicio: (peso: string) => `${peso} all’inizio`,
+    primeiraPesagem: 'prima pesata',
     hoje: 'oggi',
     faltam: (peso: string) => `mancano ${peso}`,
 
@@ -518,35 +519,20 @@ export const home = {
      parola in mezzo alla frase non perde la maiuscola.
      ============================================================ */
   telaRitmo: {
-    titulo: 'Come leggiamo il tuo ritmo',
-    sub: 'L’etichetta parla della costanza della terapia, non della velocità con cui il peso scende.',
-
-    aplicacoes: 'Punture in ordine',
-    aplicacoesSub: (aplicadas: number, vividas: number) =>
-      `${aplicadas} su ${vividas} ${vividas === 1 ? 'settimana' : 'settimane'}`,
-
-    intervalo: 'Intervallo fra le dosi',
-    intervaloEmDia: (dias: number) => `${dias} ${dias === 1 ? 'giorno' : 'giorni'}, senza ritardi lunghi`,
-    intervaloMaior: (dias: number) => `intervallo più lungo: ${dias} ${dias === 1 ? 'giorno' : 'giorni'}`,
-
-    sintomas: 'Sintomi riferiti',
-    sintomasLeves: 'Lievi',
-    sintomasModerados: 'Da lievi a moderati',
-    sintomasFortes: 'Da moderati a forti',
-
-    /* I bollini sono minuscoli di proposito: sono etichette d'angolo, e
-       non frasi. Nessuno di loro è rosso — la schermata spiega un conto,
-       non rimprovera. */
-    seloOk: 'ok',
-    seloAtencao: 'attenzione',
-    seloIrregular: 'irregolare',
-    seloEstavel: 'stabile',
-    seloEmAlta: 'in salita',
-
-    avisoTitulo: 'Una settimana diversa non cambia l’etichetta',
-    avisoTexto: (etiqueta: string) =>
-      `Non sale e non scende in base a quanto hai perso, e non ne esiste una versione che dica che la settimana è andata male. Oggi dice «${etiqueta}».`,
-
+    titulo: 'Il tuo ritmo di perdita',
+    sub: 'Quanto scende il tuo peso a settimana, in media, accanto al ritmo che hai scelto all’iscrizione.',
+    desdeOInicio: 'Dall’inizio',
+    media: (semanas: number) => `media di ${semanas} ${semanas === 1 ? 'settimana' : 'settimane'}`,
+    recente: 'Ultime quattro settimane',
+    recenteSub: 'il tratto più recente della curva',
+    escolhido: 'Il ritmo che hai scelto',
+    semEscolha: 'Nessun ritmo scelto',
+    semEscolhaSub: 'Tocca per sceglierne uno',
+    porSemana: (peso: string) => `${peso} a settimana`,
+    avisoTitulo: 'La discesa non è dritta',
+    avisoTexto: 'Le prime settimane di solito rendono di più, e il ritmo rallenta mentre il corpo si adatta. Il ritmo scelto è la media del percorso, non un obbligo di ogni settimana.',
+    aceleradoTitulo: 'Un ritmo di cui parlare',
+    aceleradoTexto: (limite: string) => `Oltre ${limite} a settimana, conviene parlarne con chi ti segue, per idratazione e massa magra. Non è un tuo errore: è il corpo che risponde in fretta.`,
     entendi: 'Ho capito',
   },
 

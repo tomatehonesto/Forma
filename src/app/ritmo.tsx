@@ -2,8 +2,8 @@ import React from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
-import { semanasDaGrade, journeySummary, cadenciaDias } from '../logic/derive';
-import { DAY } from '../logic/time';
+import { journeySummary, ritmoRecente, RITMO_CLINICO_KG } from '../logic/derive';
+import { pesoTxt } from '../logic/medidas';
 import { SheetScreen } from '../ui/kit';
 import { Cartao, Linha, Aviso, Botao } from '../ui/internas';
 import { T } from '../textos';
@@ -12,39 +12,45 @@ import { T } from '../textos';
    de módulo congela o idioma no import. */
 const K = () => T.home.telaRitmo;
 
+/* Os apelidos das opções do cadastro, pelo número que cada uma guarda —
+   ver RITMOS em app/cadastro. */
+const APELIDO = (): Record<string, string> => ({
+  '0.5': T.cadastro.ritmoDevagar,
+  '1': T.cadastro.ritmoConstante,
+  '1.5': T.cadastro.ritmoAcelerado,
+  '2': T.cadastro.ritmoMaisRapido,
+});
+
 /* ============================================================
-   COMO LEMOS O SEU RITMO
+   O SEU RITMO DE PERDA
 
-   A etiqueta do topo da Jornada ("Em ritmo saudável") é a frase mais
-   arriscada do app: ela emite um juízo, e quem a lê numa semana ruim
-   precisa poder conferir de onde ela saiu.
+   A etiqueta ao lado dos quilos da Jornada abre esta folha.
 
-   Este sheet abre a conta. E o mais importante que ele diz é o que a
-   etiqueta NÃO olha: velocidade de perda de peso. Ela mede constância do
-   tratamento — aplicações em dia, intervalo entre doses, sintomas sob
-   controle. Uma semana de −0,1 kg não a derruba, e é isso que o aviso no
-   pé afirma, sem rodeio: não existe versão dela que diga que a semana foi
-   ruim.
+   ⚠️ ELA JÁ DISSE O CONTRÁRIO DO QUE FAZIA (28/09/2026). A folha se
+   chamava "Como lemos o seu ritmo", listava aplicações, intervalo e
+   sintomas e garantia que a etiqueta não olhava para a velocidade da
+   perda — enquanto a etiqueta saía exatamente dessa velocidade. Ao lado
+   de um número de quilos, ritmo é o de emagrecimento, e a régua que a
+   pessoa conhece é a que ela escolheu no cadastro.
+
+   Três números, na ordem em que se leem: a média desde o início, que é
+   de onde a etiqueta sai; o trecho recente, porque a curva não é reta; e
+   o ritmo escolhido, que é a comparação. O aviso embaixo é o que impede o
+   número de virar cobrança — e, acima do limite clínico, o que chama a
+   conversa com a equipe.
    ============================================================ */
 
 export default function Ritmo() {
   const S = useStore((s) => s.S);
   const router = useRouter();
 
-  const { vividas, aplicadas } = semanasDaGrade(S);
   const r = journeySummary(S);
-
-  /* Maior intervalo entre duas aplicações seguidas contra a cadência do
-     medicamento. Um atraso de um dia não é notícia; três semanas são. */
-  const injs = (S.injections as any[]).slice().sort((a, b) => a.t - b.t);
-  const cad = cadenciaDias(S);
-  let maior = cad;
-  for (let i = 1; i < injs.length; i++) maior = Math.max(maior, Math.round((injs[i].t - injs[i - 1].t) / DAY));
-  const pontual = maior <= cad + 2;
-
-  const recentes = (S.checkins as any[]).slice(-14);
-  const pico = recentes.reduce((m, c) => Math.max(m, c.nausea || 0, c.constip || 0, c.diarreia || 0, c.refluxo || 0), 0);
-  const sintomas = pico <= 2 ? K().sintomasLeves : pico <= 5 ? K().sintomasModerados : K().sintomasFortes;
+  const recente = ritmoRecente(S);
+  /* acima do início, o ritmo é de ganho: o sinal vai escrito, e não um
+     menos que leria como perda */
+  const porSemana = (kg: number) => K().porSemana(kg < 0 ? `+${pesoTxt(S, -kg)}` : pesoTxt(S, kg));
+  const escolhido = r.ritmoEscolhido;
+  const acelerado = r.ritmo > RITMO_CLINICO_KG;
 
   return (
     <SheetScreen
@@ -55,32 +61,45 @@ export default function Ritmo() {
       <View style={{ marginTop: 18, gap: 10 }}>
         <Cartao>
           <Linha
-            titulo={K().aplicacoes}
-            sub={K().aplicacoesSub(aplicadas, vividas)}
-            selo={aplicadas >= vividas - 1 ? K().seloOk : K().seloAtencao}
-            seloTom={aplicadas >= vividas - 1 ? 'verde' : 'neutra'}
+            ic="trend"
+            titulo={K().desdeOInicio}
+            sub={`${porSemana(r.ritmo)} · ${K().media(r.semanasDoRitmo)}`}
+            /* Sem selo: a etiqueta é o que a pessoa acabou de tocar, e ao
+               lado do número ela espremia a linha em cinco. */
             seta={false}
           />
-          <Linha
-            titulo={K().intervalo}
-            sub={pontual ? K().intervaloEmDia(cad) : K().intervaloMaior(maior)}
-            selo={pontual ? K().seloOk : K().seloIrregular}
-            seloTom={pontual ? 'verde' : 'neutra'}
-            seta={false}
-          />
-          <Linha
-            titulo={K().sintomas}
-            sub={sintomas}
-            selo={pico <= 5 ? K().seloEstavel : K().seloEmAlta}
-            seloTom="neutra"
-            seta={false}
-          />
+          {recente != null ? (
+            <Linha
+              ic="chart"
+              titulo={K().recente}
+              sub={`${porSemana(recente)} · ${K().recenteSub}`}
+              seta={false}
+            />
+          ) : null}
+          {escolhido != null ? (
+            <Linha
+              ic="target"
+              titulo={K().escolhido}
+              sub={[porSemana(escolhido), APELIDO()[String(escolhido)]].filter(Boolean).join(' · ')}
+              onPress={() => router.push('/cadastro?editar=ritmo' as any)}
+            />
+          ) : (
+            <Linha
+              ic="target"
+              titulo={K().semEscolha}
+              sub={K().semEscolhaSub}
+              onPress={() => router.push('/cadastro?editar=ritmo' as any)}
+            />
+          )}
         </Cartao>
 
-        <Aviso
-          titulo={K().avisoTitulo}
-          texto={K().avisoTexto(T.comum.noMeio(r.verdict.label))}
-        />
+        {acelerado ? (
+          <Aviso
+            titulo={K().aceleradoTitulo}
+            texto={K().aceleradoTexto(pesoTxt(S, RITMO_CLINICO_KG))}
+          />
+        ) : null}
+        <Aviso titulo={K().avisoTitulo} texto={K().avisoTexto} />
 
         <Botao label={K().entendi} tom="fantasma" onPress={() => router.back()} />
       </View>

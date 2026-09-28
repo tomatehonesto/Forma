@@ -55,9 +55,11 @@ export const tratamento = {
      une raison d'en parler à son équipe — masse maigre, hydratation —, pas
      une faute commise. Le mot ne peut pas sonner comme un reproche. */
   ritmoAcimaDoInicio: 'Au-dessus du départ',
-  ritmoSaudavel: 'Rythme sain',
   ritmoAcelerado: 'Rythme accéléré',
-  ritmoLento: 'Rythme plus lent',
+  ritmoNoPlano: 'À votre rythme',
+  ritmoMaisDevagar: 'Plus lent que prévu',
+  ritmoMaisRapido: 'Plus rapide que prévu',
+  ritmoPorSemana: (peso: string) => `${peso} par semaine`,
 
   /* Trois degrés, et celui du milieu est le plus fréquent : « pensez à
      renouveler » est un avis des semaines à l'avance, pas une alarme.

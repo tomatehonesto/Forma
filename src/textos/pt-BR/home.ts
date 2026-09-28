@@ -245,13 +245,13 @@ export const home = {
   telaJornada: {
     ultimos7: 'SEUS ÚLTIMOS 7 DIAS',
     doseEm: (quando: string) => `dose ${quando}`,
-    diasComCheckin: (feitos: number, aplicadas: number, vividas: number) =>
-      `${feitos} de 7 dias com check-in · ${aplicadas} de ${vividas} ${vividas === 1 ? 'semana' : 'semanas'} com aplicação`,
+    diasComCheckin: (feitos: number, dias: number, aplicadas: number, vividas: number) =>
+      `${feitos} de ${dias} ${dias === 1 ? 'dia' : 'dias'} com check-in · ${aplicadas} de ${vividas} ${vividas === 1 ? 'semana' : 'semanas'} com aplicação`,
     /* Sem aplicação registrada, a linha conta só o check-in: "0 de 1
        semanas com aplicação" media um tratamento que ainda não começou a
        ser registrado. */
-    diasComCheckinSo: (feitos: number) =>
-      `${feitos} de 7 dias com check-in`,
+    diasComCheckinSo: (feitos: number, dias: number) =>
+      `${feitos} de ${dias} ${dias === 1 ? 'dia' : 'dias'} com check-in`,
     /* A faixa da fase, antes de haver fase: de onde o ciclo vai contar. */
     primeiraDose: 'Primeira dose',
     primeiraDoseTexto: 'O ciclo começa a contar da primeira dose que você registrar.',
@@ -263,6 +263,7 @@ export const home = {
        vinham com "kg" pregado na tela — e quem lê em libra via o número
        certo com a unidade errada. */
     noInicio: (peso: string) => `${peso} no início`,
+    primeiraPesagem: 'primeira pesagem',
     hoje: 'hoje',
     faltam: (peso: string) => `faltam ${peso}`,
 
@@ -575,35 +576,20 @@ export const home = {
      da frase não perde a maiúscula.
      ============================================================ */
   telaRitmo: {
-    titulo: 'Como lemos o seu ritmo',
-    sub: 'A etiqueta olha para a constância do tratamento, não para a velocidade da perda de peso.',
-
-    aplicacoes: 'Aplicações em dia',
-    aplicacoesSub: (aplicadas: number, vividas: number) =>
-      `${aplicadas} de ${vividas} ${vividas === 1 ? 'semana' : 'semanas'}`,
-
-    intervalo: 'Intervalo entre doses',
-    intervaloEmDia: (dias: number) => `${dias} ${dias === 1 ? 'dia' : 'dias'}, sem atrasos longos`,
-    intervaloMaior: (dias: number) => `maior intervalo: ${dias} ${dias === 1 ? 'dia' : 'dias'}`,
-
-    sintomas: 'Sintomas relatados',
-    sintomasLeves: 'Leves',
-    sintomasModerados: 'Leves a moderados',
-    sintomasFortes: 'Moderados a fortes',
-
-    /* Os selos são minúsculos de propósito: é rótulo de canto, e não
-       frase. Nenhum deles é vermelho — a tela explica uma conta, e não
-       cobra. */
-    seloOk: 'ok',
-    seloAtencao: 'atenção',
-    seloIrregular: 'irregular',
-    seloEstavel: 'estável',
-    seloEmAlta: 'em alta',
-
-    avisoTitulo: 'Uma semana diferente não muda a etiqueta',
-    avisoTexto: (etiqueta: string) =>
-      `Ela não sobe nem desce por quanto você perdeu, e não existe versão dela que diga que a semana foi ruim. Hoje ela lê “${etiqueta}”.`,
-
+    titulo: 'Seu ritmo de perda',
+    sub: 'Quanto o seu peso desce por semana, em média, ao lado do ritmo que você escolheu no cadastro.',
+    desdeOInicio: 'Desde o início',
+    media: (semanas: number) => `média de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
+    recente: 'Últimas quatro semanas',
+    recenteSub: 'o trecho mais recente da curva',
+    escolhido: 'O ritmo que você escolheu',
+    semEscolha: 'Nenhum ritmo escolhido',
+    semEscolhaSub: 'Toque para escolher um',
+    porSemana: (peso: string) => `${peso} por semana`,
+    avisoTitulo: 'A queda não é reta',
+    avisoTexto: 'As primeiras semanas costumam render mais, e o ritmo afrouxa conforme o corpo se ajusta. O ritmo escolhido é a média do caminho, e não uma cobrança de cada semana.',
+    aceleradoTitulo: 'Um ritmo para conversar',
+    aceleradoTexto: (limite: string) => `Acima de ${limite} por semana, vale conversar com quem acompanha você sobre hidratação e massa magra. Não é erro seu: é o corpo respondendo rápido.`,
     entendi: 'Entendi',
   },
   /* ============================================================

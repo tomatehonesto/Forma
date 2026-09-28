@@ -55,9 +55,11 @@ export const tratamento = {
      para conversar con el equipo — masa magra, hidratación —, y no un
      error que la persona cometió. La palabra no puede sonar a reto. */
   ritmoAcimaDoInicio: 'Arriba del inicio',
-  ritmoSaudavel: 'En ritmo saludable',
   ritmoAcelerado: 'Ritmo acelerado',
-  ritmoLento: 'Ritmo más lento',
+  ritmoNoPlano: 'En tu ritmo',
+  ritmoMaisDevagar: 'Más lento que lo planeado',
+  ritmoMaisRapido: 'Más rápido que lo planeado',
+  ritmoPorSemana: (peso: string) => `${peso} por semana`,
 
   /* Tres grados, y el del medio es el que más aparece: "conviene
      renovar" es un aviso con semanas de anticipación, no una alarma.

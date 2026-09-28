@@ -178,16 +178,17 @@ export const home = {
   telaJornada: {
     ultimos7: 'YOUR LAST 7 DAYS',
     doseEm: (quando: string) => `dose ${quando}`,
-    diasComCheckin: (feitos: number, aplicadas: number, vividas: number) =>
-      `${feitos} of 7 days with a check-in · ${aplicadas} of ${vividas} ${vividas === 1 ? 'week' : 'weeks'} with a shot`,
-    diasComCheckinSo: (feitos: number) =>
-      `${feitos} of 7 days with a check-in`,
+    diasComCheckin: (feitos: number, dias: number, aplicadas: number, vividas: number) =>
+      `${feitos} of ${dias} ${dias === 1 ? 'day' : 'days'} with a check-in · ${aplicadas} of ${vividas} ${vividas === 1 ? 'week' : 'weeks'} with a shot`,
+    diasComCheckinSo: (feitos: number, dias: number) =>
+      `${feitos} of ${dias} ${dias === 1 ? 'day' : 'days'} with a check-in`,
     primeiraDose: 'First dose',
     primeiraDoseTexto: 'The cycle starts counting from the first dose you log.',
     semanaASemana: 'Week by week. Tap to see what stood out in each cycle.',
     verAsSemanas: (quantas: number) => `See all ${quantas} weeks`,
     semanaEDia: (semana: number, dia: number) => `WEEK ${semana} · DAY ${dia}`,
     noInicio: (peso: string) => `${peso} at the start`,
+    primeiraPesagem: 'first weigh-in',
     hoje: 'today',
     faltam: (peso: string) => `${peso} to go`,
 
@@ -372,32 +373,20 @@ export const home = {
     anotacao: 'I wrote something down for my appointment',
   },
   telaRitmo: {
-    titulo: 'How we read your pace',
-    sub: 'This label is about how steady the treatment is, not how fast the weight comes off.',
-
-    aplicacoes: 'Shots on time',
-    aplicacoesSub: (aplicadas: number, vividas: number) =>
-      `${aplicadas} of ${vividas} ${vividas === 1 ? 'week' : 'weeks'}`,
-
-    intervalo: 'Time between doses',
-    intervaloEmDia: (dias: number) => `${dias} ${dias === 1 ? 'day' : 'days'}, no long delays`,
-    intervaloMaior: (dias: number) => `longest gap: ${dias} ${dias === 1 ? 'day' : 'days'}`,
-
-    sintomas: 'Symptoms reported',
-    sintomasLeves: 'Mild',
-    sintomasModerados: 'Mild to moderate',
-    sintomasFortes: 'Moderate to strong',
-
-    seloOk: 'ok',
-    seloAtencao: 'watch',
-    seloIrregular: 'irregular',
-    seloEstavel: 'steady',
-    seloEmAlta: 'rising',
-
-    avisoTitulo: 'A different week doesn’t change the label',
-    avisoTexto: (etiqueta: string) =>
-      `It doesn’t go up or down with how much you lost, and it’ll never tell you the week was bad. Right now it reads “${etiqueta}”.`,
-
+    titulo: 'Your weight-loss pace',
+    sub: 'How much your weight comes down per week, on average, next to the pace you chose when you signed up.',
+    desdeOInicio: 'Since the start',
+    media: (semanas: number) => `average over ${semanas} ${semanas === 1 ? 'week' : 'weeks'}`,
+    recente: 'Last four weeks',
+    recenteSub: 'the most recent stretch of the curve',
+    escolhido: 'The pace you chose',
+    semEscolha: 'No pace chosen',
+    semEscolhaSub: 'Tap to choose one',
+    porSemana: (peso: string) => `${peso} a week`,
+    avisoTitulo: 'The drop isn’t a straight line',
+    avisoTexto: 'The first weeks usually bring more, and the pace eases as your body adjusts. The pace you chose is the average of the way, not a weekly target to meet.',
+    aceleradoTitulo: 'A pace worth talking about',
+    aceleradoTexto: (limite: string) => `Above ${limite} a week, it’s worth talking to whoever looks after you about hydration and lean mass. It isn’t your mistake: your body is responding fast.`,
     entendi: 'Got it',
   },
   telaProtocolos: {

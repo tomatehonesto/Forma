@@ -184,16 +184,17 @@ export const home = {
   telaJornada: {
     ultimos7: 'TUS ÚLTIMOS 7 DÍAS',
     doseEm: (quando: string) => `dosis ${quando}`,
-    diasComCheckin: (feitos: number, aplicadas: number, vividas: number) =>
-      `${feitos} de 7 días con check-in · ${aplicadas} de ${vividas} ${vividas === 1 ? 'semana' : 'semanas'} con inyección`,
-    diasComCheckinSo: (feitos: number) =>
-      `${feitos} de 7 días con check-in`,
+    diasComCheckin: (feitos: number, dias: number, aplicadas: number, vividas: number) =>
+      `${feitos} de ${dias} ${dias === 1 ? 'día' : 'días'} con check-in · ${aplicadas} de ${vividas} ${vividas === 1 ? 'semana' : 'semanas'} con inyección`,
+    diasComCheckinSo: (feitos: number, dias: number) =>
+      `${feitos} de ${dias} ${dias === 1 ? 'día' : 'días'} con check-in`,
     primeiraDose: 'Primera dosis',
     primeiraDoseTexto: 'El ciclo empieza a contar desde la primera dosis que registres.',
     semanaASemana: 'Semana a semana. Toca para ver qué marcó cada ciclo.',
     verAsSemanas: (quantas: number) => `Ver las ${quantas} semanas`,
     semanaEDia: (semana: number, dia: number) => `SEMANA ${semana} · DÍA ${dia}`,
     noInicio: (peso: string) => `${peso} al inicio`,
+    primeiraPesagem: 'primer pesaje',
     hoje: 'hoy',
     faltam: (peso: string) => `faltan ${peso}`,
 
@@ -378,32 +379,20 @@ export const home = {
     anotacao: 'Anoté algo para la consulta',
   },
   telaRitmo: {
-    titulo: 'Cómo leemos tu ritmo',
-    sub: 'La etiqueta habla de la constancia del tratamiento, y no de la velocidad de la pérdida de peso.',
-
-    aplicacoes: 'Inyecciones al día',
-    aplicacoesSub: (aplicadas: number, vividas: number) =>
-      `${aplicadas} de ${vividas} ${vividas === 1 ? 'semana' : 'semanas'}`,
-
-    intervalo: 'Intervalo entre dosis',
-    intervaloEmDia: (dias: number) => `${dias} ${dias === 1 ? 'día' : 'días'}, sin atrasos largos`,
-    intervaloMaior: (dias: number) => `intervalo más largo: ${dias} ${dias === 1 ? 'día' : 'días'}`,
-
-    sintomas: 'Síntomas reportados',
-    sintomasLeves: 'Leves',
-    sintomasModerados: 'Leves a moderados',
-    sintomasFortes: 'Moderados a fuertes',
-
-    seloOk: 'ok',
-    seloAtencao: 'atención',
-    seloIrregular: 'irregular',
-    seloEstavel: 'estable',
-    seloEmAlta: 'en alza',
-
-    avisoTitulo: 'Una semana distinta no cambia la etiqueta',
-    avisoTexto: (etiqueta: string) =>
-      `No sube ni baja por cuánto perdiste, y no hay ninguna versión que diga que la semana estuvo mala. Hoy dice “${etiqueta}”.`,
-
+    titulo: 'Tu ritmo de pérdida',
+    sub: 'Cuánto baja tu peso por semana, en promedio, junto al ritmo que elegiste en el registro.',
+    desdeOInicio: 'Desde el inicio',
+    media: (semanas: number) => `promedio de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
+    recente: 'Últimas cuatro semanas',
+    recenteSub: 'el tramo más reciente de la curva',
+    escolhido: 'El ritmo que elegiste',
+    semEscolha: 'Ningún ritmo elegido',
+    semEscolhaSub: 'Toca para elegir uno',
+    porSemana: (peso: string) => `${peso} por semana`,
+    avisoTitulo: 'La bajada no es recta',
+    avisoTexto: 'Las primeras semanas suelen rendir más, y el ritmo afloja a medida que el cuerpo se ajusta. El ritmo elegido es el promedio del camino, no una exigencia de cada semana.',
+    aceleradoTitulo: 'Un ritmo para conversar',
+    aceleradoTexto: (limite: string) => `Por encima de ${limite} por semana, conviene hablar con quien te acompaña sobre hidratación y masa magra. No es un error tuyo: es el cuerpo respondiendo rápido.`,
     entendi: 'Entendí',
   },
   telaProtocolos: {

@@ -1020,6 +1020,14 @@ export function last7Days(S: State) {
   const chk = new Set((S.checkins as any[]).map((c) => c.t));
   const apl = new Set(S.injections.map((i: any) => +startOfDay(new Date(i.t))));
   const hoje = +startOfDay(now());
+  /* ⚠️ OS DIAS DE ANTES DO APLICATIVO FICAM DE FORA (28/09/2026). Quem se
+     cadastrou hoje lia seis dias vazios e "0 de 7 dias com check-in" —
+     seis faltas em dias em que o aplicativo nem existia para ela. O dia
+     de entrada é o do aceite do cadastro, ou o do primeiro registro se
+     ele for anterior; sem aceite, os sete contam. */
+  const aceite = (S.profile as any)?.consentimento?.em;
+  const primeiro = Math.min(...[...chk], ...[...apl]);
+  const entrada = typeof aceite === 'number' ? Math.min(+startOfDay(new Date(aceite)), primeiro) : -Infinity;
   return Array.from({ length: 7 }, (_, i) => {
     const d = addDays(startOfDay(now()), i - 6);
     const t = +d;
@@ -1030,6 +1038,8 @@ export function last7Days(S: State) {
       feito: chk.has(t),
       aplicou: apl.has(t),
       hoje: t === hoje,
+      /** antes da entrada no aplicativo: a casa aparece vazia e não conta */
+      antes: t < entrada,
     };
   });
 }
@@ -2823,7 +2833,7 @@ export function dailyTargets(S: State): DailyTarget[] {
    ou não. Só um deles tem um terceiro estado — o ritmo de perda, onde
    "rápido demais" não é fracasso nem sucesso, e sim assunto para a
    equipe. Quem nao declara `tom` continua caindo no par de sempre. */
-export type Verdict = { label: string; good: boolean; tom?: 'bom' | 'ruim' | 'atencao' };
+export type Verdict = { label: string; good: boolean; tom?: 'bom' | 'ruim' | 'atencao' | 'neutro' };
 
 /** Média de proteína dos últimos 7 dias, contra a meta. */
 export function protein7d(S: State) {
@@ -5234,13 +5244,44 @@ export function diaDoTratamento(S: State) {
   return { antes: false, texto: T.tratamento.diaDoTratamento(d + 1) };
 }
 
+/** Acima disto, em kg por semana, o ritmo pede conversa com a equipe. */
+export const RITMO_CLINICO_KG = 1.5;
+
+/* O RITMO DO TRECHO MAIS RECENTE — da pesagem de uns 28 dias atrás até a
+   última. A média desde o início carrega as primeiras semanas, que rendem
+   mais; este número é como a curva anda agora. Nulo quando não há duas
+   pesagens a pelo menos catorze dias uma da outra dentro do trecho. */
+export function ritmoRecente(S: State): number | null {
+  const ws = ((S.weights ?? []) as any[]).slice().sort((a, b) => a.t - b.t);
+  if (ws.length < 2) return null;
+  const ult = ws[ws.length - 1];
+  const alvo = ult.t - 28 * DAY;
+  const antes = ws.filter((w) => w.t <= ult.t - 14 * DAY);
+  if (!antes.length) return null;
+  const base = antes.reduce((m, w) => (Math.abs(w.t - alvo) < Math.abs(m.t - alvo) ? w : m));
+  const semanas = (ult.t - base.t) / (7 * DAY);
+  return (base.kg - ult.kg) / semanas;
+}
+
 export function journeySummary(S: State) {
   const lost = lostKg(S);
   const goal = startWeight(S) - S.profile.goalWeight;
   const semanas = Math.max(1, Math.ceil(journeyDay(S) / 7));
   const ritmo = lost / semanas;                       // kg por semana
-  /* 0,5–1,5 kg/semana é a faixa que o tratamento costuma render. Fora dela
-     o texto não alarma: aponta para conversar com a equipe. */
+  /* ⚠️ A ETIQUETA FALA DO RITMO DE PERDA, CONTRA O QUE A PESSOA ESCOLHEU
+     (28/09/2026, pedido do dono). Ela dizia "Em ritmo saudável" a partir
+     de uma faixa clínica, e a folha que ela abre jurava que não olhava
+     para a velocidade da perda — enquanto a conta era exatamente essa. Ao
+     lado do número de quilos, "ritmo" só pode ser o de emagrecimento, e a
+     régua que a pessoa conhece é a que ela mesma escolheu no cadastro.
+
+     Dentro de um quarto para cada lado do escolhido, é o ritmo dela; fora
+     disso, mais devagar ou mais rápido que o plano, sem cor de alarme.
+     Sem ritmo escolhido, a etiqueta diz só o número por semana. Acima de
+     1,5 kg por semana o limite é clínico e vale para todo mundo: é o
+     único caso que chama a conversa com a equipe. */
+  const escolhido = typeof (S.profile as any).ritmo === 'number' && (S.profile as any).ritmo > 0
+    ? (S.profile as any).ritmo as number : null;
   /* ⚠️ RITMO NEGATIVO NÃO É "RITMO MAIS LENTO". Sem este primeiro ramo,
      quem ganhou peso caía no último — e o hero da Jornada dizia "Ritmo
      mais lento" em lima, ao lado de um número que subiu. Lento e ao
@@ -5250,15 +5291,19 @@ export function journeySummary(S: State) {
      lá que se explica o que ela mede e o que não mede. */
   const verdict: Verdict = lost < 0
     ? { label: T.tratamento.ritmoAcimaDoInicio, good: false, tom: 'ruim' }
-    : ritmo >= 0.5 && ritmo <= 1.5
-      ? { label: T.tratamento.ritmoSaudavel, good: true, tom: 'bom' }
-      /* ⚠️ ACELERADO NÃO É RUIM, E ERA PINTADO COMO RUIM. Perder mais de
-         1,5 kg por semana é motivo para conversar com a equipe — massa
-         magra, hidratação —, e não um erro que a pessoa cometeu. Vermelho
-         cobra; âmbar chama. */
-      : ritmo > 1.5
-        ? { label: T.tratamento.ritmoAcelerado, good: false, tom: 'atencao' }
-        : { label: T.tratamento.ritmoLento, good: true, tom: 'bom' };
+    /* ⚠️ ACELERADO NÃO É RUIM, E ERA PINTADO COMO RUIM. Perder mais de
+       1,5 kg por semana é motivo para conversar com a equipe — massa
+       magra, hidratação —, e não um erro que a pessoa cometeu. Vermelho
+       cobra; âmbar chama. */
+    : ritmo > RITMO_CLINICO_KG
+      ? { label: T.tratamento.ritmoAcelerado, good: false, tom: 'atencao' }
+      : escolhido == null
+        ? { label: T.tratamento.ritmoPorSemana(pesoTxt(S, ritmo)), good: true, tom: 'neutro' }
+        : ritmo < escolhido * 0.75
+          ? { label: T.tratamento.ritmoMaisDevagar, good: true, tom: 'neutro' }
+          : ritmo > escolhido * 1.25
+            ? { label: T.tratamento.ritmoMaisRapido, good: true, tom: 'neutro' }
+            : { label: T.tratamento.ritmoNoPlano, good: true, tom: 'bom' };
   return {
     dia: journeyDay(S), semana: S.protocol.week,
     /* O rótulo já vem com o sinal: quem consome só imprime. Antes ele era
@@ -5276,6 +5321,10 @@ export function journeySummary(S: State) {
        escrevia "kg" à mão ao lado. Quem imprime o rótulo tem de levar
        `pesoU(S)` junto. */
     ritmo, ritmoLabel: pesoN(S, ritmo),
+    /** o ritmo escolhido no cadastro, em kg por semana — nulo sem escolha */
+    ritmoEscolhido: escolhido,
+    /** as semanas de que a média sai */
+    semanasDoRitmo: semanas,
     adesao: adesao(S), streak: streak(S),
     /* ⚠️ O VEREDITO EXISTE SEMPRE, E SÓ SE MOSTRA COM RITMO. Com uma
        pesagem, `lost` é zero e o último ramo acima dizia "Ritmo mais

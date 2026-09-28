@@ -77,9 +77,11 @@ export const tratamento = {
      errore che la persona ha commesso.
      ============================================================ */
   ritmoAcimaDoInicio: 'Sopra il peso iniziale',
-  ritmoSaudavel: 'A un ritmo sano',
   ritmoAcelerado: 'Ritmo accelerato',
-  ritmoLento: 'Ritmo più lento',
+  ritmoNoPlano: 'Al tuo ritmo',
+  ritmoMaisDevagar: 'Più lento del previsto',
+  ritmoMaisRapido: 'Più veloce del previsto',
+  ritmoPorSemana: (peso: string) => `${peso} a settimana`,
 
   /* ============================================================
      LA SCORTA

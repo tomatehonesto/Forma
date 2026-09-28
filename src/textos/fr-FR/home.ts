@@ -191,16 +191,17 @@ export const home = {
   telaJornada: {
     ultimos7: 'VOS 7 DERNIERS JOURS',
     doseEm: (quando: string) => `dose ${quando}`,
-    diasComCheckin: (feitos: number, aplicadas: number, vividas: number) =>
-      `${feitos} ${feitos > 1 ? 'jours' : 'jour'} sur 7 avec un check-in · ${aplicadas} ${aplicadas > 1 ? 'semaines' : 'semaine'} sur ${vividas} avec une piqûre`,
-    diasComCheckinSo: (feitos: number) =>
-      `${feitos} ${feitos > 1 ? 'jours' : 'jour'} sur 7 avec un check-in`,
+    diasComCheckin: (feitos: number, dias: number, aplicadas: number, vividas: number) =>
+      `${feitos} ${feitos > 1 ? 'jours' : 'jour'} sur ${dias} avec un check-in · ${aplicadas} ${aplicadas > 1 ? 'semaines' : 'semaine'} sur ${vividas} avec une piqûre`,
+    diasComCheckinSo: (feitos: number, dias: number) =>
+      `${feitos} ${feitos > 1 ? 'jours' : 'jour'} sur ${dias} avec un check-in`,
     primeiraDose: 'Première dose',
     primeiraDoseTexto: 'Le cycle commence à compter à partir de la première dose que vous enregistrez.',
     semanaASemana: 'Semaine par semaine. Touchez pour voir ce qui a marqué chaque cycle.',
     verAsSemanas: (quantas: number) => `Voir les ${quantas} semaines`,
     semanaEDia: (semana: number, dia: number) => `SEMAINE ${semana} · JOUR ${dia}`,
     noInicio: (peso: string) => `${peso} au départ`,
+    primeiraPesagem: 'première pesée',
     hoje: 'aujourd’hui',
     faltam: (peso: string) => `il reste ${peso}`,
 
@@ -400,33 +401,20 @@ export const home = {
     anotacao: 'J’ai noté quelque chose pour la consultation',
   },
   telaRitmo: {
-    titulo: 'Comment nous lisons votre rythme',
-    sub: 'L’étiquette parle de la régularité du traitement, pas de la vitesse de la perte de poids.',
-
-    aplicacoes: 'Piqûres à jour',
-    /* Aqui o nome vem depois de `aplicadas`, e é com ele que concorda. */
-    aplicacoesSub: (aplicadas: number, vividas: number) =>
-      `${aplicadas} ${aplicadas === 1 ? 'semaine' : 'semaines'} sur ${vividas}`,
-
-    intervalo: 'Intervalle entre les doses',
-    intervaloEmDia: (dias: number) => `${dias} ${dias === 1 ? 'jour' : 'jours'}, sans longs retards`,
-    intervaloMaior: (dias: number) => `intervalle le plus long : ${dias} ${dias === 1 ? 'jour' : 'jours'}`,
-
-    sintomas: 'Symptômes signalés',
-    sintomasLeves: 'Légers',
-    sintomasModerados: 'Légers à modérés',
-    sintomasFortes: 'Modérés à forts',
-
-    seloOk: 'ok',
-    seloAtencao: 'attention',
-    seloIrregular: 'irrégulier',
-    seloEstavel: 'stable',
-    seloEmAlta: 'en hausse',
-
-    avisoTitulo: 'Une semaine différente ne change pas l’étiquette',
-    avisoTexto: (etiqueta: string) =>
-      `Elle ne monte ni ne descend selon ce que vous avez perdu, et il n’en existe aucune version qui dise que la semaine a été mauvaise. Aujourd’hui elle dit « ${etiqueta} ».`,
-
+    titulo: 'Votre rythme de perte',
+    sub: 'Combien votre poids baisse par semaine, en moyenne, à côté du rythme choisi à l’inscription.',
+    desdeOInicio: 'Depuis le début',
+    media: (semanas: number) => `moyenne sur ${semanas} ${semanas > 1 ? 'semaines' : 'semaine'}`,
+    recente: 'Quatre dernières semaines',
+    recenteSub: 'le tronçon le plus récent de la courbe',
+    escolhido: 'Le rythme que vous avez choisi',
+    semEscolha: 'Aucun rythme choisi',
+    semEscolhaSub: 'Touchez pour en choisir un',
+    porSemana: (peso: string) => `${peso} par semaine`,
+    avisoTitulo: 'La baisse n’est pas droite',
+    avisoTexto: 'Les premières semaines rapportent souvent plus, et le rythme se relâche à mesure que le corps s’ajuste. Le rythme choisi est la moyenne du chemin, pas une exigence de chaque semaine.',
+    aceleradoTitulo: 'Un rythme dont parler',
+    aceleradoTexto: (limite: string) => `Au-delà de ${limite} par semaine, il vaut la peine d’en parler avec qui vous suit, pour l’hydratation et la masse maigre. Ce n’est pas une erreur de votre part : c’est le corps qui répond vite.`,
     entendi: 'J’ai compris',
   },
   telaProtocolos: {

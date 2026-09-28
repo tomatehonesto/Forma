@@ -7,7 +7,7 @@ import { useStore } from '../../logic/store';
 
 import {
   journeySummary, journeyChanges, journeyGoals, metaDePeso, timelineWeeks, timelineEvents, timelineCounts, weightSeries,
-  startWeight, curWeight,
+  startWeight, curWeight, temEvolucao,
   milestones, doseCycle, penStock, nextInjectionDate, siteLabel, nextSite,
   waterMlToday, litros, checkinToday, protocoloDaSemana, weekGrid, last7Days, M,
   sintomasDaSemana, diasDeSintomas, type Change, type TLEvent, type TLKind, type WeekMetric,
@@ -22,7 +22,7 @@ import { useTheme } from '../../ui/useTheme';
 import { useLarguraApp } from '../../ui/useLarguraApp';
 import { useLightStatusBar } from '../../ui/useLightStatusBar';
 import { radius, alfa, RESPIRO_ABAS } from '../../theme';
-import { aguaTxt, pesoTxt, pesoU } from '../../logic/medidas';
+import { aguaTxt, pesoN, pesoTxt, pesoU } from '../../logic/medidas';
 import { T } from '../../textos';
 
 /* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
@@ -79,16 +79,27 @@ function Painel() {
      teal é a mesma cor nos dois temas, então a dele é o limeInk, que é a
      tinta escura fixa das superfícies acesas. */
   const tomDoVeredito = r.verdict.tom ?? (r.verdict.good ? 'bom' : 'ruim');
-  const [fundoDoVeredito, tintaDoVeredito] =
-    tomDoVeredito === 'bom' ? [c.ok, c.bg1]
-      : tomDoVeredito === 'atencao' ? [c.amber, c.bg1]
-        : [c.teal, c.limeInk];
+  /* ⚠️ A ETIQUETA VIROU VIDRO COM UM PONTO (28/09/2026, pedido do dono). A
+     pastilha cheia em verde, âmbar ou teal era uma terceira cor saturada
+     em cima do azul, disputando com o número. Vidro é o material das
+     outras peças que se tocam neste painel; o tom mora num ponto, como a
+     marca da aplicação sob os dias: lima quando é o ritmo escolhido,
+     âmbar quando pede conversa, teal acima do início, e sem cor quando é
+     só um fato. */
+  const pontoDoVeredito =
+    tomDoVeredito === 'bom' ? c.lime
+      : tomDoVeredito === 'atencao' ? c.amber
+        : tomDoVeredito === 'ruim' ? c.teal
+          : null;
+  const evoluiu = temEvolucao(S);
   const cyc = doseCycle(S);
   const serie = weightSeries(S);
   const nd = nextInjectionDate(S);
   const ndDays = diasAteAplicar(S);
   const dias = last7Days(S);
   const feitos = dias.filter((d) => d.feito).length;
+  /* os dias que contam: os de antes da entrada no app não são falta */
+  const diasVividos = dias.filter((d) => !d.antes).length;
   /* a contagem de semanas continua, agora só como frase: o número diz
      a constância longa que sete dias não alcançam */
   const { vividas, aplicadas } = semanasDaGrade(S);
@@ -123,7 +134,13 @@ function Painel() {
       <Row style={{ alignItems: 'center', marginTop: 12 }}>
         {/* número inteiro em branco puro — é o destaque da tela, e recuar a
             fração aqui só enfraquecia o que mais importa */}
-        <Metric value={r.lostLabel} unit="kg" v="hero" tone={c.onHero} dim={c.onHero} />
+        {/* ⚠️ COM UMA PESAGEM, O PESO DE HOJE (28/09/2026). A variação dava
+            "0,0 kg" em destaque, e a linha de baixo repetia o mesmo peso
+            como início e como hoje — três vezes o mesmo número. Até a
+            segunda pesagem, o destaque é o peso que existe. */}
+        {evoluiu
+          ? <Metric value={r.lostLabel} unit="kg" v="hero" tone={c.onHero} dim={c.onHero} />
+          : <Metric value={pesoN(S, curWeight(S))} unit={pesoU(S)} v="hero" tone={c.onHero} dim={c.onHero} />}
         <View style={{ flex: 1 }} />
         {/* A etiqueta emite um juízo, então precisa poder ser auditada: o
             toque abre /ritmo, que mostra de onde ela saiu e — mais
@@ -149,9 +166,11 @@ function Painel() {
               A tinta é o bg1 e não um branco cravado: no tema claro ele é
               branco sobre o verde escuro, e no escuro é quase preto sobre
               o verde claro. Uma cor só, que vira duas onde precisa. */}
-          <View style={{ backgroundColor: fundoDoVeredito, paddingHorizontal: 13, paddingVertical: 7, borderRadius: radius.pill }}>
-            <Txt v="tag" c={tintaDoVeredito}>{r.verdict.label}</Txt>
-          </View>
+          <Row gap={7} style={{ backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine, paddingLeft: pontoDoVeredito ? 11 : 13, paddingRight: 10, paddingVertical: 7, borderRadius: radius.pill }}>
+            {pontoDoVeredito ? <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: pontoDoVeredito }} /> : null}
+            <Txt v="tag" c={c.onHero}>{r.verdict.label}</Txt>
+            <Icon name="chev" size={11} color={c.onHero2} sw={2.4} />
+          </Row>
         </Pressable>
         ) : null}
       </Row>
@@ -183,11 +202,17 @@ function Painel() {
               via o número convertido com a unidade errada. `pesoTxt`
               escreve o valor e a unidade juntos — é o que o resto do
               aplicativo já usa. */}
-          <Txt v="caption" c={c.onHero2}>{K().noInicio(pesoTxt(S, startWeight(S)))}</Txt>
-          <Txt v="caption" c={c.onHero2}>·</Txt>
-          {/* o peso de hoje é o outro número que importa: fica em branco */}
-          <Txt v="bodyMed" c={c.onHero}>{pesoTxt(S, curWeight(S))}</Txt>
-          <Txt v="caption" c={c.onHero2}>{K().hoje}</Txt>
+          {evoluiu ? (
+            <>
+              <Txt v="caption" c={c.onHero2}>{K().noInicio(pesoTxt(S, startWeight(S)))}</Txt>
+              <Txt v="caption" c={c.onHero2}>·</Txt>
+              {/* o peso de hoje é o outro número que importa: fica em branco */}
+              <Txt v="bodyMed" c={c.onHero}>{pesoTxt(S, curWeight(S))}</Txt>
+              <Txt v="caption" c={c.onHero2}>{K().hoje}</Txt>
+            </>
+          ) : (
+            <Txt v="caption" c={c.onHero2}>{K().primeiraPesagem}</Txt>
+          )}
         </Row>
         <Txt v="caption" c={c.onHero2}>{K().faltam(`${r.faltamLabel} ${pesoU(S)}`)}</Txt>
       </Row>
@@ -234,7 +259,15 @@ function Painel() {
             {/* Cada célula abre o dia dela; o resto da faixa continua
                 levando a /ciclo. O caso que isto resolve é o mais comum de
                 todos: lembrar na quarta que esqueceu de registrar a terça. */}
-            {dias.map((d) => (
+            {dias.map((d) => d.antes ? (
+              /* Antes da entrada no aplicativo: a casa guarda o lugar, para a
+                 fileira continuar ancorada em hoje, e não tem data nem toque. */
+              <View key={d.t} style={{ flex: 1, alignItems: 'center' }}>
+                <Txt v="micro" c={c.onHero2} style={{ marginBottom: 6, opacity: 0.35 }}>{d.dow}</Txt>
+                <View style={{ width: '100%', aspectRatio: 1, borderRadius: 12, borderWidth: 1, borderColor: c.onHeroLine, borderStyle: 'dashed', opacity: 0.6 }} />
+                <View style={{ height: 8 }} />
+              </View>
+            ) : (
               <Pressable
                 key={d.t}
                 onPress={() => router.push(`/dia?t=${d.t}` as any)}
@@ -267,7 +300,7 @@ function Painel() {
           </Row>
 
           <Txt v="caption" c={c.onHero} style={{ marginTop: 8 }}>
-            {comCiclo ? K().diasComCheckin(feitos, aplicadas, vividas) : K().diasComCheckinSo(feitos)}
+            {comCiclo ? K().diasComCheckin(feitos, diasVividos, aplicadas, vividas) : K().diasComCheckinSo(feitos, diasVividos)}
           </Txt>
         </View>
       </Pressable>

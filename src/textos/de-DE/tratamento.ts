@@ -63,9 +63,11 @@ export const tratamento = {
      Flüssigkeit —, und kein Fehler, den jemand gemacht hat. Das Wort darf
      nicht nach Zurechtweisung klingen. */
   ritmoAcimaDoInicio: 'Über dem Start',
-  ritmoSaudavel: 'In gesundem Tempo',
   ritmoAcelerado: 'Schnelles Tempo',
-  ritmoLento: 'Langsameres Tempo',
+  ritmoNoPlano: 'In deinem Tempo',
+  ritmoMaisDevagar: 'Langsamer als geplant',
+  ritmoMaisRapido: 'Schneller als geplant',
+  ritmoPorSemana: (peso: string) => `${peso} pro Woche`,
 
   /* Drei Grade, und der mittlere erscheint am häufigsten: „ein Rezept
      neues Rezept“ ist ein Hinweis mit Wochen Vorlauf, kein Alarm. */

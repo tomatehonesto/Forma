@@ -53,7 +53,7 @@ import {
   cicloFases, injCalendar, protocoloDaSemana,
   aplicacaoDoCadastro, diaDoTratamento, nextInjectionDate, rodizioDeLocais, timelineEvents,
   semanasDaGrade, timelineWeeks, comecouAntesDoApp, nomeDeQuemCuida, dailyTargets, indicadoresDaEvolucao,
-  diasDeRefeicao, diasDeAgua, diasDoPeriodo, temHistoria,
+  diasDeRefeicao, diasDeAgua, diasDoPeriodo, temHistoria, ritmoRecente, last7Days,
 } from '../src/logic/derive';
 import { semanaDoTratamento } from '../src/logic/time';
 import { boasVindasNaHome, marcarApresentacaoVista } from '../src/logic/apresentacao';
@@ -438,6 +438,28 @@ ok(!temHistoria(hojeCadastrou) && temHistoria(semanaDepois),
   '"Seu tratamento" espera sete dias de aplicativo, mesmo com check-in no primeiro');
 ok(!temHistoria(semanaVazia), 'e, passados os sete, ainda pede um registro além do cadastro');
 ok(temHistoria(semente), 'com semanas de dose fechadas, a história aparece');
+
+console.log('\n15. O RITMO É O DE PERDA, CONTRA O ESCOLHIDO');
+const comRitmo = (escolhido: number | null) => {
+  const x = clone(semente);
+  (x.profile as any).ritmo = escolhido;
+  return journeySummary(x);
+};
+const real = journeySummary(semente).ritmo;
+ok(comRitmo(real).verdict.label === T.tratamento.ritmoNoPlano, 'perdendo no ritmo escolhido, a etiqueta diz "No seu ritmo"');
+ok(comRitmo(real * 2).verdict.label === T.tratamento.ritmoMaisDevagar && comRitmo(real * 2).verdict.good,
+  'bem abaixo do escolhido, "Mais devagar que o plano" — sem virar alerta');
+ok(comRitmo(real / 2).verdict.label === T.tratamento.ritmoMaisRapido, 'bem acima, "Mais rápido que o plano"');
+ok(comRitmo(null).verdict.label.includes(T.tratamento.ritmoPorSemana('').trim()),
+  'sem ritmo escolhido, a etiqueta é só o número por semana');
+const rapido = clone(semente);
+(rapido.weights as any[]).push({ t: +hoje + 3600e3, kg: 40 });
+ok(journeySummary(rapido).verdict.tom === 'atencao', 'acima de 1,5 kg por semana, o limite clínico chama a conversa');
+ok(ritmoRecente(semente) != null && ritmoRecente(zero) == null, 'o trecho recente só com pesagens a duas semanas uma da outra');
+const sete = last7Days(semanaDepois).filter((d) => !d.antes).length;
+const um = last7Days(hojeCadastrou).filter((d) => !d.antes).length;
+ok(um === 1 && sete === 7, 'os sete dias da Jornada não contam os de antes do cadastro');
+ok(last7Days(semente).every((d) => !d.antes), 'sem hora de aceite, os sete contam');
 
 console.log(falhas ? `\n${falhas} afirmação(ões) falharam\n` : '\ntodas as afirmações passaram\n');
 process.exit(falhas ? 1 : 0);

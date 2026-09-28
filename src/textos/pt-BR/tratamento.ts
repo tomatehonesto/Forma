@@ -82,9 +82,11 @@ export const tratamento = {
      que a pessoa cometeu. A palavra não pode soar a repreensão.
      ============================================================ */
   ritmoAcimaDoInicio: 'Acima do início',
-  ritmoSaudavel: 'Em ritmo saudável',
   ritmoAcelerado: 'Ritmo acelerado',
-  ritmoLento: 'Ritmo mais lento',
+  ritmoNoPlano: 'No seu ritmo',
+  ritmoMaisDevagar: 'Mais devagar que o plano',
+  ritmoMaisRapido: 'Mais rápido que o plano',
+  ritmoPorSemana: (peso: string) => `${peso} por semana`,
 
   /* ============================================================
      O ESTOQUE

@@ -53,9 +53,11 @@ export const tratamento = {
      reason to talk to the care team — lean mass, hydration — not a
      mistake the person made. The word can't sound like a scolding. */
   ritmoAcimaDoInicio: 'Above your starting weight',
-  ritmoSaudavel: 'Healthy pace',
   ritmoAcelerado: 'Faster pace',
-  ritmoLento: 'Slower pace',
+  ritmoNoPlano: 'On your pace',
+  ritmoMaisDevagar: 'Slower than planned',
+  ritmoMaisRapido: 'Faster than planned',
+  ritmoPorSemana: (peso: string) => `${peso} a week`,
 
   /* Three degrees, and the middle one shows up most: "worth refilling" is
      a heads-up weeks in advance, not an alarm. */
