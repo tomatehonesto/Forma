@@ -149,7 +149,7 @@ export const conquistas = {
   cinturaFalta: (comp: string) => `Faltam ${comp}`,
 
   exames: 'Exames',
-  examesDesc: (a: number) => `${p(a, 'exame')} importado${a === 1 ? '' : 's'}`,
+  examesDesc: (a: number) => `${p(a, 'exame')} anotado${a === 1 ? '' : 's'}`,
   examesFalta: (r: number) => `${v(r, 'Falta', 'Faltam')} ${p(r, 'exame')}`,
 
   consultas: 'Consultas',

@@ -55,6 +55,7 @@ import {
 import type { State } from './seed';
 import { passosNaHome } from './primeirosPassos';
 import { aguaTxt } from './medidas';
+import { temRedeParceira } from './pais';
 
 export type TipoDescoberta = 'cruzamento' | 'antecipacao' | 'convite';
 
@@ -263,7 +264,8 @@ function convites(S: State): Descoberta[] {
     T.descobertas.examesCta, '/exames', 2.2,
   );
 
-  if (!clinicaConectada(S)) poe(
+  /* O código da clínica só existe com a rede lançada — ver `redeLancada`. */
+  if (!clinicaConectada(S) && temRedeParceira()) poe(
     'clinica', 'steth',
     T.descobertas.clinicaTitulo,
     T.descobertas.clinicaTexto,

@@ -45,6 +45,7 @@ export const ajuda = {
     },
     {
       q: '¿Qué puede ver mi equipo?',
+      rede: true,
       a: 'Nada, hasta que te conectes a una clínica asociada con su código. Con la conexión, el equipo ve tu diario mientras dure, y la lista completa de lo que pasa a ver aparece antes de conectar. Tus preguntas a Morphi quedan fuera, y puedes desconectarte en cualquier momento, en la pantalla de la clínica.',
     },
     {

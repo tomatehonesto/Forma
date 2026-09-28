@@ -276,7 +276,9 @@ export default function Assinatura() {
             sub={K.trocarClinica}
             onPress={() => router.push('/codigo' as any)}
           />
-        ) : atual ? (
+        /* O código de quem paga também espera a rede: antes dela, não há
+           clínica para emiti-lo — ver `redeLancada`, em logic/pais. */
+        ) : atual && temRedeParceira() ? (
           /* ⚠️ AQUI O SUBTÍTULO FICA, e pelo motivo contrário ao das
               outras: esta linha tem consequência, e é a maior da tela.
               Quem está pagando e digita um código de clínica parceira

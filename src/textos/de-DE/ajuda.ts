@@ -51,6 +51,7 @@ export const ajuda = {
     },
     {
       q: 'Was kann mein Team sehen?',
+      rede: true,
       a: 'Nichts, bis du dich über ihren Code mit einer Partnerpraxis verbindest. Mit der Verbindung sieht das Team dein Tagebuch, solange sie besteht, und die ganze Liste dessen, was es sehen wird, erscheint vor dem Verbinden. Deine Fragen an Morphi bleiben draußen, und du kannst dich jederzeit auf dem Bildschirm der Praxis trennen.',
     },
     {

@@ -48,6 +48,7 @@ export const ajuda = {
     },
     {
       q: 'Que peut voir mon équipe ?',
+      rede: true,
       a: 'Rien, jusqu’à ce que vous vous connectiez à une clinique partenaire avec son code. Avec la connexion, l’équipe voit votre journal tant qu’elle dure, et la liste complète de ce qu’elle pourra voir apparaît avant que vous vous connectiez. Vos questions à Morphi restent à l’écart, et vous pouvez vous déconnecter à tout moment, sur l’écran de la clinique.',
     },
     {

@@ -50,6 +50,7 @@ export const ajuda = {
     },
     {
       q: 'Che cosa riesce a vedere il mio team?',
+      rede: true,
       a: 'Niente, finché non ti colleghi a una clinica partner con il suo codice. Con il collegamento, il team vede il tuo diario finché dura, e l’elenco completo di cosa potrà vedere compare prima di collegarti. Le tue domande a Morphi restano fuori, e puoi scollegarti in qualsiasi momento, dalla schermata della clinica.',
     },
     {

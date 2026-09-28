@@ -1025,7 +1025,7 @@ function Parceiros() {
     pontoSemPedir().then(setPonto).catch(() => {});
   }, [noAr]);
 
-  if (!temRedeParceira() || temAcompanhamento(S)) return null;
+  if (temAcompanhamento(S)) return null;
 
   /* ⚠️ NA PRIMEIRA VEZ, A APRESENTAÇÃO, e não a vitrine. Quem nunca ouviu
      falar da rede cairia numa lista de clínicas sem saber o que acontece
@@ -1035,9 +1035,16 @@ function Parceiros() {
      funciona" no alto para quem quiser rever. */
   const abrirRede = () => router.push((viuApresentacaoDaRede(S) ? '/rede' : '/rede-apresentacao') as any);
 
+  /* ⚠️ SEM A REDE, SÓ A LINHA (28/09/2026). Fora do Brasil, e no Brasil
+     até a rede ser lançada (ver `redeLancada`, em logic/pais), não há
+     clínica para mostrar nem código para pedir. O que sobra é a porta de
+     quem passou a ter um médico — e ela funciona sem rede nenhuma. Antes,
+     sem rede o bloco inteiro sumia, e essa porta ia junto. */
+  const semRede = !temRedeParceira();
+
   return (
     <View style={{ marginTop: 36 }}>
-      <SectionHead title={K().acompanhamentoProfissional} />
+      {semRede ? null : <SectionHead title={K().acompanhamentoProfissional} />}
 
       {/* ⚠️ COM A REDE NO AR, O CARTÃO MOSTRA GENTE: os rostos de quem
           atende — os mais próximos, quando sabemos onde a pessoa está — e
@@ -1046,7 +1053,7 @@ function Parceiros() {
           Sem a rede no ar (sem nuvem), o botão é o código de convite, que é
           o único caminho que existe sem lista — a tela /parceiros, que
           explicava isso, saiu na fase 8. */}
-      {noAr && rede?.length ? (
+      {semRede ? null : noAr && rede?.length ? (
         <CartaoDaRede rede={rede} ponto={ponto} onPress={abrirRede} />
       ) : (
         <CartaoDeParceiros
@@ -1066,7 +1073,7 @@ function Parceiros() {
           pode passar a ter. */}
       <Pressable
         onPress={() => router.push('/acompanhamento' as any)}
-        style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.6 : 1 }]}
+        style={({ pressed }) => [{ marginTop: semRede ? 0 : 14, opacity: pressed ? 0.6 : 1 }]}
       >
         <Txt v="caption" c={c.tx3} style={{ paddingHorizontal: 2, lineHeight: 20 }}>
           {K().passouATer} <Txt v="caption" c={c.accent2}>{K().anoteQuemE}</Txt>

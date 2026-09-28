@@ -45,6 +45,7 @@ export const ajuda = {
     },
     {
       q: 'What can my care team see?',
+      rede: true,
       a: 'Nothing, until you connect with a partner clinic using its code. With the connection, the team sees your journal while it lasts, and the full list of what it gets to see shows up before you connect. Your questions to Morphi stay out, and you can disconnect anytime on the clinic’s screen.',
     },
     {

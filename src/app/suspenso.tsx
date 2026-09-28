@@ -11,6 +11,7 @@ import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
 
 import { T } from '../textos';
+import { temRedeParceira } from '../logic/pais';
 
 /* ============================================================
    SUSPENSO — a tela de quem perdeu o vínculo
@@ -182,12 +183,15 @@ export default function Suspenso() {
               <Txt v="label" c={c.tx2}>Exportar registros</Txt>
             </Row>
           </Pressable>
-          <Pressable onPress={() => router.push('/codigo' as any)} hitSlop={10} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-            <Row gap={7} style={{ alignItems: 'center' }}>
-              <Icon name="steth" size={14} color={c.tx2} sw={1.9} />
-              <Txt v="label" c={c.tx2}>{T.assinatura.suspenso.outroCodigo}</Txt>
-            </Row>
-          </Pressable>
+          {/* Outro código só com a rede lançada — ver `redeLancada`. */}
+          {temRedeParceira() ? (
+            <Pressable onPress={() => router.push('/codigo' as any)} hitSlop={10} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+              <Row gap={7} style={{ alignItems: 'center' }}>
+                <Icon name="steth" size={14} color={c.tx2} sw={1.9} />
+                <Txt v="label" c={c.tx2}>{T.assinatura.suspenso.outroCodigo}</Txt>
+              </Row>
+            </Pressable>
+          ) : null}
         </Row>
 
         <Txt v="micro" c={c.tx4} style={{ textAlign: 'center', lineHeight: 17 }}>

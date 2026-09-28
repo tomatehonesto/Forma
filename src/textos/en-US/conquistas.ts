@@ -135,7 +135,7 @@ export const conquistas = {
   cinturaFalta: (comp: string) => `${comp} to go`,
 
   exames: 'Lab results',
-  examesDesc: (a: number) => `${p(a, 'panel')} imported`,
+  examesDesc: (a: number) => `${p(a, 'panel')} logged`,
   examesFalta: (r: number) => `${p(r, 'panel')} to go`,
 
   consultas: 'Appointments',

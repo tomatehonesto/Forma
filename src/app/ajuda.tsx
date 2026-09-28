@@ -6,6 +6,7 @@ import { TelaInterna, Titulao, Bloco, Sanfona, Cartao, Linha, Aviso } from '../u
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { T } from '../textos';
+import { temRedeParceira } from '../logic/pais';
 import { CANAL } from '../logic/documentos';
 import { escreverParaNos } from '../ui/contato';
 
@@ -76,7 +77,8 @@ export default function Ajuda() {
 
       <Bloco titulo={K().perguntasFrequentes}>
         <Sanfona>
-          {K().qa.map((qa) => <Pergunta key={qa.q} qa={qa} />)}
+          {/* A pergunta sobre o que a equipe vê espera a rede lançada. */}
+          {K().qa.filter((qa: any) => !qa.rede || temRedeParceira()).map((qa) => <Pergunta key={qa.q} qa={qa} />)}
         </Sanfona>
       </Bloco>
 

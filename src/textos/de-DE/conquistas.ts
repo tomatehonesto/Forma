@@ -158,7 +158,7 @@ export const conquistas = {
   cinturaFalta: (comp: string) => `Noch ${comp}`,
 
   exames: 'Befunde',
-  examesDesc: (a: number) => `${p(a, 'Befund', 'Befunde')} eingelesen`,
+  examesDesc: (a: number) => `${p(a, 'Befund', 'Befunde')} eingetragen`,
   examesFalta: (r: number) => `Noch ${p(r, 'Befund', 'Befunde')}`,
 
   consultas: 'Termine',

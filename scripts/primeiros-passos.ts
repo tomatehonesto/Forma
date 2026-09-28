@@ -59,6 +59,7 @@ import { semanaDoTratamento } from '../src/logic/time';
 import { boasVindasNaHome, marcarApresentacaoVista } from '../src/logic/apresentacao';
 import { semanaQuePassou, marcoRecente } from '../src/logic/destaques';
 import { descobertas } from '../src/logic/descobertas';
+import { redeLancada, temRedeParceira } from '../src/logic/pais';
 import { proximasDe, type Alerta } from '../src/logic/alertas';
 import { resumoEmTexto, resumoDoTratamento } from '../src/logic/resumo';
 import { conquistas } from '../src/logic/conquistas';
@@ -471,6 +472,18 @@ console.log('\n16. A HOME DO PRIMEIRO DIA');
 const temConviteDeMedidas = (x: State) => descobertas(x).some((d) => d.id === 'conv:medidas');
 ok(!temConviteDeMedidas(hojeCadastrou) && temConviteDeMedidas(semanaDepois),
   'o convite das medidas espera a primeira semana no aplicativo');
+
+console.log('\n17. A CHAVE DA REDE (EXPO_PUBLIC_REDE)');
+/* Sem a variável é o estado da build de loja até a virada; com
+   EXPO_PUBLIC_REDE=1 na frente do comando, o de depois dela. */
+const conviteDaClinica = descobertas(semanaDepois).some((d) => d.id === 'conv:clinica');
+if (!redeLancada()) {
+  ok(!temRedeParceira('BR'), 'sem a variável, não há rede, nem no Brasil');
+  ok(!conviteDaClinica, 'e o carrossel não convida a digitar o código de uma clínica que não existe');
+} else {
+  ok(temRedeParceira('BR') && !temRedeParceira('US'), 'com a variável, a rede volta — e só no Brasil');
+  ok(conviteDaClinica, 'e o convite da clínica volta ao carrossel');
+}
 
 console.log(falhas ? `\n${falhas} afirmação(ões) falharam\n` : '\ntodas as afirmações passaram\n');
 process.exit(falhas ? 1 : 0);

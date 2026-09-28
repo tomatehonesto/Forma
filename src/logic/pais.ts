@@ -216,8 +216,29 @@ export const paisDoAparelho = (p: string | null) => {
  * O QUE O PAÍS DECIDE
  * ------------------------------------------------------------------ */
 
-/** A rede de clínicas parceiras é brasileira. Ver logic/mercado. */
-export const temRedeParceira = (p: Pais = paisAtual()) => p === 'BR';
+/* ⚠️ A REDE SÓ EXISTE DEPOIS DE LANÇADA (28/09/2026, pedido do dono).
+
+   O aplicativo vai para a loja antes de haver clínica parceira. Até aqui
+   a rede aparecia para qualquer pessoa no Brasil — o cartão "Clínicas
+   parceiras", "Já tenho um código de convite", o código na escolha do
+   plano, na assinatura e na suspensa, e o convite da clínica no
+   carrossel —, e nenhum desses caminhos levava a alguém: não há clínica
+   para emitir código nem vitrine para mostrar.
+
+   A chave é uma variável de ambiente, e não uma constante no código, para
+   a virada não pedir versão nova do código: `EXPO_PUBLIC_REDE=1` na build
+   liga tudo de uma vez. O .env.development a liga, para a rede continuar
+   sendo construída; sem ela, a build sai com a rede escondida.
+
+   ⚠️ LIDA ASSIM, POR EXTENSO: o Expo só embute `process.env.EXPO_PUBLIC_*`
+   escrito literalmente no código. */
+const REDE_LANCADA = process.env.EXPO_PUBLIC_REDE === '1';
+/** Se a rede de clínicas parceiras já foi lançada, em qualquer país. */
+export const redeLancada = () => REDE_LANCADA;
+
+/** A rede de clínicas parceiras é brasileira, e só existe depois de
+    lançada. Ver logic/mercado. */
+export const temRedeParceira = (p: Pais = paisAtual()) => redeLancada() && p === 'BR';
 
 /** Qual tabela de composição de alimentos. Hoje existem duas. */
 export const tabelaDeAlimentos = (p: Pais = paisAtual()): 'us' | 'br' => (p === 'US' ? 'us' : 'br');

@@ -64,6 +64,9 @@ export const ajuda = {
     },
     {
       q: 'O que a minha equipe consegue ver?',
+      /* Só com a rede de clínicas lançada — ver `redeLancada`, em
+         logic/pais. Antes dela, não há equipe para ver nada. */
+      rede: true,
       a: 'Nada, até você se conectar a uma clínica parceira pelo código dela. Com a conexão, a equipe vê o seu diário enquanto ela durar, e a lista inteira do que ela passa a ver aparece antes de você conectar. As suas perguntas ao Morphi ficam fora, e dá para desconectar a qualquer momento, na tela da clínica.',
     },
     {

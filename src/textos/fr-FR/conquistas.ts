@@ -138,7 +138,7 @@ export const conquistas = {
   exames: 'Analyses',
   /* ⚠️ « bilan » FAIT « bilans », mais « repas » NE CHANGE PAS au pluriel.
      C'est exactement pour ça que le pluriel est un champ. */
-  examesDesc: (a: number) => `${p(a, 'bilan')} importé${a === 1 ? '' : 's'}`,
+  examesDesc: (a: number) => `${p(a, 'bilan')} noté${a === 1 ? '' : 's'}`,
   examesFalta: (r: number) => `Il manque ${p(r, 'analyse')}`,
 
   consultas: 'Consultations',
