@@ -157,6 +157,9 @@ export const DESTINO_NO_PERFIL: Record<string, Destino> = {
   antesDoVinculo: 'parte:acompanhamento',
 
   idioma: 'parte:preferencias',
+  /* o aceite da leitura do laudo (logic/laudo): anda com a pessoa entre
+     aparelhos, para não ser pedido de novo em cada um */
+  aceiteDoLaudo: 'parte:preferencias',
 
   consentimento: 'coluna',
 

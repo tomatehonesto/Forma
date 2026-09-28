@@ -63,6 +63,8 @@ import { descobertas } from '../src/logic/descobertas';
 import { redeLancada, temRedeParceira } from '../src/logic/pais';
 import { unidadesDe, unidadePadrao, converterValor, converterFaixa, faixaTxt } from '../src/logic/unidadesDeExame';
 import { htmlDoResumo } from '../src/logic/resumoPdf';
+import { limparLaudo, gravarLaudo } from '../src/logic/laudo';
+import { MARCADORES as MARCADORES_DO_SERVIDOR } from '../servidor/marcadores';
 import { proximasDe, type Alerta } from '../src/logic/alertas';
 import { resumoEmTexto, resumoDoTratamento } from '../src/logic/resumo';
 import { conquistas } from '../src/logic/conquistas';
@@ -521,6 +523,42 @@ ok(html.includes('Dor &lt;forte&gt; &amp; tontura') && !html.includes('<forte>')
   'o que a pessoa escreveu entra escapado — um "<" numa anotação não quebra o documento');
 ok(resumoDoTratamento(semente).find((s) => s.id === 'exames')!.linhas.every((l) => !l.k.includes('Glicemia jejum') || nomeDoMarcador('Glicemia jejum') === 'Glicemia jejum'),
   'o resumo em texto usa o nome do marcador no idioma de quem lê');
+
+console.log('\n20. A LEITURA DO LAUDO');
+const lido = limparLaudo({
+  ok: true, coleta: '2026-09-20',
+  resultados: [
+    { marcador: 'HbA1c', nome_no_laudo: 'Hemoglobina glicada', valor: 5.4, unidade: '%', referencia: '< 5,7' },
+    { marcador: 'HbA1c', nome_no_laudo: 'HbA1c anterior', valor: 6.1, unidade: '%', referencia: null },
+    { marcador: 'LDL', nome_no_laudo: 'LDL', valor: 112, unidade: 'mg/dl', referencia: 'Desejável: < 130' },
+    { marcador: 'Inventado', nome_no_laudo: 'Sódio', valor: 140, unidade: 'mEq/L', referencia: null },
+    { marcador: 'TSH', nome_no_laudo: 'TSH', valor: -1, unidade: 'mUI/L', referencia: null },
+  ],
+});
+ok(!!lido && lido.resultados.length === 2 && lido.resultados[0].valor === 5.4,
+  'o mesmo marcador duas vezes entra uma — o primeiro, que é o desta coleta; e valor negativo não entra');
+ok(!!lido && lido.resultados[1].unidade === null && lido.resultados[1].referencia === null,
+  'unidade fora da lista fica para a pessoa escolher, e faixa com texto em volta não vira faixa');
+ok(!!lido && lido.naoReconhecidos.includes('Sódio'), 'o que não acompanhamos é mostrado como lido, e não gravado');
+ok(limparLaudo({ ok: true, coleta: '2999-01-01', resultados: [{ marcador: 'HbA1c', valor: 5, unidade: '%' }] })!.coleta === null,
+  'coleta no futuro é leitura errada: fica sem data');
+const comLaudo = clone(semente);
+const ldlAntes = (comLaudo.exams as any[]).find((e) => e.marker === 'LDL').values.length;
+const g1 = gravarLaudo(comLaudo, [{ marcador: 'LDL', valor: 2.9, unidade: 'mmol/L', referencia: '< 3,4' }], +hoje);
+const ldl = (comLaudo.exams as any[]).find((e) => e.marker === 'LDL');
+ok(g1 === 1 && ldl.unit === 'mg/dL' && Math.abs(ldl.values[ldl.values.length - 1].v - 2.9 * 38.67) < 0.5,
+  'o laudo em mmol/L entra no LDL que já estava em mg/dL, convertido — a linha do tempo não mistura escalas');
+ok(gravarLaudo(comLaudo, [{ marcador: 'LDL', valor: 2.9, unidade: 'mmol/L', referencia: null }], +hoje) === 0
+  && ldl.values.length === ldlAntes + 1, 'a mesma coleta lida duas vezes não entra duas vezes');
+const semExames = clone(zero);
+gravarLaudo(semExames, [{ marcador: 'Vitamina D', valor: 75, unidade: 'nmol/L', referencia: '75–250' }], null);
+const vd = (semExames.exams as any[])[0];
+ok(vd.unit === 'nmol/L' && vd.ref === '75–250' && vd.good === 'up',
+  'o marcador novo nasce na unidade e com a faixa do laudo, e com a direção da tabela');
+const doApp = Object.fromEntries(examCats().flatMap(([, ms]) => ms).map((m) => [m, unidadesDe(m).map((u) => u.id)]));
+const doServidor = Object.fromEntries(Object.entries(MARCADORES_DO_SERVIDOR).map(([m, v]) => [m, [...v.unidades]]));
+ok(JSON.stringify(doApp) === JSON.stringify(doServidor),
+  'a lista de marcadores e unidades do servidor é a mesma do aplicativo');
 
 console.log(falhas ? `\n${falhas} afirmação(ões) falharam\n` : '\ntodas as afirmações passaram\n');
 process.exit(falhas ? 1 : 0);

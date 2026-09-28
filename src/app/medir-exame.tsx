@@ -5,6 +5,8 @@ import { useStore } from '../logic/store';
 import { examCats, nomeDoMarcador, REFERENCIA_DOS_MARCADORES } from '../logic/derive';
 import { now, nf } from '../logic/time';
 import { Txt, Row, SheetScreen } from '../ui/kit';
+import { Icon } from '../ui/Icon';
+import { leituraDoLaudoLigada } from '../logic/laudo';
 import { useTheme } from '../ui/useTheme';
 import { radius, font } from '../theme';
 import { T } from '../textos';
@@ -97,6 +99,24 @@ export default function MedirExame() {
 
   return (
     <SheetScreen titulo={K().titulo} sub={K().sub} onClose={() => router.back()}>
+      {/* LER O LAUDO, no alto: quem tem o PDF ou o papel na mão não precisa
+          digitar marcador por marcador. Aparece quando a leitura está
+          ligada (a URL do servidor), e sempre em desenvolvimento, onde há
+          o laudo de exemplo — ver app/laudo. */}
+      {leituraDoLaudoLigada() || __DEV__ ? (
+        <Pressable onPress={() => router.replace('/laudo' as any)} style={({ pressed }) => [{ marginTop: 18, opacity: pressed ? 0.8 : 1 }]}>
+          <Row gap={12} style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16 }}>
+            <View style={{ width: 34, height: 34, borderRadius: radius.sm, backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name="doc" size={17} color={c.accent} sw={1.9} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Txt v="body">{T.exames.laudo.entrada}</Txt>
+              <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>{T.exames.laudo.entradaSub}</Txt>
+            </View>
+            <Icon name="chev" size={14} color={c.tx4} sw={2} />
+          </Row>
+        </Pressable>
+      ) : null}
       <View style={{ height: 20 }} />
 
       {examCats().map(([cat, marcadores]) => (
@@ -136,7 +156,10 @@ export default function MedirExame() {
             </Txt>
           </View>
           <TextInput
-            value={valor} onChangeText={setValor} keyboardType="decimal-pad" autoFocus
+            value={valor} onChangeText={setValor} keyboardType="decimal-pad"
+            /* Sem foco sozinho quando a leitura do laudo está no alto: o foco
+               rolava a folha até o campo e escondia a entrada. */
+            autoFocus={!(leituraDoLaudoLigada() || __DEV__)}
             placeholder="—" placeholderTextColor={c.tx4}
             style={{ width: 92, textAlign: 'right', color: c.tx, fontFamily: font.body, fontSize: 24, paddingVertical: 4 }}
           />

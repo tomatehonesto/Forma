@@ -19,6 +19,13 @@
    login com o Google (a fase 5). Quando existirem, entram aqui, e a
    versão sobe.
 
+   ⚠️ A LEITURA DO LAUDO ENTROU EM 28/09/2026, e é o trecho que o advogado
+   precisa olhar primeiro. Um laudo é dado de saúde sensível que SAI do
+   aparelho (para a Vercel e a Anthropic) — a foto do prato não era. Cada
+   ponto da Política em que a foto aparecia ganhou o laudo ao lado, com a
+   base do art. 11, I, e o aceite próprio que o aplicativo pede antes da
+   primeira leitura (logic/laudo, VERSAO_DO_ACEITE_DO_LAUDO).
+
    ⚠️ ISTO É UMA MINUTA, E NÃO UM PARECER. Foi escrita a partir do que o
    aplicativo de fato faz — cada afirmação daqui é conferível no código —,
    mas quem publica documento jurídico de aplicativo de saúde é advogado.
@@ -192,6 +199,7 @@ export const PRIVACIDADE = (): Documento => ({
         '<b>Compartilhar com a sua clínica</b> — quando você se conecta a uma clínica parceira, para que a equipe dela acompanhe o seu diário entre as consultas.',
         '<b>Lembretes</b> — para disparar os alertas que você mesmo configurou.',
         '<b>Leitura de foto</b> — para sugerir os itens do prato quando você fotografa uma refeição.',
+        '<b>Leitura do laudo</b> — para sugerir os resultados de um exame a partir do PDF ou da foto do laudo, quando você escolhe ler em vez de digitar.',
         '<b>Obrigações legais</b> — quando a lei exigir de nós.',
       ],
       depois: [
@@ -206,6 +214,7 @@ export const PRIVACIDADE = (): Documento => ({
         '<b>Compartilhamento com a clínica a que você se conecta</b> — <b>consentimento específico</b> (art. 11, I), dado na tela do código, antes de conectar, com a lista do que a clínica passa a ver. O que a clínica guarda como prontuário depois de a conexão acabar segue a <b>tutela da saúde</b>, em procedimento realizado por profissionais de saúde (art. 11, II, "f"), e as regras de prontuário que valem para ela.',
         '<b>Conta, cadastro e funcionamento do aplicativo</b> — <b>execução de contrato</b> (art. 7º, V): sem esses dados o app não funciona.',
         '<b>Leitura da foto do prato</b> — <b>consentimento</b> (art. 7º, I), dado no momento em que você escolhe usar a câmera em vez do registro manual.',
+        '<b>Leitura do laudo</b> — <b>consentimento específico e destacado</b> (art. 11, I), dado numa tela própria antes da primeira leitura, que diz para onde o arquivo vai e que ele não é guardado. Sem esse aceite, os exames continuam sendo anotados à mão.',
         '<b>Leitura do aplicativo de saúde do celular</b> — <b>consentimento</b>, concedido e revogado nos ajustes do sistema operacional.',
       ],
       depois: [
@@ -226,6 +235,7 @@ export const PRIVACIDADE = (): Documento => ({
         '<b>O seu diário, para a sua conta</b> — os registros, o perfil (com a foto de perfil, reduzida) e o consentimento vão para o nosso banco sozinhos, sempre que há conexão. É o que guarda o diário entre aparelhos. As perguntas ao Morphi ficam fora.',
         '<b>O que a clínica vê, quando você se conecta</b> — todo tipo de registro (pesagens, aplicações, check-ins, refeições, medidas, exames, laudos, sinais vitais, documentos, anotações, metas pessoais e os recipientes do medicamento) e o seu perfil, com o histórico de saúde. Inclui o que você registrou antes de conectar. A clínica vê enquanto a conexão durar, e o que for registrado durante o acompanhamento fica guardado por ela como prontuário, mesmo depois de desconectar. As perguntas ao Morphi não entram.',
         '<b>A foto do prato</b>, quando você usa a leitura por foto — a imagem é reduzida no aparelho e enviada para ser interpretada. Ela <b>não é armazenada</b>: nem no registro da refeição, nem no serviço que faz a intermediação.',
+        '<b>O laudo, quando você usa a leitura do laudo</b> — o PDF ou a foto do exame é enviado para ser interpretado, e volta como uma lista de resultados que você confere antes de salvar. O arquivo <b>não é armazenado</b>: nem no seu diário, nem no serviço que faz a intermediação. O que fica são só os resultados que você salvou, como qualquer exame anotado.',
         '<b>A sua fala, quando você usa o microfone</b> — o reconhecimento de voz é feito pelo sistema do aparelho. Pedimos que ele aconteça no próprio aparelho, mas quando o aparelho não tem o reconhecimento local do seu idioma, o sistema pode enviar o áudio aos servidores da Apple ou do Google. Isso só acontece enquanto o microfone está ligado.',
       ],
       depois: [
@@ -239,8 +249,8 @@ export const PRIVACIDADE = (): Documento => ({
         '<b>Supabase</b> (banco de dados, autenticação e armazenamento) — guarda a sua conta e o seu diário, na região de São Paulo.',
         '<b>Resend</b> (envio de e-mail) — entrega o código de acesso no seu e-mail. Recebe o endereço e o código, e mais nada do seu diário.',
         '<b>Apple</b> — quando você escolhe entrar com a Apple, ela confirma quem você é e nos passa um identificador e, se você permitir, o e-mail.',
-        '<b>Vercel</b> (infraestrutura) — hospeda a função que intermedeia a leitura da foto, em servidores no Brasil. Não guarda a imagem e não tem banco de dados nosso.',
-        '<b>Anthropic</b> (modelo de IA) — interpreta a foto do prato e devolve os itens. A imagem não é usada para treinar modelos.',
+        '<b>Vercel</b> (infraestrutura) — hospeda as funções que intermedeiam a leitura da foto do prato e a do laudo, em servidores no Brasil. Não guarda a imagem nem o laudo, e não tem banco de dados nosso.',
+        '<b>Anthropic</b> (modelo de IA) — interpreta a foto do prato e o laudo, e devolve os itens e os resultados. Nem a imagem nem o laudo são usados para treinar modelos.',
         '<b>A clínica a que você se conecta</b> — o que a seção 6 lista, enquanto a conexão durar, e o que ela guarda como prontuário depois.',
         '<b>Autoridades públicas</b>, diante de obrigação legal ou ordem judicial, e apenas o estritamente exigido.',
       ],
@@ -252,10 +262,11 @@ export const PRIVACIDADE = (): Documento => ({
       titulo: '8. Transferência internacional',
       paragrafos: [
         'O banco com o seu diário fica em <b>território nacional</b>, em São Paulo.',
-        'Três coisas podem ser tratadas por provedores sediados nos <b>Estados Unidos</b>, o que configura transferência internacional nos termos do <b>art. 33 da LGPD</b>:',
+        'Quatro coisas podem ser tratadas por provedores sediados nos <b>Estados Unidos</b>, o que configura transferência internacional nos termos do <b>art. 33 da LGPD</b>:',
       ],
       itens: [
         '<b>A foto do prato</b>, só quando você usa a leitura por foto. Envolve apenas a imagem enviada, que não é armazenada. Se preferir que isso não aconteça, registre as refeições manualmente.',
+        '<b>O laudo</b>, só quando você usa a leitura do laudo, e depois do aceite específico. Envolve apenas o arquivo enviado, que não é armazenado. Se preferir que isso não aconteça, anote os exames à mão.',
         '<b>O seu e-mail</b>, que o serviço de envio usa para entregar o código de acesso.',
         '<b>O identificador da Apple</b>, quando você escolhe entrar com ela.',
       ],
@@ -275,6 +286,7 @@ export const PRIVACIDADE = (): Documento => ({
         '<b>Outro aparelho em que você entrou</b> — mantém a cópia local do diário até você sair da conta nele, ou até ele voltar a ter conexão e saber que a conta foi apagada.',
         '<b>As perguntas ao Morphi</b> — só no aparelho, que guarda as 12 mais recentes. Elas não vão para a conta.',
         '<b>Foto do prato</b> — não é guardada. Existe durante a chamada e é descartada.',
+        '<b>Laudo enviado para leitura</b> — não é guardado. Existe durante a chamada e é descartado; ficam no diário só os resultados que você salvou.',
         '<b>O que a clínica guarda</b> — o que foi registrado durante a conexão fica com ela como prontuário, pelo prazo que as regras de prontuário impõem a ela. Para apagar o que está lá, o pedido é feito à clínica.',
         '<b>Registro do consentimento</b> — enquanto a conta existir, porque é a prova de que ele foi dado e em que versão.',
       ],
@@ -299,8 +311,8 @@ export const PRIVACIDADE = (): Documento => ({
     {
       titulo: '12. Decisões automatizadas e revisão humana (art. 20)',
       paragrafos: [
-        'Duas partes do aplicativo são produzidas por máquina: a <b>leitura da foto do prato</b> e as <b>descobertas</b>, que apontam padrões nos seus próprios registros. As duas são probabilísticas e <b>podem errar</b>.',
-        'Nenhuma delas decide nada sobre o seu tratamento — a lista da foto vai para a sua conferência antes de salvar, e as descobertas são leitura, não conduta. Ainda assim, você pode contestar qualquer uma delas e <b>pedir revisão por uma pessoa</b>: escreva para ' + CANAL() + '.',
+        'Três partes do aplicativo são produzidas por máquina: a <b>leitura da foto do prato</b>, a <b>leitura do laudo</b> e as <b>descobertas</b>, que apontam padrões nos seus próprios registros. As três são probabilísticas e <b>podem errar</b>.',
+        'Nenhuma delas decide nada sobre o seu tratamento — a lista da foto e os resultados do laudo vão para a sua conferência antes de salvar, e as descobertas são leitura, não conduta. Ainda assim, você pode contestar qualquer uma delas e <b>pedir revisão por uma pessoa</b>: escreva para ' + CANAL() + '.',
         '<b>Não tome decisão sobre dose, sintoma, alergia ou restrição alimentar com base apenas no que a máquina escreveu.</b> Confirme com a sua equipe de saúde.',
       ],
     },
@@ -314,7 +326,7 @@ export const PRIVACIDADE = (): Documento => ({
       titulo: '14. Segurança',
       paragrafos: [
         'No aparelho, os dados ficam na área privada do aplicativo, protegida pelo sistema operacional. A sessão da sua conta fica guardada cifrada, com a chave no cofre do sistema (Keychain no iPhone, Keystore no Android).',
-        'No banco, cada linha tem uma regra que diz quem pode lê-la: a sua conta lê o seu diário, e a clínica conectada lê o que a seção 6 lista, enquanto a conexão durar. Todo o tráfego, com o banco e com a leitura de foto, é criptografado via HTTPS.',
+        'No banco, cada linha tem uma regra que diz quem pode lê-la: a sua conta lê o seu diário, e a clínica conectada lê o que a seção 6 lista, enquanto a conexão durar. Todo o tráfego, com o banco e com as leituras de foto e de laudo, é criptografado via HTTPS.',
         'Nenhum sistema é inviolável, e não prometemos o contrário. Em caso de incidente de segurança que possa acarretar risco relevante, comunicaremos a <b>ANPD</b> e as pessoas afetadas, conforme o <b>art. 48 da LGPD</b>.',
         'A segurança do seu aparelho é parte disso: manter bloqueio de tela e o sistema atualizado protege o que está guardado aqui.',
       ],
@@ -377,6 +389,7 @@ export const TERMOS = (): Documento => ({
         'Monta um resumo do tratamento para você levar à consulta.',
         'Com o seu consentimento, compartilha o seu diário com a clínica parceira a que você se conectar, enquanto a conexão durar.',
         'Lê a foto de um prato, quando você escolhe, e sugere os itens da refeição.',
+        'Lê o PDF ou a foto de um laudo, quando você escolhe e depois de um aceite próprio, e sugere os resultados para você conferir.',
         'Lê pesagens do aplicativo de saúde do celular, com a sua autorização.',
       ],
     },
@@ -386,11 +399,12 @@ export const TERMOS = (): Documento => ({
         'Que as leituras, descobertas e sugestões estejam corretas — elas são cálculo e interpretação sobre o que você registrou.',
         'Que os lembretes toquem: quem dispara é o sistema operacional, e ele depende de permissão, bateria e modos de foco.',
         'Que a leitura da foto acerte o prato. Confira a lista antes de salvar.',
+        'Que a leitura do laudo acerte cada resultado, unidade ou data. Confira contra o papel antes de salvar.',
         'Disponibilidade ininterrupta — pode haver manutenção, falha de rede ou incompatibilidade com uma versão de sistema.',
         'A conduta de qualquer profissional ou clínica com quem você se vincule.',
       ],
       depois: [
-        '<b>Conteúdo gerado por IA.</b> A leitura da foto e as descobertas usam inteligência artificial e são probabilísticas — podem conter imprecisões. <b>Não tome decisão sobre dose, sintoma, alergia ou restrição alimentar baseando-se apenas nelas.</b> Você pode pedir revisão humana de qualquer uma, conforme o art. 20 da LGPD, escrevendo para ' + CANAL() + '.',
+        '<b>Conteúdo gerado por IA.</b> A leitura da foto, a leitura do laudo e as descobertas usam inteligência artificial e são probabilísticas — podem conter imprecisões. <b>Não tome decisão sobre dose, sintoma, alergia ou restrição alimentar baseando-se apenas nelas.</b> Você pode pedir revisão humana de qualquer uma, conforme o art. 20 da LGPD, escrevendo para ' + CANAL() + '.',
       ],
     },
     {

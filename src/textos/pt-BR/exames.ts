@@ -165,6 +165,45 @@ export const exames = {
     registrar: (nome: string) => `Registrar ${nome}`,
   },
 
+  /* ---- a leitura do laudo (app/laudo, logic/laudo) ----
+
+     ⚠️ O ACEITE (aceite1 a aceite3) TEM VERSÃO: mudar o que ele diz pede
+     subir VERSAO_DO_ACEITE_DO_LAUDO, em logic/laudo, para ele ser pedido
+     de novo. */
+  laudo: {
+    entrada: 'Ler o laudo',
+    entradaSub: 'PDF ou foto do papel — você confere antes de salvar',
+    aceiteTitulo: 'Antes de ler o seu laudo',
+    aceite1: 'O arquivo vai para o nosso serviço de leitura, no Brasil, e para a Anthropic, que o interpreta nos Estados Unidos.',
+    aceite2: 'Ele não é guardado em nenhum dos dois. No seu diário ficam só os resultados que você salvar.',
+    aceite3: 'A leitura pode errar. Você confere cada resultado contra o papel antes de salvar.',
+    aceitar: 'Concordo, quero ler',
+    recusar: 'Prefiro anotar à mão',
+    politica: 'Ler a Política de Privacidade',
+    escolherTitulo: 'De onde vem o laudo?',
+    pdf: 'Escolher um PDF',
+    foto: 'Tirar uma foto do laudo',
+    galeria: 'Escolher uma foto',
+    exemplo: 'Laudo de exemplo — desenvolvimento',
+    lendo: 'Lendo o laudo…',
+    lendoSub: 'Costuma levar menos de um minuto.',
+    erroSemServidor: 'A leitura do laudo ainda não está ligada.',
+    erroSemRede: 'Não conseguimos falar com a leitura agora. Tente de novo em instantes.',
+    erroNaoReconheci: 'Não encontramos neste arquivo resultados que acompanhamos.',
+    erroGrande: 'O arquivo é grande demais para ler. Tente um PDF menor ou uma foto da página.',
+    tentarDeNovo: 'Tentar de novo',
+    anotarAMao: 'Anotar à mão',
+    revisaoTitulo: 'Confira contra o papel',
+    revisaoSub: 'Corrija o que estiver diferente e tire o que não quiser salvar.',
+    semColeta: 'O laudo não diz a data da coleta — usamos a de hoje.',
+    escolhaUnidade: 'Escolha a unidade que está no laudo',
+    tirar: 'Tirar da lista',
+    coleta: (data: string) => `Coleta de ${data}`,
+    faixa: (faixa: string) => `faixa do laudo: ${faixa}`,
+    tambem: (nomes: string) => `Também lemos, e não acompanhamos: ${nomes}.`,
+    salvar: (n: number) => (n === 1 ? 'Salvar 1 resultado' : `Salvar ${n} resultados`),
+  },
+
   tela: {
     titulo: 'Exames',
     linha: (quantos: number, ultimaColeta: string) =>

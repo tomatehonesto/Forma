@@ -1,18 +1,20 @@
-# O servidor que lê o prato
+# O servidor que lê o prato e o laudo
 
-Uma função. Ela existe por um motivo só: a chave da API não pode ir no
-aplicativo. Tudo que é empacotado no app é extraível — chave no pacote é
+Duas funções — a do prato e a do laudo. Elas existem por um motivo só: a
+chave da API não pode ir no aplicativo. Tudo que é empacotado no app é extraível — chave no pacote é
 chave publicada.
 
-Fora isso ela não guarda nada, não sabe quem está do outro lado, não tem
-banco e não guarda a foto.
+Fora isso elas não guardam nada, não sabem quem está do outro lado, não
+têm banco e não guardam a foto nem o laudo.
 
 ## O que sobe
 
 ```
 servidor/
-  api/analisar.ts     a função
+  api/analisar.ts     a leitura do prato
+  api/laudo.ts        a leitura do laudo (PDF ou foto)
   alimentos.json      a tabela, GERADA — não edite à mão
+  marcadores.ts       os 15 marcadores do laudo e as unidades de cada um
   vercel.json         60s de teto, região gru1 (São Paulo)
 ```
 
@@ -93,3 +95,26 @@ modelo não conta como CPU.
 Trocar de modelo é uma string em `api/analisar.ts`. O `effort: 'medium'`
 ao lado dela é o outro botão — reconhecer comida é tarefa de percepção, e
 tem alguém olhando para uma roda girando enquanto isso.
+
+## A leitura do laudo
+
+`api/laudo.ts` recebe um PDF (até uns 3 MB) ou a foto de um laudo e
+devolve os resultados como estão impressos: valor, unidade, faixa do
+laboratório e data da coleta. Não converte e não interpreta — quem lê o
+valor contra a faixa é o aplicativo, e quem confere cada linha contra o
+papel antes de salvar é a pessoa.
+
+Ela sobe junto com a do prato, no mesmo projeto, com as mesmas variáveis
+(`ANTHROPIC_API_KEY` e `MORPHI_TOKEN`). O aplicativo acha a URL sozinho
+a partir de `EXPO_PUBLIC_ANALISE_URL` (troca `/analisar` por `/laudo`);
+se um dia ela morar em outro lugar, `EXPO_PUBLIC_LAUDO_URL` manda.
+
+⚠️ `marcadores.ts` repete a lista do aplicativo (`src/logic/unidadesDeExame`),
+porque o servidor não enxerga o código de lá. A sonda dos primeiros passos
+(seção 20) confere que as duas continuam iguais — mudar uma sem a outra
+faz ela falhar.
+
+⚠️ Um laudo é dado de saúde sensível. O aplicativo pede um aceite próprio
+antes da primeira leitura, e a Política de Privacidade (minuta, em
+`src/logic/documentos.ts`) descreve o envio — as duas coisas precisam da
+revisão do advogado antes de a leitura ser ligada na loja.
