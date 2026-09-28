@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  Animated, Easing, View, Image, Pressable, ScrollView, TextInput, Platform, useWindowDimensions, ActivityIndicator, StyleSheet,
+  Animated, Easing, View, Image, Pressable, ScrollView, TextInput, Platform, useWindowDimensions, ActivityIndicator, StyleSheet, Text,
   KeyboardAvoidingView, Keyboard, Switch,
 } from 'react-native';
 import { useAurora } from '../ui/aurora';
@@ -863,7 +863,7 @@ function Montando({ onFim, depois }: {
 
   return (
     <View style={{ flex: 1, overflow: 'hidden', backgroundColor: c.bg }}>
-      <ManchaDeLuz p={mancha} largura={width} altura={height} papel={papelAlvo} />
+      <ManchaDeLuz p={mancha} largura={width} altura={height} papel={papelAlvo} viva />
       <View
         accessibilityLiveRegion="polite"
         style={{
@@ -906,7 +906,16 @@ function Montando({ onFim, depois }: {
                 }}
               >
                 {/* A que já passou perde as reticências: ela terminou. */}
-                {atual ? texto : texto.replace(/\s*…$/, '')}
+                {/* O "Pronto!" em negrito (pedido do dono): é a única palavra
+                    da espera que é uma conclusão. Corta na primeira
+                    exclamação, que em todo idioma fecha a interjeição —
+                    "¡Listo!", "C'est prêt !", "Fertig!". */}
+                {i === fases.length - 1 && /^[^!]*!/.test(texto) ? (
+                  <>
+                    <Text style={{ fontFamily: font.bold }}>{texto.match(/^[^!]*!/)![0]}</Text>
+                    {texto.replace(/^[^!]*!/, '')}
+                  </>
+                ) : atual ? texto : texto.replace(/\s*…$/, '')}
               </Animated.Text>
               {/* O brilho atravessa só a da vez, e só enquanto ela ainda
                   está acontecendo — o "Pronto!" já acabou. */}

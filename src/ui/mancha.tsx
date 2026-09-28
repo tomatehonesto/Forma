@@ -1,5 +1,5 @@
 import React from 'react';
-import { Animated, View } from 'react-native';
+import { Animated, Easing, View } from 'react-native';
 import Svg, { Defs, RadialGradient, Rect, Stop } from 'react-native-svg';
 import { useStore } from '../logic/store';
 import { PALETAS } from '../theme';
@@ -88,22 +88,51 @@ const R = 400;   // o raio da mancha desenhada; o tamanho vem da escala
 
 /** A mancha. `papel` é onde o cabeçalho do plano termina (no fim, a luz
     some logo abaixo dele). Sem `p`, ela fica parada no cabeçalho. */
-export function ManchaDeLuz({ p = PARADO, largura: W, altura: H, papel: T }: {
+export function ManchaDeLuz({ p = PARADO, largura: W, altura: H, papel: T, viva }: {
   p?: Animated.Value;
+  /** a luz derivando devagar enquanto espera (a espera do plano) */
+  viva?: boolean;
   largura: number;
   altura: number;
   papel: number;
 }) {
   const cor = useCores();
+  /* ⚠️ A LUZ SE MEXE ENQUANTO ESPERA (pedido do dono). Cada mancha deriva
+     num pequeno círculo, cada uma num ponto diferente da volta, e a
+     deriva some conforme a luz sobe — no cabeçalho ela está parada, e o
+     plano, que desenha a mesma luz sem deriva, emenda sem pulo. */
+  const deriva = React.useRef(new Animated.Value(0)).current;
+  React.useEffect(() => {
+    if (!viva) return;
+    const laco = Animated.loop(Animated.timing(deriva, {
+      toValue: 1, duration: 7000, easing: Easing.linear, useNativeDriver: true,
+    }));
+    laco.start();
+    return () => laco.stop();
+  }, [viva]);
+  const PONTOS = [0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1];
+  const onda = (fase: number, amplitude: number) => Animated.multiply(
+    deriva.interpolate({
+      inputRange: PONTOS,
+      outputRange: PONTOS.map((t) => Math.sin((t + fase) * 2 * Math.PI) * amplitude),
+    }),
+    p.interpolate({ inputRange: [0, 1], outputRange: [1, 0], extrapolate: 'clamp' }),
+  );
   const id = React.useId().replace(/[^a-zA-Z0-9]/g, '');
   /* Da de trás para a da frente. Na partida só a funda aparece, no pé; as
      outras esperam abaixo da tela, cada uma mais longe — quanto mais longe
      ela parte, mais rápido sobe, e é essa diferença que desenha a onda. */
   const manchas: Mancha[] = [
-    { cor: cor.ceu, meio: 0.55, x: W * 0.5, rx: W * 1.6, ry: T * 1.15, o: 0.95, de: H * 1.9, ate: -T * 0.05 },
-    { cor: cor.ciano, meio: 0.45, x: W * 0.62, rx: W * 1.2, ry: T * 1.0, o: 0.9, de: H * 1.57, ate: T * 0.08 },
+    /* ⚠️ A BORDA DE BAIXO NÃO É RETA (pedido do dono): no cabeçalho, as
+       manchas grandes param em alturas diferentes — o céu desce mais à
+       esquerda, o ciano e o segundo céu ficam mais altos à direita, e a
+       faixa média faz uma barriga do lado esquerdo. Com uma mancha larga
+       só, a luz terminava numa linha, como um degradê linear. */
+    { cor: cor.ceu, meio: 0.55, x: W * 0.3, rx: W * 1.15, ry: T * 1.2, o: 0.95, de: H * 1.9, ate: T * 0.02 },
+    { cor: cor.ceu, meio: 0.5, x: W * 0.88, rx: W * 0.85, ry: T * 0.85, o: 0.85, de: H * 1.8, ate: -T * 0.12 },
+    { cor: cor.ciano, meio: 0.45, x: W * 0.72, rx: W * 0.95, ry: T * 0.95, o: 0.9, de: H * 1.57, ate: -T * 0.02 },
     { cor: cor.funda, meio: 0.5, x: W * 0.45, rx: W * 0.95, ry: H * 0.36, o: 1, de: H * 1.02, ate: -T * 0.55 },
-    { cor: cor.faixa, meio: 0.35, x: W * 0.5, rx: W * 1.5, ry: T * 0.55, o: 0.6, de: H * 2.35, ate: T * 0.72 },
+    { cor: cor.faixa, meio: 0.35, x: W * 0.28, rx: W * 0.95, ry: T * 0.5, o: 0.6, de: H * 2.35, ate: T * 0.72 },
     /* Os tons de apoio. Na espera eles já aparecem no pé, em volta da
        funda — o anil à esquerda, um ciano à direita e o brilho no meio —,
        para a mancha em repouso não ser um azul só. Na subida o anil e o
@@ -124,8 +153,10 @@ export function ManchaDeLuz({ p = PARADO, largura: W, altura: H, papel: T }: {
             position: 'absolute', left: -R, top: -R, width: 2 * R, height: 2 * R,
             opacity: m.o,
             transform: [
-              { translateX: m.x },
-              { translateY: p.interpolate({ inputRange: [0, 1], outputRange: [m.de, m.ate] }) },
+              { translateX: viva ? Animated.add(m.x, onda(i * 0.21, W * 0.09)) : m.x },
+              { translateY: viva
+                ? Animated.add(p.interpolate({ inputRange: [0, 1], outputRange: [m.de, m.ate] }), onda(i * 0.21 + 0.25, H * 0.035))
+                : p.interpolate({ inputRange: [0, 1], outputRange: [m.de, m.ate] }) },
               { scaleX: m.rx / R },
               { scaleY: m.ry / R },
             ],
