@@ -51,12 +51,17 @@ export function semanaQuePassou(S: State): ResumoDaSemana | null {
    o aceite do cadastro (`consentimento.em`), com um dia de folga. */
 const DIAS_DO_MARCO = 3;
 
+/** Se um marco é de depois do cadastro — a regra vale também para "O que
+    você já fez", no Perfil (28/09/2026). */
+export function depoisDoCadastro(S: State, t: number): boolean {
+  const nasceu = (S.profile as any)?.consentimento?.em;
+  return typeof nasceu !== 'number' || t > nasceu + DAY;
+}
+
 export function marcoRecente(S: State): Conquista | null {
   const agora = +now();
-  const nasceu = (S.profile as any)?.consentimento?.em;
-  const depoisDoCadastro = (t: number) => typeof nasceu !== 'number' || t > nasceu + DAY;
   const recentes = conquistas(S)
-    .filter((q) => q.nivel > 0 && q.t != null && agora - q.t < DIAS_DO_MARCO * DAY && q.t <= agora && depoisDoCadastro(q.t))
+    .filter((q) => q.nivel > 0 && q.t != null && agora - q.t < DIAS_DO_MARCO * DAY && q.t <= agora && depoisDoCadastro(S, q.t))
     .sort((a, b) => (b.t ?? 0) - (a.t ?? 0));
   return recentes[0] ?? null;
 }

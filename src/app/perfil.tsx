@@ -10,8 +10,9 @@ import { RESTRICOES } from '../logic/restricoes';
 import { kgTxt as kg, nf, relDay, fmtDate } from '../logic/time';
 import {
   journeyDay, clinicaConectada, idadeDe, medComDose, ATIVIDADES, MOTIVOS, curWeight,
-  lostKg, diaDoTratamento, temEvolucao, nomeDeQuemCuida, temConsulta,
+  lostKg, diaDoTratamento, temEvolucao, nomeDeQuemCuida, temConsulta, temHistoria,
 } from '../logic/derive';
+import { depoisDoCadastro } from '../logic/destaques';
 import { Screen, Txt, Row, SectionHead, CircleBtn, ListRow, Grupo, Retrato, Rolagem } from '../ui/kit';
 import { marcosDeConquista, emTratamento } from '../logic/derive';
 import { Selo, Cartao, Linha } from '../ui/internas';
@@ -174,7 +175,11 @@ export default function Perfil() {
   const passos = usePassosParaReabrir();
   const go = (p: string) => () => router.push(p as any);
   /* Da mais recente para a mais antiga, como a fita da Jornada fazia. */
-  const badges = marcosDeConquista(S).slice().sort((a, b) => b.t - a.t);
+  /* ⚠️ O QUE VEIO COM O CADASTRO NÃO ENTRA (28/09/2026, pedido do dono). No
+     primeiro acesso a fita mostrava "Pesagens · nível 1" pela pesagem do
+     formulário — a mesma regra do marco da Home (logic/destaques). A tela
+     de conquistas continua contando tudo; aqui é o que ela fez. */
+  const badges = marcosDeConquista(S).filter((b) => depoisDoCadastro(S, b.t)).sort((a, b) => b.t - a.t);
 
   /* REPORTAR UM PROBLEMA ABRE O E-MAIL COM O CONTEXTO JÁ ESCRITO.
 
@@ -369,10 +374,16 @@ export default function Perfil() {
           que o cadastro perguntou já se corrige — um caminho só para
           mudar coisa, e não um por cartão. */}
       <Row gap={8} style={{ marginTop: 20 }}>
-        <Dado
-          label={K().inicial} valor={pesoN(S, S.profile.startWeight)} unidade={pesoU(S)}
-          fundo={c.bluePale} tinta={c.tx} tintaRotulo={c.tx2}
-        />
+        {/* ⚠️ COM UMA PESAGEM, DOIS CARTÕES (28/09/2026, pedido do dono). A
+            fileira dizia "Inicial 75,1 · Atual 75,1" — o mesmo peso com dois
+            nomes. Até a segunda pesagem são o de hoje e a meta; o início
+            volta quando houver com o que comparar. */}
+        {temEvolucao(S) ? (
+          <Dado
+            label={K().inicial} valor={pesoN(S, S.profile.startWeight)} unidade={pesoU(S)}
+            fundo={c.bluePale} tinta={c.tx} tintaRotulo={c.tx2}
+          />
+        ) : null}
         {/* O DO MEIO PASSOU A SER O PESO DE HOJE, e não o quanto já foi
             perdido. Os três são pesos na mesma escala, e a diferença
             entrava no lugar de um deles: a fileira dizia 82,4 → 7,3 → 68,
@@ -383,7 +394,7 @@ export default function Perfil() {
             o app não tem por que esconder, e "já perdeu −2,1" seria ele
             corrigindo a pessoa com um sinal de menos. */}
         <Dado
-          label={K().atual} valor={pesoN(S, curWeight(S))} unidade={pesoU(S)}
+          label={temEvolucao(S) ? K().atual : K().hoje} valor={pesoN(S, curWeight(S))} unidade={pesoU(S)}
           /* Só com evolução: com uma pesagem o selo dizia "−0,0 kg". */
           delta={temEvolucao(S) ? `${perdeu >= 0 ? '−' : '+'}${pesoTxt(S, Math.abs(perdeu))}` : undefined}
           fundo={c.lime} tinta={c.limeInk} tintaRotulo="rgba(10,10,10,0.62)" largo
@@ -670,8 +681,12 @@ export default function Perfil() {
             tratamento". Dois nomes para uma porta fazem a pessoa achar que
             chegou noutro lugar — e o nome certo é o da tela, porque ali não
             há log de auditoria: há o tratamento contado por semana. */}
-        <ListRow ic="ruler" title={K().seuTratamento}
-          sub={K().seuTratamentoSub} onPress={go('/historico')} />
+        {/* A história espera a primeira semana, como a seção da Jornada que
+            ela abre — ver `temHistoria`. */}
+        {temHistoria(S) ? (
+          <ListRow ic="ruler" title={K().seuTratamento}
+            sub={K().seuTratamentoSub} onPress={go('/historico')} />
+        ) : null}
         <ListRow ic="trophy" title={K().conquistas}
           sub={K().conquistasSub} onPress={go('/conquistas')} />
         {/* O RESUMO PARA O MÉDICO SAIU DAQUI. Ele não fala sobre a pessoa

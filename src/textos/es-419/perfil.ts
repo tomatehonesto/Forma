@@ -7,6 +7,7 @@ export const perfil = {
   dia: (numero: number) => `Día ${numero}`,
   inicial: 'Inicial',
   atual: 'Actual',
+  hoje: 'Hoy',
   meta: 'Meta',
 
   consultaEm: (quando: string) => `Consulta ${quando}`,

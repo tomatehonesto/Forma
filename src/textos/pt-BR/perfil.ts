@@ -25,6 +25,7 @@ export const perfil = {
   dia: (numero: number) => `Dia ${numero}`,
   inicial: 'Inicial',
   atual: 'Atual',
+  hoje: 'Hoje',
   meta: 'Meta',
 
   /* ---------- quem cuida ---------- */

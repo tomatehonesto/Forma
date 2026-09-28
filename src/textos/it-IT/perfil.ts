@@ -20,6 +20,7 @@ export const perfil = {
   dia: (numero: number) => `Giorno ${numero}`,
   inicial: 'Iniziale',
   atual: 'Attuale',
+  hoje: 'Oggi',
   meta: 'Obiettivo',
 
   /* ---------- chi ti segue ---------- */

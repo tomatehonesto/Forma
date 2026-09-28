@@ -13,6 +13,7 @@ export const perfil = {
   dia: (numero: number) => `Tag ${numero}`,
   inicial: 'Start',
   atual: 'Heute',
+  hoje: 'Heute',
   meta: 'Ziel',
 
   consultaEm: (quando: string) => `Termin ${quando}`,
