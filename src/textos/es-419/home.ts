@@ -389,6 +389,8 @@ export const home = {
     semEscolha: 'Ningún ritmo elegido',
     semEscolhaSub: 'Toca para elegir uno',
     porSemana: (peso: string) => `${peso} por semana`,
+    devagarTitulo: 'Más despacio también es camino',
+    devagarTexto: 'El cuerpo no sigue el calendario que elegimos para él, y las semanas más lentas pasan en casi todo tratamiento — no quiere decir que algo salió mal. Lo que sostiene el resultado es seguir: las dosis, la proteína, el agua, el sueño. Si el ritmo elegido te pesa, puedes cambiarlo por uno que encaje mejor con tu momento.',
     avisoTitulo: 'La bajada no es recta',
     avisoTexto: 'Las primeras semanas suelen rendir más, y el ritmo afloja a medida que el cuerpo se ajusta. El ritmo elegido es el promedio del camino, no una exigencia de cada semana.',
     aceleradoTitulo: 'Un ritmo para conversar',

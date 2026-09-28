@@ -460,6 +460,11 @@ const sete = last7Days(semanaDepois).filter((d) => !d.antes).length;
 const um = last7Days(hojeCadastrou).filter((d) => !d.antes).length;
 ok(um === 1 && sete === 7, 'os sete dias da Jornada não contam os de antes do cadastro');
 ok(last7Days(semente).every((d) => !d.antes), 'sem hora de aceite, os sete contam');
+const emLibra = clone(semente);
+(emLibra.profile as any).sistema = 'imperial';
+const rKg = journeySummary(semente), rLb = journeySummary(emLibra);
+ok(rLb.lostLabel !== rKg.lostLabel && rLb.faltamLabel !== rKg.faltamLabel,
+  `em libra, o destaque e o "faltam" da Jornada saem em libra (${rLb.lostLabel} / ${rLb.faltamLabel})`);
 
 console.log(falhas ? `\n${falhas} afirmação(ões) falharam\n` : '\ntodas as afirmações passaram\n');
 process.exit(falhas ? 1 : 0);

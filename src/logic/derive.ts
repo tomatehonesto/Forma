@@ -5308,9 +5308,12 @@ export function journeySummary(S: State) {
     dia: journeyDay(S), semana: S.protocol.week,
     /* O rótulo já vem com o sinal: quem consome só imprime. Antes ele era
        o número cru e cada tela grudava um "−" na frente. */
-    lost, lostLabel: variacaoDe(-lost, '').numero,
+    /* ⚠️ OS DOIS RÓTULOS SAÍAM EM QUILO, e as telas punham a unidade de
+       quem lê ao lado: em libra, o "−7,3" do destaque era quilo com "lb"
+       do lado. Agora convertem aqui, como o ritmo abaixo. */
+    lost, lostLabel: variacaoDe(pesoV(S, -lost), '').numero,
     goal, pct: Math.round((lost / goal) * 100),
-    faltamLabel: nf(Math.max(0, goal - lost), 1),
+    faltamLabel: pesoN(S, Math.max(0, goal - lost)),
     aplicacoes: S.injections.length,
     proximaEmDias: diasAteAplicar(S),
     /* ritmo semanal — diz mais que "71 dias de tratamento", que é trivia */

@@ -139,7 +139,7 @@ function Painel() {
             como início e como hoje — três vezes o mesmo número. Até a
             segunda pesagem, o destaque é o peso que existe. */}
         {evoluiu
-          ? <Metric value={r.lostLabel} unit="kg" v="hero" tone={c.onHero} dim={c.onHero} />
+          ? <Metric value={r.lostLabel} unit={pesoU(S)} v="hero" tone={c.onHero} dim={c.onHero} />
           : <Metric value={pesoN(S, curWeight(S))} unit={pesoU(S)} v="hero" tone={c.onHero} dim={c.onHero} />}
         <View style={{ flex: 1 }} />
         {/* A etiqueta emite um juízo, então precisa poder ser auditada: o

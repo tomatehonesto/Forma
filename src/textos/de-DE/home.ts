@@ -414,6 +414,8 @@ export const home = {
     semEscolha: 'Kein Tempo gewählt',
     semEscolhaSub: 'Tippe, um eines zu wählen',
     porSemana: (peso: string) => `${peso} pro Woche`,
+    devagarTitulo: 'Langsamer ist auch ein Weg',
+    devagarTexto: 'Der Körper hält sich nicht an den Kalender, den wir für ihn wählen, und langsamere Wochen gibt es in fast jeder Behandlung — das heißt nicht, dass etwas schiefgelaufen ist. Was das Ergebnis trägt, ist dranzubleiben: die Dosen, das Eiweiß, das Wasser, der Schlaf. Wenn dich das gewählte Tempo belastet, kannst du eines wählen, das besser zu dieser Zeit passt.',
     avisoTitulo: 'Die Kurve fällt nicht gerade',
     avisoTexto: 'Die ersten Wochen bringen meist mehr, und das Tempo lässt nach, während sich der Körper anpasst. Das gewählte Tempo ist der Schnitt des Weges, keine Vorgabe für jede Woche.',
     aceleradoTitulo: 'Ein Tempo zum Besprechen',
