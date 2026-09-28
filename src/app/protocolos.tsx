@@ -95,7 +95,7 @@ export default function Protocolos() {
   return (
     <TelaDeHabito>
       <CapaDeHabito
-        foto={aurora.hero}
+        foto={aurora.veu}
         titulo={T.home.telaJornada.protocolos}
         /* A SEMANA, e não o dia. As outras três capas contam hoje porque
            água, proteína e movimento se refazem todo dia; um protocolo é

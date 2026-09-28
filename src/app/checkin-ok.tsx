@@ -177,7 +177,7 @@ export default function CheckinOk() {
       {/* A aurora parada. Na Home ela deriva devagar, e ali o movimento é
           ambiente; aqui o que se move é o número, e duas coisas em
           movimento disputam o mesmo olhar. */}
-      <Image source={aurora.hero} style={StyleSheet.absoluteFill} contentFit="cover" />
+      <Image source={aurora.corrente} style={StyleSheet.absoluteFill} contentFit="cover" />
       <LinearGradient
         colors={[alfa(c.veu, 0.42), alfa(c.veu, 0.54), alfa(c.veu, 0.88)]}
         locations={[0, 0.38, 1]}

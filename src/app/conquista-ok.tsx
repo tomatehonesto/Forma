@@ -93,7 +93,7 @@ export default function ConquistaOk() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#05143F' }}>
-      <Image source={aurora.hero} style={StyleSheet.absoluteFill} contentFit="cover" />
+      <Image source={aurora.raio} style={StyleSheet.absoluteFill} contentFit="cover" />
       {/* O véu escurece o alto e o pé, onde mora texto pequeno, e deixa a
           aurora aparecer no meio — é o mesmo tratamento do check-in
           concluído. */}

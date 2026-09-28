@@ -245,11 +245,12 @@ export default function Insights() {
         }}>
           {/* A aurora entra como imagem: o degradê que eu havia construído em
               paradas de cor chegava perto, mas cor calculada não tem grão nem
-              a irregularidade de luz que uma peça pintada tem. A imagem é a
-              mesma família da Home, em outro corte — a Home é vertical e
-              recortada, esta é a faixa larga. */}
+              a irregularidade de luz que uma peça pintada tem. Desde
+              27/09/2026 ela não é mais a da Home: é a "nuvem", uma das
+              auroras que o dono mandou para as telas deixarem de repetir a
+              mesma (ver ui/aurora). */}
           <Image
-            source={aurora.hero}
+            source={aurora.nuvem}
             style={StyleSheet.absoluteFill}
             contentFit="cover"
             /* Ancorada no topo, e agora por um motivo mais simples do que o

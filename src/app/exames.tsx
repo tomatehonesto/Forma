@@ -1033,7 +1033,7 @@ export default function Exames() {
       )}
     >
       <CapaDeHabito
-        foto={aurora.hero}
+        foto={aurora.veu}
         titulo={K().titulo}
         linha={semExames ? K().linhaVazia : K().linha(todos.length, dataLonga(ultima))}
         valor={semExames ? (

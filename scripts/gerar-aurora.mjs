@@ -37,6 +37,20 @@ const QUALIDADE = 86;
 const FONTES = [
   { de: 'aurora-hero.png', para: 'hero' },
   { de: 'aurora-insights.png', para: 'insights' },
+  /* ⚠️ AS AURORAS DAS OUTRAS TELAS (27/09/2026, enviadas pelo dono): a
+     Home tinha a dela, e todo o resto repetia a mesma. Cada tela ganha a
+     sua em ui/aurora. `largura` reduz o original, que veio maior do que
+     qualquer tela precisa — um borrão não perde nada, e o pacote agradece. */
+  { de: 'aurora-onda.png', para: 'onda', largura: 828 },
+  { de: 'aurora-corrente.png', para: 'corrente', largura: 828 },
+  { de: 'aurora-raio.png', para: 'raio', largura: 828 },
+  { de: 'aurora-nuvem.png', para: 'nuvem', largura: 828 },
+  { de: 'aurora-veu.png', para: 'veu', largura: 828 },
+  /* A capa da conta: a aurora que termina em branco, no claro, e a que
+     termina em preto, no escuro. O giro de matiz não mexe no branco nem
+     no preto — só na luz. */
+  { de: 'aurora-conta-claro.png', para: 'conta-claro', largura: 828 },
+  { de: 'aurora-conta-escuro.png', para: 'conta-escuro', largura: 828 },
 ];
 
 async function paletas() {
@@ -59,7 +73,7 @@ async function main() {
       /* Sharp lê caminho ou buffer, e não URL — no Windows um file:// vira
          uma string que ele tenta abrir literalmente. */
       const entrada = await readFile(new URL(`../assets/images/${f.de}`, import.meta.url));
-      const b = await sharp(entrada)
+      const b = await (f.largura ? sharp(entrada).resize({ width: f.largura }) : sharp(entrada))
         /* `modulate` gira o matiz e multiplica a saturação em cima da
            imagem inteira, que é o que preserva a forma do borrão: qualquer
            recolorização por máscara perderia o desenho. */

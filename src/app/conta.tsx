@@ -21,6 +21,7 @@ import { BotaoDaApple, BotaoDoGoogle } from '../ui/marcas';
 import { Icon } from '../ui/Icon';
 import { TelaDePergunta } from '../ui/pergunta';
 import { useTheme } from '../ui/useTheme';
+import { useAurora } from '../ui/aurora';
 import { ty, font, radius } from '../theme';
 import { T } from '../textos';
 
@@ -557,6 +558,7 @@ function CapaDaConta({ titulo, lead, onVoltar, children }: {
   titulo: string; lead: string; onVoltar: () => void; children: React.ReactNode;
 }) {
   const { c, isDark } = useTheme();
+  const aurora = useAurora();
   const insets = useSafeAreaInsets();
   const { height } = useWindowDimensions();
   /* ⚠️ A CAPA É UMA IMAGEM SÓ, UMA PARA CADA TEMA (27/09/2026, imagens do
@@ -567,15 +569,15 @@ function CapaDaConta({ titulo, lead, onVoltar, children }: {
      não o fundo do app.
 
      Antes era a aurora da paleta com dois degradês por cima (o véu e a
-     passagem para o papel). As imagens já trazem as duas coisas, e são
-     as mesmas em toda paleta. */
+     passagem para o papel). As imagens já trazem as duas coisas, e giram
+     com a paleta, como as outras auroras (ui/aurora). */
   const papel = isDark ? '#000000' : '#FFFFFF';
   const alto = Math.round(height * 0.5);
 
   return (
     <View style={{ flex: 1, backgroundColor: papel }}>
       <Image
-        source={isDark ? CAPA_ESCURA : CAPA_CLARA}
+        source={isDark ? aurora.contaEscuro : aurora.contaClaro}
         style={StyleSheet.absoluteFill}
         contentFit="cover"
         contentPosition="top"
@@ -606,9 +608,6 @@ function CapaDaConta({ titulo, lead, onVoltar, children }: {
     </View>
   );
 }
-
-const CAPA_CLARA = require('../../assets/auroras/conta-claro.webp');
-const CAPA_ESCURA = require('../../assets/auroras/conta-escuro.webp');
 
 /* ------------------------------------------------------------------ */
 /* O BOTÃO DE COLAR

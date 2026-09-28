@@ -639,7 +639,7 @@ function Abertura({ onComecar, onJaTenho }: { onComecar: () => void; onJaTenho?:
           web escala a imagem pelo tamanho natural dela e o recorte sai
           ampliado, mostrando um canto. */}
       <Image
-        source={aurora.hero}
+        source={aurora.onda}
         style={[SOBREPOSTO, { width: '100%', height: '100%' }]}
         resizeMode="cover"
       />
