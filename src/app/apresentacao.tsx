@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Circle, Defs, Ellipse, LinearGradient as SvgGradiente, Path, RadialGradient, Stop } from 'react-native-svg';
 import { useStore } from '../logic/store';
 import { FORMAS, formaDe } from '../logic/formas';
@@ -14,7 +15,7 @@ import { Botao } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { ManchaDeLuz, useCoresDaLuz } from '../ui/mancha';
 import { useTheme } from '../ui/useTheme';
-import { font, radius } from '../theme';
+import { alfa, font, radius } from '../theme';
 import { T } from '../textos';
 import { PAPEL_DO_PLANO } from './plano';
 
@@ -27,34 +28,47 @@ const V = () => T.home.apresentacao.vitrine;
    (28/09/2026, pedido do dono; a regra de quando ela aparece mora em
    logic/apresentacao)
 
-   Uma página por pilar do aplicativo, passada para o lado: em cima, uma
-   VITRINE — como aquela parte é, desenhada com as peças do próprio
-   aplicativo —; embaixo, o título e uma frase. O desenho segue a
-   referência do dono (páginas com ilustração, "Pular" no alto, um botão
-   só embaixo); a ilustração é nossa.
+   Uma página por pilar do aplicativo, passada para o lado: em cima, a
+   VITRINE, que ocupa metade da tela; embaixo, o título e uma frase.
+
+   ⚠️ A VITRINE É UM PEDAÇO DA TELA, COM PEÇAS SAINDO DELA (pedido do dono:
+   "mais destaque para as imagens", e "não só componentes"). No meio, uma
+   moldura com o começo da tela daquela parte — o título dela e o que ela
+   mostra —, que se desfaz embaixo no fundo da página; por cima, uma ou
+   duas peças maiores, com mais sombra, passando da borda da moldura, como
+   se saltassem da tela. As duas camadas andam em velocidades diferentes
+   quando a página passa, e as peças flutuam devagar: é isso que dá fundo.
 
    ⚠️ VITRINE EM CÓDIGO, E NÃO PRINT DE TELA (decisão do dono). O print
-   envelhece a cada mudança de tela, não se traduz — o texto dentro da
-   imagem ficaria em português nos seis idiomas — e não segue a paleta nem
-   o tema escuro. As vitrines se traduzem, trocam de cor com a paleta e
-   não mentem sobre uma tela que mudou.
+   envelhece a cada mudança de tela, não se traduz e não segue a paleta nem
+   o tema escuro. Estas se traduzem, trocam de cor com a paleta e não
+   mentem sobre uma tela que mudou.
 
    ⚠️ E OS NÚMEROS DELAS SÃO EXEMPLO, sem o nome da pessoa: ninguém pode
    ler "−6,4 kg" como se fosse o próprio diário. Ver o catálogo.
 
    ⚠️ SEM PORTA PARA EXPERIMENTAR (decisão do dono): a página só apresenta.
-   Com a vitrine, ela já mostra o que precisava; a Home está logo depois.
 
    ⚠️ VISTA É VISTA DE QUALQUER JEITO: chegar à última página, ou pular.
 
    A VOZ É A DO PRODUTO ("nós"). O companheiro, que fala em "eu", aparece
-   aqui como um dos pilares, descrito por nós.
+   aqui como um dos pilares, descrito por nós — e dentro da vitrine dele,
+   na conversa, fala como ele mesmo.
    ============================================================ */
 
-type Pilar = { id: 'dose' | 'estado' | 'comida' | 'evolucao' | 'consultas' | 'companheiro'; titulo: string; texto: string };
+type Id = 'dose' | 'estado' | 'comida' | 'evolucao' | 'consultas' | 'companheiro';
+type Pilar = { id: Id; titulo: string; texto: string };
 
 const REPOUSO = new Animated.Value(0);
-const ALTURA_DA_VITRINE = 300;
+
+/** A geometria da vitrine de uma página: a caixa inteira (a largura da
+    tela) e a moldura no meio dela, um pouco para um lado quando as peças
+    saem pelo outro. */
+type Caixa = { W: number; H: number; fx: number; fy: number; fw: number; fh: number };
+
+const DESLOCA: Record<Id, number> = {
+  dose: -22, estado: 20, comida: -20, evolucao: 18, consultas: -14, companheiro: 0,
+};
 
 export default function Apresentacao() {
   const { c } = useTheme();
@@ -79,13 +93,11 @@ export default function Apresentacao() {
   const rolagem = React.useRef<ScrollView>(null);
   const x = React.useRef(new Animated.Value(0)).current;
 
-  /* As vitrines respiram: sobem e descem uns poucos pontos, devagar, para
-     a página não parecer um print parado. */
   const flutua = React.useRef(new Animated.Value(0)).current;
   React.useEffect(() => {
     const laco = Animated.loop(Animated.sequence([
-      Animated.timing(flutua, { toValue: 1, duration: 2600, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-      Animated.timing(flutua, { toValue: 0, duration: 2600, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+      Animated.timing(flutua, { toValue: 1, duration: 2800, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+      Animated.timing(flutua, { toValue: 0, duration: 2800, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
     ]));
     laco.start();
     return () => laco.stop();
@@ -108,14 +120,20 @@ export default function Apresentacao() {
     if (p !== pagina) setPagina(Math.max(0, Math.min(ultima, p)));
   };
 
-  const largura = Math.min(width - 56, 340);
+  /* A vitrine ocupa metade da tela: é ela o assunto da página. */
+  const H = Math.round(Math.min(height * 0.53, 470));
+  const fw = Math.round(Math.min(width * 0.64, 270));
+  const caixaDe = (id: Id): Caixa => ({
+    W: width, H, fw, fh: H - 10, fy: 6,
+    fx: Math.round((width - fw) / 2 + DESLOCA[id]),
+  });
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg, overflow: 'hidden' }}>
       <ManchaDeLuz p={REPOUSO} largura={width} altura={height} papel={insets.top + PAPEL_DO_PLANO} viva />
 
       {/* o alto: o pular, que some na última página */}
-      <Row style={{ position: 'absolute', top: insets.top + 10, right: 16, zIndex: 2 }}>
+      <Row style={{ position: 'absolute', top: insets.top + 10, right: 16, zIndex: 3 }}>
         {pagina < ultima ? (
           <Pressable
             onPress={sair} hitSlop={14} accessibilityRole="button"
@@ -138,33 +156,38 @@ export default function Apresentacao() {
       >
         {pilares.map((p, i) => {
           const faixa = [(i - 1) * width, i * width, (i + 1) * width];
-          /* A vitrine anda mais devagar que a página, e o texto mais devagar
-             ainda: a página chega em camadas, e não colada no gesto. */
-          const vitrineAnda = x.interpolate({ inputRange: faixa, outputRange: [width * 0.35, 0, -width * 0.35], extrapolate: 'clamp' });
-          const textoAnda = x.interpolate({ inputRange: faixa, outputRange: [width * 0.2, 0, -width * 0.2], extrapolate: 'clamp' });
+          /* Três velocidades: a tela devagar, as peças mais depressa, o
+             texto no meio — a página chega em camadas. */
+          const anda = (f: number) => x.interpolate({ inputRange: faixa, outputRange: [width * f, 0, -width * f], extrapolate: 'clamp' });
           const some = x.interpolate({ inputRange: faixa, outputRange: [0, 1, 0], extrapolate: 'clamp' });
+          const caixa = caixaDe(p.id);
           return (
             <View
               key={p.id}
               accessibilityLabel={K().pagina(i + 1, pilares.length)}
-              style={{ width, paddingTop: insets.top + 64, alignItems: 'center' }}
+              style={{ width, paddingTop: insets.top + 44 }}
             >
-              <Animated.View
+              <View
                 accessibilityElementsHidden importantForAccessibility="no-hide-descendants"
-                style={{
-                  width: largura, height: ALTURA_DA_VITRINE, opacity: some,
-                  transform: [
-                    { translateX: vitrineAnda },
-                    { translateY: flutua.interpolate({ inputRange: [0, 1], outputRange: [3, -3] }) },
-                  ],
-                }}
+                style={{ width, height: H }}
               >
-                <Brilho largura={largura} altura={ALTURA_DA_VITRINE} />
-                <Vitrine id={p.id} largura={largura} injetavel={injetavel} />
-              </Animated.View>
+                <Animated.View style={{ ...ABS, opacity: some, transform: [{ translateX: anda(0.25) }] }}>
+                  <Brilho caixa={caixa} />
+                  <Moldura caixa={caixa}><TelaDe id={p.id} caixa={caixa} injetavel={injetavel} /></Moldura>
+                </Animated.View>
+                <Animated.View style={{
+                  ...ABS, opacity: some,
+                  transform: [
+                    { translateX: anda(0.55) },
+                    { translateY: flutua.interpolate({ inputRange: [0, 1], outputRange: [4, -4] }) },
+                  ],
+                }}>
+                  <PecasDe id={p.id} caixa={caixa} injetavel={injetavel} />
+                </Animated.View>
+              </View>
               <Animated.View style={{
-                paddingHorizontal: 32, marginTop: 28, gap: 12, alignItems: 'center',
-                opacity: some, transform: [{ translateX: textoAnda }],
+                paddingHorizontal: 32, marginTop: 18, gap: 10, alignItems: 'center',
+                opacity: some, transform: [{ translateX: anda(0.4) }],
               }}>
                 <Txt style={{ fontFamily: font.display, fontSize: 30, lineHeight: 36, color: c.tx, textAlign: 'center' }}>{p.titulo}</Txt>
                 <Txt style={{ fontFamily: font.body, fontSize: 17, lineHeight: 25, color: c.tx2, textAlign: 'center' }}>{p.texto}</Txt>
@@ -192,151 +215,335 @@ export default function Apresentacao() {
   );
 }
 
+const ABS = { position: 'absolute' as const, left: 0, top: 0, right: 0, bottom: 0 };
+
 /* ------------------------------------------------------------------ */
-/* O BRILHO atrás da vitrine: duas manchas da paleta, bem apagadas — é o
-   halo colorido da referência, com as cores da luz do aplicativo. */
-function Brilho({ largura, altura }: { largura: number; altura: number }) {
+/* O BRILHO atrás da moldura: duas manchas da paleta, bem apagadas — o halo
+   colorido da referência, nas cores da luz do aplicativo. */
+function Brilho({ caixa: k }: { caixa: Caixa }) {
   const cor = useCoresDaLuz();
   const id = React.useId().replace(/[^a-zA-Z0-9]/g, '');
   return (
-    <Svg width={largura + 80} height={altura + 60} style={{ position: 'absolute', left: -40, top: -30 }}>
+    <Svg width={k.W} height={k.H} style={{ position: 'absolute', left: 0, top: 0 }}>
       <Defs>
         <RadialGradient id={`${id}a`} cx="50%" cy="50%" r="50%">
-          <Stop offset="0" stopColor={cor.ciano} stopOpacity={0.32} />
+          <Stop offset="0" stopColor={cor.ciano} stopOpacity={0.3} />
           <Stop offset="1" stopColor={cor.ciano} stopOpacity={0} />
         </RadialGradient>
         <RadialGradient id={`${id}b`} cx="50%" cy="50%" r="50%">
-          <Stop offset="0" stopColor={cor.anil} stopOpacity={0.26} />
+          <Stop offset="0" stopColor={cor.anil} stopOpacity={0.24} />
           <Stop offset="1" stopColor={cor.anil} stopOpacity={0} />
         </RadialGradient>
       </Defs>
-      <Ellipse cx={(largura + 80) * 0.35} cy={(altura + 60) * 0.55} rx={(largura + 80) * 0.38} ry={(altura + 60) * 0.42} fill={`url(#${id}a)`} />
-      <Ellipse cx={(largura + 80) * 0.68} cy={(altura + 60) * 0.42} rx={(largura + 80) * 0.36} ry={(altura + 60) * 0.4} fill={`url(#${id}b)`} />
+      <Ellipse cx={k.fx + k.fw * 0.1} cy={k.H * 0.62} rx={k.fw * 0.85} ry={k.H * 0.42} fill={`url(#${id}a)`} />
+      <Ellipse cx={k.fx + k.fw * 0.9} cy={k.H * 0.3} rx={k.fw * 0.8} ry={k.H * 0.38} fill={`url(#${id}b)`} />
     </Svg>
   );
 }
 
+/* A MOLDURA: o pedaço da tela, com cantos de telefone, que se desfaz
+   embaixo no fundo da página — a tela continua, mas o que importa é o alto
+   dela. */
+function Moldura({ caixa: k, children }: { caixa: Caixa; children: React.ReactNode }) {
+  const { c } = useTheme();
+  return (
+    <View style={{
+      position: 'absolute', left: k.fx, top: k.fy, width: k.fw, height: k.fh,
+      borderRadius: 30, backgroundColor: c.bg, borderWidth: 1, borderColor: c.line, overflow: 'hidden',
+      shadowColor: '#0B1220', shadowOpacity: 0.08, shadowRadius: 24, shadowOffset: { width: 0, height: 10 },
+    }}>
+      <View style={{ padding: 14, paddingTop: 18, gap: 10 }}>{children}</View>
+      <LinearGradient
+        colors={[alfa(c.bg, 0), c.bg]}
+        style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: k.fh * 0.32 }}
+      />
+    </View>
+  );
+}
+
 /* ------------------------------------------------------------------ */
-/* AS PEÇAS DAS VITRINES — cartões no desenho do aplicativo, com sombra
-   para flutuar sobre o brilho. */
-function Peca({ style, children }: { style?: StyleProp<ViewStyle>; children: React.ReactNode }) {
+/* AS PEÇAS — o desenho do aplicativo em miniatura. */
+function Peca({ style, children, saindo }: { style?: StyleProp<ViewStyle>; children?: React.ReactNode; saindo?: boolean }) {
   const { c } = useTheme();
   return (
     <View style={[{
-      backgroundColor: c.bg1, borderRadius: radius.lg, padding: 14,
-      shadowColor: '#0B1220', shadowOpacity: 0.1, shadowRadius: 18, shadowOffset: { width: 0, height: 8 },
-      elevation: 4,
+      backgroundColor: c.bg1, borderRadius: saindo ? 20 : 14, padding: saindo ? 14 : 10,
+      shadowColor: '#0B1220', shadowOpacity: saindo ? 0.16 : 0.04,
+      shadowRadius: saindo ? 26 : 6, shadowOffset: { width: 0, height: saindo ? 14 : 2 },
+      elevation: saindo ? 8 : 1,
     }, style]}>
       {children}
     </View>
   );
 }
 
-function Chip({ ic, texto, style }: { ic?: string; texto: string; style?: StyleProp<ViewStyle> }) {
+function Chip({ ic, texto }: { ic?: string; texto: string }) {
   const { c } = useTheme();
   return (
-    <Row gap={6} style={[{
+    <Row gap={5} style={{
       alignSelf: 'flex-start', alignItems: 'center', backgroundColor: c.accentWeak,
-      borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 6,
-    }, style]}>
-      {ic ? <Icon name={ic} size={13} color={c.accent} sw={2} /> : null}
+      borderRadius: radius.pill, paddingHorizontal: 9, paddingVertical: 5,
+    }}>
+      {ic ? <Icon name={ic} size={12} color={c.accent} sw={2} /> : null}
       <Txt v="micro" c={c.accent}>{texto}</Txt>
     </Row>
   );
 }
 
-function Vitrine({ id, largura: L, injetavel }: { id: Pilar['id']; largura: number; injetavel: boolean }) {
+/** O título da tela em miniatura. */
+function TituloDaTela({ children }: { children: string }) {
+  const { c } = useTheme();
+  return <Txt style={{ fontFamily: font.display, fontSize: 18, lineHeight: 22, color: c.tx }}>{children}</Txt>;
+}
+
+/** Texto miúdo das telas em miniatura. */
+function Miudo({ children, cor, forte }: { children: string; cor?: string; forte?: boolean }) {
+  const { c } = useTheme();
+  return (
+    <Txt numberOfLines={1} style={{ fontFamily: forte ? font.bodySemi : font.body, fontSize: 12, lineHeight: 16, color: cor ?? c.tx2 }}>
+      {children}
+    </Txt>
+  );
+}
+
+function Escala({ rotulo, n }: { rotulo: string; n: number }) {
+  const { c } = useTheme();
+  return (
+    <View style={{ gap: 5 }}>
+      <Miudo>{rotulo}</Miudo>
+      <Row gap={4}>
+        {[1, 2, 3, 4, 5].map((k) => (
+          <View key={k} style={{ flex: 1, height: 7, borderRadius: 4, backgroundColor: k <= n ? c.accent : c.bg2 }} />
+        ))}
+      </Row>
+    </View>
+  );
+}
+
+function Anel({ frac, cor, R = 24, grossura = 7 }: { frac: number; cor: string; R?: number; grossura?: number }) {
+  const { c } = useTheme();
+  const volta = 2 * Math.PI * R;
+  const lado = R * 2 + grossura + 2;
+  return (
+    <Svg width={lado} height={lado}>
+      <Circle cx={lado / 2} cy={lado / 2} r={R} stroke={c.bg2} strokeWidth={grossura} fill="none" />
+      <Circle
+        cx={lado / 2} cy={lado / 2} r={R} stroke={cor} strokeWidth={grossura} fill="none" strokeLinecap="round"
+        strokeDasharray={`${volta} ${volta}`} strokeDashoffset={volta * (1 - frac)}
+        transform={`rotate(-90 ${lado / 2} ${lado / 2})`}
+      />
+    </Svg>
+  );
+}
+
+const FOTOS = {
+  omelete: require('../../assets/images/alimentos/omelete.jpg'),
+  frango: require('../../assets/images/alimentos/frango-assado.jpg'),
+  iogurte: require('../../assets/images/alimentos/iogurte-granola.jpg'),
+};
+
+/* ------------------------------------------------------------------ */
+/* O PEDAÇO DE TELA de cada pilar. */
+function TelaDe({ id, caixa: k, injetavel }: { id: Id; caixa: Caixa; injetavel: boolean }) {
   const { c } = useTheme();
   const cor = useCoresDaLuz();
 
   if (id === 'dose') {
     return (
-      <View style={{ flex: 1, justifyContent: 'center' }}>
-        {/* a pilha: um cartão atrás, para dar fundo */}
-        <Peca style={{ position: 'absolute', left: L * 0.08, right: L * 0.08, top: 58, height: 130, opacity: 0.6 }}>{null}</Peca>
-        <Peca style={{ marginHorizontal: L * 0.02, gap: 10, marginTop: 20 }}>
-          <Row gap={8} style={{ alignItems: 'center' }}>
-            <View style={{ width: 30, height: 30, borderRadius: 15, backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center' }}>
-              <Icon name={injetavel ? 'syringe' : 'pill'} size={16} color={c.accent} sw={2} />
-            </View>
-            <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>{V().proxima}</Txt>
-          </Row>
-          <Txt style={{ fontFamily: font.display, fontSize: 22, lineHeight: 28, color: c.tx }}>{V().dia}</Txt>
+      <>
+        <TituloDaTela>{injetavel ? V().tDose : V().tDoseOral}</TituloDaTela>
+        <Peca style={{ alignItems: 'center', gap: 4, paddingVertical: 14 }}>
+          <Anel frac={5 / 7} cor={c.accent} R={30} grossura={8} />
+          <Miudo cor={c.tx} forte>{V().ciclo}</Miudo>
+          <Miudo>{V().cicloSub}</Miudo>
+        </Peca>
+        {[[V().h1d, V().h1l], [V().h2d, V().h2l]].map(([d, l]) => (
+          <Peca key={d}>
+            <Row gap={8} style={{ alignItems: 'center' }}>
+              <View style={{ width: 26, height: 26, borderRadius: 13, backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name={injetavel ? 'syringe' : 'pill'} size={13} color={c.accent} sw={2} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Miudo cor={c.tx} forte>{d}</Miudo>
+                {injetavel ? <Miudo>{l}</Miudo> : null}
+              </View>
+            </Row>
+          </Peca>
+        ))}
+      </>
+    );
+  }
+
+  if (id === 'estado') {
+    return (
+      <>
+        <TituloDaTela>{V().tCheckin}</TituloDaTela>
+        <Peca style={{ gap: 10 }}>
+          <Escala rotulo={V().energia} n={4} />
+          <Escala rotulo={V().fome} n={2} />
+          <Escala rotulo={V().humor} n={4} />
+          <Escala rotulo={V().sono} n={3} />
+        </Peca>
+      </>
+    );
+  }
+
+  if (id === 'comida') {
+    const linhas: [string, string, number][] = [
+      [V().cafe, V().cafePrato, FOTOS.omelete],
+      [V().almoco, V().prato, FOTOS.frango],
+      [V().lanche, V().lanchePrato, FOTOS.iogurte],
+    ];
+    return (
+      <>
+        <TituloDaTela>{V().tComida}</TituloDaTela>
+        {linhas.map(([refeicao, prato, foto]) => (
+          <Peca key={refeicao} style={{ padding: 8 }}>
+            <Row gap={10} style={{ alignItems: 'center' }}>
+              <Image source={foto} style={{ width: 44, height: 44, borderRadius: 10 }} resizeMode="cover" />
+              <View style={{ flex: 1 }}>
+                <Miudo>{refeicao}</Miudo>
+                <Miudo cor={c.tx} forte>{prato}</Miudo>
+              </View>
+            </Row>
+          </Peca>
+        ))}
+      </>
+    );
+  }
+
+  if (id === 'evolucao') {
+    const w = k.fw - 28 - 20, h = 120;
+    const pontos = [0, 0.08, 0.14, 0.12, 0.26, 0.33, 0.31, 0.45, 0.52, 0.6, 0.58, 0.7];
+    const px = (i: number) => (i / (pontos.length - 1)) * w;
+    const py = (v: number) => 8 + v * (h - 20);
+    const linha = pontos.map((v, i) => `${i ? 'L' : 'M'}${px(i).toFixed(1)} ${py(v).toFixed(1)}`).join(' ');
+    return (
+      <>
+        <TituloDaTela>{V().tEvolucao}</TituloDaTela>
+        <Peca style={{ gap: 6 }}>
+          <Miudo>{V().peso}</Miudo>
+          <Txt style={{ fontFamily: font.display, fontSize: 20, lineHeight: 24, color: c.tx }}>{V().pesoValor.split(' ').slice(0, 2).join(' ')}</Txt>
+          <Svg width={w} height={h}>
+            <Defs>
+              <SvgGradiente id="apresentacaoArea" x1="0" y1="0" x2="0" y2="1">
+                <Stop offset="0" stopColor={c.accent} stopOpacity={0.2} />
+                <Stop offset="1" stopColor={c.accent} stopOpacity={0} />
+              </SvgGradiente>
+            </Defs>
+            <Path d={`${linha} L${w} ${h} L0 ${h} Z`} fill="url(#apresentacaoArea)" />
+            <Path d={linha} stroke={c.accent} strokeWidth={2.5} fill="none" strokeLinejoin="round" strokeLinecap="round" />
+            <Circle cx={px(pontos.length - 1)} cy={py(pontos[pontos.length - 1])} r={4.5} fill={c.accent} />
+          </Svg>
+          <Miudo>{V().periodo}</Miudo>
+        </Peca>
+      </>
+    );
+  }
+
+  if (id === 'consultas') {
+    return (
+      <>
+        <TituloDaTela>{V().resumo}</TituloDaTela>
+        <Peca style={{ gap: 9 }}>
+          {[V().r1, V().r2, V().r3, V().r4].map((linha) => (
+            <Row key={linha} gap={8} style={{ alignItems: 'center' }}>
+              <View style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: c.accent }} />
+              <View style={{ flex: 1 }}><Miudo>{linha}</Miudo></View>
+            </Row>
+          ))}
+        </Peca>
+        <Peca style={{ gap: 7 }}>
+          {[0.9, 0.75, 0.82, 0.55].map((f, i) => (
+            <View key={i} style={{ height: 6, width: `${f * 100}%`, borderRadius: 3, backgroundColor: c.bg2 }} />
+          ))}
+        </Peca>
+      </>
+    );
+  }
+
+  /* o companheiro */
+  return (
+    <>
+      <TituloDaTela>{V().tCompanheiro}</TituloDaTela>
+      <Row gap={6} style={{ alignItems: 'flex-end' }}>
+        <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center' }}>
+          <Icon name="spark" size={11} color={c.accent} sw={2} />
+        </View>
+        <Peca style={{ flex: 1, borderBottomLeftRadius: 4 }}>
+          <Txt style={{ fontFamily: font.body, fontSize: 12, lineHeight: 16, color: c.tx }}>{V().saudacao}</Txt>
+        </Peca>
+      </Row>
+      <View style={{
+        alignSelf: 'flex-end', maxWidth: '85%', backgroundColor: c.accent,
+        borderRadius: 14, borderBottomRightRadius: 4, paddingHorizontal: 10, paddingVertical: 8,
+      }}>
+        <Txt style={{ fontFamily: font.body, fontSize: 12, lineHeight: 16, color: c.accentInk }}>{V().pergunta}</Txt>
+      </View>
+      <View style={{ height: 8 }} />
+      {/* o campo de escrever, no pé da conversa */}
+      <Peca style={{ paddingVertical: 8 }}>
+        <Row style={{ justifyContent: 'space-between', alignItems: 'center' }}>
+          <View style={{ height: 6, width: '55%', borderRadius: 3, backgroundColor: c.bg2 }} />
+          <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: cor.funda, alignItems: 'center', justifyContent: 'center' }}>
+            <Icon name="send" size={11} color="#FFFFFF" sw={2} />
+          </View>
+        </Row>
+      </Peca>
+    </>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* AS PEÇAS QUE SALTAM DA TELA — maiores, com mais sombra, passando da
+   borda da moldura. As posições são contadas a partir dela. */
+function PecasDe({ id, caixa: k, injetavel }: { id: Id; caixa: Caixa; injetavel: boolean }) {
+  const { c } = useTheme();
+  const cor = useCoresDaLuz();
+  const direita = k.fx + k.fw;
+
+  if (id === 'dose') {
+    return (
+      <>
+        <Peca saindo style={{ position: 'absolute', left: k.fx + k.fw * 0.3, top: k.H * 0.5, width: Math.min(k.W - (k.fx + k.fw * 0.3) - 14, 250), gap: 8 }}>
+          <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>{V().proxima}</Txt>
+          <Txt style={{ fontFamily: font.display, fontSize: 20, lineHeight: 25, color: c.tx }}>{V().dia}</Txt>
           <Row gap={6} style={{ flexWrap: 'wrap' }}>
             <Chip texto={V().dose} />
             {injetavel ? <Chip ic="target" texto={V().local} /> : null}
           </Row>
         </Peca>
-        <Peca style={{ position: 'absolute', right: -4, bottom: 34, paddingVertical: 10, paddingHorizontal: 12 }}>
+        <Peca saindo style={{ position: 'absolute', right: Math.max(10, k.W - direita - 44), top: k.H * 0.05, paddingVertical: 10, paddingHorizontal: 12 }}>
           <Row gap={8} style={{ alignItems: 'center' }}>
             <Icon name="bell" size={15} color={c.accent} sw={2} />
             <Txt v="label" c={c.tx}>{V().lembrete}</Txt>
           </Row>
         </Peca>
-      </View>
+      </>
     );
   }
 
   if (id === 'estado') {
-    const linhas: [string, number][] = [[V().energia, 4], [V().fome, 2], [V().humor, 4]];
     return (
-      <View style={{ flex: 1, justifyContent: 'center' }}>
-        <Peca style={{ marginRight: L * 0.12, gap: 12, marginTop: -84 }}>
-          {linhas.map(([rotulo, n]) => (
-            <View key={rotulo} style={{ gap: 6 }}>
-              <Txt v="label" c={c.tx2}>{rotulo}</Txt>
-              <Row gap={6}>
-                {[1, 2, 3, 4, 5].map((k) => (
-                  <View key={k} style={{
-                    flex: 1, height: 8, borderRadius: 4,
-                    backgroundColor: k <= n ? c.accent : c.bg2,
-                  }} />
-                ))}
-              </Row>
-            </View>
-          ))}
-        </Peca>
-        <Peca style={{ position: 'absolute', left: L * 0.18, right: -4, bottom: -6, gap: 6 }}>
-          <Row gap={6} style={{ alignItems: 'center' }}>
-            <Icon name="spark" size={14} color={c.accent} sw={2} />
-            <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>{V().padraoChapeu}</Txt>
-          </Row>
-          <Txt v="caption" c={c.tx} style={{ lineHeight: 19 }}>{V().padrao}</Txt>
-        </Peca>
-      </View>
+      <Peca saindo style={{ position: 'absolute', left: Math.max(12, k.fx - 34), width: Math.min(k.fw + 10, k.W - 24), top: k.H * 0.6, gap: 6 }}>
+        <Row gap={6} style={{ alignItems: 'center' }}>
+          <Icon name="spark" size={14} color={c.accent} sw={2} />
+          <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>{V().padraoChapeu}</Txt>
+        </Row>
+        <Txt style={{ fontFamily: font.bodyMed, fontSize: 15, lineHeight: 21, color: c.tx }}>{V().padrao}</Txt>
+      </Peca>
     );
   }
 
   if (id === 'comida') {
-    const R = 26;
-    const volta = 2 * Math.PI * R;
     return (
-      <View style={{ flex: 1, justifyContent: 'center' }}>
-        <View style={{
-          width: L * 0.66, height: 210, borderRadius: radius.lg, overflow: 'hidden', marginTop: -10,
-          shadowColor: '#0B1220', shadowOpacity: 0.12, shadowRadius: 18, shadowOffset: { width: 0, height: 8 },
-        }}>
-          <Image source={require('../../assets/images/alimentos/frango-assado.jpg')} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
-          <View style={{ position: 'absolute', left: 10, right: 10, bottom: 10 }}>
-            <Peca style={{ paddingVertical: 8, paddingHorizontal: 10, gap: 2 }}>
-              <Txt v="label" c={c.tx}>{V().prato}</Txt>
-              <Txt v="micro" c={c.accent}>{V().pratoProteina}</Txt>
-            </Peca>
-          </View>
-        </View>
-        <Peca style={{ position: 'absolute', right: -4, top: 18, alignItems: 'center', gap: 6, width: L * 0.36 }}>
-          <Svg width={R * 2 + 10} height={R * 2 + 10}>
-            <Circle cx={R + 5} cy={R + 5} r={R} stroke={c.bg2} strokeWidth={7} fill="none" />
-            <Circle
-              cx={R + 5} cy={R + 5} r={R} stroke={c.accent} strokeWidth={7} fill="none" strokeLinecap="round"
-              strokeDasharray={`${volta} ${volta}`} strokeDashoffset={volta * (1 - 62 / 90)}
-              transform={`rotate(-90 ${R + 5} ${R + 5})`}
-            />
-          </Svg>
+      <>
+        <Peca saindo style={{ position: 'absolute', left: direita - 64, top: k.H * 0.12, alignItems: 'center', gap: 4, width: 128 }}>
+          <Anel frac={62 / 90} cor={c.accent} R={30} grossura={8} />
           <Txt v="label" c={c.tx}>{V().proteina}</Txt>
           <Txt v="micro" c={c.tx3}>{V().proteinaValor}</Txt>
         </Peca>
-        <Peca style={{ position: 'absolute', right: 6, bottom: 22, gap: 6, width: L * 0.4 }}>
+        <Peca saindo style={{ position: 'absolute', left: direita - 96, top: k.H * 0.62, gap: 6, width: 150 }}>
           <Row gap={6} style={{ alignItems: 'center' }}>
             <Icon name="water" size={14} color={cor.ciano} sw={2} />
             <Txt v="label" c={c.tx}>{V().agua}</Txt>
@@ -346,93 +553,59 @@ function Vitrine({ id, largura: L, injetavel }: { id: Pilar['id']; largura: numb
           </View>
           <Txt v="micro" c={c.tx3}>{V().aguaValor}</Txt>
         </Peca>
-      </View>
+      </>
     );
   }
 
   if (id === 'evolucao') {
-    const w = L - 28, h = 110;
-    /* uma descida com os tropeços de verdade: o peso não cai em linha reta */
-    const pontos = [0, 0.08, 0.14, 0.12, 0.26, 0.33, 0.31, 0.45, 0.52, 0.6, 0.58, 0.7];
-    const px = (k: number) => (k / (pontos.length - 1)) * w;
-    const py = (v: number) => 10 + v * (h - 24);
-    const linha = pontos.map((v, k) => `${k ? 'L' : 'M'}${px(k).toFixed(1)} ${py(v).toFixed(1)}`).join(' ');
+    const meta = (texto: string, feita: boolean) => (
+      <Row gap={8} style={{ alignItems: 'center' }}>
+        {feita ? (
+          <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: c.lime, alignItems: 'center', justifyContent: 'center' }}>
+            <Icon name="check" size={13} color={c.limeInk} sw={2.6} />
+          </View>
+        ) : <View style={{ width: 22, height: 22, borderRadius: 11, borderWidth: 1.5, borderColor: c.line }} />}
+        <Txt v="label" c={c.tx}>{texto}</Txt>
+      </Row>
+    );
     return (
-      <View style={{ flex: 1, justifyContent: 'center' }}>
-        <Peca style={{ gap: 8, marginTop: -34 }}>
-          <Row style={{ justifyContent: 'space-between', alignItems: 'baseline' }}>
-            <Txt v="label" c={c.tx2}>{V().peso}</Txt>
-            <Txt v="label" c={c.accent}>{V().pesoValor}</Txt>
-          </Row>
-          <Svg width={w} height={h}>
-            <Defs>
-              <SvgGradiente id="evolucaoArea" x1="0" y1="0" x2="0" y2="1">
-                <Stop offset="0" stopColor={c.accent} stopOpacity={0.18} />
-                <Stop offset="1" stopColor={c.accent} stopOpacity={0} />
-              </SvgGradiente>
-            </Defs>
-            <Path d={`${linha} L${w} ${h} L0 ${h} Z`} fill="url(#evolucaoArea)" />
-            <Path d={linha} stroke={c.accent} strokeWidth={2.5} fill="none" strokeLinejoin="round" strokeLinecap="round" />
-            <Circle cx={px(pontos.length - 1)} cy={py(pontos[pontos.length - 1])} r={4.5} fill={c.accent} />
-          </Svg>
+      <>
+        <Peca saindo style={{ position: 'absolute', left: Math.max(10, k.fx - 40), top: k.H * 0.64, paddingVertical: 11, paddingHorizontal: 14 }}>
+          {meta(V().meta1, true)}
         </Peca>
-        <Peca style={{ position: 'absolute', left: -4, bottom: 44, paddingVertical: 10, paddingHorizontal: 12 }}>
-          <Row gap={8} style={{ alignItems: 'center' }}>
-            <View style={{ width: 20, height: 20, borderRadius: 10, backgroundColor: c.lime, alignItems: 'center', justifyContent: 'center' }}>
-              <Icon name="check" size={12} color={c.limeInk} sw={2.6} />
-            </View>
-            <Txt v="label" c={c.tx}>{V().meta1}</Txt>
-          </Row>
+        <Peca saindo style={{ position: 'absolute', right: Math.max(10, k.W - direita - 36), top: k.H * 0.78, paddingVertical: 11, paddingHorizontal: 14 }}>
+          {meta(V().meta2, false)}
         </Peca>
-        <Peca style={{ position: 'absolute', right: -4, bottom: 0, paddingVertical: 10, paddingHorizontal: 12 }}>
-          <Row gap={8} style={{ alignItems: 'center' }}>
-            <View style={{ width: 20, height: 20, borderRadius: 10, borderWidth: 1.5, borderColor: c.line }} />
-            <Txt v="label" c={c.tx}>{V().meta2}</Txt>
-          </Row>
-        </Peca>
-      </View>
+      </>
     );
   }
 
   if (id === 'consultas') {
     return (
-      <View style={{ flex: 1, justifyContent: 'center' }}>
-        <Peca style={{ position: 'absolute', left: L * 0.1, right: L * 0.02, top: 30, height: 200, opacity: 0.6, transform: [{ rotate: '4deg' }] }}>{null}</Peca>
-        <Peca style={{ marginRight: L * 0.06, gap: 12, transform: [{ rotate: '-2deg' }] }}>
-          <Row gap={8} style={{ alignItems: 'center' }}>
-            <View style={{ width: 30, height: 30, borderRadius: 15, backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center' }}>
-              <Icon name="doc" size={16} color={c.accent} sw={2} />
-            </View>
-            <Txt v="bodyMed" c={c.tx} style={{ flex: 1 }}>{V().resumo}</Txt>
-          </Row>
-          {[V().r1, V().r2, V().r3].map((linha) => (
-            <Row key={linha} gap={10} style={{ alignItems: 'center', borderTopWidth: 1, borderTopColor: c.line, paddingTop: 10 }}>
-              <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: c.accent }} />
-              <Txt v="caption" c={c.tx2} style={{ flex: 1 }}>{linha}</Txt>
-            </Row>
-          ))}
-        </Peca>
-      </View>
+      <Peca saindo style={{ position: 'absolute', left: k.fx + k.fw * 0.28, width: Math.min(k.W - (k.fx + k.fw * 0.28) - 12, 250), top: k.H * 0.5, gap: 8 }}>
+        <Row gap={8} style={{ alignItems: 'center' }}>
+          <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center' }}>
+            <Icon name="doc" size={15} color={c.accent} sw={2} />
+          </View>
+          <Txt v="label" c={c.tx2} style={{ flex: 1 }}>{V().resumo}</Txt>
+        </Row>
+        <Txt style={{ fontFamily: font.display, fontSize: 18, lineHeight: 23, color: c.tx }}>{V().r1}</Txt>
+      </Peca>
     );
   }
 
-  /* o companheiro: a pergunta e a resposta */
+  /* o companheiro: a resposta salta da conversa */
   return (
-    <View style={{ flex: 1, justifyContent: 'center', gap: 14 }}>
+    <Row gap={8} style={{ position: 'absolute', left: Math.max(12, k.fx - 30), right: Math.max(12, k.W - direita - 30), top: k.H * 0.56, alignItems: 'flex-end' }}>
       <View style={{
-        alignSelf: 'flex-end', maxWidth: L * 0.78, backgroundColor: c.accent,
-        borderRadius: 20, borderBottomRightRadius: 6, paddingHorizontal: 14, paddingVertical: 10,
+        width: 34, height: 34, borderRadius: 17, backgroundColor: c.bg1, alignItems: 'center', justifyContent: 'center',
+        shadowColor: '#0B1220', shadowOpacity: 0.12, shadowRadius: 12, shadowOffset: { width: 0, height: 6 },
       }}>
-        <Txt v="body" c={c.accentInk}>{V().pergunta}</Txt>
+        <Icon name="spark" size={16} color={c.accent} sw={2} />
       </View>
-      <Row gap={8} style={{ alignItems: 'flex-end' }}>
-        <View style={{ width: 30, height: 30, borderRadius: 15, backgroundColor: c.bg1, alignItems: 'center', justifyContent: 'center' }}>
-          <Icon name="spark" size={15} color={c.accent} sw={2} />
-        </View>
-        <Peca style={{ maxWidth: L * 0.78, borderBottomLeftRadius: 6, paddingVertical: 10 }}>
-          <Txt v="body" c={c.tx}>{V().resposta}</Txt>
-        </Peca>
-      </Row>
-    </View>
+      <Peca saindo style={{ flex: 1, borderBottomLeftRadius: 6 }}>
+        <Txt style={{ fontFamily: font.bodyMed, fontSize: 16, lineHeight: 22, color: c.tx }}>{V().resposta}</Txt>
+      </Peca>
+    </Row>
   );
 }
