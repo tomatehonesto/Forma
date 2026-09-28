@@ -115,11 +115,13 @@ export const cuidado = {
     emDiaPulso: 'Suivi à jour',
     comecoTitulo: 'Nous comptons à partir de la première dose.',
     comecoTexto: 'Une fois la première dose enregistrée, les semaines, les doses et le cycle se comptent à partir de là.',
+    comecoCta: 'Enregistrer la première piqûre',
   },
 
   dose: {
     aplicacaoHoje: 'Piqûre aujourd’hui',
     nenhumaRegistrada: 'Aucune dose enregistrée',
+    primeiraARegistrar: 'Première dose à enregistrer',
     proximaAplicacao: (quando: string) => `Prochaine piqûre ${quando}`,
     nestaDoseHa: (semanas: number) =>
       `À cette dose depuis ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}`,
@@ -206,8 +208,8 @@ export const cuidado = {
     exames: 'Analyses',
     marcadoresAcompanhados: (quantos: number) =>
       `${quantos} ${quantos === 1 ? 'marqueur suivi' : 'marqueurs suivis'}`,
-    nenhumResultado: 'Aucun résultat enregistré',
-    importeUmExame: 'Importez une analyse pour commencer à la suivre',
+    nenhumResultado: 'Notez votre premier examen',
+    importeUmExame: 'HbA1c, glycémie, cholestérol : nous montrons comment chacun évolue pendant le traitement',
     foraDaReferencia: (quantos: number) => `${quantos} hors des valeurs de référence`,
     todosNaReferencia: 'Tous dans les normes',
 

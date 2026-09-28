@@ -139,6 +139,7 @@ export const cuidado = {
     emDiaPulso: 'Betreuung auf Stand',
     comecoTitulo: 'Wir zählen ab der ersten Dosis.',
     comecoTexto: 'Sobald die erste Dosis eingetragen ist, zählen wir von dort die Wochen, die Dosen und den Zyklus.',
+    comecoCta: 'Erste Spritze eintragen',
   },
 
   /* ============================================================
@@ -147,6 +148,7 @@ export const cuidado = {
   dose: {
     aplicacaoHoje: 'Spritze heute',
     nenhumaRegistrada: 'Noch keine Dosis eingetragen',
+    primeiraARegistrar: 'Erste Dosis noch einzutragen',
     proximaAplicacao: (quando: string) => `Nächste Spritze ${quando}`,
     nestaDoseHa: (semanas: number) =>
       `Bei dieser Dosis seit ${semanas} ${semanas === 1 ? 'Woche' : 'Wochen'}`,
@@ -238,8 +240,8 @@ export const cuidado = {
     exames: 'Befunde',
     marcadoresAcompanhados: (quantos: number) =>
       `${quantos} Marker im Blick`,
-    nenhumResultado: 'Kein Ergebnis gespeichert',
-    importeUmExame: 'Lies einen Befund ein, um ihn zu verfolgen',
+    nenhumResultado: 'Trag deinen ersten Laborwert ein',
+    importeUmExame: 'HbA1c, Blutzucker, Cholesterin: Wir zeigen, wie sich jeder Wert während der Behandlung entwickelt',
     foraDaReferencia: (quantos: number) => `${quantos} außerhalb des Referenzbereichs`,
     todosNaReferencia: 'Alle im Referenzbereich',
 

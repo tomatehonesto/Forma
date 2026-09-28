@@ -108,11 +108,13 @@ export const cuidado = {
     emDiaPulso: 'Seguimiento al día',
     comecoTitulo: 'Contamos a partir de la primera dosis.',
     comecoTexto: 'Cuando la primera dosis esté registrada, las semanas, las dosis y el ciclo se cuentan desde ahí.',
+    comecoCta: 'Registrar la primera inyección',
   },
 
   dose: {
     aplicacaoHoje: 'Inyección hoy',
     nenhumaRegistrada: 'Ninguna dosis registrada',
+    primeiraARegistrar: 'Primera dosis por registrar',
     proximaAplicacao: (quando: string) => `Próxima inyección ${quando}`,
     nestaDoseHa: (semanas: number) =>
       `En esta dosis desde hace ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
@@ -202,8 +204,8 @@ export const cuidado = {
     exames: 'Exámenes',
     marcadoresAcompanhados: (quantos: number) =>
       `${quantos} ${quantos === 1 ? 'marcador en seguimiento' : 'marcadores en seguimiento'}`,
-    nenhumResultado: 'Ningún resultado guardado',
-    importeUmExame: 'Importa un examen para empezar a seguirlo',
+    nenhumResultado: 'Anota tu primer examen',
+    importeUmExame: 'HbA1c, glucemia, colesterol: mostramos cómo evoluciona cada uno durante el tratamiento',
     foraDaReferencia: (quantos: number) => `${quantos} fuera del rango`,
     todosNaReferencia: 'Todos dentro del rango',
 

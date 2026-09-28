@@ -210,8 +210,8 @@ const emDia1 = T.cuidado.estado.emDiaSozinha(1, true);
 ok(emDia1.includes('1 semana ') && !emDia1.includes('1 semanas'), 'uma semana é "semana", e não "1 semanas"');
 ok(!T.cuidado.estado.emDiaSozinha(4, false).includes('adesão'), 'sem adesão alta, a frase não a elogia');
 
-ok(doseContext(zero).proxima === T.cuidado.dose.nenhumaRegistrada && doseContext(aplicou5).proxima !== T.cuidado.dose.nenhumaRegistrada,
-  'sem aplicação registrada, a próxima não é "hoje"');
+ok(doseContext(zero).proxima === T.cuidado.dose.primeiraARegistrar && doseContext(aplicou5).proxima !== T.cuidado.dose.primeiraARegistrar,
+  'sem aplicação registrada, a próxima não é "hoje" — é a primeira, a registrar');
 const aplicouHoje = clone(zero);
 (aplicouHoje.injections as any[]).push({ t: +hoje + 12 * 3600e3, med: 'mounjaro', dose: 2.5, site: 'abd-e', note: '' });
 ok(doseContext(aplicouHoje).naDose === null && doseContext(aplicou5).naDose !== null,

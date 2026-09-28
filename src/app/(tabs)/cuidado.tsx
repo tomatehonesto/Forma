@@ -170,6 +170,20 @@ function Topo() {
           {st.texto}
         </Txt>
 
+        {/* ⚠️ ANTES DA PRIMEIRA DOSE, O CAMINHO PARA REGISTRÁ-LA (28/09/2026,
+            pedido do dono). O cartão dizia de onde a conta vai sair e
+            parava ali. O botão é de REGISTRAR, e não de começar: a frase
+            continua sem pedir a dose — quando começar é decisão da pessoa
+            com quem receita —, e quem já aplicou tem onde dizer. */}
+        {st.momento === 'comeco' ? (
+          <Pressable onPress={() => router.push('/aplicacao' as any)} style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1, marginTop: 20, alignSelf: 'flex-start' }]}>
+            <Row gap={8} style={{ backgroundColor: c.lime, borderRadius: radius.pill, paddingHorizontal: 20, paddingVertical: 13 }}>
+              <Txt v="label" c={c.limeInk}>{T.cuidado.estado.comecoCta}</Txt>
+              <Icon name="chev" size={14} color={c.limeInk} sw={2.4} />
+            </Row>
+          </Pressable>
+        ) : null}
+
         {/* Os big numbers saíram.
 
             "10 semanas de acompanhamento" em corpo 27 e "Semana 10 de 16

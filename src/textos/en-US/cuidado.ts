@@ -103,12 +103,14 @@ export const cuidado = {
     emDiaPulso: 'Follow-up on track',
     comecoTitulo: 'We count from your first dose.',
     comecoTexto: 'Once your first dose is logged, the weeks, the doses and the cycle are counted from there.',
+    comecoCta: 'Log your first shot',
   },
 
   /* ---------- the dose context ---------- */
   dose: {
     aplicacaoHoje: 'Shot today',
     nenhumaRegistrada: 'No dose logged yet',
+    primeiraARegistrar: 'First dose to log',
     proximaAplicacao: (quando: string) => `Next shot ${quando}`,
     nestaDoseHa: (semanas: number) =>
       `On this dose for ${semanas} ${semanas === 1 ? 'week' : 'weeks'}`,
@@ -194,8 +196,8 @@ export const cuidado = {
     exames: 'Lab results',
     marcadoresAcompanhados: (quantos: number) =>
       `${quantos} ${quantos === 1 ? 'marker tracked' : 'markers tracked'}`,
-    nenhumResultado: 'No results saved',
-    importeUmExame: 'Import a lab result to start following it',
+    nenhumResultado: 'Log your first lab result',
+    importeUmExame: 'HbA1c, glucose, cholesterol: we show how each one moves during treatment',
     foraDaReferencia: (quantos: number) => `${quantos} outside the reference range`,
     todosNaReferencia: 'All in range',
 

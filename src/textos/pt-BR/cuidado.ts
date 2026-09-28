@@ -149,6 +149,7 @@ export const cuidado = {
        quem receita. Voz do produto, o "nós". */
     comecoTitulo: 'Contamos a partir da primeira dose.',
     comecoTexto: 'Quando a primeira dose estiver registrada, as semanas, as doses e o ciclo passam a ser contados daqui.',
+    comecoCta: 'Registrar a primeira aplicação',
   },
 
   /* ============================================================
@@ -158,6 +159,7 @@ export const cuidado = {
     aplicacaoHoje: 'Aplicação hoje',
     /* Sem aplicação registrada, a próxima é a primeira, e ela não tem data. */
     nenhumaRegistrada: 'Nenhuma dose registrada',
+    primeiraARegistrar: 'Primeira dose a registrar',
     proximaAplicacao: (quando: string) => `Próxima aplicação ${quando}`,
     nestaDoseHa: (semanas: number) =>
       `Nesta dose há ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
@@ -290,8 +292,8 @@ export const cuidado = {
     exames: 'Exames',
     marcadoresAcompanhados: (quantos: number) =>
       `${quantos} ${quantos === 1 ? 'marcador acompanhado' : 'marcadores acompanhados'}`,
-    nenhumResultado: 'Nenhum resultado guardado',
-    importeUmExame: 'Importe um exame para começar a acompanhar',
+    nenhumResultado: 'Anote o seu primeiro exame',
+    importeUmExame: 'HbA1c, glicemia, colesterol: mostramos como cada um anda durante o tratamento',
     foraDaReferencia: (quantos: number) => `${quantos} fora da referência`,
     todosNaReferencia: 'Todos na referência',
 

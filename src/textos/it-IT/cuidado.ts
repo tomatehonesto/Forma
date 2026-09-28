@@ -120,6 +120,7 @@ export const cuidado = {
     emDiaPulso: 'Monitoraggio in ordine',
     comecoTitulo: 'Contiamo dalla prima dose.',
     comecoTexto: 'Quando la prima dose sarà registrata, le settimane, le dosi e il ciclo si contano da lì.',
+    comecoCta: 'Registra la prima puntura',
   },
 
   /* ============================================================
@@ -128,6 +129,7 @@ export const cuidado = {
   dose: {
     aplicacaoHoje: 'Puntura oggi',
     nenhumaRegistrada: 'Nessuna dose registrata',
+    primeiraARegistrar: 'Prima dose da registrare',
     proximaAplicacao: (quando: string) => `Prossima puntura ${quando}`,
     nestaDoseHa: (semanas: number) =>
       `A questa dose da ${semanas} ${semanas === 1 ? 'settimana' : 'settimane'}`,
@@ -240,8 +242,8 @@ export const cuidado = {
     exames: 'Esami',
     marcadoresAcompanhados: (quantos: number) =>
       `${quantos} ${quantos === 1 ? 'marcatore monitorato' : 'marcatori monitorati'}`,
-    nenhumResultado: 'Nessun risultato salvato',
-    importeUmExame: 'Importa un esame per cominciare a seguirli',
+    nenhumResultado: 'Annota il tuo primo esame',
+    importeUmExame: 'HbA1c, glicemia, colesterolo: mostriamo come cambia ognuno durante la terapia',
     foraDaReferencia: (quantos: number) => `${quantos} fuori dai valori di riferimento`,
     todosNaReferencia: 'Tutti nella norma',
 

@@ -5982,7 +5982,9 @@ export function doseContext(S: State) {
   return {
     /* Sem aplicação registrada, `nd` é zero por recuo e a frase dizia
        "Aplicação hoje". A próxima é a primeira, e ela não tem data. */
-    proxima: !injs.length ? D.nenhumaRegistrada
+    /* "Nenhuma dose registrada" era a pastilha do primeiro dia, no lugar em
+       que depois mora "próxima dose em 3 dias" — e lia como falta. */
+    proxima: !injs.length ? D.primeiraARegistrar
       : quandoEm(nd).hoje ? D.aplicacaoHoje : D.proximaAplicacao(quandoEm(nd).label),
     naDose: desde > 0 ? D.nestaDoseHa(desde) : null,
     revisao: cs ? D.revisaoNaConsulta(cs.dias <= 0 ? D.revisaoHoje : cs.label) : null,
