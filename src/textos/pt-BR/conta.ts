@@ -23,17 +23,40 @@ export const conta = {
   /* ---- a porta, nas três entradas ---- */
   titulo: {
     /* o fim do cadastro, e quem reabre sem conta */
-    cadastro: 'Crie a sua conta',
+    cadastro: 'Vamos guardar o seu diário',
     /* "Já tenho conta", na abertura */
-    abertura: 'Entre na sua conta',
+    abertura: 'Que bom te ver de novo',
     /* a sessão caiu: a pessoa já tem conta e diário aqui */
-    sessao: 'Entre de novo',
+    sessao: 'Falta só entrar de novo',
   },
   lead: {
-    cadastro: 'É nela que guardamos o seu diário. Se você trocar ou perder o telefone, ele volta inteiro quando você entrar.',
-    abertura: 'Trazemos o seu diário de volta para este telefone.',
-    sessao: 'A sua sessão terminou. O que você registrou continua aqui, e guardamos na sua conta assim que você entrar.',
+    cadastro: 'Crie a sua conta em menos de um minuto.',
+    abertura: 'Entre, e trazemos o seu diário para este celular.',
+    sessao: 'A sua sessão terminou — acontece de vez em quando.',
   },
+  /* O CARTÃO DA CAPA (28/09/2026, pedido do dono): três pontos curtos
+     sob a aurora, no lugar da tela vazia — o que a conta faz pela pessoa,
+     dito sem termo técnico. Os ícones moram em app/conta, na mesma ordem.
+     Nenhum deles promete o que não fazemos: o "sem senha" não cita a
+     Apple nem o Google, que não existem em todo aparelho. */
+  pontos: {
+    cadastro: [
+      { titulo: 'Guardado com a gente', frase: 'Se o celular sumir, o seu diário não vai junto.' },
+      { titulo: 'No celular que for', frase: 'Trocou de aparelho? É só entrar, e está tudo lá.' },
+      { titulo: 'Nenhuma senha para decorar', frase: 'Um toque, ou um código que mandamos por e-mail.' },
+    ],
+    abertura: [
+      { titulo: 'Tudo volta para cá', frase: 'Os seus registros chegam do jeito que você deixou.' },
+      { titulo: 'Guardado dali para a frente', frase: 'Cada registro novo vai direto para a sua conta.' },
+      { titulo: 'Nenhuma senha para decorar', frase: 'Um toque, ou um código que mandamos por e-mail.' },
+    ],
+    sessao: [
+      { titulo: 'Nada se perdeu', frase: 'O que você registrou continua neste celular.' },
+      { titulo: 'Guardamos assim que você entrar', frase: 'O que ficou só aqui sobe para a sua conta.' },
+      { titulo: 'Nenhuma senha para decorar', frase: 'Um toque, ou um código que mandamos por e-mail.' },
+    ],
+  },
+
   comApple: 'Continuar com a Apple',
   comGoogle: 'Continuar com o Google',
   /* Na prévia (Expo Go, ou build sem o módulo), o toque na Apple ou no

@@ -2,15 +2,33 @@
 
 export const conta = {
   titulo: {
-    cadastro: 'Create your account',
-    abertura: 'Sign in to your account',
-    sessao: 'Sign in again',
+    cadastro: 'Let’s keep your journal safe',
+    abertura: 'Good to see you again',
+    sessao: 'Just sign in again',
   },
   lead: {
-    cadastro: 'It’s where we keep your journal. If you change or lose your phone, it comes back in full when you sign in.',
-    abertura: 'We’ll bring your journal back to this phone.',
-    sessao: 'Your session ended. What you logged is still here, and we’ll save it to your account as soon as you sign in.',
+    cadastro: 'Create your account in under a minute.',
+    abertura: 'Sign in, and we’ll bring your journal to this phone.',
+    sessao: 'Your session ended — it happens now and then.',
   },
+  pontos: {
+    cadastro: [
+      { titulo: 'Kept safe with us', frase: 'If your phone goes missing, your journal doesn’t.' },
+      { titulo: 'On any phone', frase: 'New phone? Just sign in, and it’s all there.' },
+      { titulo: 'No password to remember', frase: 'One tap, or a code we send to your email.' },
+    ],
+    abertura: [
+      { titulo: 'Everything comes back', frase: 'Your entries arrive just the way you left them.' },
+      { titulo: 'Saved from here on', frase: 'Every new entry goes straight to your account.' },
+      { titulo: 'No password to remember', frase: 'One tap, or a code we send to your email.' },
+    ],
+    sessao: [
+      { titulo: 'Nothing was lost', frase: 'What you logged is still on this phone.' },
+      { titulo: 'Saved as soon as you sign in', frase: 'Anything only here goes up to your account.' },
+      { titulo: 'No password to remember', frase: 'One tap, or a code we send to your email.' },
+    ],
+  },
+
   comApple: 'Continue with Apple',
   comGoogle: 'Continue with Google',
   previaSoNaBuild: 'This sign-in only works in the installed app. Here, continue with email.',

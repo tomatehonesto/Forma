@@ -2,15 +2,33 @@
 
 export const conta = {
   titulo: {
-    cadastro: 'Crea tu cuenta',
-    abertura: 'Entra a tu cuenta',
-    sessao: 'Entra de nuevo',
+    cadastro: 'Guardemos tu diario',
+    abertura: 'Qué bueno verte de nuevo',
+    sessao: 'Solo falta volver a entrar',
   },
   lead: {
-    cadastro: 'Es donde guardamos tu diario. Si cambias o pierdes el teléfono, vuelve completo cuando entres.',
-    abertura: 'Traemos tu diario de vuelta a este teléfono.',
-    sessao: 'Tu sesión terminó. Lo que registraste sigue aquí, y lo guardamos en tu cuenta en cuanto entres.',
+    cadastro: 'Crea tu cuenta en menos de un minuto.',
+    abertura: 'Entra, y traemos tu diario a este celular.',
+    sessao: 'Tu sesión terminó — pasa de vez en cuando.',
   },
+  pontos: {
+    cadastro: [
+      { titulo: 'Guardado con nosotros', frase: 'Si el celular se pierde, tu diario no.' },
+      { titulo: 'En cualquier celular', frase: '¿Cambiaste de teléfono? Entra, y está todo ahí.' },
+      { titulo: 'Ninguna contraseña que recordar', frase: 'Un toque, o un código que te mandamos por correo.' },
+    ],
+    abertura: [
+      { titulo: 'Todo vuelve aquí', frase: 'Tus registros llegan tal como los dejaste.' },
+      { titulo: 'Guardado de aquí en adelante', frase: 'Cada registro nuevo va directo a tu cuenta.' },
+      { titulo: 'Ninguna contraseña que recordar', frase: 'Un toque, o un código que te mandamos por correo.' },
+    ],
+    sessao: [
+      { titulo: 'No se perdió nada', frase: 'Lo que registraste sigue en este celular.' },
+      { titulo: 'Lo guardamos en cuanto entres', frase: 'Lo que quedó solo aquí sube a tu cuenta.' },
+      { titulo: 'Ninguna contraseña que recordar', frase: 'Un toque, o un código que te mandamos por correo.' },
+    ],
+  },
+
   comApple: 'Continuar con Apple',
   comGoogle: 'Continuar con Google',
   previaSoNaBuild: 'Este ingreso solo funciona en la app instalada. Aquí, continúa con correo.',

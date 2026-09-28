@@ -2,15 +2,33 @@
 
 export const conta = {
   titulo: {
-    cadastro: 'Créez votre compte',
-    abertura: 'Connectez-vous à votre compte',
-    sessao: 'Reconnectez-vous',
+    cadastro: 'Mettons votre journal à l’abri',
+    abertura: 'Ravis de vous revoir',
+    sessao: 'Plus qu’à vous reconnecter',
   },
   lead: {
-    cadastro: 'C’est là que nous gardons votre journal. Si vous changez ou perdez de téléphone, il revient en entier quand vous vous connectez.',
-    abertura: 'Nous ramenons votre journal sur ce téléphone.',
-    sessao: 'Votre session a pris fin. Ce que vous avez noté est toujours ici, et nous l’enregistrons dans votre compte dès que vous vous connectez.',
+    cadastro: 'Créez votre compte en moins d’une minute.',
+    abertura: 'Connectez-vous, et nous ramenons votre journal sur ce téléphone.',
+    sessao: 'Votre session a pris fin — cela arrive de temps en temps.',
   },
+  pontos: {
+    cadastro: [
+      { titulo: 'À l’abri chez nous', frase: 'Si votre téléphone disparaît, votre journal reste.' },
+      { titulo: 'Sur n’importe quel téléphone', frase: 'Nouveau téléphone ? Connectez-vous, tout est là.' },
+      { titulo: 'Aucun mot de passe à retenir', frase: 'Un geste, ou un code envoyé par e-mail.' },
+    ],
+    abertura: [
+      { titulo: 'Tout revient ici', frase: 'Vos saisies arrivent comme vous les avez laissées.' },
+      { titulo: 'Sauvegardé à partir de maintenant', frase: 'Chaque nouvelle saisie va droit dans votre compte.' },
+      { titulo: 'Aucun mot de passe à retenir', frase: 'Un geste, ou un code envoyé par e-mail.' },
+    ],
+    sessao: [
+      { titulo: 'Rien n’est perdu', frase: 'Ce que vous avez noté est toujours sur ce téléphone.' },
+      { titulo: 'Sauvegardé dès votre connexion', frase: 'Ce qui n’est qu’ici rejoint votre compte.' },
+      { titulo: 'Aucun mot de passe à retenir', frase: 'Un geste, ou un code envoyé par e-mail.' },
+    ],
+  },
+
   comApple: 'Continuer avec Apple',
   comGoogle: 'Continuer avec Google',
   previaSoNaBuild: 'Cette connexion ne fonctionne que dans l’application installée. Ici, continuez avec l’e-mail.',

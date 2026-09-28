@@ -2,15 +2,33 @@
 
 export const conta = {
   titulo: {
-    cadastro: 'Erstelle dein Konto',
-    abertura: 'Melde dich bei deinem Konto an',
-    sessao: 'Melde dich erneut an',
+    cadastro: 'Lass uns dein Tagebuch sichern',
+    abertura: 'Schön, dich wiederzusehen',
+    sessao: 'Nur noch einmal anmelden',
   },
   lead: {
-    cadastro: 'Dort bewahren wir dein Tagebuch auf. Wenn du dein Handy wechselst oder verlierst, kommt es vollständig zurück, sobald du dich anmeldest.',
-    abertura: 'Wir holen dein Tagebuch auf dieses Handy zurück.',
-    sessao: 'Deine Sitzung ist abgelaufen. Was du eingetragen hast, ist noch hier, und wir speichern es in deinem Konto, sobald du dich anmeldest.',
+    cadastro: 'Dein Konto ist in unter einer Minute erstellt.',
+    abertura: 'Melde dich an, und wir holen dein Tagebuch auf dieses Handy.',
+    sessao: 'Deine Sitzung ist abgelaufen – das passiert ab und zu.',
   },
+  pontos: {
+    cadastro: [
+      { titulo: 'Sicher bei uns', frase: 'Wenn das Handy weg ist, bleibt dein Tagebuch.' },
+      { titulo: 'Auf jedem Handy', frase: 'Neues Handy? Einfach anmelden, alles ist da.' },
+      { titulo: 'Kein Passwort zum Merken', frase: 'Ein Tipp oder ein Code, den wir per E-Mail schicken.' },
+    ],
+    abertura: [
+      { titulo: 'Alles kommt zurück', frase: 'Deine Einträge kommen so an, wie du sie verlassen hast.' },
+      { titulo: 'Ab jetzt gesichert', frase: 'Jeder neue Eintrag geht direkt in dein Konto.' },
+      { titulo: 'Kein Passwort zum Merken', frase: 'Ein Tipp oder ein Code, den wir per E-Mail schicken.' },
+    ],
+    sessao: [
+      { titulo: 'Nichts ist verloren', frase: 'Was du eingetragen hast, ist noch auf diesem Handy.' },
+      { titulo: 'Gesichert, sobald du dich anmeldest', frase: 'Was nur hier liegt, geht in dein Konto.' },
+      { titulo: 'Kein Passwort zum Merken', frase: 'Ein Tipp oder ein Code, den wir per E-Mail schicken.' },
+    ],
+  },
+
   comApple: 'Weiter mit Apple',
   comGoogle: 'Weiter mit Google',
   previaSoNaBuild: 'Diese Anmeldung funktioniert nur in der installierten App. Hier geht es mit E-Mail weiter.',

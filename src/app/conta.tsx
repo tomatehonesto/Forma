@@ -99,6 +99,7 @@ export default function Conta() {
   const previaDasPortas = __DEV__;
   const [previa, setPrevia] = React.useState(false);
   const [nadaParaColar, setNadaParaColar] = React.useState(false);
+  const cabeCartao = useWindowDimensions().height >= ALTURA_DO_CARTAO;
   const [espera, setEspera] = React.useState(0);
   /* quem entrou, enquanto o caminho do diário não termina */
   const [dono, setDono] = React.useState<Dono | null>(null);
@@ -493,7 +494,10 @@ export default function Conta() {
 
   /* ---- a escolha ---- */
   return (
-    <CapaDaConta titulo={K().titulo[porta]} lead={K().lead[porta]} onVoltar={voltar}>
+    <CapaDaConta
+      titulo={K().titulo[porta]} lead={K().lead[porta]} onVoltar={voltar}
+      pontos={K().pontos[porta].map((p, i) => ({ ...p, ic: ICONES_DOS_PONTOS[porta][i] }))}
+    >
       {aviso}
       {/* ⚠️ O BOTÃO DA APPLE É O DELA, e não um desenhado aqui: a revisão
           da loja confere o desenho do "Continuar com a Apple", e o botão
@@ -523,9 +527,13 @@ export default function Conta() {
         label={K().comEmail} pilula tom={apple || google || previaDasPortas ? 'fantasma' : 'cheio'}
         onPress={() => { limpar(); setPrevia(false); setPasso('email'); }}
       />
-      <Txt v="caption" c={previa ? c.tx2 : c.tx3} style={{ textAlign: 'center', marginTop: 6 }}>
-        {previa ? K().previaSoNaBuild : K().semSenha}
-      </Txt>
+      {/* O "sem senha" mora no cartão; esta linha só aparece quando ele
+          não cabe (telefone baixo), ou para explicar a prévia. */}
+      {previa || !cabeCartao ? (
+        <Txt v="caption" c={previa ? c.tx2 : c.tx3} style={{ textAlign: 'center', marginTop: 6 }}>
+          {previa ? K().previaSoNaBuild : K().semSenha}
+        </Txt>
+      ) : null}
     </CapaDaConta>
   );
 }
@@ -554,8 +562,20 @@ export default function Conta() {
 
    AS PORTAS FICAM EMBAIXO, perto do polegar. */
 /* ------------------------------------------------------------------ */
-function CapaDaConta({ titulo, lead, onVoltar, children }: {
-  titulo: string; lead: string; onVoltar: () => void; children: React.ReactNode;
+/* OS ÍCONES DOS TRÊS PONTOS, na ordem do catálogo (textos/<local>/conta). */
+const ICONES_DOS_PONTOS: Record<Porta, string[]> = {
+  cadastro: ['shield', 'phone', 'lock'],
+  abertura: ['reset', 'shield', 'lock'],
+  sessao: ['check', 'reset', 'lock'],
+};
+
+/* Abaixo disto o cartão não cabe entre a frase e as portas — um iPhone SE
+   tem 667 —, e a capa fica como era, com o "sem senha" embaixo. */
+const ALTURA_DO_CARTAO = 700;
+
+function CapaDaConta({ titulo, lead, pontos, onVoltar, children }: {
+  titulo: string; lead: string; pontos: { ic: string; titulo: string; frase: string }[];
+  onVoltar: () => void; children: React.ReactNode;
 }) {
   const { c, isDark } = useTheme();
   const aurora = useAurora();
@@ -572,7 +592,12 @@ function CapaDaConta({ titulo, lead, onVoltar, children }: {
      passagem para o papel). As imagens já trazem as duas coisas, e giram
      com a paleta, como as outras auroras (ui/aurora). */
   const papel = isDark ? '#000000' : '#FFFFFF';
-  const alto = Math.round(height * 0.5);
+  /* ⚠️ A TELA ESTAVA VAZIA (28/09/2026, pedido do dono): a frase no alto,
+     as portas no pé e meia tela de nada entre elas. Entra ali o cartão com
+     três pontos — o que a conta faz pela pessoa —, como o dos passos da
+     referência, e a frase sobe para abrir espaço. */
+  const cartao = height >= ALTURA_DO_CARTAO;
+  const alto = Math.round(height * (cartao ? 0.4 : 0.5));
 
   return (
     <View style={{ flex: 1, backgroundColor: papel }}>
@@ -591,7 +616,7 @@ function CapaDaConta({ titulo, lead, onVoltar, children }: {
 
         <View style={{
           position: 'absolute', left: 28, right: 28,
-          top: insets.top + 48, bottom: Math.round(alto * 0.22),
+          top: insets.top + 48, bottom: Math.round(alto * (cartao ? 0.12 : 0.22)),
           alignItems: 'center', justifyContent: 'center', gap: 12,
         }}>
           <Txt v="h1" c={c.onHero} style={{ textAlign: 'center' }}>{titulo}</Txt>
@@ -603,6 +628,37 @@ function CapaDaConta({ titulo, lead, onVoltar, children }: {
         flex: 1, justifyContent: 'flex-end',
         paddingHorizontal: 20, paddingBottom: insets.bottom + 20, gap: 10,
       }}>
+        {cartao ? (
+          /* O cinza da referência sobre o branco, e o cinza-escuro do
+             sistema sobre o preto: um cartão que se lê como cartão nos
+             dois papéis, sem sombra. */
+          <View
+            style={{
+              backgroundColor: isDark ? '#1C1C1E' : '#F3F4F7',
+              borderRadius: radius.lg, marginBottom: 14, overflow: 'hidden',
+            }}
+          >
+            {pontos.map((p, i) => (
+              <View key={i}>
+                {i > 0 ? (
+                  <View style={{ height: StyleSheet.hairlineWidth, backgroundColor: isDark ? '#2C2C2E' : '#E4E6EB', marginLeft: 64 }} />
+                ) : null}
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingHorizontal: 14, paddingVertical: 12 }}>
+                  <View style={{
+                    width: 36, height: 36, borderRadius: 18, backgroundColor: c.accentWeak,
+                    alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <Icon name={p.ic} size={17} color={c.accent} sw={2} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Txt v="bodyMed">{p.titulo}</Txt>
+                    <Txt v="caption" c={c.tx2} style={{ marginTop: 1 }}>{p.frase}</Txt>
+                  </View>
+                </View>
+              </View>
+            ))}
+          </View>
+        ) : null}
         {children}
       </View>
     </View>
