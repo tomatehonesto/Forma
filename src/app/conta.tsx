@@ -1,8 +1,5 @@
 import React from 'react';
-import {
-  ActivityIndicator, Animated, AppState, KeyboardAvoidingView, Platform, Pressable, StyleSheet, TextInput, View,
-  useWindowDimensions,
-} from 'react-native';
+import { ActivityIndicator, Animated, AppState, Platform, Pressable, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import * as Clipboard from 'expo-clipboard';
@@ -117,7 +114,7 @@ export default function Conta() {
      sobre a lavagem, clara, e pedem o escuro — e os três são a mesma
      tela. O `useLightStatusBar` das outras telas acende no foco da rota
      e não veria a troca de passo. Ao sair, volta o padrão do app. */
-  React.useEffect(() => { setStatusBarStyle(passo === 'escolha' || passo === 'email' ? 'light' : 'dark'); }, [passo]);
+  React.useEffect(() => { setStatusBarStyle(passo === 'escolha' ? 'light' : 'dark'); }, [passo]);
   React.useEffect(() => () => setStatusBarStyle('dark'), []);
 
   React.useEffect(() => {
@@ -392,10 +389,12 @@ export default function Conta() {
   if (passo === 'email') {
     const valido = EMAIL.test(email.trim());
     return (
-      /* ⚠️ NA MESMA CAPA DAS PORTAS (28/09/2026, pedido do dono): a aurora
-         no alto, e embaixo o título, a frase, o campo e o botão. Com o
-         teclado aberto, o bloco sobe com ele, e a aurora encolhe junto. */
-      <CapaDaConta titulo={K().emailTitulo} lead={K().emailLead(DIGITOS_DO_CODIGO)} onVoltar={voltar}>
+      <TelaDePergunta
+        titulo={K().emailTitulo}
+        lead={K().emailLead(DIGITOS_DO_CODIGO)}
+        onVoltar={voltar}
+        rodape={<Botao label={K().enviarCodigo} pilula desligado={!valido || ocupado} onPress={mandar} />}
+      >
         <TextInput
           value={email}
           onChangeText={setEmail}
@@ -410,23 +409,16 @@ export default function Conta() {
           textContentType="emailAddress"
           inputMode="email"
           returnKeyType="send"
-          /* O campo é uma linha, como nas referências: o texto no tamanho
-             de subtítulo, e embaixo o traço — que acende na cor de ação
-             quando o e-mail já parece inteiro. E-mail é comprido, e num
-             corpo maior metade dele sumia antes do arroba. */
-          style={[ty.h2, SEM_ANEL, {
-            color: c.tx, paddingVertical: 12,
-            borderBottomWidth: 1.5, borderBottomColor: valido ? c.accent : c.line,
-          }]}
+          /* Menor que o nome, que usa o tamanho de manchete: e-mail é
+             comprido, e no tamanho do nome metade dele sumia para a
+             esquerda antes do arroba. */
+          style={[ty.display, SEM_ANEL, { color: c.tx, paddingVertical: 0, letterSpacing: -0.5 }]}
         />
         {email.length > 5 && !valido && !email.endsWith('@') ? (
-          <Txt v="caption" c={c.tx3}>{K().emailIncompleto}</Txt>
+          <Txt v="caption" c={c.tx3} style={{ marginTop: 12 }}>{K().emailIncompleto}</Txt>
         ) : null}
-        {aviso}
-        <View style={{ marginTop: 14 }}>
-          <Botao label={K().enviarCodigo} pilula desligado={!valido || ocupado} onPress={mandar} />
-        </View>
-      </CapaDaConta>
+        {aviso ? <View style={{ marginTop: 20 }}>{aviso}</View> : null}
+      </TelaDePergunta>
     );
   }
 
@@ -623,15 +615,10 @@ function CapaDaConta({ titulo, lead, onVoltar, children }: {
         </Pressable>
       </View>
 
-      {/* COM O TECLADO, O BLOCO SOBE (o passo do e-mail): o texto se mede de
-          novo, e a imagem sobe junto, para o papel continuar logo acima dele. */}
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={{
-          flex: 1, justifyContent: 'flex-end',
-          paddingHorizontal: 24, paddingBottom: insets.bottom + 20, gap: 10,
-        }}
-      >
+      <View style={{
+        flex: 1, justifyContent: 'flex-end',
+        paddingHorizontal: 24, paddingBottom: insets.bottom + 20, gap: 10,
+      }}>
         <View
           onLayout={(e) => setTopoDoTexto(e.nativeEvent.layout.y)}
           /* SEM A MARCA (28/09/2026, pedido do dono): o M lima não se lia
@@ -642,7 +629,7 @@ function CapaDaConta({ titulo, lead, onVoltar, children }: {
           <Txt v="note" c={c.tx2} style={{ lineHeight: 23 }}>{lead}</Txt>
         </View>
         {children}
-      </KeyboardAvoidingView>
+      </View>
     </View>
   );
 }
