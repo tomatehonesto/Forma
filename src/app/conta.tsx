@@ -4,7 +4,6 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import * as Clipboard from 'expo-clipboard';
 import { Image } from 'expo-image';
-import { LinearGradient } from 'expo-linear-gradient';
 import { setStatusBarStyle } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
@@ -21,9 +20,8 @@ import { Txt } from '../ui/kit';
 import { BotaoDaApple, BotaoDoGoogle } from '../ui/marcas';
 import { Icon } from '../ui/Icon';
 import { TelaDePergunta } from '../ui/pergunta';
-import { useAurora } from '../ui/aurora';
 import { useTheme } from '../ui/useTheme';
-import { ty, font, radius, alfa, mix } from '../theme';
+import { ty, font, radius } from '../theme';
 import { T } from '../textos';
 
 const K = () => T.conta;
@@ -559,45 +557,30 @@ function CapaDaConta({ titulo, lead, onVoltar, children }: {
   titulo: string; lead: string; onVoltar: () => void; children: React.ReactNode;
 }) {
   const { c, isDark } = useTheme();
-  const aurora = useAurora();
   const insets = useSafeAreaInsets();
   const { height } = useWindowDimensions();
-  /* ⚠️ A AURORA NO ALTO, E EMBAIXO BRANCO OU PRETO (27/09/2026, pedido do
-     dono, com referência): o papel das portas é o branco puro no claro e o
-     preto puro no escuro — e não o fundo do app, que é um cinza-lavanda e
-     fazia a aurora esmaecer num degradê longo, sem borda. A aurora ocupa
-     metade da tela, e a passagem é curta, com a luz na borda. */
+  /* ⚠️ A CAPA É UMA IMAGEM SÓ, UMA PARA CADA TEMA (27/09/2026, imagens do
+     dono): a aurora no alto que se desfaz no branco puro, no claro, e a
+     faixa de luz que se desfaz no preto puro, no escuro. Ela cobre a tela
+     inteira, presa pelo alto, e o papel das portas é a própria imagem —
+     por isso o fundo da tela é o branco ou o preto em que ela termina, e
+     não o fundo do app.
+
+     Antes era a aurora da paleta com dois degradês por cima (o véu e a
+     passagem para o papel). As imagens já trazem as duas coisas, e são
+     as mesmas em toda paleta. */
   const papel = isDark ? '#000000' : '#FFFFFF';
-  const alto = Math.round(height * 0.52);
-  const pe = Math.round(alto * 0.36);
-  const luz = mix(c.accent, '#FFFFFF', 0.3);
-  /* o degrau entre a luz e o papel: a cor de ação quase toda papel. Sem
-     ele, a rampa ia do azul direto ao fundo e passava por um cinza. */
-  const clarao = mix(c.accent, papel, 0.84);
+  const alto = Math.round(height * 0.5);
 
   return (
     <View style={{ flex: 1, backgroundColor: papel }}>
+      <Image
+        source={isDark ? CAPA_ESCURA : CAPA_CLARA}
+        style={StyleSheet.absoluteFill}
+        contentFit="cover"
+        contentPosition="top"
+      />
       <View style={{ height: alto }}>
-        <Image source={aurora.hero} style={StyleSheet.absoluteFill} contentFit="cover" contentPosition="top" />
-        {/* O VÉU: mais pesado no alto, onde moram a seta e o relógio em
-            corpo pequeno, e mais leve onde a frase está. */}
-        <LinearGradient
-          colors={[alfa(c.veu, 0.6), alfa(c.veu, 0.28)]}
-          style={StyleSheet.absoluteFill}
-          pointerEvents="none"
-        />
-        {/* A LUZ E O PAPEL. O zero de cada rampa é a própria cor sem
-            opacidade, e não `transparent` — que é preto invisível, e
-            escurece a rampa antes de chegar na cor. */}
-        <LinearGradient
-          colors={isDark
-            ? [alfa(papel, 0), papel]
-            : [alfa(luz, 0), alfa(luz, 0.85), clarao, papel]}
-          locations={isDark ? [0, 1] : [0, 0.42, 0.72, 1]}
-          style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: pe }}
-          pointerEvents="none"
-        />
-
         <View style={{ position: 'absolute', top: insets.top + 12, left: 16, zIndex: 1 }}>
           <Pressable onPress={onVoltar} hitSlop={14} style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1 }]}>
             <Icon name="back" size={26} color={c.onHero} sw={2} />
@@ -606,7 +589,7 @@ function CapaDaConta({ titulo, lead, onVoltar, children }: {
 
         <View style={{
           position: 'absolute', left: 28, right: 28,
-          top: insets.top + 48, bottom: pe,
+          top: insets.top + 48, bottom: Math.round(alto * 0.22),
           alignItems: 'center', justifyContent: 'center', gap: 12,
         }}>
           <Txt v="h1" c={c.onHero} style={{ textAlign: 'center' }}>{titulo}</Txt>
@@ -623,6 +606,9 @@ function CapaDaConta({ titulo, lead, onVoltar, children }: {
     </View>
   );
 }
+
+const CAPA_CLARA = require('../../assets/auroras/conta-claro.webp');
+const CAPA_ESCURA = require('../../assets/auroras/conta-escuro.webp');
 
 /* ------------------------------------------------------------------ */
 /* O BOTÃO DE COLAR
