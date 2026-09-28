@@ -120,6 +120,12 @@ const primeiroAcesso = (verdade: State): State => {
   const pesos = v.weights ?? [];
   const ultimo = pesos[pesos.length - 1];
   S.weights = ultimo ? [{ ...ultimo, t: agora }] : [];
+  /* O ponto de partida é hoje, como o cadastro grava para quem ainda vai
+     começar: o peso de largada é o de hoje, e o tratamento conta de hoje.
+     Com os de quem finge, a Jornada mostrava os quilos perdidos dela. */
+  if (ultimo) S.profile.startWeight = ultimo.kg;
+  const hoje = new Date(agora); hoje.setHours(0, 0, 0, 0);
+  S.profile.startT = +hoje;
   S.onboardDone = true;
   S.semente = false;
   S.conta = v.conta ?? null;
