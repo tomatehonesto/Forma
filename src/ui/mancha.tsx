@@ -40,7 +40,12 @@ type Mancha = {
 };
 
 /** os azuis da paleta original, antes do giro */
-const BASE = { ceu: '#78B9FF', funda: '#2A4DF2', ciano: '#3CCBF6', faixa: '#3E82F0' };
+const BASE = {
+  ceu: '#78B9FF', funda: '#2A4DF2', ciano: '#3CCBF6', faixa: '#3E82F0',
+  /* os tons de apoio: um anil mais fechado e um brilho quase branco, que
+     dão a nuance entre as cores maiores (pedido do dono) */
+  anil: '#3B2FD6', brilho: '#B9D6FF',
+};
 
 function giro(hex: string, graus: number, sat: number): string {
   const n = parseInt(hex.slice(1), 16);
@@ -73,6 +78,8 @@ function useCores() {
     funda: giro(BASE.funda, p.auroraHue, p.auroraSat),
     ciano: giro(BASE.ciano, p.auroraHue, p.auroraSat),
     faixa: giro(BASE.faixa, p.auroraHue, p.auroraSat),
+    anil: giro(BASE.anil, p.auroraHue, p.auroraSat),
+    brilho: giro(BASE.brilho, p.auroraHue, p.auroraSat),
   }), [p.auroraHue, p.auroraSat]);
 }
 
@@ -97,6 +104,15 @@ export function ManchaDeLuz({ p = PARADO, largura: W, altura: H, papel: T }: {
     { cor: cor.ciano, meio: 0.45, x: W * 0.62, rx: W * 1.2, ry: T * 1.0, o: 0.9, de: H * 1.57, ate: T * 0.08 },
     { cor: cor.funda, meio: 0.5, x: W * 0.45, rx: W * 0.95, ry: H * 0.36, o: 1, de: H * 1.02, ate: -T * 0.55 },
     { cor: cor.faixa, meio: 0.35, x: W * 0.5, rx: W * 1.5, ry: T * 0.55, o: 0.6, de: H * 2.35, ate: T * 0.72 },
+    /* Os tons de apoio. Na espera eles já aparecem no pé, em volta da
+       funda — o anil à esquerda, um ciano à direita e o brilho no meio —,
+       para a mancha em repouso não ser um azul só. Na subida o anil e o
+       ciano de baixo atravessam e saem; no cabeçalho ficam um anil no
+       canto e o brilho sobre o céu. */
+    { cor: cor.anil, meio: 0.4, x: W * 0.12, rx: W * 0.7, ry: H * 0.26, o: 0.75, de: H * 1.06, ate: -T * 0.75 },
+    { cor: cor.ciano, meio: 0.4, x: W * 0.85, rx: W * 0.65, ry: H * 0.2, o: 0.85, de: H * 0.98, ate: -T * 0.2 },
+    { cor: cor.anil, meio: 0.4, x: W * 0.95, rx: W * 0.55, ry: T * 0.5, o: 0.45, de: H * 1.75, ate: -T * 0.2 },
+    { cor: cor.brilho, meio: 0.35, x: W * 0.4, rx: W * 0.5, ry: H * 0.12, o: 0.55, de: H * 1.0, ate: T * 0.25 },
   ];
 
   return (
@@ -119,7 +135,7 @@ export function ManchaDeLuz({ p = PARADO, largura: W, altura: H, papel: T }: {
             <Defs>
               <RadialGradient id={`${id}m${i}`} cx="50%" cy="50%" r="50%">
                 <Stop offset="0" stopColor={m.cor} stopOpacity={1} />
-                <Stop offset={m.meio} stopColor={m.cor} stopOpacity={0.75} />
+                <Stop offset={m.meio} stopColor={m.cor} stopOpacity={0.6} />
                 <Stop offset="1" stopColor={m.cor} stopOpacity={0} />
               </RadialGradient>
             </Defs>

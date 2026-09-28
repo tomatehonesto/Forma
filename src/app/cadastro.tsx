@@ -768,8 +768,8 @@ function Abertura({ onComecar, onJaTenho }: { onComecar: () => void; onJaTenho?:
    do plano pular no fim. */
 /* ⚠️ É FUNÇÃO, porque lê o catálogo. */
 const FASES = () => [K().faseAgrupando, K().faseCalculando, K().faseMontando, K().fasePronto];
-const PASSO_MS = 950;        // entre uma fase e a seguinte
-const ULTIMA_MS = 1200;      // quanto o "Pronto!" fica à vista
+const PASSO_MS = 1500;       // entre uma fase e a seguinte (mais tempo: pedido do dono)
+const ULTIMA_MS = 1400;      // quanto o "Pronto!" fica à vista
 const SAIDA_MS = 380;        // a pilha se apagando antes do plano, sem ele embaixo
 const MANCHA_MS = 1400;      // a luz subindo do pé até virar o alto do plano
 /* a opacidade de uma fase pela distância até a da vez: 0 é ela mesma */
