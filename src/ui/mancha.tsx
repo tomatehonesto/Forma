@@ -7,16 +7,22 @@ import { PALETAS } from '../theme';
 /* ============================================================
    A MANCHA DE LUZ — a espera do plano e o alto dele
 
-   Três manchas de luz em SVG, cada uma um gradiente radial que some no
-   fundo da tela. Elas não são imagem: o movimento é só de lugar e de
-   tamanho, e um gradiente esticado continua um gradiente — a imagem da
-   aurora esticada desenhava as faixas de luz deformadas (28/09/2026,
-   pedido do dono, com a referência em vídeo).
+   Quatro manchas de luz em SVG, cada uma um gradiente radial que some no
+   fundo da tela. Elas não são imagem, e não esticam: a imagem da aurora
+   esticada deformava as faixas de luz, e a mancha que só esticava e
+   encolhia parecia elástica (28/09/2026, pedido do dono, com o vídeo de
+   referência visto quadro a quadro).
 
-   `p` vai de 0 a 1 e tem três paradas:
+   O QUE A REFERÊNCIA FAZ: as camadas sobem juntas, cada uma numa
+   velocidade — a azul funda atravessa a tela e sai pelo alto, o ciano e
+   o céu vêm atrás e ficam, e uma faixa azul média sobe com o branco logo
+   embaixo dela, até parar onde o cabeçalho termina. Por isso cada mancha
+   aqui tem só dois quadros, o de partida e o de chegada, e o tamanho não
+   muda: o que muda é a distância que cada uma percorre. A curva do
+   tempo (quem anima `p`) é rápida no começo e longa no fim.
+
      0    a mancha repousa no pé da tela (a espera);
-     0.5  ela subiu e cobre a tela inteira;
-     1    ela recuou para o alto e é o cabeçalho do plano.
+     1    ela é o cabeçalho do plano.
    O plano desenha a mesma mancha parada em 1 — por isso a espera termina
    exatamente no quadro em que o plano começa.
 
@@ -25,11 +31,16 @@ import { PALETAS } from '../theme';
    original, giradas por `auroraHue`.
    ============================================================ */
 
-type Quadro = { x: number; y: number; rx: number; ry: number; o: number };
-type Mancha = { cor: string; meio: number; quadros: [Quadro, Quadro, Quadro] };
+type Mancha = {
+  cor: string; meio: number;
+  /** o centro, o tamanho (fixo) e a opacidade */
+  x: number; rx: number; ry: number; o: number;
+  /** a altura do centro na partida e na chegada */
+  de: number; ate: number;
+};
 
 /** os azuis da paleta original, antes do giro */
-const BASE = { ceu: '#78B9FF', funda: '#2A4DF2', ciano: '#3CCBF6' };
+const BASE = { ceu: '#78B9FF', funda: '#2A4DF2', ciano: '#3CCBF6', faixa: '#3E82F0' };
 
 function giro(hex: string, graus: number, sat: number): string {
   const n = parseInt(hex.slice(1), 16);
@@ -61,6 +72,7 @@ function useCores() {
     ceu: giro(BASE.ceu, p.auroraHue, p.auroraSat),
     funda: giro(BASE.funda, p.auroraHue, p.auroraSat),
     ciano: giro(BASE.ciano, p.auroraHue, p.auroraSat),
+    faixa: giro(BASE.faixa, p.auroraHue, p.auroraSat),
   }), [p.auroraHue, p.auroraSat]);
 }
 
@@ -77,26 +89,15 @@ export function ManchaDeLuz({ p = PARADO, largura: W, altura: H, papel: T }: {
 }) {
   const cor = useCores();
   const id = React.useId().replace(/[^a-zA-Z0-9]/g, '');
-  /* Os três quadros de cada mancha: repouso, tela cheia, cabeçalho. */
+  /* Da de trás para a da frente. Na partida só a funda aparece, no pé; as
+     outras esperam abaixo da tela, cada uma mais longe — quanto mais longe
+     ela parte, mais rápido sobe, e é essa diferença que desenha a onda. */
   const manchas: Mancha[] = [
-    { cor: cor.ceu, meio: 0.55, quadros: [
-      { x: W * 0.5, y: H * 1.12, rx: W * 1.1, ry: H * 0.3, o: 0.9 },
-      { x: W * 0.5, y: H * 0.5, rx: W * 1.7, ry: H * 1.05, o: 1 },
-      { x: W * 0.55, y: -T * 0.05, rx: W * 1.5, ry: T * 1.2, o: 0.95 },
-    ] },
-    { cor: cor.funda, meio: 0.5, quadros: [
-      { x: W * 0.45, y: H * 1.0, rx: W * 0.95, ry: H * 0.34, o: 1 },
-      { x: W * 0.45, y: H * 0.34, rx: W * 1.25, ry: H * 0.62, o: 1 },
-      { x: W * 0.2, y: -T * 0.3, rx: W * 0.95, ry: T * 0.85, o: 0.9 },
-    ] },
-    { cor: cor.ciano, meio: 0.45, quadros: [
-      { x: W * 0.62, y: H * 1.08, rx: W * 0.6, ry: H * 0.14, o: 0.85 },
-      { x: W * 0.55, y: H * 0.95, rx: W * 1.3, ry: H * 0.5, o: 1 },
-      { x: W * 0.85, y: T * 0.05, rx: W * 1.0, ry: T * 0.8, o: 0.9 },
-    ] },
+    { cor: cor.ceu, meio: 0.55, x: W * 0.5, rx: W * 1.6, ry: T * 1.15, o: 0.95, de: H * 1.9, ate: -T * 0.05 },
+    { cor: cor.ciano, meio: 0.45, x: W * 0.62, rx: W * 1.2, ry: T * 1.0, o: 0.9, de: H * 1.57, ate: T * 0.08 },
+    { cor: cor.funda, meio: 0.5, x: W * 0.45, rx: W * 0.95, ry: H * 0.36, o: 1, de: H * 1.02, ate: -T * 0.55 },
+    { cor: cor.faixa, meio: 0.35, x: W * 0.5, rx: W * 1.5, ry: T * 0.55, o: 0.6, de: H * 2.35, ate: T * 0.72 },
   ];
-  const quadro = (m: Mancha, k: keyof Quadro, f = (v: number) => v) =>
-    p.interpolate({ inputRange: [0, 0.5, 1], outputRange: m.quadros.map((q) => f(q[k])) });
 
   return (
     <View pointerEvents="none" style={{ position: 'absolute', left: 0, top: 0, width: W, height: H, overflow: 'hidden' }}>
@@ -105,12 +106,12 @@ export function ManchaDeLuz({ p = PARADO, largura: W, altura: H, papel: T }: {
           key={i}
           style={{
             position: 'absolute', left: -R, top: -R, width: 2 * R, height: 2 * R,
-            opacity: quadro(m, 'o'),
+            opacity: m.o,
             transform: [
-              { translateX: quadro(m, 'x') },
-              { translateY: quadro(m, 'y') },
-              { scaleX: quadro(m, 'rx', (v) => v / R) },
-              { scaleY: quadro(m, 'ry', (v) => v / R) },
+              { translateX: m.x },
+              { translateY: p.interpolate({ inputRange: [0, 1], outputRange: [m.de, m.ate] }) },
+              { scaleX: m.rx / R },
+              { scaleY: m.ry / R },
             ],
           }}
         >

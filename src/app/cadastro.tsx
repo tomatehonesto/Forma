@@ -771,8 +771,7 @@ const FASES = () => [K().faseAgrupando, K().faseCalculando, K().faseMontando, K(
 const PASSO_MS = 950;        // entre uma fase e a seguinte
 const ULTIMA_MS = 1200;      // quanto o "Pronto!" fica à vista
 const SAIDA_MS = 380;        // a pilha se apagando antes do plano, sem ele embaixo
-const MANCHA_SOBE_MS = 380;  // a mancha saltando do pé até cobrir a tela
-const MANCHA_VOLTA_MS = 800; // e recuando até virar o alto do plano
+const MANCHA_MS = 1400;      // a luz subindo do pé até virar o alto do plano
 /* a opacidade de uma fase pela distância até a da vez: 0 é ela mesma */
 const BRILHO_POR_DISTANCIA = [1, 0.62, 0.36, 0.2];
 
@@ -826,20 +825,17 @@ function Montando({ onFim, depois }: {
         Animated.timing(saida, {
           toValue: 1, duration: 220, easing: Easing.out(Easing.quad), useNativeDriver: false,
         }).start();
-        /* O ritmo da referência: a subida é um salto, e a volta para o
-           alto é lenta — o branco vai entrando por baixo. */
-        Animated.sequence([
-          Animated.timing(mancha, {
-            toValue: 0.5, duration: MANCHA_SOBE_MS, easing: Easing.inOut(Easing.quad), useNativeDriver: true,
-          }),
-          Animated.timing(mancha, {
-            toValue: 1, duration: MANCHA_VOLTA_MS, easing: Easing.out(Easing.cubic), useNativeDriver: true,
-          }),
-        ]).start(() => {
-          /* o plano entra por cima e, quando acaba de entrar, fica sozinho */
+        /* O ritmo da referência: um movimento só, que arranca rápido e
+           demora a assentar (a curva é a de "sai rápido", exponencial).
+           O plano começa a entrar quando a luz está quase parada, e não
+           depois: no vídeo o texto chega enquanto ela ainda assenta. */
+        Animated.timing(mancha, {
+          toValue: 1, duration: MANCHA_MS, easing: Easing.bezier(0.16, 1, 0.3, 1), useNativeDriver: true,
+        }).start();
+        t.push(setTimeout(() => {
           setComPlano(true);
           setTimeout(onFim, 1400);   // a cascata do plano (ver `chegada`, em app/plano)
-        });
+        }, MANCHA_MS * 0.6));
         return;
       }
       Animated.timing(saida, {
@@ -902,14 +898,21 @@ function Montando({ onFim, depois }: {
                   /* Sem negrito (pedido do dono): a da vez se distingue pelo
                      tamanho e pela tinta, e não pelo peso. */
                   fontFamily: font.body,
-                  fontSize: passado[i].interpolate({ inputRange: [0, 1], outputRange: [26, 16] }),
-                  lineHeight: passado[i].interpolate({ inputRange: [0, 1], outputRange: [32, 22] }),
+                  /* A da vez um pouco maior (pedido do dono): ela é a
+                     única que está acontecendo. */
+                  fontSize: passado[i].interpolate({ inputRange: [0, 1], outputRange: [FASE_ATIVA.fontSize, 16] }),
+                  lineHeight: passado[i].interpolate({ inputRange: [0, 1], outputRange: [FASE_ATIVA.lineHeight, 22] }),
                   color: passado[i].interpolate({ inputRange: [0, 1], outputRange: [c.tx, c.tx3] }),
                 }}
               >
                 {/* A que já passou perde as reticências: ela terminou. */}
                 {atual ? texto : texto.replace(/\s*…$/, '')}
               </Animated.Text>
+              {/* O brilho atravessa só a da vez, e só enquanto ela ainda
+                  está acontecendo — o "Pronto!" já acabou. */}
+              {atual && i < fases.length - 1 ? (
+                <BrilhoNoTexto texto={texto} estilo={{ ...FASE_ATIVA, fontFamily: font.body }} cor={c.tx4} />
+              ) : null}
             </Animated.View>
           );
         })}
@@ -928,6 +931,73 @@ function Montando({ onFim, depois }: {
           {React.isValidElement(depois) ? React.cloneElement(depois as React.ReactElement<any>, { semChegada: false }) : depois}
         </View>
       ) : null}
+    </View>
+  );
+}
+
+/* a fase da vez: maior que as que passaram */
+const FASE_ATIVA = { fontSize: 30, lineHeight: 36 };
+
+/* ------------------------------------------------------------------ */
+/* O BRILHO NO TEXTO — a luz que atravessa a fase da vez.
+
+   É o efeito do fim do vídeo de referência do dono: uma faixa mais clara
+   passa pela frase da esquerda para a direita, sem parar, enquanto ela
+   está acontecendo.
+
+   ⚠️ SEM MÁSCARA, DE PROPÓSITO. O MaskedView não recorta na web — ele
+   desenha a máscara (ver ui/vidro) —, e o brilho precisa aparecer igual
+   nos dois. Então são três janelas estreitas, uma dentro da outra, que
+   correm por cima do texto; cada uma mostra a MESMA frase, na mesma
+   largura e no mesmo lugar, numa tinta mais clara, e as três somadas
+   fazem a borda suave. A frase de dentro anda ao contrário da janela, e
+   por isso fica parada enquanto a janela passa. */
+const FAIXAS_DO_BRILHO = [{ larg: 110, op: 0.3 }, { larg: 64, op: 0.45 }, { larg: 26, op: 0.6 }];
+
+function BrilhoNoTexto({ texto, estilo, cor }: {
+  texto: string;
+  estilo: { fontSize: number; lineHeight: number; fontFamily: string };
+  cor: string;
+}) {
+  const [largura, setLargura] = React.useState(0);
+  const x = React.useRef(new Animated.Value(0)).current;
+  React.useEffect(() => {
+    const laco = Animated.loop(Animated.sequence([
+      Animated.timing(x, { toValue: 1, duration: 1150, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
+      Animated.delay(180),
+    ]));
+    laco.start();
+    return () => laco.stop();
+  }, []);
+  const centro = x.interpolate({ inputRange: [0, 1], outputRange: [-70, largura + 70] });
+  return (
+    <View
+      pointerEvents="none"
+      style={StyleSheet.absoluteFill}
+      onLayout={(e) => setLargura(e.nativeEvent.layout.width)}
+    >
+      {largura > 0 ? FAIXAS_DO_BRILHO.map((f) => {
+        const esquerda = Animated.subtract(centro, f.larg / 2);
+        return (
+          <Animated.View
+            key={f.larg}
+            style={{
+              position: 'absolute', top: 0, bottom: 0, left: 0, width: f.larg, overflow: 'hidden',
+              transform: [{ translateX: esquerda }],
+            }}
+          >
+            <Animated.Text
+              style={{
+                ...estilo, color: cor, opacity: f.op,
+                position: 'absolute', left: 0, top: 0, width: largura,
+                transform: [{ translateX: Animated.multiply(esquerda, -1) }],
+              }}
+            >
+              {texto}
+            </Animated.Text>
+          </Animated.View>
+        );
+      }) : null}
     </View>
   );
 }
