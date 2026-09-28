@@ -56,6 +56,15 @@ export const resumo = {
   enviadoPara: (doutor: string) => `Sent by you to ${doutor}`,
   enviado: 'Sent by you',
 
+  pdf: {
+    titulo: 'Treatment summary',
+    exame: 'Test',
+    resultado: 'Result',
+    referencia: 'Reference',
+    coleta: 'Collected',
+    arquivo: (data: string) => `morphi-summary-${data}.pdf`,
+  },
+
   tela: {
     titulo: 'Appointment summary',
     lead: 'Everything you logged, the way it’ll look at the appointment.',
@@ -63,7 +72,8 @@ export const resumo = {
     enviar: (doutor: string) => `Send to ${doutor}`,
     enviarDeNovo: (doutor: string) => `Send again to ${doutor}`,
     enviado: 'Sent',
-    compartilhar: 'Share another way',
+    compartilharPdf: 'Share as PDF',
+    montandoPdf: 'Building the PDF…',
 
     resumoDe: (data: string) => `Summary from ${data}`,
     paraQuem: (quem: string) => `For ${quem}`,

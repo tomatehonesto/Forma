@@ -5,6 +5,7 @@
 export const File: any = class { constructor(..._a: any[]) {} write() {} };
 export const Paths: any = { cache: '', document: '' };
 export const shareAsync: any = async () => {};
+export const printToFileAsync: any = async () => ({ uri: '', numberOfPages: 1 });
 export const isAvailableAsync: any = async () => false;
 export const scheduleNotificationAsync: any = async () => '';
 export const cancelScheduledNotificationAsync: any = async () => {};

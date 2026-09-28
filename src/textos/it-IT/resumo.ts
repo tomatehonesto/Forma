@@ -79,6 +79,15 @@ export const resumo = {
      INVIARLO. La riga leggeva il legame con la clinica e diceva "non hai
      ancora un team" a chi aveva appena annotato il proprio medico.
      ============================================================ */
+  pdf: {
+    titulo: 'Riepilogo della terapia',
+    exame: 'Esame',
+    resultado: 'Risultato',
+    referencia: 'Riferimento',
+    coleta: 'Prelievo',
+    arquivo: (data: string) => `morphi-riepilogo-${data}.pdf`,
+  },
+
   tela: {
     titulo: 'Riepilogo per la visita',
     lead: 'Tutto quello che hai registrato, così come si presenterà alla visita.',
@@ -86,7 +95,8 @@ export const resumo = {
     enviar: (doutor: string) => `Invia a ${doutor}`,
     enviarDeNovo: (doutor: string) => `Invia di nuovo a ${doutor}`,
     enviado: 'Inviato',
-    compartilhar: 'Condividi in un altro modo',
+    compartilharPdf: 'Condividi in PDF',
+    montandoPdf: 'Preparo il PDF…',
 
     resumoDe: (data: string) => `Riepilogo del ${data}`,
     paraQuem: (quem: string) => `Per ${quem}`,

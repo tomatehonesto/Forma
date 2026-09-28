@@ -72,6 +72,15 @@ export const resumo = {
   enviadoPara: (doutor: string) => `Von dir an ${doutor} geschickt`,
   enviado: 'Von dir geschickt',
 
+  pdf: {
+    titulo: 'Behandlungsübersicht',
+    exame: 'Wert',
+    resultado: 'Ergebnis',
+    referencia: 'Referenz',
+    coleta: 'Entnahme',
+    arquivo: (data: string) => `morphi-uebersicht-${data}.pdf`,
+  },
+
   tela: {
     titulo: 'Übersicht für den Termin',
     lead: 'Alles, was du eingetragen hast, so wie es beim Termin aussieht.',
@@ -79,7 +88,8 @@ export const resumo = {
     enviar: (doutor: string) => `An ${doutor} schicken`,
     enviarDeNovo: (doutor: string) => `Noch einmal an ${doutor} schicken`,
     enviado: 'Geschickt',
-    compartilhar: 'Anders teilen',
+    compartilharPdf: 'Als PDF teilen',
+    montandoPdf: 'PDF wird erstellt…',
 
     resumoDe: (data: string) => `Übersicht vom ${data}`,
     paraQuem: (quem: string) => `Für ${quem}`,

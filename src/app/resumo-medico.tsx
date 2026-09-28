@@ -8,6 +8,7 @@ import {
   type SecaoDoResumo,
 } from '../logic/resumo';
 import { fmtDate, now, relDay } from '../logic/time';
+import { compartilharResumoPdf } from '../logic/resumoPdf';
 import { Txt, Row, Vazio } from '../ui/kit';
 import { TelaInterna, Titulao, Bloco, Cartao, Linha, Botao, Aviso } from '../ui/internas';
 import { Icon } from '../ui/Icon';
@@ -85,7 +86,18 @@ export default function ResumoMedico() {
   const ultimo = envios[0];
   const [enviado, setEnviado] = useState(false);
 
-  const compartilhar = () => { Share.share({ message: resumoEmTexto(S) }).catch(() => {}); };
+  /* ⚠️ O COMPARTILHAR SAI EM PDF (28/09/2026, pedido do dono) — ver
+     logic/resumoPdf. Se o PDF não sair (aparelho sem folha de
+     compartilhar, ou falha ao montar), o texto de antes continua sendo o
+     caminho: a pessoa não pode ficar sem levar o resumo. */
+  const [montando, setMontando] = useState(false);
+  const compartilhar = async () => {
+    if (montando) return;
+    setMontando(true);
+    const r = await compartilharResumoPdf(S);
+    setMontando(false);
+    if (r === 'erro' || r === 'sem-suporte') Share.share({ message: resumoEmTexto(S) }).catch(() => {});
+  };
 
   /* ENVIAR É DEIXAR UM DOCUMENTO NA PLATAFORMA DA EQUIPE. O que fica
      guardado aqui é o envio, com data — o conteúdo se remonta dos
@@ -114,7 +126,12 @@ export default function ResumoMedico() {
               onPress={enviar}
             />
           ) : null}
-          <Botao label={K().compartilhar} tom="fantasma" onPress={compartilhar} />
+          <Botao
+            label={montando ? K().montandoPdf : K().compartilharPdf}
+            tom={temEquipe ? 'fantasma' : undefined}
+            carregando={montando}
+            onPress={compartilhar}
+          />
         </View>
       }
     >

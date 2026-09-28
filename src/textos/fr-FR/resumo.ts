@@ -59,6 +59,15 @@ export const resumo = {
   enviadoPara: (doutor: string) => `Envoyé par vous à ${doutor}`,
   enviado: 'Envoyé par vous',
 
+  pdf: {
+    titulo: 'Résumé du traitement',
+    exame: 'Analyse',
+    resultado: 'Résultat',
+    referencia: 'Référence',
+    coleta: 'Prélèvement',
+    arquivo: (data: string) => `morphi-resume-${data}.pdf`,
+  },
+
   tela: {
     titulo: 'Résumé pour la consultation',
     lead: 'Tout ce que vous avez noté, tel que cela se présentera à la consultation.',
@@ -66,7 +75,8 @@ export const resumo = {
     enviar: (doutor: string) => `Envoyer à ${doutor}`,
     enviarDeNovo: (doutor: string) => `Renvoyer à ${doutor}`,
     enviado: 'Envoyé',
-    compartilhar: 'Partager autrement',
+    compartilharPdf: 'Partager en PDF',
+    montandoPdf: 'Préparation du PDF…',
 
     resumoDe: (data: string) => `Résumé du ${data}`,
     paraQuem: (quem: string) => `Pour ${quem}`,

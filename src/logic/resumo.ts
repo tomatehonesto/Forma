@@ -3,7 +3,7 @@ import { nomeDaMolecula } from './formas';
 import type { State } from './seed';
 import {
   M, cadenciaCurta, curWeight, dosesPrevistas, examLast, journeyDay,
-  lostKg, lostPct, mediaDe, notasAbertas, respondido, variacaoDe, temEvolucao, doseDoPerfil, type Nota,
+  lostKg, lostPct, mediaDe, notasAbertas, respondido, variacaoDe, temEvolucao, doseDoPerfil, nomeDoMarcador, type Nota,
 } from './derive';
 import { fmtDate, diffDays, now, nf, kg, startOfDay } from './time';
 import { pesoN, pesoTxt, pesoU, pesoV } from './medidas';
@@ -169,7 +169,8 @@ export function resumoDoTratamento(S: State): SecaoDoResumo[] {
          texto é quem sabe o que "ref 70–99" quer dizer; na tela quem lê é
          a pessoa, e para ela a faixa crua é ruído — lá o mesmo dado vira
          "na referência", com o número completo a um toque. */
-      linhas: exames.map((e) => ({ k: e.marker, v: `${valorDoExame(e)} · ref ${faixaTxt(e.ref)}` })),
+      /* o nome do marcador no idioma de quem lê, e não a chave gravada */
+      linhas: exames.map((e) => ({ k: nomeDoMarcador(e.marker), v: `${valorDoExame(e)} · ref ${faixaTxt(e.ref)}` })),
     });
   }
 

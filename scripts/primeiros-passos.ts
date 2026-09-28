@@ -54,6 +54,7 @@ import {
   aplicacaoDoCadastro, diaDoTratamento, nextInjectionDate, rodizioDeLocais, timelineEvents,
   semanasDaGrade, timelineWeeks, comecouAntesDoApp, nomeDeQuemCuida, dailyTargets, indicadoresDaEvolucao,
   diasDeRefeicao, diasDeAgua, diasDoPeriodo, temHistoria, ritmoRecente, last7Days, examCats, REFERENCIA_DOS_MARCADORES,
+  nomeDoMarcador,
 } from '../src/logic/derive';
 import { semanaDoTratamento } from '../src/logic/time';
 import { boasVindasNaHome, marcarApresentacaoVista } from '../src/logic/apresentacao';
@@ -61,6 +62,7 @@ import { semanaQuePassou, marcoRecente } from '../src/logic/destaques';
 import { descobertas } from '../src/logic/descobertas';
 import { redeLancada, temRedeParceira } from '../src/logic/pais';
 import { unidadesDe, unidadePadrao, converterValor, converterFaixa, faixaTxt } from '../src/logic/unidadesDeExame';
+import { htmlDoResumo } from '../src/logic/resumoPdf';
 import { proximasDe, type Alerta } from '../src/logic/alertas';
 import { resumoEmTexto, resumoDoTratamento } from '../src/logic/resumo';
 import { conquistas } from '../src/logic/conquistas';
@@ -506,6 +508,19 @@ ok(Math.abs(converterValor('Glicemia jejum', 99, 'mg/dL', 'mmol/L') - 5.495) < 0
 ok(converterFaixa('Glicemia jejum', '70–99', 'mg/dL', 'mmol/L') === '3.9–5.5' && converterFaixa('HbA1c', '< 5,7', '%', 'mmol/mol') === '< 39',
   'a faixa usual é convertida para a unidade do laudo');
 ok(faixaTxt('3.9–5.5') === '3,9–5,5' && faixaTxt('< 5,7') === '< 5,7', 'e escrita com o decimal de quem lê');
+
+console.log('\n19. O RESUMO EM PDF');
+const comNota = clone(semente);
+(comNota.notes as any[]).push({ t: +hoje, text: 'Dor <forte> & tontura', done: false });
+const html = htmlDoResumo(comNota);
+ok(html.startsWith('<!DOCTYPE html>') && html.includes(T.resumo.pdf.titulo) && html.includes(semente.profile.name),
+  'o documento abre com o título e o nome de quem ele é');
+ok(html.includes(nomeDoMarcador('Glicemia jejum')) && html.includes(T.resumo.pdf.referencia),
+  'a tabela de exames tem os marcadores pelo nome e a coluna de referência');
+ok(html.includes('Dor &lt;forte&gt; &amp; tontura') && !html.includes('<forte>'),
+  'o que a pessoa escreveu entra escapado — um "<" numa anotação não quebra o documento');
+ok(resumoDoTratamento(semente).find((s) => s.id === 'exames')!.linhas.every((l) => !l.k.includes('Glicemia jejum') || nomeDoMarcador('Glicemia jejum') === 'Glicemia jejum'),
+  'o resumo em texto usa o nome do marcador no idioma de quem lê');
 
 console.log(falhas ? `\n${falhas} afirmação(ões) falharam\n` : '\ntodas as afirmações passaram\n');
 process.exit(falhas ? 1 : 0);

@@ -82,6 +82,16 @@ export const resumo = {
      gênero em português, e a tela não sabe o de quem acompanha. A frase
      foi reescrita para não precisar saber.
      ============================================================ */
+  /* ---- o PDF do resumo (logic/resumoPdf) ---- */
+  pdf: {
+    titulo: 'Resumo de tratamento',
+    exame: 'Exame',
+    resultado: 'Resultado',
+    referencia: 'Referência',
+    coleta: 'Coleta',
+    arquivo: (data: string) => `morphi-resumo-${data}.pdf`,
+  },
+
   tela: {
     titulo: 'Resumo para consulta',
     lead: 'Tudo que você registrou, do jeito que vai chegar na consulta.',
@@ -89,7 +99,8 @@ export const resumo = {
     enviar: (doutor: string) => `Enviar a ${doutor}`,
     enviarDeNovo: (doutor: string) => `Enviar de novo a ${doutor}`,
     enviado: 'Enviado',
-    compartilhar: 'Compartilhar de outro jeito',
+    compartilharPdf: 'Compartilhar em PDF',
+    montandoPdf: 'Montando o PDF…',
 
     resumoDe: (data: string) => `Resumo de ${data}`,
     paraQuem: (quem: string) => `Para ${quem}`,

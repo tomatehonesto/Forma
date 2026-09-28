@@ -9,6 +9,9 @@
       "expo-file-system": [
         "scripts/duble/expo.ts"
       ],
+      "expo-print": [
+        "scripts/duble/expo.ts"
+      ],
       "expo-sharing": [
         "scripts/duble/expo.ts"
       ],
