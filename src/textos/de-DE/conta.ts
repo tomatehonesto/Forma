@@ -3,14 +3,15 @@
 export const conta = {
   titulo: {
     cadastro: 'Lass uns dein Tagebuch sichern',
-    abertura: 'Schön, dich wiederzusehen',
+    abertura: 'Schön, dich wiederzusehen!',
     sessao: 'Nur noch einmal anmelden',
   },
   tituloDoFim: (nome: string) => (nome ? `Alles bereit, ${nome}!` : 'Alles bereit!'),
+  tituloDaSessao: (nome: string) => (nome ? `Melde dich wieder an, ${nome}` : 'Melde dich wieder an'),
   lead: {
     cadastro: 'Dein Plan steht. Erstelle dein Konto, damit alles gesichert ist, was du uns erzählt hast – und los geht’s.',
-    abertura: 'Melde dich an, und wir holen dein Tagebuch auf dieses Handy.',
-    sessao: 'Deine Sitzung ist abgelaufen – das passiert ab und zu.',
+    abertura: 'Melde dich an, und wir holen dein Tagebuch auf dieses Handy – so, wie du es verlassen hast.',
+    sessao: 'Deine Sitzung ist abgelaufen, aber nichts von dem, was du eingetragen hast, ist verloren. Sobald du angemeldet bist, sichern wir alles in deinem Konto.',
   },
 
 

@@ -25,7 +25,7 @@ export const conta = {
     /* o fim do cadastro, e quem reabre sem conta */
     cadastro: 'Vamos guardar o seu diário',
     /* "Já tenho conta", na abertura */
-    abertura: 'Que bom te ver de novo',
+    abertura: 'Que bom te ver de novo!',
     /* a sessão caiu: a pessoa já tem conta e diário aqui */
     sessao: 'Falta só entrar de novo',
   },
@@ -34,10 +34,12 @@ export const conta = {
      diário. O título comemora, com o nome; a frase diz o que a conta
      guarda. O `titulo.cadastro` continua valendo onde não há capa. */
   tituloDoFim: (nome: string) => (nome ? `Tudo pronto, ${nome}!` : 'Tudo pronto!'),
+  /* A sessão encerrada também chama pelo nome: ali o diário já tem um. */
+  tituloDaSessao: (nome: string) => (nome ? `Entre de novo, ${nome}` : 'Entre de novo'),
   lead: {
     cadastro: 'O seu plano está montado. Crie a sua conta para guardar tudo o que você nos contou e começar.',
-    abertura: 'Entre, e trazemos o seu diário para este celular.',
-    sessao: 'A sua sessão terminou — acontece de vez em quando.',
+    abertura: 'Entre na sua conta e trazemos o seu diário para este celular, do jeito que você deixou.',
+    sessao: 'A sua sessão terminou, mas nada do que você registrou se perdeu. Ao entrar, guardamos tudo na sua conta.',
   },
 
 

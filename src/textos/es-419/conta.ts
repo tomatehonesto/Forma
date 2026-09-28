@@ -3,14 +3,15 @@
 export const conta = {
   titulo: {
     cadastro: 'Guardemos tu diario',
-    abertura: 'Qué bueno verte de nuevo',
+    abertura: '¡Qué bueno verte de nuevo!',
     sessao: 'Solo falta volver a entrar',
   },
   tituloDoFim: (nome: string) => (nome ? `¡Todo listo, ${nome}!` : '¡Todo listo!'),
+  tituloDaSessao: (nome: string) => (nome ? `Vuelve a entrar, ${nome}` : 'Vuelve a entrar'),
   lead: {
     cadastro: 'Tu plan está listo. Crea tu cuenta para guardar todo lo que nos contaste y empezar.',
-    abertura: 'Entra, y traemos tu diario a este celular.',
-    sessao: 'Tu sesión terminó — pasa de vez en cuando.',
+    abertura: 'Entra en tu cuenta y traemos tu diario a este celular, tal como lo dejaste.',
+    sessao: 'Tu sesión terminó, pero no se perdió nada de lo que registraste. Al entrar, guardamos todo en tu cuenta.',
   },
 
 

@@ -495,8 +495,11 @@ export default function Conta() {
   /* ---- a escolha ---- */
   return (
     <CapaDaConta
-      /* No fim do cadastro, o título comemora com o primeiro nome. */
-      titulo={porta === 'cadastro' ? K().tituloDoFim(primeiroNome) : K().titulo[porta]}
+      /* No fim do cadastro, o título comemora com o primeiro nome; na sessão
+         encerrada, chama por ele. Quem entra num celular novo ainda não tem. */
+      titulo={porta === 'cadastro' ? K().tituloDoFim(primeiroNome)
+        : porta === 'sessao' ? K().tituloDaSessao(primeiroNome)
+        : K().titulo[porta]}
       lead={K().lead[porta]} onVoltar={voltar}
     >
       {aviso}
