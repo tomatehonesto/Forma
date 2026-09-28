@@ -75,15 +75,15 @@ novo.onboardDone = true;
 
 console.log('\n1. O DIÁRIO NOVO');
 const nIphone = passos(novo, IPHONE);
-ok(nIphone.length === 5, `no iPhone são cinco itens (${nIphone.map((p) => p.id).join(', ')})`);
+ok(nIphone.length === 6, `no iPhone são seis itens (${nIphone.map((p) => p.id).join(', ')})`);
 ok(JSON.stringify(prontos(novo, IPHONE)) === '["plano"]', 'só o plano começa pronto: o cartão abre com um visto, e não do zero');
 ok(nIphone.every((p) => p.id === 'plano' ? !p.to : !!p.to), 'todo item por fazer leva a uma tela, e o plano a nenhuma');
 ok(nIphone.find((p) => p.id === 'saude')!.titulo.includes('Apple Saúde'), 'o item da saúde diz o nome do aparelho');
 
 console.log('\n2. O NAVEGADOR');
 const nWeb = passos(novo, NAVEGADOR);
-ok(nWeb.length === 3 && !nWeb.some((p) => p.id === 'lembretes' || p.id === 'saude'),
-  'sem aviso nem depósito de saúde, sobram o plano, a aplicação e o check-in');
+ok(nWeb.length === 4 && !nWeb.some((p) => p.id === 'lembretes' || p.id === 'saude'),
+  'sem aviso nem depósito de saúde, sobram o plano, a aplicação, o check-in e a meta');
 
 console.log('\n3. CADA ITEM SE MARCA COM O QUE ACONTECEU');
 const aplicou = clone(novo);
@@ -115,8 +115,11 @@ ok(JSON.stringify(nIphone.filter((p) => p.opcional).map((p) => p.id)) === '["lem
 const essencial = clone(novo);
 (essencial.injections as any[]).push({ t: +hoje, dose: 2.5 });
 (essencial.checkins as any[]).push({ t: +hoje, energia: 3 });
+const semMeta = clone(essencial);
+(essencial.goals as any[]).push({ id: 'g1', ic: 'roupa', label: 'Vestir o vestido azul', indicador: null });
+ok(!essencialPronto(passos(semMeta, IPHONE)), 'sem uma meta além do peso, o essencial ainda não está pronto — ela segura o cartão');
 ok(!essencialPronto(nIphone) && essencialPronto(passos(essencial, IPHONE)) && !passos(essencial, IPHONE).every((p) => p.pronto),
-  'com a aplicação e o check-in, o essencial está pronto — sem aviso nem app de saúde, o cartão não fica pendente para sempre');
+  'com a aplicação, o check-in e uma meta, o essencial está pronto — sem aviso nem app de saúde, o cartão não fica pendente para sempre');
 
 console.log('\n4. ESCONDER, REABRIR E CONCLUIR');
 ok(passosNaHome(novo) && !passosParaReabrir(novo), 'o diário novo tem o cartão na Home, e nada a reabrir no Perfil');

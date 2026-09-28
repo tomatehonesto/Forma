@@ -53,6 +53,7 @@ import {
   type Pattern,
 } from './derive';
 import type { State } from './seed';
+import { passosNaHome } from './primeirosPassos';
 import { aguaTxt } from './medidas';
 
 export type TipoDescoberta = 'cruzamento' | 'antecipacao' | 'convite';
@@ -225,7 +226,9 @@ function convites(S: State): Descoberta[] {
     cta: string, to: string, nota: number,
   ) => out.push({ id: `conv:${id}`, tipo: 'convite', ic, chapeu: T.descobertas.chapeuConvite, titulo, texto, cta, to, nota });
 
-  if (!(S.goals as any[]).length) poe(
+  /* Com os primeiros passos na Home, a meta já é um item deles — o convite
+     repetiria o mesmo pedido em dois lugares da mesma tela. */
+  if (!(S.goals as any[]).length && !passosNaHome(S)) poe(
     'meta', 'target',
     T.descobertas.metaTitulo,
     T.descobertas.metaTexto,

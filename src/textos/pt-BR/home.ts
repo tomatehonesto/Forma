@@ -682,6 +682,8 @@ export const home = {
     aplicacaoSub: 'É dela que contamos o ciclo e a próxima dose',
     checkin: 'Faça o primeiro check-in',
     checkinSub: 'Como você está hoje, em menos de um minuto',
+    meta: 'Defina uma meta além do peso',
+    metaSub: 'O que mais você quer que mude, além da balança',
     lembretes: 'Permita os lembretes',
     lembretesSub: 'Para o aviso da dose tocar na hora',
     saude: (app: string) => `Conecte o ${app}`,

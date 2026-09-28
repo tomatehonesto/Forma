@@ -469,6 +469,8 @@ export const home = {
     aplicacaoSub: 'Von ihr aus zählen wir den Zyklus und die nächste Dosis',
     checkin: 'Mach deinen ersten Check-in',
     checkinSub: 'Wie es dir heute geht, in unter einer Minute',
+    meta: 'Setz dir ein Ziel jenseits des Gewichts',
+    metaSub: 'Was sich außer der Waage noch ändern soll',
     lembretes: 'Erlaube die Erinnerungen',
     lembretesSub: 'Damit die Dosis-Erinnerung pünktlich klingelt',
     saude: (app: string) => `Verbinde ${app}`,

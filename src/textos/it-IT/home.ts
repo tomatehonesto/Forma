@@ -599,6 +599,8 @@ export const home = {
     aplicacaoSub: 'Da lì contiamo il ciclo e la prossima dose',
     checkin: 'Fai il primo check-in',
     checkinSub: 'Come stai oggi, in meno di un minuto',
+    meta: 'Scegli un obiettivo oltre il peso',
+    metaSub: 'Cos’altro vuoi che cambi, oltre alla bilancia',
     lembretes: 'Consenti i promemoria',
     lembretesSub: 'Perché il promemoria della dose suoni in tempo',
     saude: (app: string) => `Collega ${app}`,

@@ -433,6 +433,8 @@ export const home = {
     aplicacaoSub: 'We count your cycle and next dose from it',
     checkin: 'Do your first check-in',
     checkinSub: 'How you’re feeling today, in under a minute',
+    meta: 'Set a goal beyond weight',
+    metaSub: 'What else you want to change, besides the scale',
     lembretes: 'Allow reminders',
     lembretesSub: 'So your dose reminder rings on time',
     saude: (app: string) => `Connect ${app}`,

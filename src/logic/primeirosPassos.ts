@@ -23,7 +23,7 @@ import { T } from '../textos';
    marcar "fiz o primeiro check-in" — é a regra de `respostaNoDia`.
    ============================================================ */
 
-export type PassoId = 'plano' | 'medicacao' | 'aplicacao' | 'checkin' | 'lembretes' | 'saude';
+export type PassoId = 'plano' | 'medicacao' | 'aplicacao' | 'checkin' | 'meta' | 'lembretes' | 'saude';
 
 export type Passo = {
   id: PassoId;
@@ -65,6 +65,15 @@ export function passos(S: State, { permissao, aparelho }: DoAparelho): Passo[] {
     {
       id: 'checkin', ic: 'mood', titulo: K().checkin, sub: K().checkinSub,
       pronto: ((S.checkins ?? []) as any[]).some(respostaNoDia), to: '/checkin',
+    },
+    /* ⚠️ UMA META ALÉM DO PESO (28/09/2026, pedido do dono): para o
+       tratamento não virar só o número da balança. Segura o cartão, como
+       os de cima — é rápida, e é o empurrão que o dono quer. Qualquer
+       meta conta, a pessoal e a medida antiga. Enquanto ela está aqui, o
+       convite de meta da Home se cala (ver logic/descobertas). */
+    {
+      id: 'meta', ic: 'target', titulo: K().meta, sub: K().metaSub,
+      pronto: ((S.goals ?? []) as any[]).length > 0, to: '/meta?novo=1',
     },
   ];
   /* ⚠️ A MEDICAÇÃO, PARA QUEM AINDA NÃO DECIDIU (28/09/2026, pedido do
