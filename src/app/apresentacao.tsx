@@ -282,10 +282,14 @@ function Telefone({ caixa: k, children }: { caixa: Caixa; children: React.ReactN
         <View style={{ position: 'absolute', top: 9, alignSelf: 'center', width: 64, height: 19, borderRadius: 10, backgroundColor: moldura }} />
         <View style={{ paddingHorizontal: 13, paddingTop: 6, gap: 9 }}>{children}</View>
       </View>
-      {/* o pé some no fundo da página, telefone e tela juntos */}
+      {/* ⚠️ O PÉ SE MESCLA COM O FUNDO (pedido do dono): a metade de baixo do
+          aparelho vai sumindo devagar, e o degradê passa das bordas para
+          levar a sombra junto — sem isso, a sombra desenhava o contorno do
+          telefone no meio do nada. */}
       <LinearGradient
-        colors={[alfa(c.bg, 0), c.bg]}
-        style={{ position: 'absolute', left: -2, right: -2, bottom: 0, height: k.fh * 0.3 }}
+        colors={[alfa(c.bg, 0), alfa(c.bg, 0.6), alfa(c.bg, 0.92), c.bg]}
+        locations={[0, 0.4, 0.72, 1]}
+        style={{ position: 'absolute', left: -40, right: -40, bottom: -24, height: k.fh * 0.55 + 24 }}
       />
     </View>
   );
