@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  Animated, View, Image, Pressable, ScrollView, TextInput, Platform, useWindowDimensions,
+  Animated, Easing, View, Image, Pressable, ScrollView, TextInput, Platform, useWindowDimensions,
   KeyboardAvoidingView, Keyboard, Switch,
 } from 'react-native';
 import { useAurora, PROPORCAO_DA_CAPA, PAPEL_COMECA } from '../ui/aurora';
@@ -781,6 +781,20 @@ function Montando({ onFim }: { onFim: () => void }) {
      o driver nativo, que não anima nem uma nem outra. */
   const entrada = React.useRef(fases.map(() => new Animated.Value(0))).current;
   const passado = React.useRef(fases.map(() => new Animated.Value(0))).current;
+  /* ⚠️ A PILHA SOBE DESLIZANDO. Ela é presa embaixo: quando uma fase
+     entra, as de cima subiam num salto, da altura da nova. A nova se mede
+     ao se desenhar, a pilha inteira começa deslocada para baixo dessa
+     altura e desliza até o lugar — é a subida que a referência mostra. */
+  const pilha = React.useRef(new Animated.Value(0)).current;
+  const medidas = React.useRef(new Set<number>()).current;
+  const mediu = (i: number, altura: number) => {
+    if (i === 0 || medidas.has(i)) return;
+    medidas.add(i);
+    pilha.setValue(altura + 14);
+    Animated.timing(pilha, {
+      toValue: 0, duration: 460, easing: Easing.out(Easing.cubic), useNativeDriver: false,
+    }).start();
+  };
 
   React.useEffect(() => {
     Animated.timing(entrada[0], { toValue: 1, duration: 420, useNativeDriver: false }).start();
@@ -810,15 +824,17 @@ function Montando({ onFim }: { onFim: () => void }) {
       <View
         accessibilityLiveRegion="polite"
         style={{
-          flex: 1, justifyContent: 'flex-end', gap: 14,
+          flex: 1, justifyContent: 'flex-end',
           paddingHorizontal: 28, paddingBottom: insets.bottom + Math.round(height * 0.22),
         }}
       >
+        <Animated.View style={{ gap: 14, transform: [{ translateY: pilha }] }}>
         {fases.slice(0, fase + 1).map(([ic, texto], i) => {
           const atual = i === fase;
           return (
             <Animated.View
               key={i}
+              onLayout={(e) => mediu(i, e.nativeEvent.layout.height)}
               style={{
                 /* O ícone fica na primeira linha: o "Pronto!" quebra em duas. */
                 flexDirection: 'row', alignItems: 'flex-start', gap: 12,
@@ -843,9 +859,16 @@ function Montando({ onFim }: { onFim: () => void }) {
             </Animated.View>
           );
         })}
+        </Animated.View>
       </View>
     </View>
   );
+}
+
+/** A espera do plano em volta, para a prévia de desenvolvimento. */
+function PreviaDaEspera() {
+  const [volta, setVolta] = React.useState(0);
+  return <Montando key={volta} onFim={() => setTimeout(() => setVolta((v) => v + 1), 900)} />;
 }
 
 /* ------------------------------------------------------------------ */
@@ -1033,7 +1056,7 @@ export default function Cadastro() {
      `salvar()` do fim do cadastro, com as respostas hidratadas do perfil:
      muda um campo, e as metas diárias, o plano e o IMC se refazem juntos
      em vez de ficarem coerentes com uma altura que não existe mais. */
-  const { editar } = useLocalSearchParams<{ editar?: string }>();
+  const { editar, previa } = useLocalSearchParams<{ editar?: string; previa?: string }>();
   const editando = TODOS.includes(editar as Id) ? (editar as Id) : null;
 
   const [n, setN] = useState(-1);
@@ -1438,6 +1461,11 @@ export default function Cadastro() {
 
   /* ---------- montando ---------- */
   if (n === MONTANDO) return <Montando onFim={() => setN(PLANO)} />;
+  /* ⚠️ SÓ EM DESENVOLVIMENTO: `/cadastro?previa=montando` abre a espera do
+     plano direto e a repete em volta, para o desenho ser visto sem
+     responder o cadastro inteiro. Fora do desenvolvimento, o parâmetro
+     não faz nada. */
+  if (__DEV__ && previa === 'montando') return <PreviaDaEspera />;
 
   /* ---------- abertura ----------
 
