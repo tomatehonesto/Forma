@@ -8,6 +8,7 @@ import { carimbar } from './identidade';
 import { esquecerSincronia } from './sincronia';
 import { contaLigada } from './nuvem';
 import { VERSAO as VERSAO_DO_AVISO } from './consentimento';
+import { marcarComoVistas } from './conquistas';
 
 const KEY = 'norte.v1';
 const clone = (s: any) => JSON.parse(JSON.stringify(s));
@@ -125,6 +126,10 @@ const primeiroAcesso = (verdade: State): State => {
   S.paleta = v.paleta;
   S.theme = v.theme;
   S.apresentacoesVistas = {};
+  /* A marca d'água das conquistas no nível de agora, como o cadastro faz
+     depois da primeira pesagem (ver app/cadastro): o primeiro acesso não
+     comemora o formulário que acabou de ser preenchido. */
+  marcarComoVistas(S);
   return S as State;
 };
 

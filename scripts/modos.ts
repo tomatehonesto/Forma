@@ -25,6 +25,7 @@ import { buildSeed, ensureDefaults, type State } from '../src/logic/seed';
 import { mascarar } from '../src/logic/store';
 import { boasVindasNaHome } from '../src/logic/apresentacao';
 import { passosNaHome } from '../src/logic/primeirosPassos';
+import { novosNiveis } from '../src/logic/conquistas';
 import { clinicaConectada, temAcompanhamento, semAcompanhamento } from '../src/logic/derive';
 
 let falhas = 0;
@@ -90,6 +91,7 @@ ok(!primeiro.injections.length && !primeiro.checkins.length && !primeiro.goals.l
 ok(primeiro.profile.name === q(verdade).profile.name, 'com o perfil de quem finge');
 ok(boasVindasNaHome(primeiro as State) && passosNaHome(primeiro as State),
   'as boas-vindas e os primeiros passos estão na Home');
+ok(!novosNiveis(primeiro as State).length, 'e nenhuma conquista para comemorar logo na entrada — como no cadastro');
 ok(q(verdade).injections.length > 0 && q(verdade).semente, 'e a verdade continua com os registros dela');
 
 console.log(falhas ? `\n${falhas} afirmação(ões) falharam\n` : '\ntodas as afirmações passaram\n');
