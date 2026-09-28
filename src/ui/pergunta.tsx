@@ -29,9 +29,9 @@ export function TelaDePergunta({ titulo, lead, onVoltar, rodape, children }: {
   titulo: string;
   lead?: string;
   onVoltar: () => void;
-  /* o botão do pé — ele sobe com o teclado. Sem ele, não há pé: o código
-     da conta se confere sozinho, e um botão que só repetiria o que já
-     aconteceu é um botão a mais. */
+  /* os botões do pé — eles sobem com o teclado. Sem eles, não há pé. No
+     código da conta, o pé é das saídas (reenviar e trocar o e-mail): o
+     código se confere sozinho, e "Entrar" seria um botão a mais. */
   rodape?: React.ReactNode;
   children?: React.ReactNode;
 }) {

@@ -426,13 +426,35 @@ export default function Conta() {
     const podeReenviar = espera <= 0 && !ocupado;
     const deNovo = erro === 'sem-internet' && repetir.current;
     return (
-      /* ⚠️ SEM BOTÃO NO PÉ (26/09/2026, pedido do dono): o sexto número
+      /* ⚠️ SEM BOTÃO DE ENTRAR (26/09/2026, pedido do dono): o sexto número
          confere sozinho, e um "Entrar" depois disso só repetiria o que já
          aconteceu. O teclado abre junto com a tela. */
       <TelaDePergunta
         titulo={K().codigoTitulo}
         lead={K().codigoLead(email.trim(), VALIDADE_DO_CODIGO_MIN)}
         onVoltar={voltar}
+        /* ⚠️ AS SAÍDAS FICAM NO PÉ, EM PÍLULA (27/09/2026, pedido do dono).
+           Eram textos soltos logo abaixo das casas, e a espera do reenvio
+           era uma frase cinza que se lia como aviso. Agora o reenviar é o
+           botão principal, apagado com a contagem enquanto o servidor não
+           aceita outro pedido — o número diz quando ele acende —, e trocar
+           o e-mail é o fantasma embaixo. Sem internet, o principal vira
+           "Tentar de novo". Os dois sobem com o teclado. */
+        rodape={
+          <View style={{ gap: 10 }}>
+            <Botao
+              pilula
+              label={deNovo ? K().tentarDeNovo : espera > 0 ? K().reenviarEm(espera) : K().reenviar}
+              desligado={ocupado || (!deNovo && !podeReenviar)}
+              onPress={deNovo ? () => { const r = repetir.current; limpar(); r?.(); } : mandar}
+            />
+            <Botao
+              pilula tom="fantasma" label={K().outroEmail}
+              desligado={ocupado}
+              onPress={() => { limpar(); setPasso('email'); }}
+            />
+          </View>
+        }
       >
         <CasasDoCodigo
           valor={codigo}
@@ -463,45 +485,9 @@ export default function Conta() {
           </View>
         ) : null}
         {aviso ? <View style={{ marginTop: 20 }}>{aviso}</View> : null}
-        {/* ⚠️ AS SAÍDAS SÃO TEXTO, e não botão. Eram dois botões do
-            tamanho do principal, empilhados logo abaixo do código, e a
-            tela parecia perguntar três coisas; o que ela pergunta é uma
-            só. Reenviar e trocar o e-mail são a porta de quem teve um
-            problema, e ficam do tamanho de uma porta lateral.
-
-            Enquanto o código é conferido, no lugar delas fica a roda de
-            espera: sem o botão, é ela que diz que o toque foi ouvido. */}
-        <View style={{ gap: 18, marginTop: 28, alignItems: 'flex-start', minHeight: 60 }}>
-          {ocupado ? <ActivityIndicator color={c.accent} /> : (
-            <>
-              {deNovo ? (
-                <Pressable
-                  onPress={() => { const r = repetir.current; limpar(); r?.(); }}
-                  hitSlop={10}
-                  style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
-                >
-                  <Txt v="label" c={c.accent}>{K().tentarDeNovo}</Txt>
-                </Pressable>
-              ) : null}
-              <Pressable
-                onPress={podeReenviar ? mandar : undefined}
-                hitSlop={10}
-                style={({ pressed }) => [{ opacity: pressed && podeReenviar ? 0.6 : 1 }]}
-              >
-                <Txt v="label" c={podeReenviar ? c.accent : c.tx3}>
-                  {espera > 0 ? K().reenviarEm(espera) : K().reenviar}
-                </Txt>
-              </Pressable>
-              <Pressable
-                onPress={() => { limpar(); setPasso('email'); }}
-                hitSlop={10}
-                style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
-              >
-                <Txt v="label" c={c.accent}>{K().outroEmail}</Txt>
-              </Pressable>
-            </>
-          )}
-        </View>
+        {/* Enquanto o código é conferido, a roda de espera: sem botão de
+            entrar, é ela que diz que o sexto número foi ouvido. */}
+        {ocupado ? <View style={{ marginTop: 28 }}><ActivityIndicator color={c.accent} /></View> : null}
       </TelaDePergunta>
     );
   }
