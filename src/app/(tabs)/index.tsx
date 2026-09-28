@@ -33,6 +33,7 @@ import { fotoDaEquipe, focoDaEquipe, iniciaisDeQuemCuida } from '../../ui/retrat
 import { FaixaDaConta } from '../../ui/conta';
 import { PrimeirosPassos } from '../../ui/primeirosPassos';
 import { boasVindasNaHome } from '../../logic/apresentacao';
+import { marcoRecente, semanaQuePassou } from '../../logic/destaques';
 import { T } from '../../textos';
 
 /* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
@@ -45,6 +46,7 @@ const GOAL_GAP = 4;
 const DOT_W = 44;                   // largura do ponto ativo (= a barra de progresso)
 const DOT_IDLE = 12;
 const DERIVA_MS = 22000;            // ciclo do movimento lento da aurora
+const TETO_DE_SLIDES = 4;
 const SLIDE_MS = 7000;              // tempo de leitura de cada slide do hero
 
 /* ------------------------------------------------------------------ */
@@ -162,9 +164,6 @@ export default function Home() {
      escrever no estado no meio de um desenho — e, pior, a cada desenho:
      o teto de três aparições do convite queimaria numa rolagem. */
   const desc = descobertaDaHome(S);
-  useEffect(() => {
-    if (desc) update((s: any) => marcarDescobertaVista(s, desc.id));
-  }, [desc?.id]);
 
   const brief = mensagemDoDia(S);
   const med = M(S);
@@ -198,6 +197,8 @@ export default function Home() {
      nada. O resto ganha a seta, que é o que esses botões sempre foram:
      uma porta para outra tela. */
   const temLembreteDeDose = alertasDe(S, 'dose').some((a) => a.on);
+  const marco = marcoRecente(S);
+  const semanaPassada = semanaQuePassou(S);
   type SlideHero = { over: string; title: string; body: string; cta: string; to: string; ia?: boolean; ic?: string };
 
   /* ⚠️ O ATRASO DA APLICAÇÃO É EXATO, e não estimado. `nextInjectionDate`
@@ -218,7 +219,7 @@ export default function Home() {
      e quem está com tudo em dia vê menos cartões do que quem tem uma
      aplicação sem registro. Um número fixo obrigaria a inventar conteúdo
      para preencher — que é como um carrossel vira vitrine. */
-  const slides: SlideHero[] = [
+  const todos: SlideHero[] = [
     /* ⚠️⚠️ O QUE ESTÁ FORA DO LUGAR VEM PRIMEIRO. Estes três são os únicos
        que pedem uma AÇÃO com hora marcada — o resto da Home é leitura. Se
        entrassem depois, a pessoa precisaria passar por dois cartões
@@ -268,6 +269,25 @@ export default function Home() {
       title: K().boasVindasTitulo(((S.profile as any).name ?? '').trim().split(' ')[0] ?? ''),
       body: K().boasVindasCorpo,
       cta: K().boasVindasCta, to: '/apresentacao',
+    }] : []),
+
+    /* ⚠️ O MARCO E A SEMANA QUE PASSOU (28/09/2026, pedido do dono). Os dois
+       têm data para acontecer — três dias depois do nível alcançado, dois
+       depois da dose nova — e por isso vêm antes do que está sempre lá. Ver
+       logic/destaques. */
+    ...(marco ? [{
+      over: K().marcoChapeu,
+      title: marco.desc,
+      body: K().marcoCorpo(marco.titulo, marco.nivel, marco.niveis),
+      cta: K().marcoCta, to: '/conquistas', ic: marco.ic,
+    }] : []),
+
+    ...(semanaPassada ? [{
+      over: K().resumoChapeu,
+      title: K().resumoTitulo(semanaPassada.semana),
+      body: [semanaPassada.deltaPeso ? K().resumoPeso(semanaPassada.deltaPeso) : null, semanaPassada.resumo || null]
+        .filter(Boolean).join(' · '),
+      cta: K().resumoCta, to: `/semana?s=${semanaPassada.semana}`,
     }] : []),
 
     { over: brief.chapeu, title: brief.head, body: brief.body, cta: K().entendaOPorQue, to: `/companion?q=${encodeURIComponent(brief.q)}` },
@@ -327,7 +347,19 @@ export default function Home() {
     }] : []),
   ];
 
+  /* ⚠️ NO MÁXIMO QUATRO (28/09/2026, pedido do dono). Com mais, o carrossel
+     vira vitrine e os últimos nunca são vistos. A ordem de cima é a
+     prioridade: o que pede ação com hora, o que tem data para acontecer, e
+     só então o que está sempre lá — é o fim da lista que fica de fora. */
+  const slides = todos.slice(0, TETO_DE_SLIDES);
   const total = slides.length;
+  /* A descoberta só conta como vista quando coube no carrossel: cortada
+     pelo teto, ela não apareceu, e marcá-la gastaria uma das três vezes do
+     convite (ver logic/descobertas). */
+  const descNoCarrossel = !!desc && slides.some((x) => x.title === desc.titulo && x.to === desc.to);
+  useEffect(() => {
+    if (desc && descNoCarrossel) update((s: any) => marcarDescobertaVista(s, desc.id));
+  }, [desc?.id, descNoCarrossel]);
 
   /* A barra do ponto ativo é o próprio cronômetro: enche em SLIDE_MS e,
      ao encher, empurra para o próximo slide (voltando ao primeiro no fim).

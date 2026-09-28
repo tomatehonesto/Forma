@@ -387,6 +387,15 @@ export const home = {
     boasVindasTitulo: (nome: string): string => (nome ? `Que bom ter você aqui, ${nome}` : 'Que bom ter você aqui'),
     boasVindasCorpo: 'Você registra o tratamento, e nós organizamos o resto: dose, sintomas, alimentação e evolução.',
     boasVindasCta: 'Veja como podemos ajudar',
+    /* a semana que acabou de fechar, nos dois dias depois da dose nova */
+    resumoChapeu: 'A SEMANA QUE PASSOU',
+    resumoTitulo: (n: number): string => `Sua semana ${n}`,
+    resumoPeso: (d: string): string => `Peso ${d}`,
+    resumoCta: 'Ver a semana',
+    /* o nível de conquista alcançado nos últimos dias */
+    marcoChapeu: 'MARCO ALCANÇADO',
+    marcoCorpo: (trilha: string, n: number, de: number): string => `${trilha} · nível ${n} de ${de}`,
+    marcoCta: 'Ver conquistas',
 
     /* ---------- a próxima dose ---------- */
     proximaAplicacao: 'PRÓXIMA APLICAÇÃO',

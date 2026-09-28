@@ -55,13 +55,20 @@ export const etapa = {
   doseNovaBodySem: 'Chaque palier ramène souvent, pour quelques jours, ce qui était déjà passé — la nausée en premier. Cela tend à céder à mesure que votre corps s’ajuste.',
   doseNovaQ: 'Pourquoi ai-je des nausées ?',
 
-  primeiraChapeu: 'PREMIÈRE SEMAINE',
-  primeiraHead: 'C’est votre première semaine de traitement.',
-  /* « Le corps est encore en train de découvrir le médicament » — la
-     phrase met le corps en sujet à dessein : ce qui se passe n'est ni une
-     faute de qui le prend ni un effet à supporter, c'est un ajustement. */
-  primeiraBody: 'Votre corps est encore en train de découvrir le médicament. Nausée légère, moins de faim et un peu de fatigue sont les retours les plus courants des premiers jours, et ils s’atténuent avec les semaines.',
-  primeiraQ: 'À quoi s’attendre le jour de la piqûre ?',
+  /* ⚠️ DIA A DIA, CONTADO DO REGISTRO DA DOSE (28/09/2026, pedido do dono):
+     o dia 1 é o dia em que a primeira dose foi registrada, e cada dia tem
+     o seu recado — o que é comum sentir, e o que vale registrar. Guia, e
+     não diagnóstico: "é comum", "costuma". */
+  primeiraChapeu: (n: number): string => `PREMIÈRE SEMAINE · JOUR ${n}`,
+  primeiraDias: [
+    { head: 'Votre première dose est enregistrée.', body: 'Il est courant de ne rien ressentir encore : le corps commence tout juste à découvrir le médicament. Un check-in ce soir servira de base pour comparer les prochains jours.', q: 'À quoi s’attendre le jour de la piqûre ?' },
+    { head: 'La faim peut commencer à diminuer.', body: 'Beaucoup de personnes ont moins envie de manger à partir d’aujourd’hui. Manger lentement et s’arrêter au premier signe de satiété aide à éviter les nausées.', q: 'Pourquoi la faim diminue-t-elle ?' },
+    { head: 'Pensez à l’eau.', body: 'Avec moins de faim, on boit aussi moins sans s’en rendre compte. Bien s’hydrater aide contre les nausées et pour le transit.', q: 'Combien d’eau dois-je boire ?' },
+    { head: 'Les protéines d’abord.', body: 'Avec une assiette plus petite, commencez par les protéines : elles aident à préserver les muscles pendant que le poids baisse.', q: 'Pourquoi les protéines comptent-elles autant ?' },
+    { head: 'Comment va votre transit ?', body: 'La constipation est fréquente les premières semaines. La noter dans le check-in aide à voir si elle passe, et à en parler en consultation.', q: 'Qu’est-ce qui aide contre la constipation ?' },
+    { head: 'La faim peut revenir un peu.', body: 'Vers la fin du cycle, il est normal que l’appétit revienne un peu. Cela fait partie du traitement, et c’est pour cela que la prochaine dose a un jour fixe.', q: 'Pourquoi la faim revient-elle avant la prochaine dose ?' },
+    { head: 'Une semaine de traitement.', body: 'Vous avez terminé votre première semaine. Ce sont les check-ins de ces jours qui montrent comment votre corps a réagi, et ce qu’il vaut la peine d’apporter en consultation.', q: 'Comment s’est passée ma première semaine ?' },
+  ],
 
   manutencaoChapeu: 'ENTRETIEN',
   /* ⚠️ LA PROVENANCE ENTRE DANS LA PHRASE, TOUJOURS. « La fourchette que

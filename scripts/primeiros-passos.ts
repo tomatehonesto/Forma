@@ -35,7 +35,10 @@
     10. quem respondeu "ainda não decidi" ganha o item da medicação, e
         ele fica com o visto depois de escolhida;
     11. o destaque de boas-vindas vale na primeira semana do diário, até
-        a apresentação ser vista.
+        a apresentação ser vista;
+    12. a primeira semana fala dia a dia, contada do registro da dose; o
+        resumo da semana vem nos dois dias depois da dose nova; e o que
+        veio com o cadastro não é marco na Home.
    ============================================================ */
 
 import { buildSeed, estadoVazio, type State } from '../src/logic/seed';
@@ -53,6 +56,7 @@ import {
 } from '../src/logic/derive';
 import { semanaDoTratamento } from '../src/logic/time';
 import { boasVindasNaHome, marcarApresentacaoVista } from '../src/logic/apresentacao';
+import { semanaQuePassou, marcoRecente } from '../src/logic/destaques';
 import { proximasDe, type Alerta } from '../src/logic/alertas';
 import { resumoEmTexto } from '../src/logic/resumo';
 import { conquistas } from '../src/logic/conquistas';
@@ -294,7 +298,7 @@ const evento = timelineEvents(jaComecou).find((e) => e.kind === 'aplicacao');
 ok(!!evento && !evento.sub.endsWith('·') && !evento.sub.includes(' ·  ') && !evento.sub.endsWith(' '),
   'na linha do tempo, a aplicação sem local não deixa um " · " pendurado');
 ok(doCadastro.origem === 'cadastro', 'a aplicação do cadastro leva a origem — é a última dose, e não a primeira');
-ok(mensagemDoDia(jaComecou).chapeu !== T.etapa.primeiraChapeu && mensagemDoDia(aplicou5).chapeu === T.etapa.primeiraChapeu,
+ok(mensagemDoDia(jaComecou).chapeu !== T.etapa.primeiraChapeu(6) && mensagemDoDia(aplicou5).chapeu === T.etapa.primeiraChapeu(6),
   '"primeira semana" só para quem começou no app — e não para quem estava no dia 40');
 const memoria = [0, 1, 2, 3].map((n) => {
   const x = clone(jaComecou);
@@ -365,6 +369,33 @@ ok(!boasVindasNaHome(novo), 'sem a hora do aceite, não dá para saber se o diá
 const vitrine = clone(chegou);
 (vitrine as any).semente = true;
 ok(!boasVindasNaHome(vitrine), 'o diário de exemplo não é recebido');
+
+console.log('\n12. OS DESTAQUES NOVOS DA HOME');
+const comDose = (dias: number) => {
+  const x = clone(zero);
+  (x.injections as any[]).push({ t: +hoje - dias * DIA + 12 * 3600e3, med: 'mounjaro', dose: 2.5, site: 'abd-e', note: '' });
+  return x;
+};
+ok(mensagemDoDia(comDose(0)).chapeu === T.etapa.primeiraChapeu(1) && mensagemDoDia(comDose(0)).head === T.etapa.primeiraDias[0].head,
+  'no dia em que a primeira dose é registrada, é o dia 1 da primeira semana');
+ok(mensagemDoDia(comDose(3)).chapeu === T.etapa.primeiraChapeu(4) && mensagemDoDia(comDose(3)).head === T.etapa.primeiraDias[3].head,
+  'três dias depois do registro, o dia 4 — cada dia com o seu recado');
+ok(mensagemDoDia(comDose(6)).chapeu === T.etapa.primeiraChapeu(7) && !String(mensagemDoDia(comDose(7)).chapeu).includes(T.etapa.primeiraChapeu(8).split('·')[0].trim()),
+  'o dia 7 é o último; no oitavo, a primeira semana acabou');
+const semanaNova = clone(semente);
+const ultimaDose = (semanaNova.injections as any[])[(semanaNova.injections as any[]).length - 1];
+(semanaNova.injections as any[]).push({ ...ultimaDose, t: +hoje + 9 * 3600e3 });
+const resumo = semanaQuePassou(semanaNova);
+ok(!!resumo && resumo.semana > 0 && !!(resumo.deltaPeso || resumo.resumo),
+  `no dia da dose nova, o resumo da semana que ela fechou (semana ${resumo?.semana})`);
+const semanaVelha = clone(semanaNova);
+(semanaVelha.injections as any[])[(semanaVelha.injections as any[]).length - 1].t = +hoje - 3 * DIA;
+ok(semanaQuePassou(semanaVelha) === null, 'três dias depois da dose, o resumo já saiu de cena');
+ok(semanaQuePassou(zero) === null, 'sem dose, não há semana para resumir');
+const recemCadastrado = clone(novo);
+(recemCadastrado.profile as any).consentimento = { em: Date.now(), versao: 2 };
+(recemCadastrado.weights as any[]).push({ t: +hoje, kg: 90 });
+ok(marcoRecente(recemCadastrado) === null, 'o que veio com o cadastro — a primeira pesagem — não é marco na Home');
 
 console.log(falhas ? `\n${falhas} afirmação(ões) falharam\n` : '\ntodas as afirmações passaram\n');
 process.exit(falhas ? 1 : 0);

@@ -44,13 +44,20 @@ export const etapa = {
   doseNovaQ: 'Por que sinto enjoo?',
 
   /* ---------- 3. a primeira semana ---------- */
-  primeiraChapeu: 'PRIMEIRA SEMANA',
-  primeiraHead: 'Esta é a sua primeira semana de tratamento.',
-  /* "O corpo ainda está conhecendo o remédio" — a frase põe o corpo como
-     sujeito de propósito: o que está acontecendo não é falha de quem usa
-     nem efeito a ser suportado, é ajuste. */
-  primeiraBody: 'O corpo ainda está conhecendo o remédio. Enjoo leve, menos fome e um pouco de cansaço são os relatos mais comuns nos primeiros dias, e costumam diminuir com as semanas.',
-  primeiraQ: 'O que esperar no dia da aplicação?',
+  /* ⚠️ DIA A DIA, CONTADO DO REGISTRO DA DOSE (28/09/2026, pedido do dono):
+     o dia 1 é o dia em que a primeira dose foi registrada, e cada dia tem
+     o seu recado — o que é comum sentir, e o que vale registrar. Guia, e
+     não diagnóstico: "é comum", "costuma". */
+  primeiraChapeu: (n: number): string => `PRIMEIRA SEMANA · DIA ${n}`,
+  primeiraDias: [
+    { head: 'Sua primeira dose está registrada.', body: 'É comum não sentir nada ainda — o corpo está começando a conhecer o remédio. Um check-in à noite já vira a base para comparar os próximos dias.', q: 'O que esperar no dia da aplicação?' },
+    { head: 'A fome pode começar a diminuir.', body: 'Muita gente percebe menos vontade de comer a partir de hoje. Comer devagar e parar no primeiro sinal de saciedade ajuda a evitar o enjoo.', q: 'Por que a fome diminui?' },
+    { head: 'Atenção à água.', body: 'Com menos fome, também se bebe menos sem perceber. Manter a água em dia ajuda com o enjoo e com o intestino.', q: 'Quanta água devo beber?' },
+    { head: 'Proteína primeiro.', body: 'Com o prato menor, vale começar pela proteína: é ela que ajuda a preservar a massa muscular enquanto o peso desce.', q: 'Por que a proteína importa tanto?' },
+    { head: 'Como está o seu intestino?', body: 'Intestino preso é um relato comum nas primeiras semanas. Registrar no check-in ajuda a ver se é passageiro, e a levar isso à consulta.', q: 'O que ajuda com o intestino preso?' },
+    { head: 'A fome pode voltar um pouco.', body: 'Perto do fim do ciclo, é esperado que o apetite volte a aparecer. Faz parte — e é por isso que a próxima dose tem dia marcado.', q: 'Por que a fome volta antes da próxima dose?' },
+    { head: 'Uma semana de tratamento.', body: 'Você completou a primeira semana. É pelos check-ins destes dias que dá para ver como o corpo respondeu, e o que vale levar para a consulta.', q: 'Como foi a minha primeira semana?' },
+  ],
 
   /* ---------- 4. manutenção ---------- */
   manutencaoChapeu: 'MANUTENÇÃO',

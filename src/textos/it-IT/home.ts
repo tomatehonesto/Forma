@@ -345,6 +345,15 @@ export const home = {
     boasVindasTitulo: (nome: string): string => (nome ? `Che bello averti qui, ${nome}` : 'Che bello averti qui'),
     boasVindasCorpo: 'Tu registri la terapia, e noi mettiamo in ordine il resto: dosi, sintomi, alimentazione e progressi.',
     boasVindasCta: 'Scopri come possiamo aiutarti',
+    /* a semana que acabou de fechar, nos dois dias depois da dose nova */
+    resumoChapeu: 'LA SETTIMANA PASSATA',
+    resumoTitulo: (n: number): string => `La tua settimana ${n}`,
+    resumoPeso: (d: string): string => `Peso ${d}`,
+    resumoCta: 'Vedi la settimana',
+    /* o nível de conquista alcançado nos últimos dias */
+    marcoChapeu: 'TRAGUARDO RAGGIUNTO',
+    marcoCorpo: (trilha: string, n: number, de: number): string => `${trilha} · livello ${n} di ${de}`,
+    marcoCta: 'Vedi i traguardi',
 
     /* ---------- la prossima dose ---------- */
     proximaAplicacao: 'PROSSIMA PUNTURA',

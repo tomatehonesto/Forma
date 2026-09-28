@@ -44,13 +44,20 @@ export const etapa = {
   doseNovaQ: 'Perché ho la nausea?',
 
   /* ---------- 3. la prima settimana ---------- */
-  primeiraChapeu: 'PRIMA SETTIMANA',
-  primeiraHead: 'Questa è la tua prima settimana di terapia.',
-  /* ⚠️ IL CORPO È IL SOGGETTO, di proposito: quello che sta succedendo non
-     è un fallimento della persona e non è qualcosa da sopportare, è un
-     adattamento. Il corpo resta quello che agisce. */
-  primeiraBody: 'Il tuo corpo sta ancora conoscendo il farmaco. Nausea leggera, meno fame e un po’ di stanchezza sono i racconti più comuni dei primi giorni, e di solito calano con le settimane.',
-  primeiraQ: 'Che cosa aspettarsi il giorno della puntura?',
+  /* ⚠️ DIA A DIA, CONTADO DO REGISTRO DA DOSE (28/09/2026, pedido do dono):
+     o dia 1 é o dia em que a primeira dose foi registrada, e cada dia tem
+     o seu recado — o que é comum sentir, e o que vale registrar. Guia, e
+     não diagnóstico: "é comum", "costuma". */
+  primeiraChapeu: (n: number): string => `PRIMA SETTIMANA · GIORNO ${n}`,
+  primeiraDias: [
+    { head: 'La tua prima dose è registrata.', body: 'È normale non sentire ancora nulla: il corpo sta appena conoscendo il farmaco. Un check-in stasera diventa la base per confrontare i prossimi giorni.', q: 'Che cosa aspettarsi il giorno della puntura?' },
+    { head: 'La fame può iniziare a calare.', body: 'Molte persone notano meno appetito da oggi. Mangiare lentamente e fermarsi al primo segnale di sazietà aiuta a evitare la nausea.', q: 'Perché la fame cala?' },
+    { head: 'Occhio all’acqua.', body: 'Con meno fame, si beve anche meno senza accorgersene. Bere abbastanza aiuta con la nausea e con l’intestino.', q: 'Quanta acqua dovrei bere?' },
+    { head: 'Prima le proteine.', body: 'Con il piatto più piccolo, conviene iniziare dalle proteine: aiutano a preservare i muscoli mentre il peso scende.', q: 'Perché le proteine contano così tanto?' },
+    { head: 'Come va l’intestino?', body: 'La stitichezza è frequente nelle prime settimane. Segnarla nel check-in aiuta a capire se passa, e a parlarne alla visita.', q: 'Cosa aiuta con la stitichezza?' },
+    { head: 'La fame può tornare un po’.', body: 'Verso la fine del ciclo è normale che l’appetito torni un po’. Fa parte del percorso, ed è per questo che la prossima dose ha un giorno fisso.', q: 'Perché la fame torna prima della prossima dose?' },
+    { head: 'Una settimana di terapia.', body: 'Hai completato la prima settimana. Sono i check-in di questi giorni a mostrare come ha risposto il corpo, e cosa vale la pena portare alla visita.', q: 'Com’è andata la mia prima settimana?' },
+  ],
 
   /* ---------- 4. mantenimento ---------- */
   manutencaoChapeu: 'MANTENIMENTO',

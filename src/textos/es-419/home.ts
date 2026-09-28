@@ -264,6 +264,15 @@ export const home = {
     boasVindasTitulo: (nome: string): string => (nome ? `Qué bueno tenerte aquí, ${nome}` : 'Qué bueno tenerte aquí'),
     boasVindasCorpo: 'Tú registras el tratamiento y nosotros organizamos el resto: dosis, síntomas, alimentación y evolución.',
     boasVindasCta: 'Mira cómo podemos ayudarte',
+    /* a semana que acabou de fechar, nos dois dias depois da dose nova */
+    resumoChapeu: 'LA SEMANA QUE PASÓ',
+    resumoTitulo: (n: number): string => `Tu semana ${n}`,
+    resumoPeso: (d: string): string => `Peso ${d}`,
+    resumoCta: 'Ver la semana',
+    /* o nível de conquista alcançado nos últimos dias */
+    marcoChapeu: 'LOGRO ALCANZADO',
+    marcoCorpo: (trilha: string, n: number, de: number): string => `${trilha} · nivel ${n} de ${de}`,
+    marcoCta: 'Ver logros',
 
     proximaAplicacao: 'PRÓXIMA INYECCIÓN',
     hojeEDiaDeAplicar: 'Hoy es día de aplicar tu dosis.',

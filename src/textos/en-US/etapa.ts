@@ -32,13 +32,20 @@ export const etapa = {
   doseNovaQ: 'Why am I nauseous?',
 
   /* ---------- 3. the first week ---------- */
-  primeiraChapeu: 'FIRST WEEK',
-  primeiraHead: 'This is your first week of treatment.',
-  /* ⚠️ THE BODY IS THE SUBJECT, on purpose: what is happening is not a
-     failure of the person and not something to endure, it is an
-     adjustment. Keep the body doing the acting. */
-  primeiraBody: 'Your body is still getting to know the medication. Mild nausea, less hunger, and some tiredness are the most common reports in the first days, and they usually ease over the weeks.',
-  primeiraQ: 'What to expect on shot day?',
+  /* ⚠️ DIA A DIA, CONTADO DO REGISTRO DA DOSE (28/09/2026, pedido do dono):
+     o dia 1 é o dia em que a primeira dose foi registrada, e cada dia tem
+     o seu recado — o que é comum sentir, e o que vale registrar. Guia, e
+     não diagnóstico: "é comum", "costuma". */
+  primeiraChapeu: (n: number): string => `FIRST WEEK · DAY ${n}`,
+  primeiraDias: [
+    { head: 'Your first dose is logged.', body: 'It’s common not to feel anything yet — your body is just getting to know the medication. An evening check-in becomes the baseline for the days ahead.', q: 'What to expect on shot day?' },
+    { head: 'Your hunger may start to ease.', body: 'Many people notice less appetite from today on. Eating slowly and stopping at the first sign of fullness helps avoid nausea.', q: 'Why does hunger go down?' },
+    { head: 'Keep an eye on water.', body: 'With less hunger, it’s easy to drink less without noticing. Staying hydrated helps with nausea and digestion.', q: 'How much water should I drink?' },
+    { head: 'Protein first.', body: 'With smaller plates, start with protein: it helps preserve muscle while your weight goes down.', q: 'Why does protein matter so much?' },
+    { head: 'How’s your digestion?', body: 'Constipation is a common report in the first weeks. Logging it in your check-in shows whether it passes — and gives you something to bring to your appointment.', q: 'What helps with constipation?' },
+    { head: 'Hunger may come back a little.', body: 'Near the end of the cycle, it’s expected for appetite to return a bit. That’s part of it — and it’s why your next dose has a set day.', q: 'Why does hunger come back before the next dose?' },
+    { head: 'One week of treatment.', body: 'You’ve completed your first week. The check-ins from these days are what show how your body responded, and what’s worth bringing to your appointment.', q: 'How did my first week go?' },
+  ],
 
   /* ---------- 4. maintenance ---------- */
   manutencaoChapeu: 'MAINTENANCE',

@@ -38,13 +38,20 @@ export const etapa = {
   doseNovaBodySem: 'Cada escalón suele traer de vuelta, por algunos días, lo que ya había pasado — las náuseas son lo más común. Tiende a ceder a medida que tu cuerpo se ajusta.',
   doseNovaQ: '¿Por qué siento náuseas?',
 
-  primeiraChapeu: 'PRIMERA SEMANA',
-  primeiraHead: 'Esta es tu primera semana de tratamiento.',
-  /* "El cuerpo todavía está conociendo el medicamento" — la frase pone el
-     cuerpo como sujeto a propósito: lo que está pasando no es falla de
-     quien lo usa ni efecto que haya que aguantar, es ajuste. */
-  primeiraBody: 'Tu cuerpo todavía está conociendo el medicamento. Náuseas leves, menos hambre y algo de cansancio son los relatos más comunes en los primeros días, y suelen disminuir con las semanas.',
-  primeiraQ: '¿Qué esperar el día de la inyección?',
+  /* ⚠️ DIA A DIA, CONTADO DO REGISTRO DA DOSE (28/09/2026, pedido do dono):
+     o dia 1 é o dia em que a primeira dose foi registrada, e cada dia tem
+     o seu recado — o que é comum sentir, e o que vale registrar. Guia, e
+     não diagnóstico: "é comum", "costuma". */
+  primeiraChapeu: (n: number): string => `PRIMERA SEMANA · DÍA ${n}`,
+  primeiraDias: [
+    { head: 'Tu primera dosis está registrada.', body: 'Es común no sentir nada todavía: el cuerpo recién está conociendo el medicamento. Un check-in por la noche ya sirve de base para comparar los próximos días.', q: '¿Qué esperar el día de la inyección?' },
+    { head: 'El hambre puede empezar a bajar.', body: 'Mucha gente nota menos ganas de comer a partir de hoy. Comer despacio y parar a la primera señal de saciedad ayuda a evitar las náuseas.', q: '¿Por qué baja el hambre?' },
+    { head: 'Atención al agua.', body: 'Con menos hambre, también se toma menos agua sin darse cuenta. Mantenerla al día ayuda con las náuseas y con el intestino.', q: '¿Cuánta agua debo tomar?' },
+    { head: 'Proteína primero.', body: 'Con el plato más chico, conviene empezar por la proteína: es la que ayuda a preservar la masa muscular mientras baja el peso.', q: '¿Por qué importa tanto la proteína?' },
+    { head: '¿Cómo está tu intestino?', body: 'El estreñimiento es un relato común en las primeras semanas. Registrarlo en el check-in ayuda a ver si es pasajero y a llevarlo a la consulta.', q: '¿Qué ayuda con el estreñimiento?' },
+    { head: 'El hambre puede volver un poco.', body: 'Cerca del final del ciclo, es esperable que el apetito vuelva a aparecer. Es parte del proceso, y por eso la próxima dosis tiene día fijo.', q: '¿Por qué vuelve el hambre antes de la próxima dosis?' },
+    { head: 'Una semana de tratamiento.', body: 'Completaste la primera semana. Son los check-ins de estos días los que muestran cómo respondió el cuerpo, y lo que vale la pena llevar a la consulta.', q: '¿Cómo fue mi primera semana?' },
+  ],
 
   manutencaoChapeu: 'MANTENIMIENTO',
   /* ⚠️ LA PROCEDENCIA ENTRA EN LA FRASE, SIEMPRE. "El rango que definió tu

@@ -55,14 +55,20 @@ export const etapa = {
   doseNovaQ: 'Warum ist mir übel?',
 
   /* ---------- 3. die erste Woche ---------- */
-  primeiraChapeu: 'ERSTE WOCHE',
-  primeiraHead: 'Das ist deine erste Behandlungswoche.',
-  /* „Der Körper lernt das Medikament noch kennen“ — der Satz setzt
-     absichtlich den Körper als Subjekt: was gerade passiert, ist weder ein
-     Versagen derjenigen, die es nimmt, noch eine Wirkung, die man
-     auszuhalten hat, sondern eine Einstellung. */
-  primeiraBody: 'Dein Körper lernt das Medikament noch kennen. Leichte Übelkeit, weniger Hunger und etwas Müdigkeit sind das, was in den ersten Tagen am häufigsten berichtet wird, und lassen über die Wochen meist nach.',
-  primeiraQ: 'Was ist am Tag der Spritze zu erwarten?',
+  /* ⚠️ DIA A DIA, CONTADO DO REGISTRO DA DOSE (28/09/2026, pedido do dono):
+     o dia 1 é o dia em que a primeira dose foi registrada, e cada dia tem
+     o seu recado — o que é comum sentir, e o que vale registrar. Guia, e
+     não diagnóstico: "é comum", "costuma". */
+  primeiraChapeu: (n: number): string => `ERSTE WOCHE · TAG ${n}`,
+  primeiraDias: [
+    { head: 'Deine erste Dosis ist eingetragen.', body: 'Es ist normal, noch nichts zu spüren – dein Körper lernt das Medikament gerade erst kennen. Ein Check-in am Abend wird zur Grundlage für die nächsten Tage.', q: 'Was ist am Tag der Spritze zu erwarten?' },
+    { head: 'Der Hunger kann nachlassen.', body: 'Viele merken ab heute weniger Appetit. Langsam essen und beim ersten Sättigungsgefühl aufhören hilft gegen Übelkeit.', q: 'Warum lässt der Hunger nach?' },
+    { head: 'Denk ans Wasser.', body: 'Mit weniger Hunger trinkt man oft auch weniger, ohne es zu merken. Genug zu trinken hilft gegen Übelkeit und für die Verdauung.', q: 'Wie viel Wasser sollte ich trinken?' },
+    { head: 'Eiweiß zuerst.', body: 'Bei kleineren Portionen lohnt es sich, mit Eiweiß anzufangen: Es hilft, die Muskeln zu erhalten, während das Gewicht sinkt.', q: 'Warum ist Eiweiß so wichtig?' },
+    { head: 'Wie geht es deiner Verdauung?', body: 'Verstopfung ist in den ersten Wochen häufig. Sie im Check-in einzutragen zeigt, ob sie vorübergeht – und gibt dir etwas für deinen Termin.', q: 'Was hilft bei Verstopfung?' },
+    { head: 'Der Hunger kann etwas zurückkommen.', body: 'Gegen Ende des Zyklus ist es normal, dass der Appetit etwas zurückkehrt. Das gehört dazu – und deshalb hat die nächste Dosis einen festen Tag.', q: 'Warum kommt der Hunger vor der nächsten Dosis zurück?' },
+    { head: 'Eine Woche Behandlung.', body: 'Du hast deine erste Woche geschafft. Die Check-ins dieser Tage zeigen, wie dein Körper reagiert hat – und was du zum Termin mitnehmen kannst.', q: 'Wie war meine erste Woche?' },
+  ],
 
   /* ---------- 4. Erhaltung ---------- */
   manutencaoChapeu: 'ERHALTUNG',

@@ -282,12 +282,18 @@ function daEtapa(S: State): Mensagem | null {
      tratamento responde no cadastro a última dose, e ela chega sozinha na
      lista — sem esta guarda, a Home dizia "Esta é a sua primeira semana de
      tratamento" a quem estava no dia 63. Ver `aplicacaoDoCadastro`. */
-  if ((S.injections as any[]).length === 1 && comecouNoApp(S) && desde <= JANELA_DIAS) {
+  /* ⚠️ E É DIA A DIA, CONTADO DO REGISTRO DA DOSE (28/09/2026, pedido do
+     dono): o dia 1 é o dia em que a primeira dose foi registrada —
+     `desde` é zero nele —, e cada um dos sete tem o seu recado. No oitavo, a
+     semana acabou, e o ciclo volta a falar. */
+  const dias = T.etapa.primeiraDias;
+  if ((S.injections as any[]).length === 1 && comecouNoApp(S) && desde >= 0 && desde < dias.length) {
+    const dia = dias[desde];
     return {
-      chapeu: T.etapa.primeiraChapeu,
-      head: T.etapa.primeiraHead,
-      body: T.etapa.primeiraBody,
-      q: T.etapa.primeiraQ,
+      chapeu: T.etapa.primeiraChapeu(desde + 1),
+      head: dia.head,
+      body: dia.body,
+      q: dia.q,
       fonte: 'etapa',
     };
   }
