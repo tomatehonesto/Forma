@@ -60,6 +60,7 @@ import { boasVindasNaHome, marcarApresentacaoVista } from '../src/logic/apresent
 import { semanaQuePassou, marcoRecente } from '../src/logic/destaques';
 import { descobertas } from '../src/logic/descobertas';
 import { redeLancada, temRedeParceira } from '../src/logic/pais';
+import { unidadesDe, unidadePadrao, converterValor, converterFaixa, faixaTxt } from '../src/logic/unidadesDeExame';
 import { proximasDe, type Alerta } from '../src/logic/alertas';
 import { resumoEmTexto, resumoDoTratamento } from '../src/logic/resumo';
 import { conquistas } from '../src/logic/conquistas';
@@ -492,6 +493,19 @@ const semReferencia = examCats().flatMap(([, ms]) => ms).filter((m) => {
 });
 ok(!semReferencia.length,
   `todo marcador que a folha oferece nasce com unidade e faixa usual${semReferencia.length ? ` (faltam: ${semReferencia.join(', ')})` : ''}`);
+const refDiferente = examCats().flatMap(([, ms]) => ms).filter((m) => unidadesDe(m)[0]?.id !== REFERENCIA_DOS_MARCADORES[m]?.unit);
+ok(!refDiferente.length, `a primeira unidade de cada marcador é a da tabela de referência${refDiferente.length ? ` (${refDiferente.join(', ')})` : ''}`);
+const idaEVolta = examCats().flatMap(([, ms]) => ms).every((m) => unidadesDe(m).every((u) =>
+  Math.abs(converterValor(m, converterValor(m, 100, unidadesDe(m)[0].id, u.id), u.id, unidadesDe(m)[0].id) - 100) < 1e-9));
+ok(idaEVolta, 'toda conversão volta ao número de onde saiu');
+ok(unidadePadrao('Glicemia jejum', 'BR') === 'mg/dL' && unidadePadrao('Glicemia jejum', 'GB') === 'mmol/L'
+  && unidadePadrao('Glicemia jejum', 'FR') === 'g/L' && unidadePadrao('HbA1c', 'GB') === 'mmol/mol' && unidadePadrao('HbA1c', 'FR') === '%',
+  'a unidade que vem marcada segue o que o laudo de cada país costuma dizer');
+ok(Math.abs(converterValor('Glicemia jejum', 99, 'mg/dL', 'mmol/L') - 5.495) < 0.01 && Math.abs(converterValor('HbA1c', 5.7, '%', 'mmol/mol') - 38.8) < 0.1,
+  'os fatores batem com as tabelas de conversão (99 mg/dL = 5,5 mmol/L; 5,7% = 39 mmol/mol)');
+ok(converterFaixa('Glicemia jejum', '70–99', 'mg/dL', 'mmol/L') === '3.9–5.5' && converterFaixa('HbA1c', '< 5,7', '%', 'mmol/mol') === '< 39',
+  'a faixa usual é convertida para a unidade do laudo');
+ok(faixaTxt('3.9–5.5') === '3,9–5,5' && faixaTxt('< 5,7') === '< 5,7', 'e escrita com o decimal de quem lê');
 
 console.log(falhas ? `\n${falhas} afirmação(ões) falharam\n` : '\ntodas as afirmações passaram\n');
 process.exit(falhas ? 1 : 0);

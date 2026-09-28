@@ -143,6 +143,8 @@ export const exames = {
     ultimo: 'ultimo',
     referencia: 'riferimento abituale',
     primeiro: 'primo valore di questo marcatore',
+    unidadeDoLaudo: 'Unità del referto',
+    converteAnteriores: (unidade: string) => `I valori precedenti passano a ${unidade}.`,
     registrar: (nome: string) => `Registra ${nome}`,
   },
 

@@ -152,6 +152,8 @@ export const exames = {
     ultimo: 'zuletzt',
     referencia: 'übliche Referenz',
     primeiro: 'erster Eintrag für diesen Marker',
+    unidadeDoLaudo: 'Einheit im Befund',
+    converteAnteriores: (unidade: string) => `Frühere Werte werden in ${unidade} umgerechnet.`,
     registrar: (nome: string) => `${nome} eintragen`,
   },
 

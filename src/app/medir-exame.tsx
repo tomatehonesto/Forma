@@ -8,6 +8,9 @@ import { Txt, Row, SheetScreen } from '../ui/kit';
 import { useTheme } from '../ui/useTheme';
 import { radius, font } from '../theme';
 import { T } from '../textos';
+import {
+  unidadesDe, unidadePadrao, converterValor, converterFaixa, faixaTxt,
+} from '../logic/unidadesDeExame';
 
 /* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo. */
 const K = () => T.exames.anotar;
@@ -23,12 +26,6 @@ const K = () => T.exames.anotar;
    rótulo "ANOTAR À MÃO" embaixo — um aviso de função que não existe, na
    loja, logo na primeira linha. Os textos estavam escritos à mão em
    português; foram para textos/<idioma>/exames, em `anotar`. */
-/** O último valor do marcador, com a vírgula de quem lê. */
-const ultimoValor = (e: any) => {
-  const v = e.values[e.values.length - 1].v;
-  return nf(v, v % 1 ? 1 : 0);
-};
-
 export default function MedirExame() {
   const S = useStore((s) => s.S);
   const update = useStore((s) => s.update);
@@ -37,32 +34,58 @@ export default function MedirExame() {
 
   const [marcador, setMarcador] = useState('HbA1c');
   const [valor, setValor] = useState('');
+  /* A unidade escolhida nas pastilhas, por marcador: trocar de marcador e
+     voltar não desfaz a escolha. */
+  const [escolhida, setEscolhida] = useState<Record<string, string>>({});
 
   const existente = (S.exams as any[]).find((e) => e.marker === marcador);
   const num = parseFloat(valor.replace(',', '.'));
   const valido = !isNaN(num) && num > 0;
 
-  /* A unidade e a faixa usual do marcador — ver REFERENCIA_DOS_MARCADORES. */
+  /* A UNIDADE: a do laudo, escolhida nas pastilhas. Sem escolha, a do
+     registro que já existe, ou a que o país costuma ler — ver
+     logic/unidadesDeExame. O registro antigo sem unidade está na de
+     referência, que era a única que a folha conhecia. */
   const padrao = REFERENCIA_DOS_MARCADORES[marcador];
-  const unidade = existente?.unit || padrao?.unit || '';
-  const faixa = existente?.ref || padrao?.ref || '';
+  const opcoes = unidadesDe(marcador);
+  const doRegistro = existente ? (existente.unit || padrao?.unit || '') : null;
+  const unidade = escolhida[marcador] ?? doRegistro ?? unidadePadrao(marcador) ?? padrao?.unit ?? '';
+  const converte = (de: string | null | undefined) =>
+    !!de && de !== unidade && opcoes.some((u) => u.id === de) && opcoes.some((u) => u.id === unidade);
+  /* A faixa e o último valor, já na unidade escolhida. */
+  const faixaDe = existente?.ref ? doRegistro : padrao?.unit;
+  const faixaBase = existente?.ref || padrao?.ref || '';
+  const faixa = converte(faixaDe) ? converterFaixa(marcador, faixaBase, faixaDe!, unidade) : faixaBase;
+  const ultimo = existente?.values.length
+    ? converterValor(marcador, existente.values[existente.values.length - 1].v, doRegistro || unidade, unidade)
+    : null;
+  /* Trocar a unidade de um marcador que já tem história converte a
+     história junto: a linha do tempo não pode misturar escalas. */
+  const trocaHistoria = existente?.values.length ? converte(doRegistro) : false;
 
   const salvar = () => {
     if (!valido) return;
     update((s: any) => {
       const e = s.exams.find((x: any) => x.marker === marcador);
       if (e) {
-        e.values.push({ t: +now(), v: num });
-        /* o que foi anotado antes, sem unidade nem faixa, ganha as usuais */
+        const antiga = e.unit || padrao?.unit || '';
+        if (converte(antiga)) {
+          e.values = e.values.map((x: any) => ({ ...x, v: Number(converterValor(marcador, x.v, antiga, unidade).toFixed(3)) }));
+          if (e.ref) e.ref = converterFaixa(marcador, e.ref, antiga, unidade);
+        }
+        e.unit = unidade;
+        /* o que foi anotado antes sem faixa nem direção ganha as usuais */
         if (padrao) {
-          if (!e.unit) e.unit = padrao.unit;
-          if (!e.ref) e.ref = padrao.ref;
+          if (!e.ref) e.ref = converterFaixa(marcador, padrao.ref, padrao.unit, unidade);
           if (!e.good) e.good = padrao.good;
         }
+        e.values.push({ t: +now(), v: num });
       } else {
         s.exams.push({
           marker: marcador,
-          unit: padrao?.unit ?? '', ref: padrao?.ref ?? '', good: padrao?.good ?? '',
+          unit: unidade,
+          ref: padrao ? converterFaixa(marcador, padrao.ref, padrao.unit, unidade) : '',
+          good: padrao?.good ?? '',
           values: [{ t: +now(), v: num }],
         });
       }
@@ -105,10 +128,10 @@ export default function MedirExame() {
                 usual: a do laudo pode ser outra. */}
             <Txt v="micro" c={c.tx3} style={{ marginTop: 2 }}>
               {[
-                existente?.values.length
-                  ? `${K().ultimo}: ${ultimoValor(existente)}${unidade ? `\u00A0${unidade}` : ''}`
+                ultimo != null
+                  ? `${K().ultimo}: ${nf(ultimo, ultimo % 1 ? 1 : 0)}${unidade ? `\u00A0${unidade}` : ''}`
                   : K().primeiro,
-                faixa ? `${K().referencia}: ${faixa.replace(/ /g, '\u00A0')}${unidade ? `\u00A0${unidade}` : ''}` : null,
+                faixa ? `${K().referencia}: ${faixaTxt(faixa).replace(/ /g, '\u00A0').replace(/–/g, '–\u2060')}${unidade ? `\u00A0${unidade}` : ''}` : null,
               ].filter(Boolean).join(' · ')}
             </Txt>
           </View>
@@ -119,6 +142,31 @@ export default function MedirExame() {
           />
           {unidade ? <Txt v="caption" c={c.tx3} style={{ marginLeft: 6 }}>{unidade}</Txt> : null}
         </Row>
+
+        {/* AS PASTILHAS DA UNIDADE, só quando o marcador tem mais de uma.
+            Embaixo do número, e não em cima: primeiro se procura o valor
+            no laudo, e a unidade está escrita logo ao lado dele. */}
+        {opcoes.length > 1 ? (
+          <View style={{ borderTopWidth: 1, borderTopColor: c.line, paddingVertical: 12 }}>
+            <Row gap={8} style={{ alignItems: 'center', flexWrap: 'wrap' }}>
+              <Txt v="micro" c={c.tx3}>{K().unidadeDoLaudo}</Txt>
+              {opcoes.map((u) => {
+                const on = u.id === unidade;
+                return (
+                  <Pressable key={u.id} onPress={() => setEscolhida((x) => ({ ...x, [marcador]: u.id }))}
+                    style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
+                    <View style={{ backgroundColor: on ? c.tx : c.bg2, borderRadius: radius.pill, paddingHorizontal: 11, paddingVertical: 5 }}>
+                      <Txt v="micro" c={on ? c.bg1 : c.tx2}>{u.id}</Txt>
+                    </View>
+                  </Pressable>
+                );
+              })}
+            </Row>
+            {trocaHistoria ? (
+              <Txt v="micro" c={c.tx3} style={{ marginTop: 8 }}>{K().converteAnteriores(unidade)}</Txt>
+            ) : null}
+          </View>
+        ) : null}
       </View>
 
       <Pressable onPress={salvar} disabled={!valido} style={({ pressed }) => [{ marginTop: 16, opacity: !valido ? 0.4 : pressed ? 0.8 : 1 }]}>

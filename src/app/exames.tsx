@@ -10,6 +10,7 @@ import {
   examExplain, examAbout, examInfluences, examWays, examesComValor, examesForaDaRef,
   nomeDoMarcador,
 } from '../logic/derive';
+import { faixaTxt } from '../logic/unidadesDeExame';
 import { fmtDate, nf, dataLonga } from '../logic/time';
 import { Txt, Row, Rich, Vazio } from '../ui/kit';
 import { Icon } from '../ui/Icon';
@@ -940,7 +941,7 @@ function LinhaDoMarcador({ e, onPress }: { e: any; onPress: () => void }) {
               "na referência", a insulina quebrava "12 µUI/mL · ref
               2,6–24,9" em duas linhas, e uma linha mais alta que as
               vizinhas lê como defeito. */}
-          <Txt v="caption" c={c.tx3}>{e.unit}{st === 'ok' ? '' : K().refCurta(e.ref)}</Txt>
+          <Txt v="caption" c={c.tx3}>{e.unit}{st === 'ok' ? '' : K().refCurta(faixaTxt(e.ref))}</Txt>
         </Row>
       }
     />

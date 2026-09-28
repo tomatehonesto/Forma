@@ -112,6 +112,8 @@ export const exames = {
     ultimo: 'last',
     referencia: 'usual reference',
     primeiro: 'first entry for this marker',
+    unidadeDoLaudo: 'Unit on your report',
+    converteAnteriores: (unidade: string) => `Earlier values will switch to ${unidade}.`,
     registrar: (nome: string) => `Log ${nome}`,
   },
 

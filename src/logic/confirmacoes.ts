@@ -5,6 +5,7 @@ import {
   journeyDay, notasAbertas, waterMlToday, litros, nomeDoMarcador,
 } from './derive';
 import { nf, now, dataLonga, DAY } from './time';
+import { faixaTxt } from './unidadesDeExame';
 import { emPlato } from './etapa';
 import { pesoTxt, compTxt, compU, compV, compN, aguaTxt, aguaN } from './medidas';
 
@@ -215,7 +216,7 @@ export function confirmacaoDe(S: State, tipo: TipoDeRegistro, ref?: string): Con
              veredito nenhum, e a linha não aparece. */
           ...(e.ref ? [{
             titulo: K.exameFaixa,
-            sub: `${e.ref}${e.unit ? ` ${e.unit}` : ''}`,
+            sub: `${faixaTxt(e.ref)}${e.unit ? ` ${e.unit}` : ''}`,
             selo: rotulo,
             seloTom: (st === 'ok' ? 'verde' : 'neutra') as 'verde' | 'neutra',
           }] : []),

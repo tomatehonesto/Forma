@@ -7,6 +7,7 @@ import {
 } from './derive';
 import { fmtDate, diffDays, now, nf, kg, startOfDay } from './time';
 import { pesoN, pesoTxt, pesoU, pesoV } from './medidas';
+import { faixaTxt } from './unidadesDeExame';
 
 /* ============================================================
    O RESUMO PARA O MÉDICO — uma fonte para a tela e para o texto
@@ -168,7 +169,7 @@ export function resumoDoTratamento(S: State): SecaoDoResumo[] {
          texto é quem sabe o que "ref 70–99" quer dizer; na tela quem lê é
          a pessoa, e para ela a faixa crua é ruído — lá o mesmo dado vira
          "na referência", com o número completo a um toque. */
-      linhas: exames.map((e) => ({ k: e.marker, v: `${valorDoExame(e)} · ref ${e.ref}` })),
+      linhas: exames.map((e) => ({ k: e.marker, v: `${valorDoExame(e)} · ref ${faixaTxt(e.ref)}` })),
     });
   }
 

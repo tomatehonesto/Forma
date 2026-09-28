@@ -8,6 +8,7 @@ import { numeroEnxuto, primeiroDiaDaSemana } from './local';
 import { FORMAS, formaDe, oA, noNa, nomeDaMolecula } from './formas';
 import { T, type SobreOMarcador, type JeitoDeAjudar } from '../textos';
 import { conquistas, eventosDeConquista, feitas } from './conquistas';
+import { faixaTxt } from './unidadesDeExame';
 import { ehForca, iconeDe } from './modalidades';
 import {
   MOMENTOS, aguaDe, alimentoDe, momentoDaHora, nomeItem, nutrientesDe, somaDe, type ItemComida,
@@ -1299,7 +1300,7 @@ export function examExplain(e: any, todos?: any[]): LeituraDoExame {
     if (gg.temMin) return L.faixaAcimaDe(kgTxt(gg.limMin), uni);
     /* Sem mínimo nem máximo, o que sobra é a faixa como o laboratório a
        escreveu — texto do laudo, e não frase nossa. */
-    return `${e.ref}${uni}`;
+    return `${faixaTxt(e.ref)}${uni}`;
   })();
 
   /* O rumo ganhou a conclusão que estava na manchete: não é só que subiu,
