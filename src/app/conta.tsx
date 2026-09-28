@@ -640,9 +640,11 @@ function BotaoDeColar({ onTexto }: { onTexto: (texto: string) => void }) {
         acceptedContentTypes={['plain-text']}
         displayMode="iconAndLabel"
         cornerStyle="capsule"
-        backgroundColor={c.accentWeak}
+        /* Sem chip (pedido do dono): o fundo do botão do sistema é o da
+           própria tela, e sobram o ícone e a palavra. */
+        backgroundColor={c.bg}
         foregroundColor={c.accent}
-        style={{ width: 120, height: 40 }}
+        style={{ width: 96, height: 32, marginLeft: -12 }}
         onPress={(d) => onTexto(d.type === 'text' ? d.text : '')}
       />
     );
@@ -651,11 +653,10 @@ function BotaoDeColar({ onTexto }: { onTexto: (texto: string) => void }) {
     <Pressable
       onPress={async () => onTexto(await Clipboard.getStringAsync().catch(() => ''))}
       accessibilityRole="button"
-      style={({ pressed }) => [{
-        flexDirection: 'row', alignItems: 'center', gap: 8,
-        height: 40, paddingHorizontal: 16, borderRadius: radius.pill,
-        backgroundColor: c.accentWeak, opacity: pressed ? 0.7 : 1,
-      }]}
+      hitSlop={10}
+      /* Só o ícone e o texto, sem chip (pedido do dono), como as outras
+         ações de texto da casa. */
+      style={({ pressed }) => [{ flexDirection: 'row', alignItems: 'center', gap: 6, opacity: pressed ? 0.6 : 1 }]}
     >
       <Icon name="colar" size={16} color={c.accent} sw={2} />
       <Txt v="label" c={c.accent}>{K().colarCodigo}</Txt>
