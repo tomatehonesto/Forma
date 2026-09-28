@@ -102,13 +102,20 @@ function empacotar(nomes: string[], largura: number): string[][] {
   return linhas;
 }
 
-export function Plano({ dados: d, aoSair, rotuloSair, aoVoltar }: {
+/** Onde o papel começa no alto do plano, abaixo da área segura. A espera
+    do cadastro usa a mesma medida para a aurora dela emendar nesta. */
+export const PAPEL_DO_PLANO = 280;
+
+export function Plano({ dados: d, aoSair, rotuloSair, aoVoltar, semChegada }: {
   dados: DadosDoPlano;
   aoSair: () => void;
   rotuloSair: string;
   /** a seta de voltar, no alto — no fim do cadastro, para mudar uma
       resposta antes de seguir (28/09/2026, pedido do dono) */
   aoVoltar?: () => void;
+  /** já à vista, sem a entrada: quando a espera rola até o plano, ele
+      chega pela rolagem, e não surgindo */
+  semChegada?: boolean;
 }) {
   const { c, isDark } = useTheme();
   const aurora = useAurora();
@@ -122,15 +129,16 @@ export function Plano({ dados: d, aoSair, rotuloSair, aoVoltar }: {
   /* O conteúdo sobe sobre a aurora (pedido do dono): o visto fica no azul
      e o título na parte clara dela; o papel começa só depois do título. */
   const CABECA = insets.top + 110;
-  const papelAlvo = insets.top + 280;
+  const papelAlvo = insets.top + PAPEL_DO_PLANO;
   const alturaDaImagem = larguraDaTela * PROPORCAO_DA_CAPA;
   const sobeImagem = Math.max(0, alturaDaImagem * PAPEL_COMECA[isDark ? 'escuro' : 'claro'] - papelAlvo);
   /* ⚠️ O PLANO CHEGA, E NÃO APARECE. No cadastro ele vem logo depois do
      "Pronto! O seu plano está feito.", que sai subindo; aqui o conteúdo
      entra fazendo o mesmo gesto — surge e sobe um pouco —, para as duas
      telas se lerem como uma passagem, e não como um corte. */
-  const chegada = React.useRef(new Animated.Value(0)).current;
+  const chegada = React.useRef(new Animated.Value(semChegada ? 1 : 0)).current;
   React.useEffect(() => {
+    if (semChegada) return;
     Animated.timing(chegada, {
       toValue: 1, duration: 480, easing: Easing.out(Easing.cubic), useNativeDriver: true,
     }).start();
@@ -749,6 +757,12 @@ export function Plano({ dados: d, aoSair, rotuloSair, aoVoltar }: {
  * com porta de entrada.
  * ------------------------------------------------------------------ */
 export default function PreviaDoPlano() {
+  return <PlanoDaLoja />;
+}
+
+/** O plano montado com o diário da loja — a rota acima, e a prévia da
+    espera no cadastro, que o mostra já à vista, chegando pela rolagem. */
+export function PlanoDaLoja({ semChegada }: { semChegada?: boolean }) {
   const S = useStore((s) => s.S);
   const router = useRouter();
   const p = S.profile as any;
@@ -771,6 +785,7 @@ export default function PreviaDoPlano() {
       rotuloSair={T.cadastro.telaPlano.voltar}
       /* A seta aqui também: sem ela, a prévia não mostrava a do cadastro. */
       aoVoltar={() => router.back()}
+      semChegada={semChegada}
     />
   );
 }

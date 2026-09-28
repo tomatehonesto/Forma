@@ -4,7 +4,7 @@ import {
   KeyboardAvoidingView, Keyboard, Switch,
 } from 'react-native';
 import { useAurora, PROPORCAO_DA_CAPA, PAPEL_COMECA } from '../ui/aurora';
-import PlanoDaLoja from './plano';
+import { PlanoDaLoja, PAPEL_DO_PLANO } from './plano';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -751,24 +751,34 @@ function Abertura({ onComecar, onJaTenho }: { onComecar: () => void; onJaTenho?:
    quadro — e um plano que aparece instantâneo não parece um plano, parece
    uma tela que já estava pronta.
 
-   ⚠️ O DESENHO É O DA REFERÊNCIA DO DONO (28/09/2026): a aurora no alto,
-   e as fases entrando uma a uma embaixo. A da vez é grande, na tinta do
-   texto, com o ícone na cor de ação; quando chega a seguinte, ela sobe,
-   encolhe e fica cinza — as feitas vão se empilhando acima da atual. A
-   última diz que acabou, fica um pouco mais, e abre o plano. Saiu a barra
-   de progresso: a pilha já conta onde a espera está.
+   ⚠️ O DESENHO É O DA REFERÊNCIA DO DONO (28/09/2026): as fases entrando
+   uma a uma no alto. A da vez é grande, na tinta do texto; quando chega a
+   seguinte, ela sobe, encolhe e fica cinza — as feitas vão se empilhando
+   acima da atual. A última diz que acabou, fica um pouco mais, e abre o
+   plano. Saiu a barra de progresso: a pilha já conta onde a espera está.
 
-   A aurora é a da capa da conta, que termina no papel: a imagem sobe até
-   o branco (ou o preto) começar no meio da tela, onde a pilha mora. */
+   ⚠️ UMA AURORA SÓ PARA AS DUAS TELAS (28/09/2026, pedido do dono). Aqui
+   ela está de ponta-cabeça, no pé da tela; no fim, a tela rola para cima
+   e a mesma aurora vira o alto do plano, que estava logo embaixo. É o
+   espelho que faz a emenda sumir: a imagem invertida termina, na borda de
+   baixo, exatamente na linha em que a do plano começa, então as duas
+   metades mostram o mesmo pixel dos dois lados do corte. A conta usa a
+   mesma medida do plano (`PAPEL_DO_PLANO`) — mudar uma sem a outra abre
+   uma costura. */
 /* ⚠️ É FUNÇÃO, porque lê o catálogo. */
 const FASES = () => [K().faseAgrupando, K().faseCalculando, K().faseMontando, K().fasePronto];
 const PASSO_MS = 950;        // entre uma fase e a seguinte
 const ULTIMA_MS = 1200;      // quanto o "Pronto!" fica à vista
-const SAIDA_MS = 380;        // a pilha se apagando antes do plano
+const SAIDA_MS = 380;        // a pilha se apagando antes do plano, sem ele embaixo
+const ROLAGEM_MS = 1100;     // a tela rolando da espera até o plano
 /* a opacidade de uma fase pela distância até a da vez: 0 é ela mesma */
 const BRILHO_POR_DISTANCIA = [1, 0.62, 0.36, 0.2];
 
-function Montando({ onFim }: { onFim: () => void }) {
+function Montando({ onFim, depois }: {
+  onFim: () => void;
+  /** o plano, montado já embaixo da espera, para onde ela rola no fim */
+  depois?: React.ReactNode;
+}) {
   const { c, isDark } = useTheme();
   const aurora = useAurora();
   const insets = useSafeAreaInsets();
@@ -792,6 +802,7 @@ function Montando({ onFim }: { onFim: () => void }) {
   /* A SAÍDA: depois do "Pronto!", a pilha se apaga subindo, e o plano
      entra fazendo o mesmo gesto (ver `Plano`, em app/plano). */
   const saida = React.useRef(new Animated.Value(0)).current;
+  const rolar = React.useRef(new Animated.Value(0)).current;
   const medidas = React.useRef(new Set<number>()).current;
   const mediu = (i: number, altura: number) => {
     if (i === 0 || medidas.has(i)) return;
@@ -806,6 +817,12 @@ function Montando({ onFim }: { onFim: () => void }) {
     Animated.timing(entrada[0], { toValue: 1, duration: 420, useNativeDriver: false }).start();
     const t = fases.slice(1).map((_, k) => setTimeout(() => setFase(k + 1), PASSO_MS * (k + 1)));
     t.push(setTimeout(() => {
+      if (depois) {
+        Animated.timing(rolar, {
+          toValue: 1, duration: ROLAGEM_MS, easing: Easing.inOut(Easing.cubic), useNativeDriver: true,
+        }).start(() => onFim());
+        return;
+      }
       Animated.timing(saida, {
         toValue: 1, duration: SAIDA_MS, easing: Easing.in(Easing.cubic), useNativeDriver: false,
       }).start(() => onFim());
@@ -825,21 +842,36 @@ function Montando({ onFim }: { onFim: () => void }) {
     ]).start();
   }, [fase]);
 
+  /* A conta do plano (ver o alto dele, em app/plano): lá a imagem sobe
+     `sobeImagem` para o papel começar em `papelAlvo`. Aqui, invertida, a
+     borda de baixo da tela mostra essa mesma linha da imagem. */
   const alturaDaImagem = width * PROPORCAO_DA_CAPA;
-  const sobe = Math.max(0, alturaDaImagem * PAPEL_COMECA[isDark ? 'escuro' : 'claro'] - height * 0.48);
+  const papelAlvo = insets.top + PAPEL_DO_PLANO;
+  const sobeImagem = Math.max(0, alturaDaImagem * PAPEL_COMECA[isDark ? 'escuro' : 'claro'] - papelAlvo);
 
   return (
-    <View style={{ flex: 1, backgroundColor: isDark ? '#000000' : '#FFFFFF' }}>
+    <View style={{ flex: 1, overflow: 'hidden', backgroundColor: c.bg }}>
+    <Animated.View style={{
+      height: depois ? height * 2 : height,
+      transform: [{ translateY: rolar.interpolate({ inputRange: [0, 1], outputRange: [0, -height] }) }],
+    }}>
+    <View style={{ height, overflow: 'hidden', backgroundColor: isDark ? '#000000' : '#FFFFFF' }}>
       <Image
         source={isDark ? aurora.contaEscuro : aurora.contaClaro}
-        style={{ position: 'absolute', left: 0, top: -sobe, width, height: alturaDaImagem }}
+        style={{
+          position: 'absolute', left: 0, top: height - alturaDaImagem + sobeImagem,
+          width, height: alturaDaImagem, transform: [{ scaleY: -1 }],
+        }}
         resizeMode="cover"
       />
       <View
         accessibilityLiveRegion="polite"
         style={{
-          flex: 1, justifyContent: 'flex-end',
-          paddingHorizontal: 28, paddingBottom: insets.bottom + Math.round(height * 0.22),
+          /* A pilha mora no alto (pedido do dono), numa caixa presa embaixo:
+             a da vez fica sempre na mesma altura, e as feitas sobem. */
+          position: 'absolute', left: 0, right: 0, top: insets.top + 24,
+          height: Math.round(height * 0.42), justifyContent: 'flex-end',
+          paddingHorizontal: 28,
         }}
       >
         <Animated.View style={{
@@ -885,6 +917,9 @@ function Montando({ onFim }: { onFim: () => void }) {
         </View>
         </Animated.View>
       </View>
+    </View>
+    {depois ? <View style={{ height }}>{depois}</View> : null}
+    </Animated.View>
     </View>
   );
 }
@@ -972,7 +1007,9 @@ function PreviaDaEspera() {
     const t = setTimeout(() => { setNoPlano(false); setVolta((v) => v + 1); }, 3500);
     return () => clearTimeout(t);
   }, [noPlano]);
-  return noPlano ? <PlanoDaLoja /> : <Montando key={volta} onFim={() => setNoPlano(true)} />;
+  return noPlano
+    ? <PlanoDaLoja semChegada />
+    : <Montando key={volta} onFim={() => setNoPlano(true)} depois={<PlanoDaLoja semChegada />} />;
 }
 
 /* ------------------------------------------------------------------ */
@@ -1563,8 +1600,53 @@ export default function Cadastro() {
     setN(MONTANDO);
   };
 
+  /* ---------- o plano ----------
+
+     A TELA MUDOU DE ARQUIVO, e não de dono. Ela é a devolutiva do
+     cadastro e também uma tela do app — dá para reabrir o plano em
+     /plano sem refazer quinze perguntas —, e uma tela que vive em dois
+     lugares não pode morar dentro de um deles.
+
+     O componente não lê a loja: aqui os números ainda são respostas na
+     memória desta tela, e só viram perfil quando `salvar` roda. Quem lê
+     a loja é a rota, em plano.tsx.
+
+     ⚠️ ELE JÁ EXISTE DURANTE A ESPERA, montado embaixo dela: a espera rola
+     até ele (ver `Montando`), e por isso ele não tem entrada própria. */
+  const telaDoPlano = (
+    <Plano
+      dados={{
+        nome: r.nome,
+        peso: r.peso,
+        meta: r.meta,
+        ritmo: r.ritmo,
+        med: r.med ?? 'indefinido',
+        sistema: r.sistema,
+        dose: r.dose,
+        intervalo: r.intervalo,
+        plano,
+      }}
+      /* O RÓTULO E O DESTINO VOLTARAM A CONCORDAR. Este botão se
+         chamava "Ver planos" e entrava no aplicativo — o nome estava
+         escrito adiantado, esperando a tela existir. Ela existe.
+
+         `replace` e não `push`: o cadastro não fica atrás na pilha,
+         porque não há para onde voltar depois de salvar. Quem fecha a
+         tela de planos cai no aplicativo, e quem cuida disso é o X de
+         lá — ele pergunta se há história antes de tentar voltar. */
+      aoSair={() => router.replace('/planos?de=cadastro' as any)}
+      rotuloSair={K().verPlanos}
+      /* ⚠️ VOLTAR PARA MUDAR UMA RESPOSTA (pedido do dono): leva à última
+         pergunta, e dali a seta de sempre volta por todas. Seguir de
+         novo grava as respostas e monta o plano outra vez — o diário
+         acabou de nascer, e não há nada nele além delas. */
+      aoVoltar={() => setN(passos.length - 1)}
+      semChegada
+    />
+  );
+
   /* ---------- montando ---------- */
-  if (n === MONTANDO) return <Montando onFim={() => setN(PLANO)} />;
+  if (n === MONTANDO) return <Montando onFim={() => setN(PLANO)} depois={telaDoPlano} />;
   /* ⚠️ SÓ EM DESENVOLVIMENTO: `/cadastro?previa=montando` abre a espera do
      plano direto e a repete em volta, para o desenho ser visto sem
      responder o cadastro inteiro. Fora do desenvolvimento, o parâmetro
@@ -1579,48 +1661,7 @@ export default function Cadastro() {
      mostrar a tela errada por um instante e a certa depois. */
   if (n === -1) return editando ? <View style={{ flex: 1, backgroundColor: c.bg }} /> : <Abertura onComecar={() => setN(0)} onJaTenho={contaLigada() && !(S as any).conta ? () => router.push('/conta?de=abertura' as any) : undefined} />;
 
-  /* ---------- o plano ----------
-
-     A TELA MUDOU DE ARQUIVO, e não de dono. Ela é a devolutiva do
-     cadastro e também uma tela do app — dá para reabrir o plano em
-     /plano sem refazer quinze perguntas —, e uma tela que vive em dois
-     lugares não pode morar dentro de um deles.
-
-     O componente não lê a loja: aqui os números ainda são respostas na
-     memória desta tela, e só viram perfil quando `salvar` roda. Quem lê
-     a loja é a rota, em plano.tsx. */
-  if (n === PLANO) {
-    return (
-      <Plano
-        dados={{
-          nome: r.nome,
-          peso: r.peso,
-          meta: r.meta,
-          ritmo: r.ritmo,
-          med: r.med ?? 'indefinido',
-          sistema: r.sistema,
-          dose: r.dose,
-          intervalo: r.intervalo,
-          plano,
-        }}
-        /* O RÓTULO E O DESTINO VOLTARAM A CONCORDAR. Este botão se
-           chamava "Ver planos" e entrava no aplicativo — o nome estava
-           escrito adiantado, esperando a tela existir. Ela existe.
-
-           `replace` e não `push`: o cadastro não fica atrás na pilha,
-           porque não há para onde voltar depois de salvar. Quem fecha a
-           tela de planos cai no aplicativo, e quem cuida disso é o X de
-           lá — ele pergunta se há história antes de tentar voltar. */
-        aoSair={() => router.replace('/planos?de=cadastro' as any)}
-        rotuloSair={K().verPlanos}
-        /* ⚠️ VOLTAR PARA MUDAR UMA RESPOSTA (pedido do dono): leva à última
-           pergunta, e dali a seta de sempre volta por todas. Seguir de
-           novo grava as respostas e monta o plano outra vez — o diário
-           acabou de nascer, e não há nada nele além delas. */
-        aoVoltar={() => setN(passos.length - 1)}
-      />
-    );
-  }
+  if (n === PLANO) return telaDoPlano;
 
 
   /* ⚠️ A FAIXA PRECISA DE UMA FORMA, e no cadastro ela pode ainda não ter
