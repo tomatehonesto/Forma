@@ -325,7 +325,7 @@ export default function Insights() {
 
           {/* o campo é o vidro — e fica na faixa ainda saturada do gradiente,
               porque vidro sobre branco não é vidro, é contorno */}
-          <Row gap={10} style={{ backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine, borderRadius: radius.pill, paddingLeft: 18, paddingRight: 6, marginTop: 24 }}>
+          <Row testID="apresentacao-companheiro" gap={10} style={{ backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine, borderRadius: radius.pill, paddingLeft: 18, paddingRight: 6, marginTop: 24 }}>
             <TextInput
               value={pergunta} onChangeText={setPergunta}
               onSubmitEditing={enviar} returnKeyType="send"

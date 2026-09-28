@@ -421,8 +421,8 @@ export function Divider({ style }: { style?: StyleProp<ViewStyle> }) {
   return <View style={[{ height: StyleSheet.hairlineWidth, backgroundColor: c.line2 }, style]} />;
 }
 
-export function Row({ children, style, gap }: { children: React.ReactNode; style?: StyleProp<ViewStyle>; gap?: number }) {
-  return <View style={[{ flexDirection: 'row', alignItems: 'center' }, gap != null && { gap }, style]}>{children}</View>;
+export function Row({ children, style, gap, testID }: { children: React.ReactNode; style?: StyleProp<ViewStyle>; gap?: number; testID?: string }) {
+  return <View testID={testID} style={[{ flexDirection: 'row', alignItems: 'center' }, gap != null && { gap }, style]}>{children}</View>;
 }
 
 export function Chevron({ color, size = 18 }: { color?: string; size?: number }) {

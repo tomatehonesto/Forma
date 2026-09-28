@@ -151,7 +151,8 @@ export default function Aplicacoes() {
           formulário que existe ao lado e que faz tudo isso com escolha.
           Duas portas para a mesma sala, e a de dentro do cartão fazia
           menos. */}
-      <View style={{ backgroundColor: c.accentWeak, borderRadius: radius.card, padding: 18 }}>
+      {/* marcado para a foto da apresentação (scripts/capturar-apresentacao.mjs) */}
+      <View testID="apresentacao-dose" style={{ backgroundColor: c.accentWeak, borderRadius: radius.card, padding: 18 }}>
         <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>{comCiclo ? K().proximaAplicacao : K().primeiraDose}</Txt>
         <Txt v="display" style={{ fontSize: 30, lineHeight: 36, marginTop: 6 }}>
           {comCiclo ? maiuscula(quandoEm(ndDays).label) : K().aindaNaoRegistrada}

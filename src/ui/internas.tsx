@@ -275,11 +275,11 @@ export function Selo({ label, tom = 'lima' }: { label: string; tom?: SeloTom }) 
 /* Cartão de lista — a superfície branca que agrupa linhas. Os fios entre
    as linhas são inseridos aqui, e não por cada linha: assim a primeira e a
    última nunca deixam um fio sobrando na borda do cartão. */
-export function Cartao({ children, style }: { children: React.ReactNode; style?: StyleProp<ViewStyle> }) {
+export function Cartao({ children, style, testID }: { children: React.ReactNode; style?: StyleProp<ViewStyle>; testID?: string }) {
   const { c } = useTheme();
   const itens = React.Children.toArray(children).filter(Boolean);
   return (
-    <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, overflow: 'hidden' }, shadowCard(c), style]}>
+    <View testID={testID} style={[{ backgroundColor: c.bg1, borderRadius: radius.card, overflow: 'hidden' }, shadowCard(c), style]}>
       {itens.map((ch, i) => (
         <View key={i}>
           {i > 0 ? <View style={{ height: StyleSheet.hairlineWidth, backgroundColor: c.line, marginLeft: PAD }} /> : null}
@@ -614,13 +614,15 @@ export function Regua({ min, max, passo, tracoCada, casas, esp = 9, salto, valor
 /* Progresso — rótulo, número e barra. É o instrumento mais repetido das
    internas: ciclo da dose, doses da caneta, intensidade de sintoma, meta.
    Barra fina, de 5px: ela acompanha o texto, não lidera o card. */
-export function Progresso({ label, valor, pct, nota, cor }: {
+export function Progresso({ label, valor, pct, nota, cor, testID }: {
   label: string; valor?: string; pct: number; nota?: string; cor?: string;
+  /** a marca que o script de fotos da apresentação procura */
+  testID?: string;
 }) {
   const { c } = useTheme();
   const p = Math.max(0, Math.min(100, pct));
   return (
-    <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: PAD, gap: 9 }, shadowCard(c)]}>
+    <View testID={testID} style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: PAD, gap: 9 }, shadowCard(c)]}>
       <Row style={{ gap: 9 }}>
         <Txt v="body" style={{ flex: 1 }}>{label}</Txt>
         {valor ? <Txt v="caption" c={c.tx2}>{valor}</Txt> : null}
@@ -1102,8 +1104,10 @@ export function TiraDeDias({ dias, sel, onEscolhe }: {
    Ao soltar, o cabeçalho volta ao resumo. Nada fica preso: a leitura é do
    gesto, não um estado que a pessoa precise desfazer. */
 export function CardCurva({
-  nome, sub, valor, unidade, pontos, id, altura = 100, onPress,
+  nome, sub, valor, unidade, pontos, id, altura = 100, onPress, testID,
 }: {
+  /** a marca que o script de fotos da apresentação procura */
+  testID?: string;
   nome: string;
   /** o que o cabeçalho diz quando ninguém está deslizando */
   sub: string; valor: string; unidade?: string;
@@ -1191,7 +1195,7 @@ export function CardCurva({
   );
 
   return (
-    <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, overflow: 'hidden' }, shadowCard(c)]}>
+    <View testID={testID} style={[{ backgroundColor: c.bg1, borderRadius: radius.card, overflow: 'hidden' }, shadowCard(c)]}>
       {onPress ? (
         <Pressable onPress={onPress} style={({ pressed }) => [{ opacity: pressed ? 0.9 : 1 }]}>
           {cabecalho}
