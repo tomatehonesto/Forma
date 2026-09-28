@@ -838,7 +838,7 @@ function Montando({ onFim, depois }: {
         ]).start(() => {
           /* o plano entra por cima e, quando acaba de entrar, fica sozinho */
           setComPlano(true);
-          setTimeout(onFim, 560);
+          setTimeout(onFim, 1400);   // a cascata do plano (ver `chegada`, em app/plano)
         });
         return;
       }

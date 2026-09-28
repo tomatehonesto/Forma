@@ -124,17 +124,26 @@ export function Plano({ dados: d, aoSair, rotuloSair, aoVoltar, semChegada }: {
   const { width: larguraDaTela, height: alturaDaTela } = useWindowDimensions();
   const CABECA = insets.top + 110;
   const papelAlvo = insets.top + PAPEL_DO_PLANO;
-  /* ⚠️ O PLANO CHEGA, E NÃO APARECE. No cadastro ele vem logo depois do
-     "Pronto! O seu plano está feito.", que sai subindo; aqui o conteúdo
-     entra fazendo o mesmo gesto — surge e sobe um pouco —, para as duas
-     telas se lerem como uma passagem, e não como um corte. */
+  /* ⚠️ O PLANO CHEGA EM CASCATA, E NÃO DE UMA VEZ (28/09/2026, pedido do
+     dono: "só aparece do nada"). No cadastro ele entra depois que a mancha
+     de luz para no alto; aí o visto surge com um pequeno salto e o resto
+     vem atrás, cada peça subindo um pouco — título, meta, procedência, os
+     cartões e, por último, o botão. Uma medida só, de 0 a 1, e cada peça
+     ocupa um trecho dela (`entra`). */
   const chegada = React.useRef(new Animated.Value(semChegada ? 1 : 0)).current;
   React.useEffect(() => {
     if (semChegada) return;
     Animated.timing(chegada, {
-      toValue: 1, duration: 480, easing: Easing.out(Easing.cubic), useNativeDriver: true,
+      toValue: 1, duration: 1300, easing: Easing.linear, useNativeDriver: true,
     }).start();
   }, []);
+  const suave = Easing.out(Easing.cubic);
+  const entra = (de: number, ate: number, sobe = 22) => ({
+    opacity: chegada.interpolate({ inputRange: [de, ate], outputRange: [0, 1], extrapolate: 'clamp', easing: suave }),
+    transform: [{
+      translateY: chegada.interpolate({ inputRange: [de, ate], outputRange: [sobe, 0], extrapolate: 'clamp', easing: suave }),
+    }],
+  });
   /* A largura da coluna de conteúdo, para o empacotador saber onde a linha
      acaba: a tela menos o respiro lateral da seção e o do cartão. */
   const { width: largura } = useWindowDimensions();
@@ -303,20 +312,27 @@ export function Plano({ dados: d, aoSair, rotuloSair, aoVoltar, semChegada }: {
       {/* A aurora só surge; quem sobe é o conteúdo. No cadastro o plano
           entra por cima da mancha da espera, que já está onde a aurora
           dele fica — se ela subisse junto, o alto tremeria. */}
-      <Animated.View style={{ flex: 1, opacity: chegada }}>
+      <Animated.View style={{
+        flex: 1,
+        opacity: chegada.interpolate({ inputRange: [0, 0.12], outputRange: [0, 1], extrapolate: 'clamp' }),
+      }}>
       <Rolagem contentContainerStyle={{ paddingBottom: 28 }}>
         <ManchaDeLuz largura={larguraDaTela} altura={alturaDaTela} papel={papelAlvo} />
-        <Animated.View style={{
+        <View style={{
           paddingTop: CABECA, paddingHorizontal: 24, paddingBottom: 32,
           alignItems: 'center', gap: 14,
-          transform: [{ translateY: chegada.interpolate({ inputRange: [0, 1], outputRange: [24, 0] }) }],
         }}>
-          <View style={{
+          <Animated.View style={{
             width: 58, height: 58, borderRadius: 29, backgroundColor: c.lime,
             alignItems: 'center', justifyContent: 'center',
+            opacity: chegada.interpolate({ inputRange: [0.05, 0.2], outputRange: [0, 1], extrapolate: 'clamp' }),
+            transform: [{
+              /* o salto: passa um pouco do tamanho e volta */
+              scale: chegada.interpolate({ inputRange: [0.05, 0.22, 0.32], outputRange: [0.4, 1.12, 1], extrapolate: 'clamp' }),
+            }],
           }}>
             <Icon name="check" size={27} color={c.limeInk} sw={2.6} />
-          </View>
+          </Animated.View>
           {/* UMA FRASE SÓ, e a quebra onde ela couber.
 
               O nome estava numa linha e o recado em outra, forçados: com
@@ -329,17 +345,21 @@ export function Plano({ dados: d, aoSair, rotuloSair, aoVoltar, semChegada }: {
               manchete de duas linhas; em três, o bloco vira uma escada
               com degraus altos demais e o começo da frase se solta do
               fim. */}
-          <Txt style={{ ...ty.h1, fontFamily: font.body, lineHeight: 38, textAlign: 'center' }}>
-            <Txt style={{ ...ty.h1, lineHeight: 38 }}>{primeiro},</Txt>
-            {' '}{K().planoPronto}
-          </Txt>
+          <Animated.View style={[{ alignSelf: 'stretch' }, entra(0.18, 0.5)]}>
+            <Txt style={{ ...ty.h1, fontFamily: font.body, lineHeight: 38, textAlign: 'center' }}>
+              <Txt style={{ ...ty.h1, lineHeight: 38 }}>{primeiro},</Txt>
+              {' '}{K().planoPronto}
+            </Txt>
+          </Animated.View>
           {/* O PESO DA META EM DESTAQUE: é o número que a pessoa veio
               buscar, e ele estava diluído no meio da frase. */}
-          <Txt v="note" c={c.tx2} style={{ textAlign: 'center' }}>
-            {objetivo[0]}
-            <Txt v="note" style={{ fontFamily: font.bodySemi, color: c.tx }}>{objetivo[1]}</Txt>
-            {objetivo[2]}
-          </Txt>
+          <Animated.View style={[{ alignSelf: 'stretch' }, entra(0.28, 0.6)]}>
+            <Txt v="note" c={c.tx2} style={{ textAlign: 'center' }}>
+              {objetivo[0]}
+              <Txt v="note" style={{ fontFamily: font.bodySemi, color: c.tx }}>{objetivo[1]}</Txt>
+              {objetivo[2]}
+            </Txt>
+          </Animated.View>
           {/* AS ETIQUETAS VIRARAM UMA FRASE COM DUAS PONTAS.
 
               "Das suas respostas" e "Com base em estudos" eram dois
@@ -347,6 +367,7 @@ export function Plano({ dados: d, aoSair, rotuloSair, aoVoltar, semChegada }: {
               do que estava falando. Com a linha em cima, as duas viram o
               fim da mesma frase — o plano foi pensado a partir DISTO e
               DAQUILO —, e o que era selo vira procedência. */}
+          <Animated.View style={[{ alignSelf: 'stretch', gap: 14 }, entra(0.36, 0.68)]}>
           <Txt v="caption" c={c.tx3} style={{ textAlign: 'center', marginTop: 4 }}>{K().elaboradoPensando}</Txt>
           <Row style={{ gap: 8, justifyContent: 'center', marginTop: -6 }}>
             {([['user', K().nasSuasRespostas], ['book', K().emEstudos]] as [string, string][])
@@ -361,12 +382,10 @@ export function Plano({ dados: d, aoSair, rotuloSair, aoVoltar, semChegada }: {
                 </Row>
               ))}
           </Row>
-        </Animated.View>
+          </Animated.View>
+        </View>
 
-        <Animated.View style={{
-          paddingHorizontal: 20, gap: 30,
-          transform: [{ translateY: chegada.interpolate({ inputRange: [0, 1], outputRange: [24, 0] }) }],
-        }}>
+        <Animated.View style={[{ paddingHorizontal: 20, gap: 30 }, entra(0.46, 0.85, 36)]}>
           {/* ---------- o dia ---------- */}
           <View>
             <Secao t={K().secaoMetas} />
@@ -711,7 +730,8 @@ export function Plano({ dados: d, aoSair, rotuloSair, aoVoltar, semChegada }: {
 
       <Animated.View style={{
         paddingHorizontal: 20, paddingTop: 12, paddingBottom: insets.bottom + 20,
-        backgroundColor: c.bg, opacity: chegada,
+        backgroundColor: c.bg,
+        ...entra(0.62, 1, 30),
       }}>
         <Botao pilula label={rotuloSair} onPress={aoSair} />
       </Animated.View>
