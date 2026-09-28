@@ -3862,9 +3862,22 @@ export function semanaDeProteina(S: State): { t: number; g: number }[] {
 /** O dia a que uma refeição pertence — ela guarda a hora, o caderno lê o dia. */
 export const diaDaRefeicao = (m: any) => +startOfDay(new Date(m.t));
 
-/** Os dias do período, marcando os que têm refeição registrada. */
-export function diasDeRefeicao(S: State, dias: number): DiaDaTira[] {
+/* ⚠️ A TIRA COMEÇA NO COMEÇO (28/09/2026). Ela mostrava sempre os mesmos
+   29 dias para trás, e quem se cadastrou hoje rolava um mês de dias
+   vazios de antes de existir no aplicativo — cada um dizendo "nenhuma
+   refeição neste dia", como se o dia tivesse sido esquecido. Agora ela
+   começa no início do tratamento, ou no primeiro registro se ele for
+   anterior, e nunca passa do tamanho pedido. */
+export function diasDaTira(S: State, dias: number, registros: number[]): number {
   const hoje = +startOfDay(now());
+  const inicio = Math.min(+startOfDay(new Date(S.profile.startT || hoje)), ...registros);
+  return Math.max(1, Math.min(dias, diffDays(new Date(hoje), new Date(inicio)) + 1));
+}
+
+/** Os dias do período, marcando os que têm refeição registrada. */
+export function diasDeRefeicao(S: State, total: number): DiaDaTira[] {
+  const hoje = +startOfDay(now());
+  const dias = diasDaTira(S, total, (S.meals as any[]).map(diaDaRefeicao));
   const porT = new Map<number, { n: number; g: number }>();
   for (const m of S.meals as any[]) {
     const t = diaDaRefeicao(m);
@@ -4100,8 +4113,9 @@ export function semanaDeAgua(S: State): { t: number; ml: number }[] {
   });
 }
 
-/** Os dias do período, marcando os que têm água registrada. */
-export function diasDeAgua(S: State, dias: number): DiaDaTira[] {
+/** Os dias do período, marcando os que têm água registrada — desde o
+    começo, como a das refeições (ver `diasDaTira`). */
+export function diasDeAgua(S: State, total: number): DiaDaTira[] {
   const hoje = +startOfDay(now());
   const porT = new Map<number, number>();
   for (const c of S.checkins as any[]) {
@@ -4111,6 +4125,7 @@ export function diasDeAgua(S: State, dias: number): DiaDaTira[] {
     const n = ((c.aguas || []) as Gole[]).length || ((c.agua || 0) > 0 ? 1 : 0);
     if (n) porT.set(c.t, n);
   }
+  const dias = diasDaTira(S, total, [...porT.keys()]);
   return Array.from({ length: dias }, (_, i) => {
     const t = hoje - (dias - 1 - i) * DAY;
     return { t, itens: porT.get(t) || 0, hoje: t === hoje };

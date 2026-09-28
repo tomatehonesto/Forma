@@ -231,7 +231,12 @@ export default function Aplicacoes() {
           a chama. A silhueta não: ui/corpo perdeu as duas telas que a
           usavam e foi apagada. Está no histórico do git. */}
 
-      {/* A CONSTÂNCIA — seis semanas, sem punição por dia perdido. */}
+      {/* A CONSTÂNCIA — seis semanas, sem punição por dia perdido.
+
+          ⚠️ SÓ DEPOIS DA PRIMEIRA APLICAÇÃO (28/09/2026). Antes dela, a
+          grade eram seis semanas de dias sem nada, e embaixo "Sem culpa por
+          um dia perdido" — consolo por uma falta que não houve. */}
+      {semAplicacao ? null : (
       <Bloco
         titulo={K().constancia}
         nota={semAplicacao
@@ -284,6 +289,7 @@ export default function Aplicacoes() {
           </Txt>
         </View>
       </Bloco>
+      )}
 
       {/* A CURVA — a única coisa da tela que explica o que se sente. */}
       {semAplicacao ? null : (

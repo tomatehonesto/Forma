@@ -5,6 +5,7 @@ import { useStore } from '../logic/store';
 import {
   INDICADORES, checkinToday, diasDeSintomas, padraoDoCiclo,
   sintomaNoCiclo, sintomasDaSemana,
+  respostaNoDia,
 } from '../logic/derive';
 import { diasAnteriores, leituraDoDia, niveisDoRegistro } from '../logic/leituras';
 import { daysAgo, fmtDate, nf, now, startOfDay } from '../logic/time';
@@ -272,6 +273,10 @@ export default function Sintomas() {
           fome moram de 0 a 10 no banco e de 1 a 5 na tela, e é a leitura
           de lá que faz a conversão. A tela antiga fazia a sua, e escrevia
           "/10" embaixo de uma pergunta de 1 a 5. */}
+      {/* ⚠️ SÓ DEPOIS DA PRIMEIRA RESPOSTA (28/09/2026). Antes dela, quatro
+          abas levavam ao mesmo "sem respostas ainda", logo abaixo do
+          cartão que já convida para o check-in. */}
+      {(S.checkins as any[]).some(respostaNoDia) ? (
       <View style={{ marginTop: 26 }}>
         <Bloco titulo={K().comoSeSentiu}>
           <View style={{ gap: 12 }}>
@@ -297,6 +302,7 @@ export default function Sintomas() {
           </View>
         </Bloco>
       </View>
+      ) : null}
 
       {/* O RADAR DAS OITO FRENTES SAIU DAQUI.
 

@@ -75,6 +75,8 @@ export const medidas = {
 
     vemDeExame: 'Was aus einem Befund kommt',
     vemDeExameNota: 'Dafür braucht es einen Laborbefund oder eine Waage mit Körperanalyse. Nur zum Lesen — aber jeder öffnet seinen eigenen Verlauf.',
+    medidasConvite: 'Taille, Hüfte, Arm und Oberschenkel',
+    medidasConviteSub: 'Sie ändern sich, wenn die Waage stillsteht. Trag die ersten ein.',
 
     pressao: 'Blutdruck',
     emQueda: 'Fallend',

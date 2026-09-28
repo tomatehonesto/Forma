@@ -34,6 +34,7 @@ export const resumo = {
   /* ---------------- peso ---------------- */
   peso: 'Peso',
   inicioAtual: 'Início → atual',
+  pesoAtual: 'Peso atual',
   variacao: 'Variação',
   em: 'Em',
   metaDePeso: 'Meta de peso',

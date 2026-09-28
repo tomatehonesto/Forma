@@ -159,9 +159,11 @@ export default function ResumoMedico() {
         if (!s) return null;
         return (
           <Bloco key={id} titulo={s.titulo} nota={s.nota}>
-            <Cartao>
-              {s.linhas.map((l) => <Valor key={l.k} k={l.k} v={l.v} />)}
-            </Cartao>
+            {s.linhas.length ? (
+              <Cartao>
+                {s.linhas.map((l) => <Valor key={l.k} k={l.k} v={l.v} />)}
+              </Cartao>
+            ) : null}
           </Bloco>
         );
       })}

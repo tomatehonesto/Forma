@@ -80,6 +80,8 @@ export const medidas = {
 
     vemDeExame: 'Arriva dagli esami',
     vemDeExameNota: 'Servono un referto di laboratorio o una bilancia a impedenza. Solo in lettura — ma ognuno apre il proprio storico.',
+    medidasConvite: 'Vita, fianchi, braccio e coscia',
+    medidasConviteSub: 'Cambiano quando la bilancia si ferma. Registra le prime.',
 
     /* ⚠️ "STABILE" ERA TUTTO QUELLO CHE NON FOSSE UN CALO, e una salita di
        quattordici punti usciva come stabile. Anche salire ha un nome. */

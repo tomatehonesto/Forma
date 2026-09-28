@@ -32,6 +32,7 @@ export const resumo = {
 
   peso: 'Poids',
   inicioAtual: 'Début → actuel',
+  pesoAtual: 'Poids actuel',
   variacao: 'Variation',
   em: 'Sur',
   metaDePeso: 'Objectif de poids',

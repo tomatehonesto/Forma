@@ -58,6 +58,8 @@ export const medidas = {
 
     vemDeExame: 'Vienen de un examen',
     vemDeExameNota: 'Necesitan informe de laboratorio o balanza de bioimpedancia. Solo lectura — pero cada uno abre su historial.',
+    medidasConvite: 'Cintura, cadera, brazo y muslo',
+    medidasConviteSub: 'Cambian cuando la balanza se estanca. Registra las primeras.',
 
     pressao: 'Presión',
     emQueda: 'Bajando',

@@ -58,6 +58,8 @@ export const medidas = {
 
     vemDeExame: 'These come from a lab',
     vemDeExameNota: 'They need a lab report or a body-composition scale. Read only — but each one opens its own history.',
+    medidasConvite: 'Waist, hips, arm and thigh',
+    medidasConviteSub: 'They change when the scale stalls. Log your first ones.',
 
     pressao: 'Blood pressure',
     emQueda: 'Coming down',

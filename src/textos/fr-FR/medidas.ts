@@ -58,6 +58,8 @@ export const medidas = {
 
     vemDeExame: 'Ce qui vient d’une analyse',
     vemDeExameNota: 'Ils demandent un compte rendu de laboratoire ou une balance à impédancemétrie. En lecture seule — mais chacun ouvre son propre historique.',
+    medidasConvite: 'Taille, hanches, bras et cuisse',
+    medidasConviteSub: 'Elles changent quand la balance stagne. Notez les premières.',
 
     pressao: 'Tension',
     emQueda: 'En baisse',

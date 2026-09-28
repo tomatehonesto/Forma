@@ -3,10 +3,10 @@ import { nomeDaMolecula } from './formas';
 import type { State } from './seed';
 import {
   M, cadenciaCurta, curWeight, dosesPrevistas, examLast, journeyDay,
-  lostKg, lostPct, mediaDe, notasAbertas, respondido, variacaoDe, temEvolucao, type Nota,
+  lostKg, lostPct, mediaDe, notasAbertas, respondido, variacaoDe, temEvolucao, doseDoPerfil, type Nota,
 } from './derive';
-import { fmtDate, diffDays, now, nf, doseTxt, kg, startOfDay } from './time';
-import { pesoTxt, pesoU, pesoV } from './medidas';
+import { fmtDate, diffDays, now, nf, kg, startOfDay } from './time';
+import { pesoN, pesoTxt, pesoU, pesoV } from './medidas';
 
 /* ============================================================
    O RESUMO PARA O MÉDICO — uma fonte para a tela e para o texto
@@ -94,7 +94,8 @@ export function resumoDoTratamento(S: State): SecaoDoResumo[] {
       titulo: K.medicacao,
       linhas: [
         { k: K.medicamento, v: `${med.label} (${nomeDaMolecula(med.mol)})` },
-        { k: K.dose, v: `${doseTxt(p.dose)} ${med.unit}` },
+        /* "0 mg" para quem ainda não decidiu: a ausência se diz com palavra. */
+        { k: K.dose, v: doseDoPerfil(S) },
         { k: K.cadencia, v: cadenciaCurta(S) },
         /* ⚠️ ESTE DOCUMENTO VAI PARA O MÉDICO, e sem dose registrada ele
            dizia "Tempo de tratamento: 1 dias" e "Aplicações: 0 de 0
@@ -113,7 +114,12 @@ export function resumoDoTratamento(S: State): SecaoDoResumo[] {
       id: 'peso',
       titulo: K.peso,
       linhas: [
-        { k: K.inicioAtual, v: `${pesoTxt(S, p.startWeight)} → ${kg(cur)}` },
+        /* ⚠️ COM UMA PESAGEM, O PESO DE HOJE. "75,1 kg → 75,1" era o mesmo
+           número indo até ele mesmo. E o segundo número saía em kg mesmo
+           para quem lê em libras; agora é a unidade de quem lê, uma vez só. */
+        temEvolucao(S)
+          ? { k: K.inicioAtual, v: `${pesoN(S, p.startWeight)} → ${pesoTxt(S, cur)}` }
+          : { k: K.pesoAtual, v: pesoTxt(S, cur) },
         /* ⚠️ ESTA LINHA VAI PARA O MÉDICO. Ela dizia "−−3,3 kg" para quem
            ganhou peso — um documento clínico com um número ilegível é
            pior do que um documento sem aquele número. */
@@ -141,7 +147,9 @@ export function resumoDoTratamento(S: State): SecaoDoResumo[] {
          zero a dez; sono é hora de relógio. Uma seção inteira rotulada
          "(0–10)" punha sete horas de sono na mesma régua de uma náusea
          sete. */
-      linhas: [
+      /* Sem resposta, a nota já diz tudo: quatro traços embaixo dela eram
+         a mesma ausência dita outras quatro vezes. */
+      linhas: !comResposta ? [] : [
         { k: K.nausea, v: media(janela, 'nausea', 1, K.de10) },
         { k: K.fome, v: media(janela, 'fome', 1, K.de10) },
         { k: K.energia, v: media(janela, 'energia', 1, K.de10) },

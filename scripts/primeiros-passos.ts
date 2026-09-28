@@ -53,12 +53,13 @@ import {
   cicloFases, injCalendar, protocoloDaSemana,
   aplicacaoDoCadastro, diaDoTratamento, nextInjectionDate, rodizioDeLocais, timelineEvents,
   semanasDaGrade, timelineWeeks, comecouAntesDoApp, nomeDeQuemCuida, dailyTargets, indicadoresDaEvolucao,
+  diasDeRefeicao, diasDeAgua,
 } from '../src/logic/derive';
 import { semanaDoTratamento } from '../src/logic/time';
 import { boasVindasNaHome, marcarApresentacaoVista } from '../src/logic/apresentacao';
 import { semanaQuePassou, marcoRecente } from '../src/logic/destaques';
 import { proximasDe, type Alerta } from '../src/logic/alertas';
-import { resumoEmTexto } from '../src/logic/resumo';
+import { resumoEmTexto, resumoDoTratamento } from '../src/logic/resumo';
 import { conquistas } from '../src/logic/conquistas';
 import { mensagemDoDia } from '../src/logic/etapa';
 import { companionMemoria } from '../src/logic/derive';
@@ -411,6 +412,21 @@ ok(companionSuggestions(semente).includes(P.meuProgresso), 'com pesagens em dias
 ok(companionSuggestions(semente).length <= 4 && sz.length <= 4, 'no máximo quatro sugestões');
 ok(balanceRead(zero).vazia && !balanceRead(respondeu6).vazia, 'sem check-in respondido, "O que observamos" não tem o que dizer');
 ok(companionMemoria(zero) === companionMemoria(semente), 'a memória é uma frase só, verdade no primeiro dia e no centésimo');
+
+console.log('\n14. AS TELAS INTERNAS DE QUEM ACABOU DE CHEGAR');
+const chegouHoje = clone(zero);
+chegouHoje.profile.startT = +hoje + 9 * 3600e3;
+ok(diasDeRefeicao(chegouHoje, 29).length === 1 && diasDeAgua(chegouHoje, 29).length === 1,
+  'a tira de refeições e a de água começam no dia do começo, e não um mês antes');
+ok(diasDeRefeicao(semente, 29).length === 29 && diasDeAgua(semente, 29).length === 29,
+  'com mais de um mês de diário, a tira tem o tamanho de sempre');
+const resumo0 = resumoDoTratamento(chegouHoje);
+const linhasDe = (id: string) => resumo0.find((s) => s.id === id)?.linhas ?? [];
+ok(linhasDe('peso').some((l) => l.k === T.resumo.pesoAtual) && !linhasDe('peso').some((l) => l.k === T.resumo.inicioAtual),
+  'com uma pesagem, o resumo diz o peso atual, e não "75,1 kg → 75,1"');
+ok(linhasDe('sintomas').length === 0, 'sem resposta, os sintomas do resumo não viram quatro traços');
+ok(resumoDoTratamento(semente).find((s) => s.id === 'sintomas')!.linhas.length === 4,
+  'com respostas, as quatro médias voltam');
 
 console.log(falhas ? `\n${falhas} afirmação(ões) falharam\n` : '\ntodas as afirmações passaram\n');
 process.exit(falhas ? 1 : 0);

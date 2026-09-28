@@ -116,6 +116,8 @@ export const medidas = {
 
     vemDeExame: 'Vem de exame',
     vemDeExameNota: 'Precisam de laudo ou balança de bioimpedância. Só leitura — mas cada um abre o seu histórico.',
+    medidasConvite: 'Cintura, quadril, braço e coxa',
+    medidasConviteSub: 'Mudam quando a balança empaca. Registre as primeiras.',
 
     /* ⚠️ "ESTÁVEL" ERA TUDO QUE NÃO FOSSE QUEDA, e uma subida de catorze
        pontos saía como estável. Subir tem nome. */

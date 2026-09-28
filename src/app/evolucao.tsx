@@ -83,6 +83,9 @@ export default function Evolucao() {
   const ultimoPeso = (S.weights as any[])[S.weights.length - 1];
   const a1c = examBy(S, 'HbA1c');
   const pa = (S.vitals as any).pa as { sys: number; dia: number }[];
+  /* O que a seção "Vem de exame" teria para mostrar — sem nada, ela não
+     aparece: o título e a nota sobre laudo em cima de uma grade vazia. */
+  const temDeExame = !!(fm && lm) || (!!a1c && a1c.values.length >= 2) || (!!pa && pa.length >= 2);
 
   return (
     <TelaInterna
@@ -95,7 +98,11 @@ export default function Evolucao() {
         lead={K().lead}
       />
 
-      <Chips itens={PERIODOS().map((p) => ({ id: p.id, label: p.label }))} valor={per} onChange={setPer} />
+      {/* O período só com uma linha para recortar: com uma pesagem e
+          nenhuma medida, os três botões mostravam a mesma coisa. */}
+      {temEvolucao(S) || fm ? (
+        <Chips itens={PERIODOS().map((p) => ({ id: p.id, label: p.label }))} valor={per} onChange={setPer} />
+      ) : null}
 
       <Bloco titulo={K().voceRegistra} nota={K().voceRegistraNota}>
         <View style={{ gap: 10 }}>
@@ -125,7 +132,18 @@ export default function Evolucao() {
               pontos={medidas.map((p) => ({ v: p[k] as number, rotulo: nf(p[k], 0), quando: fmtDate(p.t) }))}
               onPress={() => router.push(`/marcador?m=${k}` as any)}
             />
-          )) : null}
+          )) : (
+            /* Sem medida nenhuma, as quatro curvas sumiam sem aviso — e a
+               tela parecia só de peso. O convite diz que elas existem. */
+            <Cartao>
+              <Linha
+                ic="ruler"
+                titulo={K().medidasConvite}
+                sub={K().medidasConviteSub}
+                onPress={() => router.push('/medir-medidas' as any)}
+              />
+            </Cartao>
+          )}
         </View>
       </Bloco>
 
@@ -142,6 +160,7 @@ export default function Evolucao() {
           `lima` deste aplicativo é a cor do ALCANÇADO — meta fechada,
           check-in do dia —, e nenhum destes quatro é uma linha de
           chegada. */}
+      {temDeExame ? (
       <Bloco
         titulo={K().vemDeExame}
         nota={K().vemDeExameNota}
@@ -192,6 +211,7 @@ export default function Evolucao() {
           ) : null}
         </Grade2>
       </Bloco>
+      ) : null}
 
       {/* "Todas as medidas" saiu junto com a tela que ele abria: as quatro
           estão logo acima. Exames fica, porque a lista dos quinze é outra
