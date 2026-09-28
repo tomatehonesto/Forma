@@ -34,6 +34,7 @@ export const conta = {
     `We sent it to ${email}. It’s valid for ${minutos} minutes — if it doesn’t arrive, check your spam too.`,
   entrar: 'Sign in',
   reenviar: 'Send another code',
+  reenviando: 'Sending a new code…',
   reenviarEm: (segundos: number) => `Another code in ${segundos} s`,
   outroEmail: 'Use another email',
   voltar: 'Back',

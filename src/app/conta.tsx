@@ -91,6 +91,9 @@ export default function Conta() {
   const [codigo, setCodigo] = React.useState('');
   const [erro, setErro] = React.useState<ErroDaConta | null>(null);
   const [ocupado, setOcupado] = React.useState(false);
+  /* O reenvio tem espera própria: ela mora no botão, e não na roda do meio,
+     que é a da conferência do código (pedido do dono). */
+  const [reenviando, setReenviando] = React.useState(false);
   const [apple, setApple] = React.useState(false);
   /* Síncrono: o módulo nativo e os IDs estão ou não estão — ver logic/conta. */
   const [google] = React.useState(googleDisponivel);
@@ -144,10 +147,13 @@ export default function Conta() {
   /* ---------------- o e-mail e o código ---------------- */
   const mandar = async () => {
     if (!EMAIL.test(email.trim())) return;
+    const deNovo = passo === 'codigo';
     setOcupado(true);
+    setReenviando(deNovo);
     limpar();
     const r = await pedirCodigo(email);
     setOcupado(false);
+    setReenviando(false);
     if (!r.ok) return falhou(r.erro, mandar);
     setCodigo('');
     setPasso('codigo');
@@ -450,7 +456,8 @@ export default function Conta() {
           <View style={{ gap: 10 }}>
             <Botao
               pilula
-              label={deNovo ? K().tentarDeNovo : espera > 0 ? K().reenviarEm(espera) : K().reenviar}
+              label={reenviando ? K().reenviando : deNovo ? K().tentarDeNovo : espera > 0 ? K().reenviarEm(espera) : K().reenviar}
+              carregando={reenviando}
               desligado={ocupado || (!deNovo && !podeReenviar)}
               onPress={deNovo ? () => { const r = repetir.current; limpar(); r?.(); } : mandar}
             />
@@ -474,7 +481,7 @@ export default function Conta() {
         {/* COLAR O CÓDIGO (27/09/2026, pedido do dono): quem copiou o código
             do e-mail — ou o e-mail inteiro — cola com um toque, e o código
             confere sozinho. Some quando já há número digitado. */}
-        {!codigo && !ocupado ? (
+        {!codigo && (!ocupado || reenviando) ? (
           <View style={{ marginTop: 16, alignItems: 'flex-start', gap: 10 }}>
             <BotaoDeColar
               onTexto={(texto) => {
@@ -493,7 +500,7 @@ export default function Conta() {
         {aviso ? <View style={{ marginTop: 20 }}>{aviso}</View> : null}
         {/* Enquanto o código é conferido, a roda de espera: sem botão de
             entrar, é ela que diz que o sexto número foi ouvido. */}
-        {ocupado ? <View style={{ marginTop: 28 }}><ActivityIndicator color={c.accent} /></View> : null}
+        {ocupado && !reenviando ? <View style={{ marginTop: 28 }}><ActivityIndicator color={c.accent} /></View> : null}
       </TelaDePergunta>
     );
   }

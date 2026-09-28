@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, View, Pressable, ScrollView, StyleSheet, TextInput, Platform, StyleProp, ViewStyle, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
+import { ActivityIndicator, Animated, View, Pressable, ScrollView, StyleSheet, TextInput, Platform, StyleProp, ViewStyle, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
@@ -2058,7 +2058,7 @@ export function ItemApagavel({ pergunta, onApagar, children }: {
 
    Desligado ele NÃO CHAMA onPress: um botão que parece apagado e mesmo
    assim funciona é pior do que um que não parece nada. */
-export function Botao({ label, onPress, tom = 'cheio', desligado, pilula }: {
+export function Botao({ label, onPress, tom = 'cheio', desligado, pilula, carregando }: {
   label: string; onPress?: () => void; tom?: 'cheio' | 'fantasma' | 'perigo'; desligado?: boolean;
   /* PÍLULA — o botão que fecha uma tela inteira, e não um cartão.
 
@@ -2068,22 +2068,30 @@ export function Botao({ label, onPress, tom = 'cheio', desligado, pilula }: {
      um cartão continua valendo o raio de cartão — daí ser opção, e não
      troca. */
   pilula?: boolean;
+  /** o pedido deste botão está andando: a roda ao lado do rótulo, na cor
+      de sempre (e não apagado), e nenhum toque até ele voltar */
+  carregando?: boolean;
 }) {
   const { c } = useTheme();
+  if (carregando) desligado = false;
   const fundo = desligado ? c.bg2 : tom === 'cheio' ? c.accent : c.bg1;
   const tinta = desligado ? c.tx4 : tom === 'cheio' ? c.accentInk : tom === 'perigo' ? c.cta : c.tx;
   const borda = desligado || tom === 'cheio' ? 'transparent' : tom === 'perigo' ? c.ctaLine : c.line;
   return (
     <Pressable
-      onPress={desligado ? undefined : onPress}
+      onPress={desligado || carregando ? undefined : onPress}
+      accessibilityState={{ busy: !!carregando, disabled: !!desligado || !!carregando }}
       style={({ pressed }) => [{
         borderRadius: pilula ? radius.pill : radius.md + 3,
         backgroundColor: fundo, borderWidth: 1, borderColor: borda,
         paddingVertical: pilula ? 18 : 16, alignItems: 'center',
-        opacity: pressed && !desligado ? 0.85 : 1,
+        opacity: pressed && !desligado && !carregando ? 0.85 : 1,
       }]}
     >
-      <Txt v="bodyMed" c={tinta}>{label}</Txt>
+      <Row gap={10} style={{ alignItems: 'center' }}>
+        {carregando ? <ActivityIndicator size="small" color={tinta} /> : null}
+        <Txt v="bodyMed" c={tinta}>{label}</Txt>
+      </Row>
     </Pressable>
   );
 }

@@ -34,6 +34,7 @@ export const conta = {
     `Nous l’avons envoyé à ${email}. Il est valable ${minutos} minutes — s’il n’arrive pas, regardez aussi dans les spams.`,
   entrar: 'Se connecter',
   reenviar: 'Envoyer un autre code',
+  reenviando: 'Envoi d’un nouveau code…',
   reenviarEm: (segundos: number) => `Un autre code dans ${segundos} s`,
   outroEmail: 'Utiliser une autre adresse',
   voltar: 'Retour',
