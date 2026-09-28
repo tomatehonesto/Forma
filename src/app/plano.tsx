@@ -736,6 +736,8 @@ export default function PreviaDoPlano() {
       }}
       aoSair={() => router.back()}
       rotuloSair={T.cadastro.telaPlano.voltar}
+      /* A seta aqui também: sem ela, a prévia não mostrava a do cadastro. */
+      aoVoltar={() => router.back()}
     />
   );
 }

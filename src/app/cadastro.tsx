@@ -27,7 +27,7 @@ import { Calendario } from '../ui/calendario';
 import { Lavagem } from '../ui/lavagem';
 import { RESTRICOES } from '../logic/restricoes';
 import { Marca, CoracaoDeSaude } from '../ui/marca';
-import Svg, { Defs, LinearGradient as SvgGradiente, Path, Stop } from 'react-native-svg';
+import Svg, { Circle, Defs, LinearGradient as SvgGradiente, Path, Stop } from 'react-native-svg';
 import { VidroDegrade } from '../ui/vidro';
 import { Plano } from './plano';
 import { useTheme } from '../ui/useTheme';
@@ -852,32 +852,17 @@ function Montando({ onFim }: { onFim: () => void }) {
         }}>
         {fases.slice(0, fase + 1).map((texto, i) => {
           const atual = i === fase;
-          const ultima = i === fases.length - 1;
           return (
             <Animated.View
               key={i}
               onLayout={(e) => mediu(i, e.nativeEvent.layout.height)}
               style={{
-                /* O ícone fica na primeira linha: o "Pronto!" quebra em duas. */
-                flexDirection: 'row', alignItems: 'flex-start', gap: 12,
                 opacity: Animated.multiply(entrada[i], brilho[i]),
                 transform: [{ translateY: entrada[i].interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) }],
               }}
             >
-              {/* ⚠️ A RODA GIRANDO, E NÃO UM ÍCONE POR FASE (pedido do dono): ela
-                  fica ao lado da da vez e diz que ainda está andando; no
-                  "Pronto!", vira o visto. As que já passaram guardam o lugar
-                  dela vazio — o texto não pula quando a fase vira cinza, e
-                  as frases ficam alinhadas numa coluna só. */}
-              <View style={{ width: 24, height: atual ? 32 : 22, alignItems: 'center', justifyContent: 'center' }}>
-                {atual ? (ultima
-                  ? <Icon name="check" size={24} color={c.accent} sw={2.4} />
-                  : <ActivityIndicator size="small" color={c.accent} />)
-                  : null}
-              </View>
               <Animated.Text
                 style={{
-                  flex: 1,
                   /* Sem negrito (pedido do dono): a da vez se distingue pelo
                      tamanho e pela tinta, e não pelo peso. */
                   fontFamily: font.body,
@@ -892,8 +877,87 @@ function Montando({ onFim }: { onFim: () => void }) {
             </Animated.View>
           );
         })}
+        {/* ⚠️ A RODA MORA EMBAIXO DA PILHA, e é uma só (pedido do dono): ela
+            gira enquanto a espera anda e, no "Pronto!", fecha o círculo e
+            desenha o visto — ver `RodaQueViraVisto`. */}
+        <View style={{ marginTop: 14 }}>
+          <RodaQueViraVisto pronto={fase === fases.length - 1} cor={c.accent} />
+        </View>
         </Animated.View>
       </View>
+    </View>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* A RODA QUE VIRA VISTO — o carregador da espera do plano.
+
+   Um arco de um quarto de volta girando enquanto a espera anda. Quando
+   ela acaba, o arco para de girar e cresce até fechar o círculo, e o visto
+   se desenha dentro dele — o mesmo traço que girava é o que conclui.
+   Desenhado em SVG, e não o `ActivityIndicator` do sistema, porque é o
+   traço que se transforma: um carregador pronto só sabe sumir. */
+const RODA = 32;
+const RAIO = 13;
+const VOLTA = 2 * Math.PI * RAIO;
+const VISTO = 17;             // o comprimento do traço do visto, com folga
+
+function RodaQueViraVisto({ pronto, cor }: { pronto: boolean; cor: string }) {
+  const giro = React.useRef(new Animated.Value(0)).current;
+  const arco = React.useRef(new Animated.Value(0)).current;   // 0 = um quarto, 1 = o círculo
+  const visto = React.useRef(new Animated.Value(0)).current;
+  const laco = React.useRef<Animated.CompositeAnimation | null>(null);
+  /* O arco e o visto chegam ao desenho pelo estado, e não por componente
+     animado do SVG: na web, esse repassa ao DOM uma propriedade que só
+     existe no nativo. São seiscentos milissegundos, uma vez só. */
+  const [fechou, setFechou] = React.useState(0);
+  const [desenhou, setDesenhou] = React.useState(0);
+  React.useEffect(() => {
+    const a = arco.addListener(({ value }) => setFechou(value));
+    const b = visto.addListener(({ value }) => setDesenhou(value));
+    return () => { arco.removeListener(a); visto.removeListener(b); };
+  }, []);
+
+  React.useEffect(() => {
+    laco.current = Animated.loop(Animated.timing(giro, {
+      toValue: 1, duration: 850, easing: Easing.linear, useNativeDriver: true,
+    }));
+    laco.current.start();
+    return () => laco.current?.stop();
+  }, []);
+
+  React.useEffect(() => {
+    if (!pronto) return;
+    laco.current?.stop();
+    Animated.sequence([
+      Animated.timing(arco, { toValue: 1, duration: 360, easing: Easing.out(Easing.cubic), useNativeDriver: false }),
+      Animated.timing(visto, { toValue: 1, duration: 280, easing: Easing.out(Easing.cubic), useNativeDriver: false }),
+    ]).start();
+  }, [pronto]);
+
+  return (
+    <View style={{ width: RODA, height: RODA }}>
+      <Animated.View style={{
+        position: 'absolute', width: RODA, height: RODA,
+        transform: [{ rotate: giro.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] }) }],
+      }}>
+        <Svg width={RODA} height={RODA}>
+          <Circle
+            cx={RODA / 2} cy={RODA / 2} r={RAIO}
+            stroke={cor} strokeWidth={2.5} fill="none" strokeLinecap="round"
+            strokeDasharray={`${VOLTA} ${VOLTA}`}
+            strokeDashoffset={VOLTA * 0.72 * (1 - fechou)}
+          />
+        </Svg>
+      </Animated.View>
+      <Svg width={RODA} height={RODA} style={{ position: 'absolute' }}>
+        <Path
+          d="M10.5 16.5 L14.5 20.5 L21.5 12.5"
+          stroke={cor} strokeWidth={2.5} fill="none" strokeLinecap="round" strokeLinejoin="round"
+          strokeDasharray={`${VISTO} ${VISTO}`}
+          strokeDashoffset={VISTO * (1 - desenhou)}
+        />
+      </Svg>
     </View>
   );
 }
