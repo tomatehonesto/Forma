@@ -64,10 +64,26 @@ export default function Apresentacao() {
   /* O branco da página — no escuro, o fundo do tema. */
   const fundo = isDark ? c.bg : '#FFFFFF';
   /* ⚠️ O PAINEL: UMA COR SÓ ATRÁS DO TELEFONE (pedido do dono). Em vez de
-     luz espalhada pela página, um bloco de cantos redondos no tom claro da
-     cor de ação, com o telefone em cima dele e o pé do aparelho sumindo
-     nessa mesma cor. O texto fica embaixo, no branco. */
-  const painel = mistura(c.accent, fundo, isDark ? 0.16 : 0.09);
+     luz espalhada pela página, um bloco de cantos redondos num tom claro,
+     com o telefone em cima dele e o pé do aparelho sumindo nessa mesma cor.
+     O texto fica embaixo, no branco.
+
+     ⚠️ E O TOM MUDA DE PÁGINA EM PÁGINA (pedido do dono: "não ficar sempre
+     o mesmo tom de azul"). São cores que o tema já tem, e a dose de cada uma
+     na mistura é diferente para todas chegarem igualmente claras — o lima,
+     que já é claro, precisa de mais; o azul, de menos. */
+  const TOM: Record<Id, [string, number]> = {
+    dose: [c.accent, 0.09],
+    estado: [c.teal, 0.16],
+    comida: [c.lime, 0.26],
+    evolucao: [c.amber, 0.12],
+    consultas: [c.rose, 0.09],
+    companheiro: [c.purple, 0.1],
+  };
+  const painelDe = (id: Id) => {
+    const [cor, dose] = TOM[id];
+    return mistura(cor, fundo, isDark ? dose * 1.7 : dose);
+  };
 
   const pilares: Pilar[] = [
     { id: 'dose', titulo: K().dose.titulo, texto: injetavel ? K().dose.texto : K().dose.textoOral },
@@ -139,6 +155,7 @@ export default function Apresentacao() {
              camadas, e não colada no gesto. */
           const anda = (f: number) => x.interpolate({ inputRange: faixa, outputRange: [width * f, 0, -width * f], extrapolate: 'clamp' });
           const some = x.interpolate({ inputRange: faixa, outputRange: [0, 1, 0], extrapolate: 'clamp' });
+          const painel = painelDe(p.id);
           return (
             <View
               key={p.id}
