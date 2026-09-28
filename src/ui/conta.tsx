@@ -15,6 +15,7 @@ import { Pressable, View, type StyleProp, type ViewStyle } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { contaLigada, nuvem } from '../logic/nuvem';
+import { modoFingido } from '../logic/modo';
 import { sair, sincronia, useEstadoDaSincronia } from '../logic/conta';
 import type { EstadoDaSincronia } from '../logic/sincronia';
 import { Txt, Row } from './kit';
@@ -208,7 +209,12 @@ export function FaixaDaConta({ style }: { style?: StyleProp<ViewStyle> }) {
   const semente = useStore((s) => !!(s.S as any).semente);
   const feito = useStore((s) => s.S.onboardDone);
   const estado = useEstadoDaSincronia();
-  if (!contaLigada() || semente || !feito) return null;
+  /* Na prévia de desenvolvimento ("Ver o primeiro acesso"), o diário é o
+     de exemplo e não tem conta: a faixa diria "sem internet" a um
+     navegador conectado, e a prévia mostraria o que ninguém de verdade vê
+     depois do cadastro. É o mesmo motivo por que o portão não manda criar
+     conta no modo fingido. */
+  if (!contaLigada() || semente || !feito || modoFingido()) return null;
   const frase = !conta ? K().linha.semConta
     : estado === 'conta-apagada' ? K().linha.contaApagada
       : estado === 'entrar-de-novo' || estado === 'outra-conta' ? K().linha.entrarDeNovo

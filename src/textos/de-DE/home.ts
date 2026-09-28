@@ -310,6 +310,7 @@ export const home = {
 
     checkinFeito: 'Check-in erledigt',
     fazerCheckin: 'Check-in machen',
+    checkinUmMinuto: 'Dauert keine Minute',
     diasSeguidos: (dias: number): string => (dias === 1 ? 'Tag mit Check‑in' : 'Tage mit Check‑in in Folge'),
 
     metasDiarias: 'Deine Tagesziele',

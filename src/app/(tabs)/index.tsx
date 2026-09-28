@@ -716,7 +716,13 @@ export default function Home() {
               </Row>
             </Pressable>
             <Row style={{ flex: 1, justifyContent: 'flex-end', alignItems: 'center' }} gap={8}>
-              <Txt v="h1" c={c.lime}>{stk}</Txt>
+              {/* ⚠️ SEM SEQUÊNCIA, SEM ZERO (28/09/2026, pedido do dono). O
+                  "0" grande em lima — a cor de alcançado — contava no
+                  primeiro dia uma sequência que ainda não podia existir, e
+                  depois de um dia perdido ele virava placar de falta. Com
+                  zero, o lado direito diz o tamanho do pedido; o contador
+                  volta no primeiro dia feito. */}
+              {stk > 0 ? <Txt v="h1" c={c.lime}>{stk}</Txt> : null}
               {/* Hífen não-separável em "check‑in": com o corpo em 19px a
                   frase quebrava em três linhas e partia a palavra ao meio
                   ("dias de check-" / "in" / "consecutivos"), que é o tipo de
@@ -726,7 +732,9 @@ export default function Home() {
                   entre o botão e a borda —, então o que encolheu foi a
                   frase: "seguidos" diz o mesmo que "consecutivos" em quatro
                   letras a menos, e cabe em duas linhas limpas. */}
-              <Txt v="body" c={c.onHero} style={{ width: 120 }}>{K().diasSeguidos(stk)}</Txt>
+              {stk > 0
+                ? <Txt v="body" c={c.onHero} style={{ width: 120 }}>{K().diasSeguidos(stk)}</Txt>
+                : <Txt v="body" c={c.onHero} style={{ width: 130, textAlign: 'right' }}>{K().checkinUmMinuto}</Txt>}
             </Row>
           </Row>
         </View>
@@ -930,8 +938,12 @@ export default function Home() {
                 </Row>
 
                 <View style={{ marginTop: 24 }}>
+                  {/* Sem conversa nenhuma, "nenhuma mensagem nova" falava de
+                      mensagens velhas que não existem: o convite é o mesmo
+                      do Cuidado. */}
                   <ListRow ic="companion" title={K().mensagens} dot={S.unread > 0}
-                    sub={S.unread > 0 ? K().novasMensagens(S.unread) : K().nenhumaMensagem}
+                    sub={S.unread > 0 ? K().novasMensagens(S.unread)
+                      : (S.messages as any[]).length ? K().nenhumaMensagem : T.cuidado.tela.enviarPrimeira}
                     onPress={go('/conversa')} />
                   <View style={{ height: 1, backgroundColor: c.line, marginVertical: 12 }} />
                   {/* ⚠️ SEM CONSULTA, A LINHA DIZ QUE NÃO HÁ. Ela montava a
@@ -945,14 +957,19 @@ export default function Home() {
                       ? K().consultaEm(fmtDate(consultD), diasDaSemana()[consultD.getDay()])
                       : K().semConsulta}
                     onPress={go('/consultas')} />
-                  <View style={{ height: 1, backgroundColor: c.line, marginVertical: 12 }} />
+                  {/* ⚠️ ANTES DA PRIMEIRA DOSE, A RECEITA NÃO É "NOVA" (28/09/2026).
+                      "Solicitar nova receita" pressupunha uma anterior, e a
+                      linha sai até a primeira aplicação registrada. */}
+                  {S.injections.length ? <View style={{ height: 1, backgroundColor: c.line, marginVertical: 12 }} /> : null}
                   {/* ⚠️ LEVA AO PEDIDO, e não à tela onde ele poderia estar.
                       Esta linha abria a tela de equipe no alto, num hub sem
                       nenhuma ação de pedir receita — porta emparedada de
                       manual. O parâmetro abre a conversa com o rascunho
                       pronto; quem envia continua sendo ela. */}
-                  <ListRow ic="doc" title={K().solicitarReceita} sub={K().solicitarReceitaSub}
-                    onPress={go('/conversa?pedir=receita')} />
+                  {S.injections.length ? (
+                    <ListRow ic="doc" title={K().solicitarReceita} sub={K().solicitarReceitaSub}
+                      onPress={go('/conversa?pedir=receita')} />
+                  ) : null}
                 </View>
               </View>
             ) : (S.profile.doctor || S.profile.clinic) ? (

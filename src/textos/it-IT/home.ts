@@ -378,6 +378,7 @@ export const home = {
        spezzava a metà a fine riga. */
     checkinFeito: 'Check-in fatto',
     fazerCheckin: 'Fai il check-in',
+    checkinUmMinuto: 'Richiede meno di un minuto',
     diasSeguidos: (dias: number): string => (dias === 1 ? 'giorno di check‑in' : 'giorni di check‑in di fila'),
 
     /* ---------- le sezioni ----------

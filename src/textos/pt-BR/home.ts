@@ -426,6 +426,7 @@ export const home = {
        da linha. */
     checkinFeito: 'Check-in feito',
     fazerCheckin: 'Fazer check-in',
+    checkinUmMinuto: 'Leva menos de um minuto',
     diasSeguidos: (dias: number): string => (dias === 1 ? 'dia de check‑in' : 'dias seguidos de check‑in'),
 
     /* ---------- as seções ----------

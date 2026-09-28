@@ -58,6 +58,7 @@ import {
 import { semanaDoTratamento } from '../src/logic/time';
 import { boasVindasNaHome, marcarApresentacaoVista } from '../src/logic/apresentacao';
 import { semanaQuePassou, marcoRecente } from '../src/logic/destaques';
+import { descobertas } from '../src/logic/descobertas';
 import { proximasDe, type Alerta } from '../src/logic/alertas';
 import { resumoEmTexto, resumoDoTratamento } from '../src/logic/resumo';
 import { conquistas } from '../src/logic/conquistas';
@@ -465,6 +466,11 @@ const emLibra = clone(semente);
 const rKg = journeySummary(semente), rLb = journeySummary(emLibra);
 ok(rLb.lostLabel !== rKg.lostLabel && rLb.faltamLabel !== rKg.faltamLabel,
   `em libra, o destaque e o "faltam" da Jornada saem em libra (${rLb.lostLabel} / ${rLb.faltamLabel})`);
+
+console.log('\n16. A HOME DO PRIMEIRO DIA');
+const temConviteDeMedidas = (x: State) => descobertas(x).some((d) => d.id === 'conv:medidas');
+ok(!temConviteDeMedidas(hojeCadastrou) && temConviteDeMedidas(semanaDepois),
+  'o convite das medidas espera a primeira semana no aplicativo');
 
 console.log(falhas ? `\n${falhas} afirmação(ões) falharam\n` : '\ntodas as afirmações passaram\n');
 process.exit(falhas ? 1 : 0);

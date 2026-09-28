@@ -285,6 +285,7 @@ export const home = {
 
     checkinFeito: 'Check-in hecho',
     fazerCheckin: 'Hacer check-in',
+    checkinUmMinuto: 'Toma menos de un minuto',
     diasSeguidos: (dias: number): string => (dias === 1 ? 'día de check‑in' : 'días seguidos de check‑in'),
 
     metasDiarias: 'Tus metas diarias',

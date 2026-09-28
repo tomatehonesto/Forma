@@ -235,7 +235,14 @@ function convites(S: State): Descoberta[] {
     T.descobertas.metaCta, '/meta', 3,
   );
 
-  if ((S.measures as any[]).length <= 1) poe(
+  /* ⚠️ AS MEDIDAS ESPERAM A PRIMEIRA SEMANA (28/09/2026, pedido do dono).
+     No primeiro dia o convite disputava o carrossel com a primeira dose e
+     o primeiro check-in — e cintura e quadril só dizem alguma coisa
+     quando a balança empaca, o que não acontece no dia um. Conta do aceite
+     do cadastro; sem ele, o convite vale como antes. */
+  const aceite = (S.profile as any)?.consentimento?.em;
+  const diasNoApp = typeof aceite === 'number' ? diffDays(now(), new Date(aceite)) : Infinity;
+  if ((S.measures as any[]).length <= 1 && diasNoApp >= 7) poe(
     'medidas', 'ruler',
     T.descobertas.medidasTitulo,
     T.descobertas.medidasTexto,
