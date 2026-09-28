@@ -15,9 +15,11 @@ import { Txt, Row, Rolagem } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { Botao, Grade2 } from '../ui/internas';
 import { AreaCurve } from '../ui/charts';
-import { Lavagem } from '../ui/lavagem';
+import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useAurora, PROPORCAO_DA_CAPA, PAPEL_COMECA } from '../ui/aurora';
 import { useTheme } from '../ui/useTheme';
-import { radius, font, ty } from '../theme';
+import { radius, font, ty, alfa } from '../theme';
 import { pesoTxt, pesoProsaTxt, pesoN, pesoU, sistemaDe, aguaU, aguaN } from '../logic/medidas';
 import { T } from '../textos';
 
@@ -108,8 +110,21 @@ export function Plano({ dados: d, aoSair, rotuloSair, aoVoltar }: {
       resposta antes de seguir (28/09/2026, pedido do dono) */
   aoVoltar?: () => void;
 }) {
-  const { c } = useTheme();
+  const { c, isDark } = useTheme();
+  const aurora = useAurora();
   const insets = useSafeAreaInsets();
+  /* ⚠️ A AURORA NO ALTO (28/09/2026, prova pedida pelo dono): a mesma da
+     capa da conta e da espera, com o visto lima sobre ela, e o título já
+     no papel. A imagem sobe até o branco (ou o preto) começar logo acima
+     do título; embaixo dela, um degradê curto passa do papel da imagem
+     para o fundo do app, que não é branco puro. */
+  const { width: larguraDaTela } = useWindowDimensions();
+  /* O conteúdo sobe sobre a aurora (pedido do dono): o visto fica no azul
+     e o título na parte clara dela; o papel começa só depois do título. */
+  const CABECA = insets.top + 110;
+  const papelAlvo = insets.top + 280;
+  const alturaDaImagem = larguraDaTela * PROPORCAO_DA_CAPA;
+  const sobeImagem = Math.max(0, alturaDaImagem * PAPEL_COMECA[isDark ? 'escuro' : 'claro'] - papelAlvo);
   /* ⚠️ O PLANO CHEGA, E NÃO APARECE. No cadastro ele vem logo depois do
      "Pronto! O seu plano está feito.", que sai subindo; aqui o conteúdo
      entra fazendo o mesmo gesto — surge e sobe um pouco —, para as duas
@@ -290,9 +305,27 @@ export function Plano({ dados: d, aoSair, rotuloSair, aoVoltar }: {
         transform: [{ translateY: chegada.interpolate({ inputRange: [0, 1], outputRange: [24, 0] }) }],
       }}>
       <Rolagem contentContainerStyle={{ paddingBottom: 28 }}>
-        <Lavagem altura={insets.top + 380} />
+        <View pointerEvents="none" style={{
+          /* A caixa termina junto com o degradê: se passasse dele, sobrava
+             uma faixa da imagem por baixo, e ela desenhava uma linha. */
+          position: 'absolute', top: 0, left: 0, right: 0, height: papelAlvo + 170, overflow: 'hidden',
+        }}>
+          <Image
+            source={isDark ? aurora.contaEscuro : aurora.contaClaro}
+            style={{ position: 'absolute', top: -sobeImagem, left: 0, width: larguraDaTela, height: alturaDaImagem }}
+            contentFit="cover"
+            contentPosition="top"
+          />
+          {/* Começa transparente: a imagem ainda não é branco puro na
+              beira direita, e um degradê que começasse no branco desenhava
+              uma linha. */}
+          <LinearGradient
+            colors={[alfa(c.bg, 0), c.bg]}
+            style={{ position: 'absolute', left: 0, right: 0, top: papelAlvo - 30, height: 200 }}
+          />
+        </View>
         <View style={{
-          paddingTop: insets.top + 34, paddingHorizontal: 24, paddingBottom: 32,
+          paddingTop: CABECA, paddingHorizontal: 24, paddingBottom: 32,
           alignItems: 'center', gap: 14,
         }}>
           <View style={{
@@ -685,7 +718,7 @@ export function Plano({ dados: d, aoSair, rotuloSair, aoVoltar }: {
             accessibilityRole="button"
             style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1 }]}
           >
-            <Icon name="back" size={26} color={c.tx} sw={2} />
+            <Icon name="back" size={26} color={c.onHero} sw={2} />
           </Pressable>
         </View>
       ) : null}
