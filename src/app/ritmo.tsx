@@ -54,6 +54,7 @@ export default function Ritmo() {
   const escolhido = r.ritmoEscolhido;
   const acelerado = r.ritmo > RITMO_CLINICO_KG;
   const devagar = r.verdict.label === T.tratamento.ritmoMaisDevagar;
+  const acima = r.verdict.label === T.tratamento.ritmoAcimaDoInicio;
   const { c } = useTheme();
 
   return (
@@ -114,6 +115,13 @@ export default function Ritmo() {
             a comparação existe para orientar, e não para pesar. */}
         {devagar ? (
           <Aviso ic="heart" titulo={K().devagarTitulo} texto={K().devagarTexto} />
+        ) : null}
+        {/* Acima do peso do início, pelo mesmo motivo e com mais razão: é a
+            semana em que as pessoas desistem. O aviso tira o número do dia
+            do centro, e deixa a conversa com a equipe como caminho, e não
+            como bronca. */}
+        {acima ? (
+          <Aviso ic="heart" titulo={K().acimaTitulo} texto={K().acimaTexto} />
         ) : null}
         {acelerado ? (
           <Aviso

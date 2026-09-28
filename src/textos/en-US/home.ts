@@ -385,6 +385,8 @@ export const home = {
     porSemana: (peso: string) => `${peso} a week`,
     devagarTitulo: 'Slower is still progress',
     devagarTexto: 'Bodies don’t follow the calendar we pick for them, and slower weeks happen in almost every treatment — it doesn’t mean something went wrong. What keeps the results coming is carrying on: the doses, the protein, the water, the sleep. If the pace you chose feels heavy, you can switch to one that fits this moment better.',
+    acimaTitulo: 'One number isn’t the whole story',
+    acimaTexto: 'The scale moves with water, digestion, salt and hormones, at any stage of treatment — a weight above where you started doesn’t erase what the treatment is doing. It’s worth looking at the line over the weeks, not the day. If it keeps rising for a few weeks, that’s a good conversation to have with whoever looks after you, with no guilt at all.',
     avisoTitulo: 'The drop isn’t a straight line',
     avisoTexto: 'The first weeks usually bring more, and the pace eases as your body adjusts. The pace you chose is the average of the way, not a weekly target to meet.',
     aceleradoTitulo: 'A pace worth talking about',

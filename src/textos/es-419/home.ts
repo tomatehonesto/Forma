@@ -391,6 +391,8 @@ export const home = {
     porSemana: (peso: string) => `${peso} por semana`,
     devagarTitulo: 'Más despacio también es camino',
     devagarTexto: 'El cuerpo no sigue el calendario que elegimos para él, y las semanas más lentas pasan en casi todo tratamiento — no quiere decir que algo salió mal. Lo que sostiene el resultado es seguir: las dosis, la proteína, el agua, el sueño. Si el ritmo elegido te pesa, puedes cambiarlo por uno que encaje mejor con tu momento.',
+    acimaTitulo: 'Un número no es la historia',
+    acimaTexto: 'La balanza oscila con el agua, el intestino, la sal y las hormonas, en cualquier fase del tratamiento — un peso por encima del inicio no borra lo que el tratamiento está haciendo. Conviene mirar la línea a lo largo de las semanas, y no el día. Si sigue subiendo por algunas semanas, es una buena conversación para tener con quien te acompaña, sin ninguna culpa.',
     avisoTitulo: 'La bajada no es recta',
     avisoTexto: 'Las primeras semanas suelen rendir más, y el ritmo afloja a medida que el cuerpo se ajusta. El ritmo elegido es el promedio del camino, no una exigencia de cada semana.',
     aceleradoTitulo: 'Un ritmo para conversar',

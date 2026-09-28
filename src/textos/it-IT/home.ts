@@ -531,6 +531,8 @@ export const home = {
     porSemana: (peso: string) => `${peso} a settimana`,
     devagarTitulo: 'Più piano è comunque strada',
     devagarTexto: 'Il corpo non segue il calendario che scegliamo per lui, e settimane più lente capitano in quasi ogni terapia — non vuol dire che qualcosa sia andato storto. Quello che sostiene il risultato è andare avanti: le dosi, le proteine, l’acqua, il sonno. Se il ritmo scelto ti pesa, puoi cambiarlo con uno più adatto a questo momento.',
+    acimaTitulo: 'Un numero non è tutta la storia',
+    acimaTexto: 'La bilancia oscilla con l’acqua, l’intestino, il sale e gli ormoni, in ogni fase della terapia — un peso sopra l’inizio non cancella quello che la terapia sta facendo. Conviene guardare la linea nel corso delle settimane, e non il giorno. Se continua a salire per qualche settimana, è una buona conversazione da fare con chi ti segue, senza nessun senso di colpa.',
     avisoTitulo: 'La discesa non è dritta',
     avisoTexto: 'Le prime settimane di solito rendono di più, e il ritmo rallenta mentre il corpo si adatta. Il ritmo scelto è la media del percorso, non un obbligo di ogni settimana.',
     aceleradoTitulo: 'Un ritmo di cui parlare',

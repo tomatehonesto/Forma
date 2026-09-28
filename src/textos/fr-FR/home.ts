@@ -413,6 +413,8 @@ export const home = {
     porSemana: (peso: string) => `${peso} par semaine`,
     devagarTitulo: 'Plus lentement, c’est avancer aussi',
     devagarTexto: 'Le corps ne suit pas le calendrier qu’on choisit pour lui, et des semaines plus lentes arrivent dans presque tous les traitements — cela ne veut pas dire que quelque chose a mal tourné. Ce qui fait tenir le résultat, c’est de continuer : les doses, les protéines, l’eau, le sommeil. Si le rythme choisi vous pèse, vous pouvez en prendre un qui convient mieux à ce moment.',
+    acimaTitulo: 'Un chiffre n’est pas toute l’histoire',
+    acimaTexto: 'La balance varie avec l’eau, le transit, le sel et les hormones, à toutes les étapes du traitement — un poids au-dessus du départ n’efface pas ce que le traitement fait. Mieux vaut regarder la courbe sur les semaines, et pas le jour. Si elle continue de monter pendant quelques semaines, c’est une bonne conversation à avoir avec qui vous suit, sans aucune culpabilité.',
     avisoTitulo: 'La baisse n’est pas droite',
     avisoTexto: 'Les premières semaines rapportent souvent plus, et le rythme se relâche à mesure que le corps s’ajuste. Le rythme choisi est la moyenne du chemin, pas une exigence de chaque semaine.',
     aceleradoTitulo: 'Un rythme dont parler',
