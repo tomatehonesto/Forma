@@ -18,6 +18,7 @@ import {
 import { TelaInterna, Titulao, Botao, Aviso, Cartao, Linha, SEM_ANEL } from '../ui/internas';
 import { Txt } from '../ui/kit';
 import { BotaoDaApple, BotaoDoGoogle } from '../ui/marcas';
+import { Marca } from '../ui/marca';
 import { Icon } from '../ui/Icon';
 import { TelaDePergunta } from '../ui/pergunta';
 import { useTheme } from '../ui/useTheme';
@@ -99,7 +100,6 @@ export default function Conta() {
   const previaDasPortas = __DEV__;
   const [previa, setPrevia] = React.useState(false);
   const [nadaParaColar, setNadaParaColar] = React.useState(false);
-  const cabeCartao = useWindowDimensions().height >= ALTURA_DO_CARTAO;
   const [espera, setEspera] = React.useState(0);
   /* quem entrou, enquanto o caminho do diário não termina */
   const [dono, setDono] = React.useState<Dono | null>(null);
@@ -494,10 +494,7 @@ export default function Conta() {
 
   /* ---- a escolha ---- */
   return (
-    <CapaDaConta
-      titulo={K().titulo[porta]} lead={K().lead[porta]} onVoltar={voltar}
-      pontos={K().pontos[porta].map((p, i) => ({ ...p, ic: ICONES_DOS_PONTOS[porta][i] }))}
-    >
+    <CapaDaConta titulo={K().titulo[porta]} lead={K().lead[porta]} onVoltar={voltar}>
       {aviso}
       {/* ⚠️ O BOTÃO DA APPLE É O DELA, e não um desenhado aqui: a revisão
           da loja confere o desenho do "Continuar com a Apple", e o botão
@@ -527,13 +524,9 @@ export default function Conta() {
         label={K().comEmail} pilula tom={apple || google || previaDasPortas ? 'fantasma' : 'cheio'}
         onPress={() => { limpar(); setPrevia(false); setPasso('email'); }}
       />
-      {/* O "sem senha" mora no cartão; esta linha só aparece quando ele
-          não cabe (telefone baixo), ou para explicar a prévia. */}
-      {previa || !cabeCartao ? (
-        <Txt v="caption" c={previa ? c.tx2 : c.tx3} style={{ textAlign: 'center', marginTop: 6 }}>
-          {previa ? K().previaSoNaBuild : K().semSenha}
-        </Txt>
-      ) : null}
+      <Txt v="caption" c={previa ? c.tx2 : c.tx3} style={{ textAlign: 'center', marginTop: 6 }}>
+        {previa ? K().previaSoNaBuild : K().semSenha}
+      </Txt>
     </CapaDaConta>
   );
 }
@@ -562,103 +555,76 @@ export default function Conta() {
 
    AS PORTAS FICAM EMBAIXO, perto do polegar. */
 /* ------------------------------------------------------------------ */
-/* OS ÍCONES DOS TRÊS PONTOS, na ordem do catálogo (textos/<local>/conta). */
-const ICONES_DOS_PONTOS: Record<Porta, string[]> = {
-  cadastro: ['shield', 'phone', 'lock'],
-  abertura: ['reset', 'shield', 'lock'],
-  sessao: ['check', 'reset', 'lock'],
-};
+/* AS MEDIDAS DAS DUAS IMAGENS DA CAPA (assets/images/aurora-conta-*.png):
+   a proporção, e a fração da altura em que o papel começa — medidas nos
+   originais, na primeira linha toda branca (claro) ou toda preta
+   (escuro). É com elas que a imagem sobe até o papel chegar ao texto. */
+const PROPORCAO_DA_CAPA = 1983 / 793;
+const PAPEL_COMECA = { claro: 0.745, escuro: 0.677 };
 
-/* Abaixo disto o cartão não cabe entre a frase e as portas — um iPhone SE
-   tem 667 —, e a capa fica como era, com o "sem senha" embaixo. */
-const ALTURA_DO_CARTAO = 700;
-
-function CapaDaConta({ titulo, lead, pontos, onVoltar, children }: {
-  titulo: string; lead: string; pontos: { ic: string; titulo: string; frase: string }[];
-  onVoltar: () => void; children: React.ReactNode;
+function CapaDaConta({ titulo, lead, onVoltar, children }: {
+  titulo: string; lead: string; onVoltar: () => void; children: React.ReactNode;
 }) {
   const { c, isDark } = useTheme();
   const aurora = useAurora();
   const insets = useSafeAreaInsets();
-  const { height } = useWindowDimensions();
+  const { width } = useWindowDimensions();
   /* ⚠️ A CAPA É UMA IMAGEM SÓ, UMA PARA CADA TEMA (27/09/2026, imagens do
-     dono): a aurora no alto que se desfaz no branco puro, no claro, e a
-     faixa de luz que se desfaz no preto puro, no escuro. Ela cobre a tela
-     inteira, presa pelo alto, e o papel das portas é a própria imagem —
-     por isso o fundo da tela é o branco ou o preto em que ela termina, e
-     não o fundo do app.
+     dono): a aurora que se desfaz no branco puro, no claro, e a faixa de
+     luz que se desfaz no preto puro, no escuro. O fundo da tela é o
+     branco ou o preto em que ela termina, e não o fundo do app. As duas
+     giram com a paleta, como as outras auroras (ui/aurora).
 
-     Antes era a aurora da paleta com dois degradês por cima (o véu e a
-     passagem para o papel). As imagens já trazem as duas coisas, e giram
-     com a paleta, como as outras auroras (ui/aurora). */
+     ⚠️ E O TEXTO DESCEU PARA JUNTO DAS PORTAS (28/09/2026, pedido do dono,
+     com referências). A frase centrada no alto deixava meia tela vazia
+     entre ela e os botões, e o cartão de três pontos que tentou preencher
+     isso virou lista. Agora a aurora fica com o alto inteiro, e embaixo,
+     alinhados à esquerda, vêm a marca, o título e a frase, e logo as
+     portas.
+
+     O texto mora no papel, e não na luz: a imagem sobe até o branco (ou o
+     preto) começar um pouco acima da marca, medida depois de o texto se
+     desenhar. O que sai pelo alto é a parte mais escura da aurora; até a
+     medida chegar, a imagem espera invisível, para não dar um pulo. */
   const papel = isDark ? '#000000' : '#FFFFFF';
-  /* ⚠️ A TELA ESTAVA VAZIA (28/09/2026, pedido do dono): a frase no alto,
-     as portas no pé e meia tela de nada entre elas. Entra ali o cartão com
-     três pontos — o que a conta faz pela pessoa —, como o dos passos da
-     referência, e a frase sobe para abrir espaço. */
-  const cartao = height >= ALTURA_DO_CARTAO;
-  const alto = Math.round(height * (cartao ? 0.4 : 0.5));
+  const [topoDoTexto, setTopoDoTexto] = React.useState<number | null>(null);
+  const alturaDaImagem = width * PROPORCAO_DA_CAPA;
+  const papelNaImagem = alturaDaImagem * PAPEL_COMECA[isDark ? 'escuro' : 'claro'];
+  const sobe = topoDoTexto == null ? 0 : Math.max(0, papelNaImagem - (topoDoTexto - 36));
 
   return (
     <View style={{ flex: 1, backgroundColor: papel }}>
       <Image
         source={isDark ? aurora.contaEscuro : aurora.contaClaro}
-        style={StyleSheet.absoluteFill}
+        style={{
+          position: 'absolute', left: 0, width, top: -sobe, height: alturaDaImagem,
+          opacity: topoDoTexto == null ? 0 : 1,
+        }}
         contentFit="cover"
         contentPosition="top"
       />
-      <View style={{ height: alto }}>
-        <View style={{ position: 'absolute', top: insets.top + 12, left: 16, zIndex: 1 }}>
-          <Pressable onPress={onVoltar} hitSlop={14} style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1 }]}>
-            <Icon name="back" size={26} color={c.onHero} sw={2} />
-          </Pressable>
-        </View>
-
-        <View style={{
-          position: 'absolute', left: 28, right: 28,
-          top: insets.top + 48, bottom: Math.round(alto * (cartao ? 0.12 : 0.22)),
-          alignItems: 'center', justifyContent: 'center', gap: 12,
-        }}>
-          <Txt v="h1" c={c.onHero} style={{ textAlign: 'center' }}>{titulo}</Txt>
-          <Txt v="note" c={c.onHero2} style={{ textAlign: 'center', lineHeight: 23 }}>{lead}</Txt>
-        </View>
+      <View style={{ position: 'absolute', top: insets.top + 12, left: 16, zIndex: 1 }}>
+        <Pressable onPress={onVoltar} hitSlop={14} style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1 }]}>
+          <Icon name="back" size={26} color={c.onHero} sw={2} />
+        </Pressable>
       </View>
 
       <View style={{
         flex: 1, justifyContent: 'flex-end',
-        paddingHorizontal: 20, paddingBottom: insets.bottom + 20, gap: 10,
+        paddingHorizontal: 24, paddingBottom: insets.bottom + 20, gap: 10,
       }}>
-        {cartao ? (
-          /* O cinza da referência sobre o branco, e o cinza-escuro do
-             sistema sobre o preto: um cartão que se lê como cartão nos
-             dois papéis, sem sombra. */
-          <View
-            style={{
-              backgroundColor: isDark ? '#1C1C1E' : '#F3F4F7',
-              borderRadius: radius.lg, marginBottom: 14, overflow: 'hidden',
-            }}
-          >
-            {pontos.map((p, i) => (
-              <View key={i}>
-                {i > 0 ? (
-                  <View style={{ height: StyleSheet.hairlineWidth, backgroundColor: isDark ? '#2C2C2E' : '#E4E6EB', marginLeft: 64 }} />
-                ) : null}
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingHorizontal: 14, paddingVertical: 12 }}>
-                  <View style={{
-                    width: 36, height: 36, borderRadius: 18, backgroundColor: c.accentWeak,
-                    alignItems: 'center', justifyContent: 'center',
-                  }}>
-                    <Icon name={p.ic} size={17} color={c.accent} sw={2} />
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Txt v="bodyMed">{p.titulo}</Txt>
-                    <Txt v="caption" c={c.tx2} style={{ marginTop: 1 }}>{p.frase}</Txt>
-                  </View>
-                </View>
-              </View>
-            ))}
+        <View
+          onLayout={(e) => setTopoDoTexto(e.nativeEvent.layout.y)}
+          style={{ gap: 14, marginBottom: 22 }}
+        >
+          {/* A marca inteira na tinta do texto no claro: o M lima sumiria
+              no branco. No escuro, ela é como em toda parte. */}
+          <Marca altura={24} tinta={c.tx} simbolo={isDark ? undefined : c.tx} />
+          <View style={{ gap: 10 }}>
+            <Txt v="h1">{titulo}</Txt>
+            <Txt v="note" c={c.tx2} style={{ lineHeight: 23 }}>{lead}</Txt>
           </View>
-        ) : null}
+        </View>
         {children}
       </View>
     </View>

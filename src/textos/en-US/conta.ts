@@ -11,23 +11,7 @@ export const conta = {
     abertura: 'Sign in, and we’ll bring your journal to this phone.',
     sessao: 'Your session ended — it happens now and then.',
   },
-  pontos: {
-    cadastro: [
-      { titulo: 'Kept safe with us', frase: 'If your phone goes missing, your journal doesn’t.' },
-      { titulo: 'On any phone', frase: 'New phone? Just sign in, and it’s all there.' },
-      { titulo: 'No password to remember', frase: 'One tap, or a code we send to your email.' },
-    ],
-    abertura: [
-      { titulo: 'Everything comes back', frase: 'Your entries arrive just the way you left them.' },
-      { titulo: 'Saved from here on', frase: 'Every new entry goes straight to your account.' },
-      { titulo: 'No password to remember', frase: 'One tap, or a code we send to your email.' },
-    ],
-    sessao: [
-      { titulo: 'Nothing was lost', frase: 'What you logged is still on this phone.' },
-      { titulo: 'Saved as soon as you sign in', frase: 'Anything only here goes up to your account.' },
-      { titulo: 'No password to remember', frase: 'One tap, or a code we send to your email.' },
-    ],
-  },
+
 
   comApple: 'Continue with Apple',
   comGoogle: 'Continue with Google',

@@ -11,23 +11,7 @@ export const conta = {
     abertura: 'Connectez-vous, et nous ramenons votre journal sur ce téléphone.',
     sessao: 'Votre session a pris fin — cela arrive de temps en temps.',
   },
-  pontos: {
-    cadastro: [
-      { titulo: 'À l’abri chez nous', frase: 'Si votre téléphone disparaît, votre journal reste.' },
-      { titulo: 'Sur n’importe quel téléphone', frase: 'Nouveau téléphone ? Connectez-vous, tout est là.' },
-      { titulo: 'Aucun mot de passe à retenir', frase: 'Un geste, ou un code envoyé par e-mail.' },
-    ],
-    abertura: [
-      { titulo: 'Tout revient ici', frase: 'Vos saisies arrivent comme vous les avez laissées.' },
-      { titulo: 'Sauvegardé à partir de maintenant', frase: 'Chaque nouvelle saisie va droit dans votre compte.' },
-      { titulo: 'Aucun mot de passe à retenir', frase: 'Un geste, ou un code envoyé par e-mail.' },
-    ],
-    sessao: [
-      { titulo: 'Rien n’est perdu', frase: 'Ce que vous avez noté est toujours sur ce téléphone.' },
-      { titulo: 'Sauvegardé dès votre connexion', frase: 'Ce qui n’est qu’ici rejoint votre compte.' },
-      { titulo: 'Aucun mot de passe à retenir', frase: 'Un geste, ou un code envoyé par e-mail.' },
-    ],
-  },
+
 
   comApple: 'Continuer avec Apple',
   comGoogle: 'Continuer avec Google',

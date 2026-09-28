@@ -11,23 +11,7 @@ export const conta = {
     abertura: 'Entra, y traemos tu diario a este celular.',
     sessao: 'Tu sesión terminó — pasa de vez en cuando.',
   },
-  pontos: {
-    cadastro: [
-      { titulo: 'Guardado con nosotros', frase: 'Si el celular se pierde, tu diario no.' },
-      { titulo: 'En cualquier celular', frase: '¿Cambiaste de teléfono? Entra, y está todo ahí.' },
-      { titulo: 'Ninguna contraseña que recordar', frase: 'Un toque, o un código que te mandamos por correo.' },
-    ],
-    abertura: [
-      { titulo: 'Todo vuelve aquí', frase: 'Tus registros llegan tal como los dejaste.' },
-      { titulo: 'Guardado de aquí en adelante', frase: 'Cada registro nuevo va directo a tu cuenta.' },
-      { titulo: 'Ninguna contraseña que recordar', frase: 'Un toque, o un código que te mandamos por correo.' },
-    ],
-    sessao: [
-      { titulo: 'No se perdió nada', frase: 'Lo que registraste sigue en este celular.' },
-      { titulo: 'Lo guardamos en cuanto entres', frase: 'Lo que quedó solo aquí sube a tu cuenta.' },
-      { titulo: 'Ninguna contraseña que recordar', frase: 'Un toque, o un código que te mandamos por correo.' },
-    ],
-  },
+
 
   comApple: 'Continuar con Apple',
   comGoogle: 'Continuar con Google',

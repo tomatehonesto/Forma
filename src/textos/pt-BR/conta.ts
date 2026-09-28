@@ -34,28 +34,7 @@ export const conta = {
     abertura: 'Entre, e trazemos o seu diário para este celular.',
     sessao: 'A sua sessão terminou — acontece de vez em quando.',
   },
-  /* O CARTÃO DA CAPA (28/09/2026, pedido do dono): três pontos curtos
-     sob a aurora, no lugar da tela vazia — o que a conta faz pela pessoa,
-     dito sem termo técnico. Os ícones moram em app/conta, na mesma ordem.
-     Nenhum deles promete o que não fazemos: o "sem senha" não cita a
-     Apple nem o Google, que não existem em todo aparelho. */
-  pontos: {
-    cadastro: [
-      { titulo: 'Guardado com a gente', frase: 'Se o celular sumir, o seu diário não vai junto.' },
-      { titulo: 'No celular que for', frase: 'Trocou de aparelho? É só entrar, e está tudo lá.' },
-      { titulo: 'Nenhuma senha para decorar', frase: 'Um toque, ou um código que mandamos por e-mail.' },
-    ],
-    abertura: [
-      { titulo: 'Tudo volta para cá', frase: 'Os seus registros chegam do jeito que você deixou.' },
-      { titulo: 'Guardado dali para a frente', frase: 'Cada registro novo vai direto para a sua conta.' },
-      { titulo: 'Nenhuma senha para decorar', frase: 'Um toque, ou um código que mandamos por e-mail.' },
-    ],
-    sessao: [
-      { titulo: 'Nada se perdeu', frase: 'O que você registrou continua neste celular.' },
-      { titulo: 'Guardamos assim que você entrar', frase: 'O que ficou só aqui sobe para a sua conta.' },
-      { titulo: 'Nenhuma senha para decorar', frase: 'Um toque, ou um código que mandamos por e-mail.' },
-    ],
-  },
+
 
   comApple: 'Continuar com a Apple',
   comGoogle: 'Continuar com o Google',

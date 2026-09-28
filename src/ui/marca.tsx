@@ -43,10 +43,15 @@ export const RAZAO_LOCKUP = 1437 / 268;
 export const RAZAO_SIMBOLO = 533 / 222;
 
 /** símbolo e letreiro juntos, na proporção do arquivo */
-export function Marca({ altura = 22, tinta = '#FFFFFF' }: { altura?: number; tinta?: string }) {
+export function Marca({ altura = 22, tinta = '#FFFFFF', simbolo = LIMA_MARCA }: {
+  altura?: number; tinta?: string;
+  /** a cor do M. Lima por padrão; sobre o branco ele sumiria, e a marca
+      inteira vai na tinta do letreiro — ver a capa da conta. */
+  simbolo?: string;
+}) {
   return (
     <Svg width={altura * RAZAO_LOCKUP} height={altura} viewBox={LOCKUP}>
-      <Path d={D_SIMBOLO} fill={LIMA_MARCA} />
+      <Path d={D_SIMBOLO} fill={simbolo} />
       {D_LETREIRO.map((d) => <Path key={d.slice(0, 12)} d={d} fill={tinta} />)}
     </Svg>
   );

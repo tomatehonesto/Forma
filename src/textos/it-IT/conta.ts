@@ -11,23 +11,7 @@ export const conta = {
     abertura: 'Accedi, e riportiamo il tuo diario su questo telefono.',
     sessao: 'La tua sessione è scaduta — capita ogni tanto.',
   },
-  pontos: {
-    cadastro: [
-      { titulo: 'Al sicuro con noi', frase: 'Se il telefono sparisce, il tuo diario resta.' },
-      { titulo: 'Su qualsiasi telefono', frase: 'Telefono nuovo? Accedi, ed è tutto lì.' },
-      { titulo: 'Nessuna password da ricordare', frase: 'Un tocco, o un codice che ti mandiamo per email.' },
-    ],
-    abertura: [
-      { titulo: 'Torna tutto qui', frase: 'Le tue registrazioni arrivano come le hai lasciate.' },
-      { titulo: 'Al sicuro da qui in avanti', frase: 'Ogni nuova registrazione va dritta nel tuo account.' },
-      { titulo: 'Nessuna password da ricordare', frase: 'Un tocco, o un codice che ti mandiamo per email.' },
-    ],
-    sessao: [
-      { titulo: 'Non si è perso niente', frase: 'Quello che hai registrato è ancora su questo telefono.' },
-      { titulo: 'Salvato appena accedi', frase: 'Quello che è solo qui passa nel tuo account.' },
-      { titulo: 'Nessuna password da ricordare', frase: 'Un tocco, o un codice che ti mandiamo per email.' },
-    ],
-  },
+
 
   comApple: 'Continua con Apple',
   comGoogle: 'Continua con Google',
