@@ -53,7 +53,7 @@ import {
   cicloFases, injCalendar, protocoloDaSemana,
   aplicacaoDoCadastro, diaDoTratamento, nextInjectionDate, rodizioDeLocais, timelineEvents,
   semanasDaGrade, timelineWeeks, comecouAntesDoApp, nomeDeQuemCuida, dailyTargets, indicadoresDaEvolucao,
-  diasDeRefeicao, diasDeAgua, diasDoPeriodo,
+  diasDeRefeicao, diasDeAgua, diasDoPeriodo, temHistoria,
 } from '../src/logic/derive';
 import { semanaDoTratamento } from '../src/logic/time';
 import { boasVindasNaHome, marcarApresentacaoVista } from '../src/logic/apresentacao';
@@ -427,6 +427,17 @@ ok(linhasDe('peso').some((l) => l.k === T.resumo.pesoAtual) && !linhasDe('peso')
 ok(linhasDe('sintomas').length === 0, 'sem resposta, os sintomas do resumo não viram quatro traços');
 ok(resumoDoTratamento(semente).find((s) => s.id === 'sintomas')!.linhas.length === 4,
   'com respostas, as quatro médias voltam');
+const hojeCadastrou = clone(chegouHoje);
+(hojeCadastrou.profile as any).consentimento = { em: +hoje + 9 * 3600e3, versao: 2 };
+(hojeCadastrou.checkins as any[]).push({ t: +hoje, energia: 6 });
+const semanaDepois = clone(hojeCadastrou);
+(semanaDepois.profile as any).consentimento.em = +hoje - 8 * DIA;
+const semanaVazia = clone(zero);
+(semanaVazia.profile as any).consentimento = { em: +hoje - 8 * DIA, versao: 2 };
+ok(!temHistoria(hojeCadastrou) && temHistoria(semanaDepois),
+  '"Seu tratamento" espera sete dias de aplicativo, mesmo com check-in no primeiro');
+ok(!temHistoria(semanaVazia), 'e, passados os sete, ainda pede um registro além do cadastro');
+ok(temHistoria(semente), 'com semanas de dose fechadas, a história aparece');
 
 console.log(falhas ? `\n${falhas} afirmação(ões) falharam\n` : '\ntodas as afirmações passaram\n');
 process.exit(falhas ? 1 : 0);

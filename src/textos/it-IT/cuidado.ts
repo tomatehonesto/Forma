@@ -212,9 +212,6 @@ export const cuidado = {
 
     /* ---------- che cosa chiede la tua attenzione ---------- */
     precisaDeVoce: 'Dipende da te',
-    nadaPrecisa: 'Adesso non c’è niente che dipenda da te.',
-    emDia: 'Il tuo monitoraggio è in ordine.',
-    nadaAinda: 'Quando qualcosa avrà bisogno di te, comparirà qui.',
 
     /* ---------- la visita ---------- */
     proximaConsulta: 'La tua prossima visita',

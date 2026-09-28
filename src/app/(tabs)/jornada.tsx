@@ -11,7 +11,7 @@ import {
   milestones, doseCycle, penStock, nextInjectionDate, siteLabel, nextSite,
   waterMlToday, litros, checkinToday, protocoloDaSemana, weekGrid, last7Days, M,
   sintomasDaSemana, diasDeSintomas, type Change, type TLEvent, type TLKind, type WeekMetric,
-  diasAteAplicar, semanasDaGrade, temCiclo, diaDoTratamento,
+  diasAteAplicar, semanasDaGrade, temCiclo, diaDoTratamento, temHistoria,
 } from '../../logic/derive';
 import { now, fmtDate, relDay, nf, quandoEm } from '../../logic/time';
 import { Txt, Row, SectionHead, Divider, ListRow, Metric, Vazio, Rolagem } from '../../ui/kit';
@@ -752,7 +752,9 @@ export default function Jornada() {
             `milestones` segue alimentando os destaques de cada semana,
             dentro do acordeão de "Por semana". */}
 
-        {/* ---------- A HISTÓRIA — por semana, com destaques ---------- */}
+        {/* ---------- A HISTÓRIA — por semana, com destaques ----------
+            Só com uma semana para contar — ver `temHistoria`. */}
+        {temHistoria(S) ? (
         <View style={{ marginTop: 34 }}>
           <SectionHead title={K().seuTratamento} link={K().verTudo} onPress={go('/historico')} />
           <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>
@@ -900,6 +902,7 @@ export default function Jornada() {
             </View>
           ))}
         </View>
+        ) : null}
 
       </Rolagem>
     </View>

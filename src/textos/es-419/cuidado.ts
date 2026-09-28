@@ -183,9 +183,6 @@ export const cuidado = {
        lista do que espera a pessoa, "depende de ti" é o que um falante
        escreveria. */
     precisaDeVoce: 'Depende de ti',
-    nadaPrecisa: 'Nada depende de ti ahora.',
-    emDia: 'Tu seguimiento está al día.',
-    nadaAinda: 'Cuando algo necesite tu atención, aparecerá aquí.',
 
     proximaConsulta: 'Tu próxima consulta',
     consultasLink: 'Consultas',

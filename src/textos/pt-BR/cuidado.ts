@@ -262,11 +262,6 @@ export const cuidado = {
 
     /* ---------- o que precisa de você ---------- */
     precisaDeVoce: 'Precisa de você',
-    nadaPrecisa: 'Nada precisa de você agora.',
-    emDia: 'Seu acompanhamento está em dia.',
-    /* "Em dia" pede um ciclo em que estar em dia; antes dele, a lista só
-       diz o que ela é. */
-    nadaAinda: 'Quando algo pedir a sua atenção, aparece aqui.',
 
     /* ---------- a consulta ---------- */
     proximaConsulta: 'Sua próxima consulta',

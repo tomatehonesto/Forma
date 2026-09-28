@@ -175,9 +175,6 @@ export const cuidado = {
     enviarPrimeira: 'Send the first message',
 
     precisaDeVoce: 'Waiting on you',
-    nadaPrecisa: 'Nothing is waiting on you right now.',
-    emDia: 'Your follow-up is up to date.',
-    nadaAinda: 'When something needs your attention, it shows up here.',
 
     proximaConsulta: 'Your next appointment',
     consultasLink: 'Appointments',

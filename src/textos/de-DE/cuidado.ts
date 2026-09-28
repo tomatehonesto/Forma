@@ -219,9 +219,6 @@ export const cuidado = {
     enviarPrimeira: 'Die erste Nachricht senden',
 
     precisaDeVoce: 'Wartet auf dich',
-    nadaPrecisa: 'Gerade wartet nichts auf dich.',
-    emDia: 'Deine Begleitung ist auf dem Stand.',
-    nadaAinda: 'Wenn etwas deine Aufmerksamkeit braucht, erscheint es hier.',
 
     proximaConsulta: 'Dein nächster Termin',
     consultasLink: 'Termine',

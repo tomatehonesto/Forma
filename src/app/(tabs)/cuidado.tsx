@@ -9,7 +9,7 @@ import {
   clinicaConectada, temAcompanhamento, nextConsult, lastMessage, carePending, careState,
   examesComValor, examesForaDaRef,
   doseContext, doseCycle, penStock, weekGrid, M, cadenciaCurta,
-  medComDose, fichaDe, temCiclo, nomeDeQuemCuida,
+  medComDose, fichaDe, nomeDeQuemCuida,
 } from '../../logic/derive';
 import { Nivel, Malha } from '../../ui/instrumentos';
 import { fmtDate, diasDaSemana, MO } from '../../logic/time';
@@ -530,11 +530,15 @@ function BannerMedica() {
 /** O que está esperando você — agora a primeira seção da tela.
 
     Com o painel fora, esta lista é o que transforma o estado do hero em
-    coisa que se faz. Por isso ela ganhou o estado vazio que antes eu
-    tinha recusado: quando a seção só aparecia se houvesse pendência, sua
-    ausência era ambígua — não dava para saber se estava tudo em dia ou se
-    a tela tinha esquecido de carregar. Dito em voz alta, "nada precisa de
-    você agora" é a melhor notícia que esta aba tem para dar.
+    coisa que se faz.
+
+    ⚠️ SEM PENDÊNCIA, A SEÇÃO NÃO APARECE (28/09/2026, pedido do dono). Ela
+    já teve um estado vazio — "Nada precisa de você agora" —, posto para
+    a ausência não parecer tela que esqueceu de carregar. No primeiro
+    acesso ele era o primeiro bloco da aba dizendo que não havia nada, e
+    um título que chama a pessoa em cima de um cartão que a dispensa. O
+    que é preciso fazer chega aqui quando existe; o resto da aba já diz
+    como está o acompanhamento.
 
     Só entra aqui o que exige um toque da pessoa. "Consulta em 3 dias" e
     "mensagens em dia" são estado, não ação, e estado já é o hero. */
@@ -544,23 +548,7 @@ function Pendencias() {
   const router = useRouter();
   const itens = carePending(S);
 
-  if (!itens.length) {
-    return (
-      <View style={{ marginTop: 32 }}>
-        <SectionHead title={K().precisaDeVoce} />
-        <Row gap={14} style={{ backgroundColor: c.limeWeak, borderRadius: radius.lg, marginTop: 14, padding: 18 }}>
-          <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: c.bg1, alignItems: 'center', justifyContent: 'center' }}>
-            <Icon name="check" size={16} color={c.tx} sw={2.2} />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Txt v="bodyMed">{K().nadaPrecisa}</Txt>
-            {/* "Em dia" pede um ciclo em que estar em dia. */}
-            <Txt v="caption" c={c.tx2} style={{ marginTop: 3 }}>{temCiclo(S) ? K().emDia : K().nadaAinda}</Txt>
-          </View>
-        </Row>
-      </View>
-    );
-  }
+  if (!itens.length) return null;
 
   return (
     <View style={{ marginTop: 32 }}>

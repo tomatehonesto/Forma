@@ -3072,6 +3072,23 @@ export type JourneyWeek = {
   metricas: WeekMetric[];
 };
 
+/* ⚠️ "SEU TRATAMENTO" ESPERA A PRIMEIRA SEMANA (28/09/2026, pedido do dono).
+   No primeiro acesso a história semana a semana tinha uma linha só — o
+   peso do cadastro —, com filtros e "ver tudo" em volta dela: a moldura
+   de um diário que ainda não começou. Ela aparece quando há uma semana
+   para contar: uma semana de dose fechada (a segunda aplicação), ou sete
+   dias de aplicativo com algum registro além do que o cadastro trouxe. */
+export function temHistoria(S: State): boolean {
+  if (((S.injections ?? []) as any[]).length >= 2) return true;
+  const nasceu = (S.profile as any)?.consentimento?.em ?? S.profile.startT;
+  if (!nasceu || diffDays(now(), new Date(nasceu)) < 7) return false;
+  return ((S.checkins ?? []) as any[]).some(respostaNoDia)
+    || ((S.weights ?? []) as any[]).length >= 2
+    || ((S.meals ?? []) as any[]).length > 0
+    || ((S.measures ?? []) as any[]).length > 0
+    || ((S.injections ?? []) as any[]).some((i) => i.origem !== 'cadastro');
+}
+
 export function timelineWeeks(S: State): JourneyWeek[] {
   const evs = timelineEvents(S);
   const injs = (S.injections as any[]).slice().sort((a, b) => a.t - b.t);
