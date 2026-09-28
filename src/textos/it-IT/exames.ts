@@ -137,6 +137,15 @@ export const exames = {
      di riferimento" da solo è un allarme senza denominatore: tre su
      quindici e tre su quattro non sono la stessa notizia.
      ============================================================ */
+  anotar: {
+    titulo: 'Quale risultato è arrivato?',
+    sub: 'Un marcatore alla volta, come sul referto',
+    ultimo: 'ultimo',
+    referencia: 'riferimento abituale',
+    primeiro: 'primo valore di questo marcatore',
+    registrar: (nome: string) => `Registra ${nome}`,
+  },
+
   tela: {
     titulo: 'Esami',
     linha: (quantos: number, ultimaColeta: string) =>
@@ -148,7 +157,7 @@ export const exames = {
     fonteFoto: 'foto',
     arquivoSub: (marcadores: number, fonte: string, data: string) =>
       `${marcadores} marcatori · ${fonte} · ${data}`,
-    importar: 'Importa un esame',
+    importar: 'Annota un risultato',
     enviarAoMedico: 'Invia al medico',
 
     linhaVazia: 'Ancora nessun risultato',

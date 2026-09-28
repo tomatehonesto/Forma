@@ -1061,6 +1061,37 @@ export const examCats = (): [string, string[]][] => [
   [T.marcadores.catVitaminas, ['Vitamina D', 'Vitamina B12', 'Ferritina']],
 ];
 
+/* A UNIDADE, A FAIXA USUAL E A DIREÇÃO DE CADA MARCADOR DA LISTA ACIMA.
+
+   ⚠️ O MARCADOR ANOTADO NASCIA SEM NADA DISSO (28/09/2026): a folha de
+   /medir-exame gravava `unit: ''` e `ref: ''`, e sem faixa `examStatus`
+   responde "ok" — o primeiro resultado anotado aparecia "na referência"
+   sem ter sido comparado com faixa nenhuma. Agora ele nasce com a faixa
+   usual, e a folha a mostra como tal ("referência usual"), porque cada
+   laboratório tem a sua: quem tiver a do laudo em mãos vê a diferença.
+
+   Os valores são os que o diário de exemplo já usava. As unidades são as
+   do laudo brasileiro — onde o laboratório escreve em mmol/L, o número
+   digitado não bate com elas, e isso fica para quando houver leitura do
+   laudo. */
+export const REFERENCIA_DOS_MARCADORES: Record<string, { unit: string; ref: string; good: '' | 'up' | 'down' }> = {
+  HbA1c: { unit: '%', ref: '< 5,7', good: 'down' },
+  'Glicemia jejum': { unit: 'mg/dL', ref: '70–99', good: 'down' },
+  Insulina: { unit: 'µUI/mL', ref: '2,6–24,9', good: 'down' },
+  'Colesterol total': { unit: 'mg/dL', ref: '< 190', good: 'down' },
+  HDL: { unit: 'mg/dL', ref: '> 40', good: 'up' },
+  LDL: { unit: 'mg/dL', ref: '< 130', good: 'down' },
+  Triglicerídeos: { unit: 'mg/dL', ref: '< 150', good: 'down' },
+  Creatinina: { unit: 'mg/dL', ref: '0,6–1,1', good: '' },
+  TGO: { unit: 'U/L', ref: '< 32', good: '' },
+  TGP: { unit: 'U/L', ref: '< 33', good: '' },
+  TSH: { unit: 'µUI/mL', ref: '0,4–4,0', good: '' },
+  'T4 livre': { unit: 'ng/dL', ref: '0,9–1,7', good: '' },
+  'Vitamina D': { unit: 'ng/mL', ref: '> 30', good: 'up' },
+  'Vitamina B12': { unit: 'pg/mL', ref: '> 300', good: 'up' },
+  Ferritina: { unit: 'ng/mL', ref: '15–150', good: '' },
+};
+
 /* ============================================================
    OS TRÊS TEXTOS DE CADA MARCADOR — e eles não moram mais aqui
 

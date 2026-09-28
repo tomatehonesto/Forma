@@ -53,7 +53,7 @@ import {
   cicloFases, injCalendar, protocoloDaSemana,
   aplicacaoDoCadastro, diaDoTratamento, nextInjectionDate, rodizioDeLocais, timelineEvents,
   semanasDaGrade, timelineWeeks, comecouAntesDoApp, nomeDeQuemCuida, dailyTargets, indicadoresDaEvolucao,
-  diasDeRefeicao, diasDeAgua, diasDoPeriodo, temHistoria, ritmoRecente, last7Days,
+  diasDeRefeicao, diasDeAgua, diasDoPeriodo, temHistoria, ritmoRecente, last7Days, examCats, REFERENCIA_DOS_MARCADORES,
 } from '../src/logic/derive';
 import { semanaDoTratamento } from '../src/logic/time';
 import { boasVindasNaHome, marcarApresentacaoVista } from '../src/logic/apresentacao';
@@ -484,6 +484,14 @@ if (!redeLancada()) {
   ok(temRedeParceira('BR') && !temRedeParceira('US'), 'com a variável, a rede volta — e só no Brasil');
   ok(conviteDaClinica, 'e o convite da clínica volta ao carrossel');
 }
+
+console.log('\n18. O EXAME ANOTADO');
+const semReferencia = examCats().flatMap(([, ms]) => ms).filter((m) => {
+  const r = REFERENCIA_DOS_MARCADORES[m];
+  return !r || !r.unit || !r.ref;
+});
+ok(!semReferencia.length,
+  `todo marcador que a folha oferece nasce com unidade e faixa usual${semReferencia.length ? ` (faltam: ${semReferencia.join(', ')})` : ''}`);
 
 console.log(falhas ? `\n${falhas} afirmação(ões) falharam\n` : '\ntodas as afirmações passaram\n');
 process.exit(falhas ? 1 : 0);

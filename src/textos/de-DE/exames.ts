@@ -146,6 +146,15 @@ export const exames = {
       `Bei der Abnahme am ${data} lag der Wert bei ${valor}${unidade}, und die Referenz des Labors ist ${faixa}.${andou}${painel} Ein einzelner Befund entscheidet nichts: wer ihn mit dem Rest deiner Geschichte zusammenbringt, ist, wer dich behandelt.`,
   },
 
+  anotar: {
+    titulo: 'Welcher Wert ist da?',
+    sub: 'Ein Marker nach dem anderen, wie im Befund',
+    ultimo: 'zuletzt',
+    referencia: 'übliche Referenz',
+    primeiro: 'erster Eintrag für diesen Marker',
+    registrar: (nome: string) => `${nome} eintragen`,
+  },
+
   tela: {
     titulo: 'Befunde',
     linha: (quantos: number, ultimaColeta: string) =>
@@ -157,7 +166,7 @@ export const exames = {
     fonteFoto: 'Foto',
     arquivoSub: (marcadores: number, fonte: string, data: string) =>
       `${marcadores} Marker · ${fonte} · ${data}`,
-    importar: 'Befund einlesen',
+    importar: 'Laborwert eintragen',
     enviarAoMedico: 'An die Praxis schicken',
 
     linhaVazia: 'Noch keine Werte',

@@ -120,6 +120,15 @@ export const exames = {
       `Au prélèvement du ${data}, la valeur était de ${valor}${unidade}, et la référence du laboratoire est ${faixa}.${andou}${painel} Une analyse seule ne conclut rien : la personne qui la met avec le reste de votre histoire, c’est celle qui vous suit.`,
   },
 
+  anotar: {
+    titulo: 'Quel résultat est arrivé ?',
+    sub: 'Un marqueur à la fois, comme sur le compte rendu',
+    ultimo: 'dernier',
+    referencia: 'référence habituelle',
+    primeiro: 'premier relevé de ce marqueur',
+    registrar: (nome: string) => `Enregistrer ${nome}`,
+  },
+
   tela: {
     titulo: 'Analyses',
     linha: (quantos: number, ultimaColeta: string) =>
@@ -131,7 +140,7 @@ export const exames = {
     fonteFoto: 'photo',
     arquivoSub: (marcadores: number, fonte: string, data: string) =>
       `${marcadores} marqueurs · ${fonte} · ${data}`,
-    importar: 'Importer une analyse',
+    importar: 'Noter un résultat',
     enviarAoMedico: 'Envoyer au médecin',
 
     linhaVazia: 'Aucun résultat pour l’instant',

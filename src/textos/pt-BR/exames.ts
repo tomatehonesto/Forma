@@ -147,6 +147,22 @@ export const exames = {
      sozinho é um alarme sem denominador: três de quinze e três de quatro
      não são a mesma notícia.
      ============================================================ */
+  /* ============================================================
+     ANOTAR UM RESULTADO — a folha de /medir-exame
+
+     ⚠️ ESTAVA ESCRITA À MÃO EM PORTUGUÊS na própria tela (28/09/2026), e
+     aparecia assim nos seis idiomas. E prometia "Importar PDF do
+     laboratório — ainda não disponível": a promessa saiu junto.
+     ============================================================ */
+  anotar: {
+    titulo: 'Qual resultado chegou?',
+    sub: 'Um marcador por vez, como está no laudo',
+    ultimo: 'último',
+    referencia: 'referência usual',
+    primeiro: 'primeiro registro deste marcador',
+    registrar: (nome: string) => `Registrar ${nome}`,
+  },
+
   tela: {
     titulo: 'Exames',
     linha: (quantos: number, ultimaColeta: string) =>
@@ -160,7 +176,7 @@ export const exames = {
     fonteFoto: 'foto',
     arquivoSub: (marcadores: number, fonte: string, data: string) =>
       `${marcadores} marcadores · ${fonte} · ${data}`,
-    importar: 'Importar exame',
+    importar: 'Anotar um resultado',
     enviarAoMedico: 'Enviar ao médico',
 
     /* ---------- a tela que ainda não tem exame ----------

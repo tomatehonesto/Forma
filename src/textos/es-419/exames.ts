@@ -106,6 +106,15 @@ export const exames = {
       `En la toma de ${data} el valor fue ${valor}${unidade}, y la referencia del laboratorio es ${faixa}.${andou}${painel} Un examen solo no cierra nada: quien lo junta con el resto de tu historia es quien te acompaña.`,
   },
 
+  anotar: {
+    titulo: '¿Qué resultado llegó?',
+    sub: 'Un marcador a la vez, como está en el informe',
+    ultimo: 'último',
+    referencia: 'referencia habitual',
+    primeiro: 'primer registro de este marcador',
+    registrar: (nome: string) => `Registrar ${nome}`,
+  },
+
   tela: {
     titulo: 'Exámenes',
     linha: (quantos: number, ultimaColeta: string) =>
@@ -117,7 +126,7 @@ export const exames = {
     fonteFoto: 'foto',
     arquivoSub: (marcadores: number, fonte: string, data: string) =>
       `${marcadores} marcadores · ${fonte} · ${data}`,
-    importar: 'Importar examen',
+    importar: 'Anotar un resultado',
     enviarAoMedico: 'Enviar al médico',
 
     linhaVazia: 'Todavía sin resultados',

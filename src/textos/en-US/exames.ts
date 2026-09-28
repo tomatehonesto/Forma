@@ -106,6 +106,15 @@ export const exames = {
       `On the ${data} draw the value was ${valor}${unidade}, and the lab’s reference range is ${faixa}.${andou}${painel} A single panel doesn’t settle anything: the person who puts it together with the rest of your history is whoever follows your care.`,
   },
 
+  anotar: {
+    titulo: 'Which result came in?',
+    sub: 'One marker at a time, as on the report',
+    ultimo: 'last',
+    referencia: 'usual reference',
+    primeiro: 'first entry for this marker',
+    registrar: (nome: string) => `Log ${nome}`,
+  },
+
   tela: {
     titulo: 'Lab results',
     linha: (quantos: number, ultimaColeta: string) =>
@@ -117,7 +126,7 @@ export const exames = {
     fonteFoto: 'photo',
     arquivoSub: (marcadores: number, fonte: string, data: string) =>
       `${marcadores} markers · ${fonte} · ${data}`,
-    importar: 'Import a lab result',
+    importar: 'Log a lab result',
     enviarAoMedico: 'Send to the doctor',
 
     linhaVazia: 'No results yet',
