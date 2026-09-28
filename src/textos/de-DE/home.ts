@@ -472,12 +472,13 @@ export const home = {
     /** o leitor de tela diz em que página está */
     pagina: (i: number, n: number): string => `${i} von ${n}`,
     /* quem toma comprimido não tem local de aplicação: a frase da dose muda */
-    dose: { titulo: 'Dosis und Zyklus', texto: 'Wir erinnern dich pünktlich an die Dosis, schlagen die nächste Injektionsstelle vor und sagen dir Bescheid, bevor das Medikament ausgeht.', textoOral: 'Wir erinnern dich pünktlich an die Dosis und sagen dir Bescheid, bevor das Medikament ausgeht.' },
-    estado: { titulo: 'Wie es dir geht', texto: 'Ein Check-in, der weniger als eine Minute am Tag dauert. Mit der Zeit zeigen wir, was deinen Appetit, deinen Schlaf und deine Stimmung beeinflusst.' },
-    comida: { titulo: 'Ernährung', texto: 'Wir behalten Eiweiß und Wasser des Tages im Blick und lesen das Foto deines Tellers, wenn du darum bittest.' },
-    evolucao: { titulo: 'Fortschritt', texto: 'Gewicht, Maße und die Ziele jenseits der Waage, an einem Ort.' },
-    consultas: { titulo: 'Arzttermine', texto: 'Wir stellen eine Zusammenfassung für deinen Termin zusammen, mit dem, was sich seit dem letzten geändert hat.' },
-    companheiro: { titulo: 'Begleiter', texto: 'Eine Frage zur Behandlung, jederzeit: Frag einfach.' },
+    dose: { titulo: 'Deine Dosis, immer im Blick', texto: 'Wir erinnern dich zur richtigen Zeit, schlagen die nächste Injektionsstelle vor und sagen dir Bescheid, bevor das Medikament ausgeht.', textoOral: 'Wir erinnern dich zur richtigen Zeit und sagen dir Bescheid, bevor das Medikament ausgeht.' },
+    estado: { titulo: 'Entdecke, was sich bei dir verändert', texto: 'Ein kurzer Check-in am Tag, und mit der Zeit siehst du, was deinen Appetit, deinen Schlaf und deine Stimmung beeinflusst.' },
+    comida: { titulo: 'Gut essen, ganz einfach', texto: 'Sieh, wie viel Eiweiß und Wasser du heute schon hattest. Fotografiere deinen Teller, und wir lesen ihn für dich.' },
+    evolucao: { titulo: 'Sieh, wie weit du schon bist', texto: 'Gewicht, Maße und die Ziele jenseits der Waage, alles an einem Ort.' },
+    consultas: { titulo: 'Eine Zusammenfassung für deinen Termin', texto: 'Komm mit allem, was sich seit dem letzten Termin geändert hat, übersichtlich in einem Dokument.' },
+    /* ⚠️ "MORPHI INTELLIGENCE" É NOME, e não se traduz (pedido do dono). */
+    companheiro: { titulo: 'Morphi Intelligence', texto: 'Eine Frage zur Behandlung? Frag, wann immer du willst, zu jeder Zeit.' },
   },
 
   primeirosPassos: {

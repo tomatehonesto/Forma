@@ -7,7 +7,7 @@ export type PilarDaApresentacao = 'dose' | 'estado' | 'comida' | 'evolucao' | 'c
 
 /** o tamanho da foto da tela, em pontos: a largura do telefone e o alto que ela cobre */
 export const LARGURA_DA_FOTO = 390;
-export const ALTO_DA_FOTO = 700;
+export const ALTO_DA_FOTO = 730;
 
 export const TELAS_DA_APRESENTACAO: Record<string, Record<PilarDaApresentacao, number>> = {
   'pt-BR': {

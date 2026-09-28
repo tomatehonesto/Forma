@@ -45,6 +45,14 @@ const TELAS = [
    apresentação mostra antes de sumir no fundo. */
 const LARGURA = 390, ALTURA = 844, ALTO = 700;
 const SAIDA = 540;
+/* O LUGAR DA BARRA DE ESTADO, em pontos. Na web a tela começa colada no
+   alto, e no telefone da apresentação há a ilha em cima. Esta faixa é
+   acrescentada ao alto da foto, continuando a própria borda de cima dela,
+   borrada: numa tela clara é o fundo claro; numa que abre com foto ou
+   degradê (Alimentação, Insights), é a foto ou o degradê seguindo — sem a
+   faixa branca de antes (pedido do dono). */
+const TOPO = 30;
+const ESCALA = 2;
 
 const pasta = new URL('../assets/apresentacao/', import.meta.url);
 await mkdir(pasta, { recursive: true });
@@ -54,7 +62,7 @@ let bytes = 0;
 try {
   for (const idioma of IDIOMAS) {
     const contexto = await navegador.newContext({
-      viewport: { width: LARGURA, height: ALTURA }, deviceScaleFactor: 2, colorScheme: 'light',
+      viewport: { width: LARGURA, height: ALTURA }, deviceScaleFactor: ESCALA, colorScheme: 'light',
     });
     const pagina = await contexto.newPage();
     /* A primeira abertura cria o diário de exemplo; depois o idioma entra
@@ -74,7 +82,12 @@ try {
       const aqui = new URL(pagina.url()).pathname;
       if (aqui !== rota) throw new Error(`${idioma} ${pilar}: esperava ${rota}, ficou em ${aqui}`);
       const png = await pagina.screenshot({ clip: { x: 0, y: 0, width: LARGURA, height: ALTO } });
-      const tela = await sharp(png).resize({ width: SAIDA }).webp({ quality: 82 }).toBuffer();
+      const comTopo = await sharp(png).extend({ top: TOPO * ESCALA, extendWith: 'copy' }).png().toBuffer();
+      const faixa = await sharp(comTopo).extract({ left: 0, top: 0, width: LARGURA * ESCALA, height: TOPO * ESCALA + 12 }).blur(10).png().toBuffer();
+      /* compõe antes e reduz depois: o sharp reduz antes de compor, e a faixa
+         no tamanho cheio não caberia na foto já reduzida */
+      const composta = await sharp(comTopo).composite([{ input: faixa, top: 0, left: 0 }]).png().toBuffer();
+      const tela = await sharp(composta).resize({ width: SAIDA }).webp({ quality: 82 }).toBuffer();
       await writeFile(new URL(`${pilar}-${idioma}.webp`, pasta), tela);
       bytes += tela.length;
       console.log(`  ${idioma.padEnd(6)} ${pilar.padEnd(12)} ${rota}`);
@@ -98,7 +111,7 @@ const mapa = [
   ``,
   `/** o tamanho da foto da tela, em pontos: a largura do telefone e o alto que ela cobre */`,
   `export const LARGURA_DA_FOTO = ${LARGURA};`,
-  `export const ALTO_DA_FOTO = ${ALTO};`,
+  `export const ALTO_DA_FOTO = ${ALTO + TOPO};`,
   ``,
   `export const TELAS_DA_APRESENTACAO: Record<string, Record<PilarDaApresentacao, number>> = {`,
   ...IDIOMAS.map((l) => `  '${l}': {\n${pilarDoIdioma(l)}\n  },`),

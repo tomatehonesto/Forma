@@ -442,12 +442,13 @@ export const home = {
     /** o leitor de tela diz em que página está */
     pagina: (i: number, n: number): string => `${i} de ${n}`,
     /* quem toma comprimido não tem local de aplicação: a frase da dose muda */
-    dose: { titulo: 'Dosis y ciclo', texto: 'Te recordamos la dosis a tiempo, sugerimos dónde aplicarla la próxima vez y te avisamos antes de que se acabe el medicamento.', textoOral: 'Te recordamos la dosis a tiempo y te avisamos antes de que se acabe el medicamento.' },
-    estado: { titulo: 'Cómo te sientes', texto: 'Un check-in de menos de un minuto al día. Con el tiempo, te mostramos qué influye en tu apetito, tu sueño y tu ánimo.' },
-    comida: { titulo: 'Alimentación', texto: 'Seguimos la proteína y el agua del día, y leemos la foto de tu plato cuando lo pides.' },
-    evolucao: { titulo: 'Evolución', texto: 'El peso, las medidas y las metas que van más allá de la báscula, en un solo lugar.' },
-    consultas: { titulo: 'Consultas', texto: 'Armamos un resumen para que lo lleves a la consulta, con lo que cambió desde la última.' },
-    companheiro: { titulo: 'Compañero', texto: 'Una duda sobre el tratamiento, a cualquier hora: solo pregunta.' },
+    dose: { titulo: 'Tu dosis siempre al día', texto: 'Te recordamos a la hora justa, sugerimos dónde aplicarla la próxima vez y te avisamos antes de que se acabe el medicamento.', textoOral: 'Te recordamos a la hora justa y te avisamos antes de que se acabe el medicamento.' },
+    estado: { titulo: 'Descubre lo que cambia en ti', texto: 'Un check-in rapidito al día y, con el tiempo, verás qué influye en tu apetito, tu sueño y tu ánimo.' },
+    comida: { titulo: 'Comer bien, sin complicarte', texto: 'Mira cuánta proteína y agua llevas en el día. Fotografía tu plato y nosotros lo leemos por ti.' },
+    evolucao: { titulo: 'Mira cuánto has avanzado', texto: 'El peso, las medidas y las metas que van más allá de la báscula, juntos en un solo lugar.' },
+    consultas: { titulo: 'Un resumen para tu consulta', texto: 'Llega con todo lo que cambió desde la última, ordenado en un solo documento.' },
+    /* ⚠️ "MORPHI INTELLIGENCE" É NOME, e não se traduz (pedido do dono). */
+    companheiro: { titulo: 'Morphi Intelligence', texto: '¿Tienes alguna duda sobre el tratamiento? Pregunta cuando quieras, a cualquier hora.' },
   },
 
   primeirosPassos: {

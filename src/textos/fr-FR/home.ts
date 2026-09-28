@@ -465,12 +465,13 @@ export const home = {
     /** o leitor de tela diz em que página está */
     pagina: (i: number, n: number): string => `${i} sur ${n}`,
     /* quem toma comprimido não tem local de aplicação: a frase da dose muda */
-    dose: { titulo: 'Dose et cycle', texto: 'Nous vous rappelons la dose à l’heure, suggérons où faire la prochaine injection et vous prévenons avant que le traitement ne s’épuise.', textoOral: 'Nous vous rappelons la dose à l’heure et vous prévenons avant que le traitement ne s’épuise.' },
-    estado: { titulo: 'Comment vous allez', texto: 'Un check-in de moins d’une minute par jour. Avec le temps, nous montrons ce qui influence votre appétit, votre sommeil et votre humeur.' },
-    comida: { titulo: 'Alimentation', texto: 'Nous suivons les protéines et l’eau de la journée, et lisons la photo de votre assiette quand vous le demandez.' },
-    evolucao: { titulo: 'Progrès', texto: 'Le poids, les mensurations et les objectifs qui vont au-delà de la balance, au même endroit.' },
-    consultas: { titulo: 'Consultations', texto: 'Nous préparons un résumé à apporter à votre consultation, avec ce qui a changé depuis la dernière.' },
-    companheiro: { titulo: 'Compagnon', texto: 'Une question sur le traitement, à toute heure : il suffit de demander.' },
+    dose: { titulo: 'Votre dose, toujours à jour', texto: 'Nous vous rappelons la dose au bon moment, suggérons où faire la prochaine injection et vous prévenons avant que le traitement ne s’épuise.', textoOral: 'Nous vous rappelons la dose au bon moment et vous prévenons avant que le traitement ne s’épuise.' },
+    estado: { titulo: 'Découvrez ce qui change en vous', texto: 'Un petit check-in chaque jour et, avec le temps, vous verrez ce qui influence votre appétit, votre sommeil et votre humeur.' },
+    comida: { titulo: 'Bien manger, sans se compliquer', texto: 'Voyez combien de protéines et d’eau vous avez déjà pris aujourd’hui. Photographiez votre assiette, nous la lisons pour vous.' },
+    evolucao: { titulo: 'Voyez tout le chemin parcouru', texto: 'Le poids, les mensurations et les objectifs au-delà de la balance, réunis au même endroit.' },
+    consultas: { titulo: 'Un résumé pour votre consultation', texto: 'Arrivez avec tout ce qui a changé depuis la dernière, rassemblé dans un seul document.' },
+    /* ⚠️ "MORPHI INTELLIGENCE" É NOME, e não se traduz (pedido do dono). */
+    companheiro: { titulo: 'Morphi Intelligence', texto: 'Une question sur votre traitement ? Posez-la quand vous voulez, à toute heure.' },
   },
 
   primeirosPassos: {

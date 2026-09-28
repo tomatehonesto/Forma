@@ -193,10 +193,11 @@ function Telefone({ largura, altura, foto, fundo }: { largura: number; altura: n
         shadowColor: '#0B1220', shadowOpacity: 0.12, shadowRadius: 24, shadowOffset: { width: 0, height: 10 },
       }}>
         <View style={{ flex: 1, borderTopLeftRadius: 37, borderTopRightRadius: 37, backgroundColor: FUNDO_DA_FOTO, overflow: 'hidden' }}>
-          {/* o lugar da barra de estado, vazio: só a ilha */}
-          <View style={{ height: 30 }} />
-          <View style={{ position: 'absolute', top: 9, alignSelf: 'center', width: 66, height: 19, borderRadius: 10, backgroundColor: moldura }} />
+          {/* A foto já traz, no alto, o lugar da barra de estado: a própria borda
+              de cima da tela, continuada e borrada pelo script. Assim uma tela
+              que abre com foto ou degradê não ganha uma faixa clara em cima. */}
           <Image source={foto} style={{ width: tela, height: tela * (ALTO_DA_FOTO / LARGURA_DA_FOTO) }} resizeMode="cover" />
+          <View style={{ position: 'absolute', top: 9, alignSelf: 'center', width: 66, height: 19, borderRadius: 10, backgroundColor: moldura }} />
         </View>
       </View>
       <LinearGradient

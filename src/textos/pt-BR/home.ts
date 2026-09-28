@@ -665,12 +665,13 @@ export const home = {
     /** o leitor de tela diz em que página está */
     pagina: (i: number, n: number): string => `${i} de ${n}`,
     /* quem toma comprimido não tem local de aplicação: a frase da dose muda */
-    dose: { titulo: 'Dose e ciclo', texto: 'Lembramos da dose na hora, sugerimos onde aplicar da próxima vez e avisamos antes de o remédio acabar.', textoOral: 'Lembramos da dose na hora e avisamos antes de o remédio acabar.' },
-    estado: { titulo: 'Como você está', texto: 'Um check-in de menos de um minuto por dia. Com o tempo, mostramos o que mexe com o seu apetite, o seu sono e o seu humor.' },
-    comida: { titulo: 'Alimentação', texto: 'Acompanhamos a proteína e a água do dia, e lemos a foto do seu prato quando você pede.' },
-    evolucao: { titulo: 'Evolução', texto: 'O peso, as medidas e as metas que vão além da balança, num lugar só.' },
-    consultas: { titulo: 'Consultas', texto: 'Montamos um resumo para você levar à consulta, com o que mudou desde a última.' },
-    companheiro: { titulo: 'Companheiro', texto: 'Uma dúvida sobre o tratamento, a qualquer hora: é só perguntar.' },
+    dose: { titulo: 'Sua dose sempre em dia', texto: 'Lembramos você na hora certa, sugerimos onde aplicar da próxima vez e avisamos antes de o remédio acabar.', textoOral: 'Lembramos você na hora certa e avisamos antes de o remédio acabar.' },
+    estado: { titulo: 'Descubra o que muda em você', texto: 'Um check-in rapidinho por dia e, com o tempo, você vê o que mexe com o seu apetite, o seu sono e o seu humor.' },
+    comida: { titulo: 'Comer bem, sem complicar', texto: 'Veja quanto de proteína e de água já foi no dia. Fotografe o prato e nós lemos para você.' },
+    evolucao: { titulo: 'Veja o quanto você já avançou', texto: 'O peso, as medidas e as metas que vão além da balança, juntos num lugar só.' },
+    consultas: { titulo: 'Um resumo para a sua consulta', texto: 'Chegue com tudo o que mudou desde a última, organizado num documento só.' },
+    /* ⚠️ "MORPHI INTELLIGENCE" É NOME, e não se traduz (pedido do dono). */
+    companheiro: { titulo: 'Morphi Intelligence', texto: 'Ficou com alguma dúvida sobre o tratamento? Pergunte quando quiser, a qualquer hora.' },
   },
 
   /* ============================================================

@@ -602,12 +602,13 @@ export const home = {
     /** o leitor de tela diz em que página está */
     pagina: (i: number, n: number): string => `${i} di ${n}`,
     /* quem toma comprimido não tem local de aplicação: a frase da dose muda */
-    dose: { titulo: 'Dose e ciclo', texto: 'Ti ricordiamo la dose all’ora giusta, suggeriamo dove fare la prossima iniezione e ti avvisiamo prima che il farmaco finisca.', textoOral: 'Ti ricordiamo la dose all’ora giusta e ti avvisiamo prima che il farmaco finisca.' },
-    estado: { titulo: 'Come stai', texto: 'Un check-in di meno di un minuto al giorno. Col tempo, ti mostriamo cosa influisce su appetito, sonno e umore.' },
-    comida: { titulo: 'Alimentazione', texto: 'Seguiamo le proteine e l’acqua della giornata, e leggiamo la foto del tuo piatto quando lo chiedi.' },
-    evolucao: { titulo: 'Progressi', texto: 'Il peso, le misure e gli obiettivi che vanno oltre la bilancia, in un unico posto.' },
-    consultas: { titulo: 'Visite', texto: 'Prepariamo un riepilogo da portare alla visita, con quello che è cambiato dall’ultima.' },
-    companheiro: { titulo: 'Compagno', texto: 'Una domanda sulla terapia, a qualsiasi ora: basta chiedere.' },
+    dose: { titulo: 'La tua dose, sempre in regola', texto: 'Ti ricordiamo la dose al momento giusto, suggeriamo dove fare la prossima iniezione e ti avvisiamo prima che il farmaco finisca.', textoOral: 'Ti ricordiamo la dose al momento giusto e ti avvisiamo prima che il farmaco finisca.' },
+    estado: { titulo: 'Scopri cosa cambia in te', texto: 'Un check-in veloce al giorno e, col tempo, vedrai cosa influisce su appetito, sonno e umore.' },
+    comida: { titulo: 'Mangiare bene, senza complicazioni', texto: 'Guarda quante proteine e quanta acqua hai già preso oggi. Fotografa il piatto e lo leggiamo noi per te.' },
+    evolucao: { titulo: 'Guarda quanta strada hai fatto', texto: 'Il peso, le misure e gli obiettivi oltre la bilancia, tutti in un unico posto.' },
+    consultas: { titulo: 'Un riepilogo per la tua visita', texto: 'Arriva con tutto quello che è cambiato dall’ultima, ordinato in un unico documento.' },
+    /* ⚠️ "MORPHI INTELLIGENCE" É NOME, e não se traduz (pedido do dono). */
+    companheiro: { titulo: 'Morphi Intelligence', texto: 'Hai un dubbio sulla terapia? Chiedi quando vuoi, a qualsiasi ora.' },
   },
 
   primeirosPassos: {
