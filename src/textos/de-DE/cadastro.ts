@@ -196,10 +196,10 @@ export const cadastro = {
      der es getan wird. Der Balken läuft von allein und täuscht keinen
      echten Fortschritt vor: er misst die Dauer des Wartens, die einzige
      ehrliche Zahl, die es hier gibt. */
-  montandoTitulo: 'Wir bauen deinen Plan',
-  faseLendo: 'Wir lesen deine Antworten',
-  faseCalculando: 'Wir berechnen deine Tagesziele',
-  faseDesenhando: 'Wir zeichnen deinen Weg',
+  faseAgrupando: 'Wir sammeln deine Antworten …',
+  faseCalculando: 'Wir berechnen deine Tagesziele …',
+  faseMontando: 'Wir bauen deinen Plan …',
+  fasePronto: 'Fertig! Dein Plan steht.',
 
   /* ⚠️ HIER ZAHLT SICH DAS DREITEILIGE `objetivo` AUS. Das Portugiesische
      schreibt „Para perder <b>7 kg</b> com o Mounjaro®“, mit dem Verb

@@ -207,10 +207,10 @@ export const cadastro = {
   /* ============================================================
      L'ATTESA
      ============================================================ */
-  montandoTitulo: 'Sto costruendo il tuo piano',
-  faseLendo: 'Leggo le tue risposte',
-  faseCalculando: 'Calcolo i tuoi obiettivi del giorno',
-  faseDesenhando: 'Disegno il tuo percorso',
+  faseAgrupando: 'Raccolgo le tue risposte…',
+  faseCalculando: 'Calcolo i tuoi obiettivi del giorno…',
+  faseMontando: 'Costruisco il tuo piano…',
+  fasePronto: 'Fatto! Il tuo piano è pronto.',
 
   /* ============================================================
      IL PIANO — che cosa sono diventate le risposte

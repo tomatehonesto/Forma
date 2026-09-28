@@ -21,7 +21,7 @@ import { BotaoDaApple, BotaoDoGoogle } from '../ui/marcas';
 import { Icon } from '../ui/Icon';
 import { TelaDePergunta } from '../ui/pergunta';
 import { useTheme } from '../ui/useTheme';
-import { useAurora } from '../ui/aurora';
+import { useAurora, PROPORCAO_DA_CAPA, PAPEL_COMECA } from '../ui/aurora';
 import { ty, font, radius } from '../theme';
 import { T } from '../textos';
 
@@ -562,13 +562,6 @@ export default function Conta() {
 
    AS PORTAS FICAM EMBAIXO, perto do polegar. */
 /* ------------------------------------------------------------------ */
-/* AS MEDIDAS DAS DUAS IMAGENS DA CAPA (assets/images/aurora-conta-*.png):
-   a proporção, e a fração da altura em que o papel começa — medidas nos
-   originais, na primeira linha toda branca (claro) ou toda preta
-   (escuro). É com elas que a imagem sobe até o papel chegar ao texto. */
-const PROPORCAO_DA_CAPA = 1983 / 793;
-const PAPEL_COMECA = { claro: 0.745, escuro: 0.677 };
-
 function CapaDaConta({ titulo, lead, onVoltar, children }: {
   titulo: string; lead: string; onVoltar: () => void; children: React.ReactNode;
 }) {

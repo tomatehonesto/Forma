@@ -109,3 +109,11 @@ export function useAurora() {
   const id = useStore((s) => (s.S as any).paleta as string | undefined);
   return (id && AURORAS[id]) || PADRAO;
 }
+
+/* AS MEDIDAS DAS DUAS IMAGENS DA CAPA (assets/images/aurora-conta-*.png):
+   a proporção, e a fração da altura em que o papel começa — medidas nos
+   originais, na primeira linha toda branca (claro) ou toda preta
+   (escuro). É com elas que a capa da conta e a espera do plano sobem a
+   imagem até o papel chegar onde o texto está. */
+export const PROPORCAO_DA_CAPA = 1983 / 793;
+export const PAPEL_COMECA = { claro: 0.745, escuro: 0.677 };

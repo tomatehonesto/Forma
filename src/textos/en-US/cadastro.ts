@@ -146,10 +146,10 @@ export const cadastro = {
   salvar: 'Save',
   continuar: 'Continue',
 
-  montandoTitulo: 'Building your plan',
-  faseLendo: 'Reading your answers',
-  faseCalculando: 'Calculating your daily goals',
-  faseDesenhando: 'Drawing your journey',
+  faseAgrupando: 'Gathering your answers…',
+  faseCalculando: 'Calculating your daily goals…',
+  faseMontando: 'Building your plan…',
+  fasePronto: 'Done! Your plan is ready.',
 
   telaPlano: {
     planoPronto: 'your personalized plan is ready!',

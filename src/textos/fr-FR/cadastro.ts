@@ -191,10 +191,10 @@ export const cadastro = {
      l'ordre où ça se fait. La barre avance toute seule et ne feint pas un
      progrès réel : elle mesure le temps de l'attente, qui est le seul
      nombre honnête ici. */
-  montandoTitulo: 'Construction de votre plan',
-  faseLendo: 'Lecture de vos réponses',
-  faseCalculando: 'Calcul de vos objectifs du jour',
-  faseDesenhando: 'Dessin de votre parcours',
+  faseAgrupando: 'Regroupement de vos réponses…',
+  faseCalculando: 'Calcul de vos objectifs du jour…',
+  faseMontando: 'Construction de votre plan…',
+  fasePronto: 'C’est prêt ! Votre plan est fait.',
 
   telaPlano: {
     planoPronto: 'votre plan personnalisé est prêt !',

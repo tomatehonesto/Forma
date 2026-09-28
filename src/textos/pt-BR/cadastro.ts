@@ -210,14 +210,14 @@ export const cadastro = {
   /* ============================================================
      A ESPERA
 
-     ⚠️ AS TRÊS FRASES DIZEM O QUE ESTÁ SENDO FEITO, na ordem em que é
-     feito. A barra anda sozinha e não finge progresso real: ela mede o
-     tempo da espera, que é o único número honesto que existe aqui.
+     ⚠️ AS FRASES DIZEM O QUE ESTÁ SENDO FEITO, na ordem em que é feito,
+     e a última diz que acabou (28/09/2026, pedido do dono: cada uma
+     entra grande e, quando chega a seguinte, sobe e fica cinza).
      ============================================================ */
-  montandoTitulo: 'Montando o seu plano',
-  faseLendo: 'Lendo as suas respostas',
-  faseCalculando: 'Calculando as suas metas do dia',
-  faseDesenhando: 'Desenhando a sua jornada',
+  faseAgrupando: 'Agrupando as suas respostas…',
+  faseCalculando: 'Calculando as suas metas do dia…',
+  faseMontando: 'Montando o seu plano…',
+  fasePronto: 'Pronto! O seu plano está feito.',
 
   /* ============================================================
      O PLANO — o que as respostas viraram

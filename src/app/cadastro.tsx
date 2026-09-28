@@ -3,7 +3,7 @@ import {
   Animated, View, Image, Pressable, ScrollView, TextInput, Platform, useWindowDimensions,
   KeyboardAvoidingView, Keyboard, Switch,
 } from 'react-native';
-import { useAurora } from '../ui/aurora';
+import { useAurora, PROPORCAO_DA_CAPA, PAPEL_COMECA } from '../ui/aurora';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -741,7 +741,7 @@ function Abertura({ onComecar, onJaTenho }: { onComecar: () => void; onJaTenho?:
 }
 
 /* ------------------------------------------------------------------ */
-/* MONTANDO O PLANO — os três segundos entre a conferência e o plano.
+/* MONTANDO O PLANO — os segundos entre a conferência e o plano.
 
    Não é enfeite, e também não é mentira: o app de fato calcula aqui
    (metas do dia, semanas até a meta, IMC, e a gravação do perfil inteiro
@@ -750,68 +750,99 @@ function Abertura({ onComecar, onJaTenho }: { onComecar: () => void; onJaTenho?:
    quadro — e um plano que aparece instantâneo não parece um plano, parece
    uma tela que já estava pronta.
 
-   As três frases dizem o que está sendo feito, na ordem em que é feito. A
-   barra anda sozinha até o fim e não finge progresso real: ela mede o
-   tempo da espera, que é o único número honesto que existe aqui. */
+   ⚠️ O DESENHO É O DA REFERÊNCIA DO DONO (28/09/2026): a aurora no alto,
+   e as fases entrando uma a uma embaixo. A da vez é grande, na tinta do
+   texto, com o ícone na cor de ação; quando chega a seguinte, ela sobe,
+   encolhe e fica cinza — as feitas vão se empilhando acima da atual. A
+   última diz que acabou, fica um pouco mais, e abre o plano. Saiu a barra
+   de progresso: a pilha já conta onde a espera está.
+
+   A aurora é a da capa da conta, que termina no papel: a imagem sobe até
+   o branco (ou o preto) começar no meio da tela, onde a pilha mora. */
 /* ⚠️ É FUNÇÃO, porque lê o catálogo. */
-const FASES = () => [
-  K().faseLendo,
-  K().faseCalculando,
-  K().faseDesenhando,
+const FASES = (): [string, string][] => [
+  ['plano', K().faseAgrupando],
+  ['chart', K().faseCalculando],
+  ['spark', K().faseMontando],
+  ['check', K().fasePronto],
 ];
+const PASSO_MS = 950;        // entre uma fase e a seguinte
+const ULTIMA_MS = 1200;      // quanto o "Pronto!" fica à vista
 
 function Montando({ onFim }: { onFim: () => void }) {
-  const { c } = useTheme();
+  const { c, isDark } = useTheme();
+  const aurora = useAurora();
   const insets = useSafeAreaInsets();
+  const { width, height } = useWindowDimensions();
+  const fases = FASES();
   const [fase, setFase] = React.useState(0);
-  const pulso = React.useRef(new Animated.Value(0)).current;
-  const barra = React.useRef(new Animated.Value(0)).current;
+  /* Duas medidas por fase: a entrada (0 → 1) e a passagem para o passado
+     (0 → 1). O tamanho e a cor do texto andam com a segunda — por isso sem
+     o driver nativo, que não anima nem uma nem outra. */
+  const entrada = React.useRef(fases.map(() => new Animated.Value(0))).current;
+  const passado = React.useRef(fases.map(() => new Animated.Value(0))).current;
 
   React.useEffect(() => {
-    /* useNativeDriver desligado: a largura da barra não é animável pela
-       thread nativa, e na web o driver nativo não existe de todo jeito. */
-    Animated.loop(Animated.sequence([
-      Animated.timing(pulso, { toValue: 1, duration: 850, useNativeDriver: false }),
-      Animated.timing(pulso, { toValue: 0, duration: 850, useNativeDriver: false }),
-    ])).start();
-    Animated.timing(barra, { toValue: 1, duration: 2700, useNativeDriver: false }).start();
-    const t = [
-      setTimeout(() => setFase(1), 950),
-      setTimeout(() => setFase(2), 1900),
-      setTimeout(onFim, 2850),
-    ];
+    Animated.timing(entrada[0], { toValue: 1, duration: 420, useNativeDriver: false }).start();
+    const t = fases.slice(1).map((_, k) => setTimeout(() => setFase(k + 1), PASSO_MS * (k + 1)));
+    t.push(setTimeout(onFim, PASSO_MS * (fases.length - 1) + ULTIMA_MS));
     return () => t.forEach(clearTimeout);
   }, []);
 
+  React.useEffect(() => {
+    if (fase === 0) return;
+    Animated.parallel([
+      Animated.timing(passado[fase - 1], { toValue: 1, duration: 420, useNativeDriver: false }),
+      Animated.timing(entrada[fase], { toValue: 1, duration: 420, useNativeDriver: false }),
+    ]).start();
+  }, [fase]);
+
+  const alturaDaImagem = width * PROPORCAO_DA_CAPA;
+  const sobe = Math.max(0, alturaDaImagem * PAPEL_COMECA[isDark ? 'escuro' : 'claro'] - height * 0.48);
+
   return (
-    <View style={{
-      flex: 1, backgroundColor: c.bg, alignItems: 'center', justifyContent: 'center',
-      paddingHorizontal: 32, paddingBottom: insets.bottom, gap: 28,
-    }}>
-      <Lavagem altura={560} />
-      <Animated.View style={{
-        transform: [{ scale: pulso.interpolate({ inputRange: [0, 1], outputRange: [1, 1.07] }) }],
-      }}>
-        <View style={{
-          width: 96, height: 96, borderRadius: 32, backgroundColor: c.accent,
-          alignItems: 'center', justifyContent: 'center',
-        }}>
-          <Icon name="heart" size={44} color={c.accentInk} sw={1.9} />
-        </View>
-      </Animated.View>
-
-      <View style={{ alignItems: 'center', gap: 8 }}>
-        <Txt v="h2" style={{ textAlign: 'center' }}>{K().montandoTitulo}</Txt>
-        <Txt v="note" c={c.tx2} style={{ textAlign: 'center' }}>{FASES()[fase]}</Txt>
-      </View>
-
-      <View style={{
-        width: 170, height: 5, borderRadius: 3, backgroundColor: c.track, overflow: 'hidden',
-      }}>
-        <Animated.View style={{
-          height: '100%', borderRadius: 3, backgroundColor: c.accent,
-          width: barra.interpolate({ inputRange: [0, 1], outputRange: ['4%', '100%'] }),
-        }} />
+    <View style={{ flex: 1, backgroundColor: isDark ? '#000000' : '#FFFFFF' }}>
+      <Image
+        source={isDark ? aurora.contaEscuro : aurora.contaClaro}
+        style={{ position: 'absolute', left: 0, top: -sobe, width, height: alturaDaImagem }}
+        resizeMode="cover"
+      />
+      <View
+        accessibilityLiveRegion="polite"
+        style={{
+          flex: 1, justifyContent: 'flex-end', gap: 14,
+          paddingHorizontal: 28, paddingBottom: insets.bottom + Math.round(height * 0.22),
+        }}
+      >
+        {fases.slice(0, fase + 1).map(([ic, texto], i) => {
+          const atual = i === fase;
+          return (
+            <Animated.View
+              key={i}
+              style={{
+                /* O ícone fica na primeira linha: o "Pronto!" quebra em duas. */
+                flexDirection: 'row', alignItems: 'flex-start', gap: 12,
+                opacity: entrada[i],
+                transform: [{ translateY: entrada[i].interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) }],
+              }}
+            >
+              <View style={{ marginTop: atual ? 4 : 2 }}>
+                <Icon name={ic} size={atual ? 24 : 18} color={atual ? c.accent : c.tx3} sw={2} />
+              </View>
+              <Animated.Text
+                style={{
+                  flex: 1,
+                  fontFamily: atual ? font.bold : font.body,
+                  fontSize: passado[i].interpolate({ inputRange: [0, 1], outputRange: [26, 16] }),
+                  lineHeight: passado[i].interpolate({ inputRange: [0, 1], outputRange: [32, 22] }),
+                  color: passado[i].interpolate({ inputRange: [0, 1], outputRange: [c.tx, c.tx3] }),
+                }}
+              >
+                {texto}
+              </Animated.Text>
+            </Animated.View>
+          );
+        })}
       </View>
     </View>
   );

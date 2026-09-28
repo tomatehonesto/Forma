@@ -168,10 +168,10 @@ export const cadastro = {
   /* ⚠️ LAS TRES FRASES DICEN QUÉ SE ESTÁ HACIENDO, en el orden en que se
      hace. La barra anda sola y no finge progreso real: mide el tiempo de
      la espera, que es el único número honesto que existe aquí. */
-  montandoTitulo: 'Armando tu plan',
-  faseLendo: 'Leyendo tus respuestas',
-  faseCalculando: 'Calculando tus metas del día',
-  faseDesenhando: 'Dibujando tu camino',
+  faseAgrupando: 'Reuniendo tus respuestas…',
+  faseCalculando: 'Calculando tus metas del día…',
+  faseMontando: 'Armando tu plan…',
+  fasePronto: '¡Listo! Tu plan está hecho.',
 
   telaPlano: {
     planoPronto: '¡tu plan personalizado está listo!',
