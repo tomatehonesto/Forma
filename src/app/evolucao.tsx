@@ -100,7 +100,6 @@ export default function Evolucao() {
       <Bloco titulo={K().voceRegistra} nota={K().voceRegistraNota}>
         <View style={{ gap: 10 }}>
           <CardCurva
-            testID="apresentacao-evolucao"
             id="ev-peso"
             nome={T.medidas.corpo.peso}
             /* ⚠️ COM UMA PESAGEM, NÃO HÁ VARIAÇÃO. O cartão dizia "80,0 ›

@@ -127,7 +127,7 @@ export default function ResumoMedico() {
           mudam de um envio para o outro. E, quando já houve envio, ele
           vira linha com caminho: o documento que a equipe tem está na
           tela dela, e é para lá que esta linha leva. */}
-      <Cartao testID="apresentacao-consultas">
+      <Cartao>
         <Linha
           ic="doc"
           titulo={K().resumoDe(fmtDate(now()))}

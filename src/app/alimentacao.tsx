@@ -156,8 +156,7 @@ export default function Alimentacao() {
           silêncio, a tela diz de quantas ela não está falando. */}
       <Bloco titulo={K().energiaTitulo}>
         <View style={{ gap: 10 }}>
-          {/* marcado para a foto da apresentação (scripts/capturar-apresentacao.mjs) */}
-          <View testID="apresentacao-comida" style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 16, gap: 10 }, shadowCard(c)]}>
+          <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 16, gap: 10 }, shadowCard(c)]}>
             <Row gap={8} style={{ alignItems: 'center' }}>
               <Icon name="flame" size={15} color={c.accent} sw={1.9} />
               <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>{K().calorias}</Txt>

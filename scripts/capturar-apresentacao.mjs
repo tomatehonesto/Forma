@@ -9,12 +9,7 @@
    tela inventada (pedido do dono, 28/09/2026). Este script abre o
    aplicativo na web com o DIÁRIO DE EXEMPLO (a Mariana, a semente de
    desenvolvimento: dado de ilustração, de ninguém), em cada um dos seis
-   idiomas, e fotografa duas coisas por pilar:
-
-     - o alto da tela, que vai dentro do telefone;
-     - um cartão dessa mesma tela, sozinho, que salta do telefone. A tela
-       marca o cartão com testID="apresentacao-<pilar>" (na web vira
-       data-testid) — procure a marca nas telas antes de mudar o cartão.
+   idiomas, e fotografa o alto da tela de cada pilar.
 
    Grava em assets/apresentacao, já em WebP, e escreve o mapa
    src/ui/telasDaApresentacao.ts, com um `require` por imagem — o
@@ -49,13 +44,11 @@ const TELAS = [
 /* O telefone de iPhone comum, e só o alto da tela: é o que o aparelho da
    apresentação mostra antes de sumir no fundo. */
 const LARGURA = 390, ALTURA = 844, ALTO = 700;
-const SAIDA_TELA = 540;
-const SAIDA_PECA = 560;
+const SAIDA = 540;
 
 const pasta = new URL('../assets/apresentacao/', import.meta.url);
 await mkdir(pasta, { recursive: true });
 
-const medidas = {};
 const navegador = await chromium.launch();
 let bytes = 0;
 try {
@@ -80,22 +73,10 @@ try {
       await pagina.waitForTimeout(1800);
       const aqui = new URL(pagina.url()).pathname;
       if (aqui !== rota) throw new Error(`${idioma} ${pilar}: esperava ${rota}, ficou em ${aqui}`);
-
-      /* a tela */
       const png = await pagina.screenshot({ clip: { x: 0, y: 0, width: LARGURA, height: ALTO } });
-      const tela = await sharp(png).resize({ width: SAIDA_TELA }).webp({ quality: 82 }).toBuffer();
+      const tela = await sharp(png).resize({ width: SAIDA }).webp({ quality: 82 }).toBuffer();
       await writeFile(new URL(`${pilar}-${idioma}.webp`, pasta), tela);
-
-      /* a peça: o cartão marcado, sozinho */
-      const cartao = pagina.getByTestId(`apresentacao-${pilar}`).first();
-      await cartao.scrollIntoViewIfNeeded();
-      const pecaPng = await cartao.screenshot();
-      const peca = await sharp(pecaPng).resize({ width: SAIDA_PECA }).webp({ quality: 86 }).toBuffer();
-      const { width: w, height: h } = await sharp(peca).metadata();
-      await writeFile(new URL(`${pilar}-${idioma}-peca.webp`, pasta), peca);
-      medidas[`${pilar}-${idioma}`] = { w, h };
-
-      bytes += tela.length + peca.length;
+      bytes += tela.length;
       console.log(`  ${idioma.padEnd(6)} ${pilar.padEnd(12)} ${rota}`);
     }
     await contexto.close();
@@ -105,20 +86,13 @@ try {
 }
 
 /* o mapa — um require por imagem */
-const pilarDoIdioma = (l) => TELAS.map(([p]) => {
-  const m = medidas[`${p}-${l}`];
-  return [
-    `    ${p}: {`,
-    `      tela: require('../../assets/apresentacao/${p}-${l}.webp'),`,
-    `      peca: { src: require('../../assets/apresentacao/${p}-${l}-peca.webp'), w: ${m.w}, h: ${m.h} },`,
-    `    },`,
-  ].join('\n');
-}).join('\n');
+const pilarDoIdioma = (l) => TELAS.map(([p]) =>
+  `    ${p}: require('../../assets/apresentacao/${p}-${l}.webp'),`).join('\n');
 const mapa = [
   `/* GERADO por scripts/capturar-apresentacao.mjs — não edite à mão.`,
   `   As fotos das telas reais para a apresentação (app/apresentacao), por`,
-  `   idioma e por pilar: o alto da tela e o cartão que salta dela. Rode o`,
-  `   script de novo quando uma dessas telas mudar. */`,
+  `   idioma e por pilar: o alto da tela. Rode o script de novo quando uma`,
+  `   dessas telas mudar. */`,
   ``,
   `export type PilarDaApresentacao = ${TELAS.map(([p]) => `'${p}'`).join(' | ')};`,
   ``,
@@ -126,12 +100,10 @@ const mapa = [
   `export const LARGURA_DA_FOTO = ${LARGURA};`,
   `export const ALTO_DA_FOTO = ${ALTO};`,
   ``,
-  `export type FotosDoPilar = { tela: number; peca: { src: number; w: number; h: number } };`,
-  ``,
-  `export const TELAS_DA_APRESENTACAO: Record<string, Record<PilarDaApresentacao, FotosDoPilar>> = {`,
+  `export const TELAS_DA_APRESENTACAO: Record<string, Record<PilarDaApresentacao, number>> = {`,
   ...IDIOMAS.map((l) => `  '${l}': {\n${pilarDoIdioma(l)}\n  },`),
   `};`,
   ``,
 ].join('\n');
 await writeFile(new URL('../src/ui/telasDaApresentacao.ts', import.meta.url), mapa);
-console.log(`\n${IDIOMAS.length * TELAS.length} telas e peças · ${(bytes / 1024 / 1024).toFixed(2)} MB`);
+console.log(`\n${IDIOMAS.length * TELAS.length} telas · ${(bytes / 1024 / 1024).toFixed(2)} MB`);

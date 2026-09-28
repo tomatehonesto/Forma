@@ -218,10 +218,9 @@ export default function Sintomas() {
           </Cartao>
         ) : (
           <View style={{ gap: 8 }}>
-            {lista.map((s, i) => (
+            {lista.map((s) => (
               <Progresso
                 key={s.id}
-                testID={i === 0 ? 'apresentacao-estado' : undefined}
                 label={s.label}
                 valor={K().diasDe(s.dias, respondidos)}
                 /* A barra é a MÉDIA dos dias em que apareceu, e o texto
