@@ -37,6 +37,17 @@
   `background-color`. O esquema de cor é declarado claro, para o leitor
   não inverter o código no modo escuro.
 
+  ⚠️ O LOGO VEM DE UM ENDEREÇO PÚBLICO: e-mail não carrega arquivo do
+  aplicativo, e o Gmail bloqueia imagem embutida. Hoje é o arquivo cru do
+  repositório no GitHub (público); antes da loja, o lugar certo é um
+  armazenamento nosso, com endereço estável — trocar só o src.
+
+  ⚠️ NÃO HÁ BOTÃO DE COPIAR, e não por falta de vontade (pedido do dono):
+  leitor de e-mail não roda script, e copiar para a área de transferência
+  precisa de um. O que existe é o código se selecionar inteiro num toque
+  (user-select: all, que o Apple Mail e o Gmail respeitam), com a frase
+  dizendo isso. No iPhone o teclado já oferece o código do Mail sozinho.
+
   UM DESENHO SÓ, SEIS IDIOMAS: as frases são variáveis, trocadas no alto
   por idioma, e o corpo aparece uma vez. Mudar o desenho é mudar num lugar.
 
@@ -47,36 +58,42 @@
 {{ $validade := "Ele vale por 10 minutos. Digite no aplicativo, na tela em que você pediu." }}
 {{ $ignore := "Se não foi você, pode ignorar este e-mail — nada muda na sua conta." }}
 {{ $rodape := "Morphi · o seu tratamento, organizado" }}
+{{ $toque := "Toque no código para selecioná-lo e copiar." }}
 {{ if eq .Data.idioma "en-US" }}
   {{ $titulo = "Your sign-in code" }}
   {{ $lead = "Use this code to sign in to Morphi." }}
   {{ $validade = "It’s valid for 10 minutes. Type it in the app, on the screen where you asked for it." }}
   {{ $ignore = "If it wasn’t you, you can ignore this email — nothing changes in your account." }}
   {{ $rodape = "Morphi · your treatment, organized" }}
+  {{ $toque = "Tap the code to select it and copy." }}
 {{ else if eq .Data.idioma "es-419" }}
   {{ $titulo = "Tu código de acceso" }}
   {{ $lead = "Usa este código para entrar a Morphi." }}
   {{ $validade = "Vale por 10 minutos. Escríbelo en la aplicación, en la pantalla donde lo pediste." }}
   {{ $ignore = "Si no fuiste tú, puedes ignorar este correo — nada cambia en tu cuenta." }}
   {{ $rodape = "Morphi · tu tratamiento, organizado" }}
+  {{ $toque = "Toca el código para seleccionarlo y copiarlo." }}
 {{ else if eq .Data.idioma "fr-FR" }}
   {{ $titulo = "Votre code de connexion" }}
   {{ $lead = "Utilisez ce code pour vous connecter à Morphi." }}
   {{ $validade = "Il est valable 10 minutes. Saisissez-le dans l’application, sur l’écran où vous l’avez demandé." }}
   {{ $ignore = "Si ce n’était pas vous, vous pouvez ignorer cet e-mail — rien ne change dans votre compte." }}
   {{ $rodape = "Morphi · votre traitement, organisé" }}
+  {{ $toque = "Touchez le code pour le sélectionner et le copier." }}
 {{ else if eq .Data.idioma "it-IT" }}
   {{ $titulo = "Il tuo codice di accesso" }}
   {{ $lead = "Usa questo codice per accedere a Morphi." }}
   {{ $validade = "Vale 10 minuti. Scrivilo nell’app, nella schermata in cui l’hai chiesto." }}
   {{ $ignore = "Se non hai chiesto tu questo codice, puoi ignorare questa e-mail — nel tuo account non cambia niente." }}
   {{ $rodape = "Morphi · la tua terapia, in ordine" }}
+  {{ $toque = "Tocca il codice per selezionarlo e copiarlo." }}
 {{ else if eq .Data.idioma "de-DE" }}
   {{ $titulo = "Dein Anmeldecode" }}
   {{ $lead = "Mit diesem Code meldest du dich bei Morphi an." }}
   {{ $validade = "Er gilt 10 Minuten. Gib ihn in der App ein, auf dem Bildschirm, auf dem du ihn angefordert hast." }}
   {{ $ignore = "Wenn du das nicht warst, kannst du diese E-Mail ignorieren — an deinem Konto ändert sich nichts." }}
   {{ $rodape = "Morphi · deine Behandlung, geordnet" }}
+  {{ $toque = "Tippe auf den Code, um ihn auszuwählen und zu kopieren." }}
 {{ end }}
 <!doctype html>
 <html>
@@ -95,7 +112,14 @@
           <!-- a faixa da marca -->
           <tr>
             <td style="background-color:#2A4DF2; background-image:linear-gradient(135deg,#3B2FD6 0%,#2A4DF2 40%,#3CCBF6 100%); padding:28px 32px;">
-              <span style="font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:22px; font-weight:700; letter-spacing:-0.3px; color:#FFFFFF;">Morphi</span>
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td style="padding-right:12px;">
+                    <img src="https://raw.githubusercontent.com/tomatehonesto/Forma/main/assets/images/marca-app.png" width="44" height="44" alt="Morphi" style="display:block; width:44px; height:44px; border-radius:12px; border:0;">
+                  </td>
+                  <td style="font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:22px; font-weight:700; letter-spacing:-0.3px; color:#FFFFFF;">Morphi</td>
+                </tr>
+              </table>
             </td>
           </tr>
           <!-- o recado -->
@@ -110,11 +134,12 @@
             <td style="padding:24px 32px;">
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#EEF3FF; border:1px solid #D4E0FF; border-radius:16px;">
                 <tr>
-                  <td align="center" style="padding:22px 12px; font-family:'SF Mono',Menlo,Consolas,'Courier New',monospace; font-size:38px; line-height:1; font-weight:700; letter-spacing:12px; color:#0B1220;">
+                  <td align="center" style="padding:22px 12px; font-family:'SF Mono',Menlo,Consolas,'Courier New',monospace; font-size:38px; line-height:1; font-weight:700; letter-spacing:12px; color:#0B1220; -webkit-user-select:all; user-select:all;">
                     {{ .Token }}
                   </td>
                 </tr>
               </table>
+              <p style="margin:10px 0 0; text-align:center; font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:13px; color:#727272;">{{ $toque }}</p>
             </td>
           </tr>
           <tr>
