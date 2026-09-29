@@ -37,6 +37,21 @@ export type Local = 'pt-BR' | 'en-US' | 'es-419' | 'fr-FR' | 'de-DE' | 'it-IT';
 /* O caminho de quem não respondeu é o do build. Ver logic/mercado. */
 const PADRAO: Local = MERCADO === 'us' ? 'en-US' : 'pt-BR';
 
+/* ⚠️⚠️ QUEM RESPONDEU UM IDIOMA QUE NÃO TEMOS CAI NO INGLÊS, E NÃO NO
+   PADRÃO DO BUILD.
+
+   Até aqui as duas perguntas tinham a mesma resposta: o aparelho em
+   holandês, em sueco, em árabe ou em polonês não achava catálogo e caía
+   no `PADRAO`, que é o português da build brasileira. Quem abria o
+   aplicativo em Amsterdã, Estocolmo ou Dubai lia a primeira tela inteira
+   em português — e é justamente a pessoa com menos chance de entender.
+
+   São dois casos diferentes. O aparelho que não disse idioma nenhum não
+   deu pista, e o padrão do build é o melhor palpite. O que disse um
+   idioma que não temos deu a pista de que NÃO é o nosso mercado de casa,
+   e o inglês é a segunda língua mais provável de quem está lá. */
+const RESERVA: Local = 'en-US';
+
 /* ============================================================
    OS IDIOMAS QUE EXISTEM, E O QUE O PAÍS TEM A VER COM ISSO
 
@@ -403,12 +418,17 @@ const FORMATOS: Record<Local, Formato> = { 'pt-BR': PT, 'en-US': EN, 'es-419': E
  * ------------------------------------------------------------------ */
 
 let escolhido: Local | null = null;
+/* `doAparelho` é só o idioma que o aparelho pediu E que temos; `partida`
+   é onde o aplicativo abre, e inclui a reserva. Ficam separados porque a
+   lista de idiomas ordena pelo primeiro: o inglês de reserva não foi
+   pedido por ninguém, e não deve passar na frente do idioma do país. */
 let doAparelho: Local | null = null;
+let partida: Local | null = null;
 let paisDoAparelho: string | null = null;
 let relogio12: boolean | null = null;
 let semanaDoAparelho: DiaDaSemana | null = null;
 
-export const localAtual = (): Local => escolhido ?? doAparelho ?? PADRAO;
+export const localAtual = (): Local => escolhido ?? partida ?? PADRAO;
 
 /** O formato do local em uso. É função, e não constante: constante de
     módulo é lida uma vez, no import, e congelaria o primeiro local que
@@ -449,11 +469,18 @@ export function idiomasOrdenados(): Local[] {
 
   /* o primeiro candidato que exista como catálogo */
   const primeiro = DISPONIVEIS.find((l) => l === doIdioma)
-    ?? (doPais ? DISPONIVEIS.find((l) => l.split('-')[0] === doPais) : undefined);
+    ?? (doPais ? DISPONIVEIS.find((l) => l.split('-')[0] === doPais) : undefined)
+    ?? (partida === RESERVA ? RESERVA : undefined);
 
   if (!primeiro) return DISPONIVEIS;
   return [primeiro, ...DISPONIVEIS.filter((l) => l !== primeiro)];
 }
+
+/** Em que idioma o aplicativo abre, pelo idioma do aparelho: o nosso
+    catálogo daquele idioma; se não temos, o inglês; se o aparelho não
+    disse nada, o padrão do build. */
+export const localDePartida = (idioma: string | null | undefined): Local =>
+  DISPONIVEIS.find((x) => x.split('-')[0] === idioma) ?? (idioma ? RESERVA : PADRAO);
 
 /** Trocar à mão. `null` devolve a escolha ao aparelho. */
 export const trocarLocal = (l: Local | null) => { escolhido = l; };
@@ -488,7 +515,8 @@ export function lerAparelho(): { local: Local; imperial: boolean } | null {
        Agora ela pergunta ao DISPONIVEIS, que é quem sabe quais catálogos
        existem. Idioma novo entra sozinho. */
     const idioma = l.languageCode ?? '';
-    doAparelho = DISPONIVEIS.find((x) => x.split('-')[0] === idioma) ?? PADRAO;
+    doAparelho = DISPONIVEIS.find((x) => x.split('-')[0] === idioma) ?? null;
+    partida = localDePartida(idioma);
 
     paisDoAparelho = l.regionCode ?? null;
     /* O palpite do país vai para logic/pais, que é quem responde por ele. */
@@ -514,7 +542,7 @@ export function lerAparelho(): { local: Local; imperial: boolean } | null {
        perguntar de novo o que ele já respondeu é trabalho que se passa
        para a pessoa. A escolha dela, quando existir, continua ganhando —
        ver `sistemaDe` em logic/medidas. */
-    return { local: doAparelho, imperial: l.measurementSystem === 'us' };
+    return { local: partida, imperial: l.measurementSystem === 'us' };
   } catch {
     return null;
   }

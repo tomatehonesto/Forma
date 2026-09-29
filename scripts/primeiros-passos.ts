@@ -64,6 +64,7 @@ import { redeLancada, temRedeParceira } from '../src/logic/pais';
 import { unidadesDe, unidadePadrao, converterValor, converterFaixa, faixaTxt } from '../src/logic/unidadesDeExame';
 import { htmlDoRelatorio, recortePadrao } from '../src/logic/relatorioPdf';
 import { dataDeTabela } from '../src/logic/pdf';
+import { localDePartida } from '../src/logic/local';
 import { limparLaudo, gravarLaudo } from '../src/logic/laudo';
 import { MARCADORES as MARCADORES_DO_SERVIDOR } from '../servidor/marcadores';
 import { proximasDe, type Alerta } from '../src/logic/alertas';
@@ -579,6 +580,14 @@ const primeiraPesagem = Math.min(...(semente.weights as any[]).map((w) => w.t));
 const relRecente = htmlDoRelatorio(semente, { desde: +hoje - 14 * DIA, inclui: tudo });
 ok(!relRecente.includes(dataDeTabela(primeiraPesagem)) && relTudo.includes(dataDeTabela(primeiraPesagem)),
   'o período escolhido corta as tabelas: a primeira pesagem só aparece no tratamento inteiro');
+
+console.log('\n22. O IDIOMA DE QUEM ESTÁ FORA DOS SEIS');
+ok(localDePartida('nl') === 'en-US' && localDePartida('ar') === 'en-US' && localDePartida('ja') === 'en-US',
+  'o aparelho num idioma que não temos abre em inglês, e não no português do build');
+ok(localDePartida('pt') === 'pt-BR' && localDePartida('es') === 'es-419' && localDePartida('de') === 'de-DE',
+  'o aparelho num idioma que temos abre nele');
+ok(localDePartida('') === 'pt-BR' && localDePartida(null) === 'pt-BR',
+  'o aparelho que não disse idioma nenhum fica com o padrão do build');
 
 console.log(falhas ? `\n${falhas} afirmação(ões) falharam\n` : '\ntodas as afirmações passaram\n');
 process.exit(falhas ? 1 : 0);
