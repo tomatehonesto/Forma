@@ -398,26 +398,22 @@ export const alimentacao = {
     /* De que preparo são os números — ver scripts/dados/consolidacao. */
 
     preparo: {
-
-      cru: 'Die Werte gelten für das rohe Lebensmittel.',
-
-      cozido: 'Die Werte gelten für das gekochte Lebensmittel, ohne Öl.',
-
-      grelhado: 'Die Werte gelten für das gegrillte Lebensmittel, ohne Öl.',
-
-      assado: 'Die Werte gelten für das im Ofen gegarte Lebensmittel, ohne Öl.',
-
-      frito: 'Die Werte gelten für das gebratene Lebensmittel.',
-
-      refogado: 'Die Werte gelten für das gedünstete Lebensmittel, mit dem Bratöl.',
-
+      cru: 'Roh gemessen.',
+      cozido: 'Gekocht gemessen, ohne Öl.',
+      grelhado: 'Gegrillt gemessen, ohne Öl.',
+      assado: 'Im Ofen gegart gemessen, ohne Öl.',
+      frito: 'Gebraten gemessen.',
+      refogado: 'Gedünstet gemessen, mit dem Bratöl.',
     },
-  },
+  },
+
 
   /* As prateleiras, pela chave com que ficam gravadas — ver
      logic/prateleiras. */
   prateleira: {
     'Arroz, massas e pães': 'Reis, Nudeln und Brot',
+    'Bebidas': 'Getränke',
+    'Molhos e gorduras': 'Soßen und Fette',
     'Café da manhã': 'Frühstück',
     'Carnes e aves': 'Fleisch und Geflügel',
     'Castanhas e sementes': 'Nüsse und Samen',

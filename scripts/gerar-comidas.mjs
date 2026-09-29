@@ -37,6 +37,7 @@ import zlib from 'node:zlib';
 import { UNIDADES } from './dados/unidades.mjs';
 import { NOMES_BASE } from './dados/nomes-base.mjs';
 import { NOVAS } from './dados/comidas-novas.mjs';
+import { NOVAS_2 } from './dados/comidas-novas-2.mjs';
 import { PRATOS_NOVOS } from './dados/pratos-novos.mjs';
 import { CORRECOES } from './dados/correcoes-base.mjs';
 import { CONSOLIDACAO } from './dados/consolidacao.mjs';
@@ -106,16 +107,39 @@ const tacoComoSr = (id) => {
    a tela do alimento diz de que preparo são os números: "grelhado, sem
    óleo", "cru". A ordem importa: "stir-fried" é refogado antes de ser
    frito, e "cooked, dry heat" é assado antes de ser cozido. */
+/* ⚠️ VALE O ÚLTIMO PREPARO DA DESCRIÇÃO, e não o primeiro que aparece:
+   "Buckwheat groats, roasted, cooked" é o grão torrado e depois cozido, e
+   o que se come é o cozido; "Chicken, cooked, roasted" é assado. E
+   "uncooked" não é "cooked" — a ameixa seca não é cozida —, nem
+   "commercially prepared" é preparo nenhum. */
+const PREPAROS = [
+  ['refogado', /refogad|stir-fried|sautéed/g],
+  ['grelhado', /grelhad|grilled|broiled/g],
+  ['assado', /assad|roasted|baked|dry heat/g],
+  ['frito', /frit[oa]|(?<!stir-)fried/g],
+  ['cozido', /cozid|\bcooked\b|boiled|braised|stewed|moist heat|simmered|steamed/g],
+  ['cru', /\bcru\b|\bcrua\b|\braw\b/g],
+];
 function preparoDe(descricao) {
   if (!descricao) return null;
-  const d = descricao.toLowerCase();
-  if (/refogad|stir-fried|sautéed/.test(d)) return 'refogado';
-  if (/grelhad|grilled|broiled/.test(d)) return 'grelhado';
-  if (/assad|roasted|baked|dry heat/.test(d)) return 'assado';
-  if (/frit|fried/.test(d)) return 'frito';
-  if (/cozid|cooked|boiled|braised|stewed|moist heat|prepared/.test(d)) return 'cozido';
-  if (/\bcru\b|\bcrua\b|\braw\b/.test(d)) return 'cru';
-  return null;
+  const d = descricao.toLowerCase().replace(/uncooked/g, '');
+  let melhor = null;
+  let onde = -1;
+  for (const [nome, re] of PREPAROS) {
+    for (const m of d.matchAll(re)) if (m.index > onde) { onde = m.index; melhor = nome; }
+  }
+  return melhor;
+}
+
+/* O item da lista antiga que veio da linha CRUA da TACO dividida pelo
+   rendimento de cozimento (o grão-de-bico, o macarrão) tem o número do
+   cozido, e não do cru: a energia dele não bate com a da linha. */
+function preparoDaBase(a) {
+  const x = TACO.get(a.taco);
+  const p = preparoDe(x?.description);
+  const kcal = celula(x?.energy_kcal);
+  if (p === 'cru' && kcal && a.kcal != null && Math.abs(a.kcal - kcal) / kcal > 0.15) return 'cozido';
+  return p;
 }
 
 /* Os nutrientes que o aplicativo usa, pelo id da FoodData Central. */
@@ -196,12 +220,12 @@ for (const a of BASE) {
     destaque: a.destaque ?? null,
     ...(a.taco ? { taco: a.taco } : {}),
     ...(a.fonte ? { fonte: a.fonte } : {}),
-    preparo: a.taco ? preparoDe(TACO.get(a.taco)?.description) : null,
+    preparo: a.taco ? preparoDaBase(a) : null,
   });
 }
 
 /* As novas comidas de prateleira. */
-for (const c of NOVAS) {
+for (const c of [...NOVAS, ...NOVAS_2]) {
   let v;
   let destaque;
   if (c.usda) {
@@ -214,6 +238,11 @@ for (const c of NOVAS) {
     const r = Object.fromEntries(Object.entries(row).map(([k, x]) => [k, typeof x === 'number' ? x / d : x]));
     v = { p: r1(row.p / d), kcal: r0(div(row.kcal ?? null)), carb: r1(div(row.carb ?? null)), gord: r1(div(row.gord ?? null)), fibra: r1(div(row.fibra ?? null)) };
     destaque = destaqueDe(r);
+  } else if (c.taco) {
+    const row = tacoComoSr(c.taco);
+    if (!row || typeof row.p !== 'number') { erros.push(c.id + ': TACO ' + c.taco + ' sem proteína'); continue; }
+    v = { p: r1(row.p), kcal: r0(row.kcal ?? null), carb: r1(row.carb ?? null), gord: r1(row.gord ?? null), fibra: r1(row.fibra ?? null) };
+    destaque = destaqueDe(row);
   } else if (c.rotulo) {
     v = c.rotulo;
     destaque = soProteina(v.p);
@@ -222,9 +251,9 @@ for (const c of NOVAS) {
     id: c.id, n: c.nomes, busca: c.busca ?? '',
     ...v, gUn: c.gUn, qtd: c.qtd, un: c.un, onde: c.onde, prato: false,
     destaque,
-    ...(c.usda ? { usda: c.usda } : { fonte: 'rótulo' }),
+    ...(c.usda ? { usda: c.usda } : c.taco ? { taco: c.taco } : { fonte: 'rótulo' }),
     ...(c.contem ? { contem: c.contem } : {}),
-    preparo: c.usda ? preparoDe(SR.get(c.usda)?.d) : null,
+    preparo: c.preparo ?? (c.usda ? preparoDe(SR.get(c.usda)?.d) : c.taco ? preparoDe(TACO.get(c.taco)?.description) : null),
   });
 }
 
@@ -315,6 +344,16 @@ for (const [id, c] of Object.entries(CONSOLIDACAO)) {
       p: r1(row.p), kcal: r0(row.kcal ?? null), carb: r1(row.carb ?? null), gord: r1(row.gord ?? null), fibra: r1(row.fibra ?? null),
       destaque: destaqueDe(row), taco: c.taco, preparo: preparoDe(row.d),
     });
+    delete alvo.fonte;
+  }
+  if (c.usda) {
+    const row = SR.get(c.usda);
+    if (!row || typeof row.p !== 'number') { erros.push(id + ': NDB ' + c.usda + ' sem proteína'); continue; }
+    Object.assign(alvo, {
+      p: r1(row.p), kcal: r0(row.kcal ?? null), carb: r1(row.carb ?? null), gord: r1(row.gord ?? null), fibra: r1(row.fibra ?? null),
+      destaque: destaqueDe(row), usda: c.usda, preparo: preparoDe(row.d),
+    });
+    delete alvo.taco;
     delete alvo.fonte;
   }
   if (c.prato) alvo.prato = true;

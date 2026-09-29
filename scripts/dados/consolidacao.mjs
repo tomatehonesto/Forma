@@ -25,27 +25,27 @@
              a pessoa registra pelo nome, e o prato já é somado.
 
    nomes: [português, inglês, espanhol, francês, alemão, italiano].
-   taco: troca a linha da TACO de onde saem os números. */
+   taco / usda: troca a linha de onde saem os números. */
 export const CONSOLIDACAO = {
   /* ---- carnes e aves: o nome do corte, sem o preparo ---- */
   'peito-frango': { nomes: ['Peito de frango', 'Chicken breast', 'Pechuga de pollo', 'Blanc de poulet', 'Hähnchenbrust', 'Petto di pollo'] },
   'frango-assado': { nomes: ['Frango inteiro, sem pele', 'Whole chicken, skinless', 'Pollo entero sin piel', 'Poulet entier sans peau', 'Ganzes Hähnchen ohne Haut', 'Pollo intero senza pelle'] },
   sobrecoxa: { nomes: ['Coxa e sobrecoxa de frango', 'Chicken thigh and drumstick', 'Muslo y pierna de pollo', 'Cuisse de poulet', 'Hähnchenschenkel', 'Coscia di pollo'] },
   patinho: { nomes: ['Patinho', 'Lean beef (knuckle)', 'Carne de res magra (pierna)', 'Bœuf maigre (tranche grasse)', 'Mageres Rindfleisch (Kugel)', 'Manzo magro (noce)'] },
-  contrafile: { nomes: ['Contra-filé', 'Strip steak', 'Lomo de res (contra-filé)', 'Faux-filet', 'Rumpsteak', 'Controfiletto'] },
+  contrafile: { nomes: ['Contra-filé', 'Strip steak', 'Corte New York (bife angosto)', 'Faux-filet', 'Rumpsteak', 'Controfiletto'] },
   'file-mignon': { nomes: ['Filé mignon', 'Beef tenderloin', 'Filete de res', 'Filet de bœuf', 'Rinderfilet', 'Filetto di manzo'] },
   /* a picanha se come com a capa de gordura */
-  picanha: { taco: 381, nomes: ['Picanha', 'Picanha (top sirloin cap)', 'Picaña', 'Picanha (aiguillette baronne)', 'Picanha (Tafelspitz)', 'Picanha (codone)'] },
+  picanha: { taco: 381, nomes: ['Picanha', 'Picanha (top sirloin cap)', 'Picaña (tapa de cuadril, punta de anca)', 'Picanha (aiguillette baronne)', 'Picanha (Tafelspitz)', 'Picanha (codone)'] },
   'carne-moida': { nomes: ['Carne moída', 'Ground beef', 'Carne molida', 'Bœuf haché', 'Rinderhack', 'Carne macinata di manzo'] },
   'carne-panela': { nomes: ['Paleta bovina', 'Beef shoulder', 'Paleta de res', 'Paleron de bœuf', 'Rinderschulter', 'Spalla di manzo'] },
   musculo: { nomes: ['Músculo bovino', 'Beef shank', 'Jarrete de res (chambarete)', 'Jarret de bœuf', 'Rinderhesse', 'Muscolo di manzo'] },
-  lombo: { nomes: ['Lombo de porco', 'Pork loin', 'Lomo de cerdo', 'Longe de porc', 'Schweinelende', 'Lonza di maiale'] },
+  lombo: { nomes: ['Lombo de porco', 'Pork loin', 'Lomo de cerdo', 'Longe de porc', 'Schweinerücken', 'Lonza di maiale'] },
   pernil: { nomes: ['Pernil de porco', 'Pork leg', 'Pierna de cerdo', 'Cuisse de porc', 'Schweinekeule', 'Cosciotto di maiale'] },
   costelinha: { nomes: ['Costelinha de porco', 'Pork ribs', 'Costillas de cerdo', 'Travers de porc', 'Schweinerippchen', 'Costine di maiale'] },
-  'coxao-mole': { nomes: ['Coxão mole', 'Beef top round', 'Carne de res, corte de pierna', 'Tende de tranche', 'Rind, Oberschale', 'Fesa di manzo'] },
+  'coxao-mole': { nomes: ['Coxão mole', 'Beef top round', 'Nalga de res (pulpa)', 'Tende de tranche', 'Rind, Oberschale', 'Fesa di manzo'] },
   figado: { nomes: ['Fígado bovino', 'Beef liver', 'Hígado de res', 'Foie de bœuf', 'Rinderleber', 'Fegato di manzo'] },
   peru: { nomes: ['Peru', 'Turkey', 'Pavo', 'Dinde', 'Truthahn', 'Tacchino'] },
-  'alcatra-grelhada': { nomes: ['Alcatra', 'Top sirloin', 'Cuadril de res', 'Rumsteck', 'Hüftsteak', 'Scamone'] },
+  'alcatra-grelhada': { nomes: ['Alcatra', 'Top sirloin', 'Cuadril de res (aguayón)', 'Rumsteck', 'Hüftsteak', 'Scamone'] },
   cordeiro: { nomes: ['Cordeiro', 'Lamb', 'Cordero', 'Agneau', 'Lamm', 'Agnello'] },
   'costeleta-porco': { nomes: ['Costeleta de porco', 'Pork chop', 'Chuleta de cerdo', 'Côte de porc', 'Schweinekotelett', 'Braciola di maiale'] },
   pato: { nomes: ['Pato', 'Duck', 'Pato', 'Canard', 'Ente', 'Anatra'] },
@@ -60,7 +60,7 @@ export const CONSOLIDACAO = {
   salmao: { nomes: ['Salmão', 'Salmon', 'Salmón', 'Saumon', 'Lachs', 'Salmone'] },
   merluza: { nomes: ['Merluza', 'Hake', 'Merluza', 'Merlu', 'Seehecht', 'Nasello'] },
   sardinha: { nomes: ['Sardinha', 'Sardine', 'Sardina', 'Sardine', 'Sardine', 'Sardina'] },
-  corvina: { nomes: ['Corvina', 'Croaker', 'Corvina', 'Maigre', 'Umberfisch', 'Ombrina'] },
+  corvina: { nomes: ['Corvina', 'Croaker', 'Corvina', 'Maigre (poisson)', 'Umberfisch', 'Ombrina'] },
   camarao: { nomes: ['Camarão', 'Shrimp', 'Camarones', 'Crevettes', 'Garnelen', 'Gamberi'] },
   'atum-fresco': { nomes: ['Atum fresco', 'Fresh tuna', 'Atún fresco', 'Thon frais', 'Frischer Thunfisch', 'Tonno fresco'] },
   'bacalhau-fresco': { nomes: ['Bacalhau fresco', 'Cod', 'Bacalao fresco', 'Cabillaud', 'Kabeljau', 'Merluzzo'] },
@@ -98,7 +98,7 @@ export const CONSOLIDACAO = {
   'espinafre-cru': { nomes: ['Espinafre', 'Spinach', 'Espinacas', 'Épinards', 'Spinat', 'Spinaci'] },
   espinafre: { oculto: true },
   beterraba: { nomes: ['Beterraba', 'Beet', 'Remolacha', 'Betterave', 'Rote Bete', 'Barbabietola'] },
-  couve: { nomes: ['Couve', 'Collard greens', 'Col rizada (berza)', 'Chou vert', 'Grünkohl', 'Cavolo nero'] },
+  couve: { usda: 11162, nomes: ['Couve', 'Collard greens', 'Berza (col de hoja)', 'Chou cavalier', 'Blattkohl', 'Cavolo da foglia'] },
   abobora: { nomes: ['Abóbora', 'Pumpkin', 'Calabaza', 'Potiron', 'Kürbis', 'Zucca'] },
   chuchu: { nomes: ['Chuchu', 'Chayote', 'Chayote', 'Chayote', 'Chayote', 'Chayote'] },
   mandioca: { nomes: ['Mandioca', 'Cassava', 'Yuca', 'Manioc', 'Maniok', 'Manioca'] },

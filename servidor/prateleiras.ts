@@ -1,4 +1,4 @@
-/* As treze prateleiras da tabela de alimentos do aplicativo.
+/* As quinze prateleiras da tabela de alimentos do aplicativo.
 
    ⚠️ SÃO CHAVES, E NÃO TEXTO DE TELA: `restricoes.ts` sugere fonte de
    proteína por prateleira e `conselhos.ts` conta o corredor verde por
@@ -10,6 +10,7 @@
    tabela do aplicativo usa. */
 export const PRATELEIRAS = [
   'Arroz, massas e pães',
+  'Bebidas',
   'Café da manhã',
   'Carnes e aves',
   'Castanhas e sementes',
@@ -17,6 +18,7 @@ export const PRATELEIRAS = [
   'Frutas',
   'Grãos e feijões',
   'Leite e queijos',
+  'Molhos e gorduras',
   'Ovos',
   'Peixes e frutos do mar',
   'Pratos prontos',

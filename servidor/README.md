@@ -16,7 +16,7 @@ servidor/
   api/estimar.ts      o rótulo de um prato, estimado pelo nome
   alimentos.json      a tabela, GERADA — não edite à mão
   marcadores.ts       os 15 marcadores do laudo e as unidades de cada um
-  prateleiras.ts      as 13 prateleiras da tabela de alimentos
+  prateleiras.ts      as 15 prateleiras da tabela de alimentos
   rotulo.ts           a porção estimada virada em rótulo por 100 g
   vercel.json         60s de teto, região gru1 (São Paulo)
 ```

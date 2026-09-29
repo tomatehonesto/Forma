@@ -1066,6 +1066,15 @@ Ela tem duas portas: o **dicionário** (`dicionario()`), que é a tela de
 alimentos — comida de prateleira, o que cada uma traz —, e o **registro**
 (`ALIMENTOS()`), que é o dicionário mais os pratos prontos.
 
+Em 29/09/2026 ela passou a ter **uma entrada por alimento** (o preparo
+não vira outra linha; a tela diz de que preparo é o número, e o frito é o
+alimento mais o óleo — ver `scripts/dados/consolidacao.mjs`) e ganhou a
+segunda leva de comidas (`comidas-novas-2.mjs`): frutas, verduras,
+cortes, peixes, queijos e grãos que faltavam, e as prateleiras Bebidas e
+Molhos e gorduras. São 475 comidas: 309 no dicionário, 157 pratos e 9
+fora das listas (variantes, sucos e suplementos, que a hidratação e as
+receitas ainda citam). Sucos e suplementos não entram, por decisão.
+
 As refeições antigas não mudam: cada item guarda o rótulo do dia em que
 foi registrado (`ItemComida.rotulo`), inclusive os do fast food e da
 tabela americana que saíram.

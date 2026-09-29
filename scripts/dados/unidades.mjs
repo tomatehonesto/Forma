@@ -34,5 +34,12 @@ export const UNIDADES = {
   /* O empanado — milanesa, parmegiana, schnitzel: em alemão se conta em
      "Stück", e "1 Filet Schnitzel" é redundante. */
   'filé-empanado': { 'pt-BR': ['filé', 'filés'], 'en-US': ['cutlet', 'cutlets'], 'es-419': ['filete', 'filetes'], 'fr-FR': ['escalope', 'escalopes'], 'de-DE': ['Stück', 'Stück'], 'it-IT': ['cotoletta', 'cotolette'] },
+  /* a lata de bebida: "canette" e "lattina", e não a "boîte" e a
+     "scatoletta" da lata de conserva */
+  'lata-bebida': { 'pt-BR': ['lata', 'latas'], 'en-US': ['can', 'cans'], 'es-419': ['lata', 'latas'], 'fr-FR': ['canette', 'canettes'], 'de-DE': ['Dose', 'Dosen'], 'it-IT': ['lattina', 'lattine'] },
+  'dente':     { 'pt-BR': ['dente', 'dentes'], 'en-US': ['clove', 'cloves'], 'es-419': ['diente', 'dientes'], 'fr-FR': ['gousse', 'gousses'], 'de-DE': ['Zehe', 'Zehen'], 'it-IT': ['spicchio', 'spicchi'] },
+  'taça':      { 'pt-BR': ['taça', 'taças'], 'en-US': ['glass', 'glasses'], 'es-419': ['copa', 'copas'], 'fr-FR': ['verre', 'verres'], 'de-DE': ['Glas', 'Gläser'], 'it-IT': ['calice', 'calici'] },
+  'dose':      { 'pt-BR': ['dose', 'doses'], 'en-US': ['shot', 'shots'], 'es-419': ['trago', 'tragos'], 'fr-FR': ['verre', 'verres'], 'de-DE': ['Schnapsglas', 'Schnapsgläser'], 'it-IT': ['bicchierino', 'bicchierini'] },
+  'folha':     { 'pt-BR': ['folha', 'folhas'], 'en-US': ['sheet', 'sheets'], 'es-419': ['hoja', 'hojas'], 'fr-FR': ['feuille', 'feuilles'], 'de-DE': ['Blatt', 'Blätter'], 'it-IT': ['foglio', 'fogli'] },
   'bola':      { 'pt-BR': ['bola', 'bolas'], 'en-US': ['scoop', 'scoops'], 'es-419': ['bola', 'bolas'], 'fr-FR': ['boule', 'boules'], 'de-DE': ['Kugel', 'Kugeln'], 'it-IT': ['pallina', 'palline'] },
 };

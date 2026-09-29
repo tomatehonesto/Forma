@@ -330,26 +330,22 @@ export const alimentacao = {
     /* De que preparo são os números — ver scripts/dados/consolidacao. */
 
     preparo: {
-
-      cru: 'The numbers are for the raw food.',
-
-      cozido: 'The numbers are for the food cooked, without oil.',
-
-      grelhado: 'The numbers are for the food grilled, without oil.',
-
-      assado: 'The numbers are for the food roasted, without oil.',
-
-      frito: 'The numbers are for the food fried.',
-
-      refogado: 'The numbers are for the food sautéed, including the oil.',
-
+      cru: 'Measured raw.',
+      cozido: 'Measured cooked, without oil.',
+      grelhado: 'Measured grilled, without oil.',
+      assado: 'Measured roasted, without oil.',
+      frito: 'Measured fried.',
+      refogado: 'Measured sautéed, including the oil.',
     },
-  },
+  },
+
 
   /* As prateleiras, pela chave com que ficam gravadas — ver
      logic/prateleiras. */
   prateleira: {
     'Arroz, massas e pães': 'Rice, pasta and bread',
+    'Bebidas': 'Drinks',
+    'Molhos e gorduras': 'Sauces and fats',
     'Café da manhã': 'Breakfast',
     'Carnes e aves': 'Meat and poultry',
     'Castanhas e sementes': 'Nuts and seeds',

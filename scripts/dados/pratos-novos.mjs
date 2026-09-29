@@ -37,9 +37,16 @@ const MOLHO_CAESAR = { usda: 43015, contem: ['ovo', 'peixe', 'leite'] };
 const CALDO = { usda: 14411 };
 const SHOYU = { usda: 16123 };
 const ALFACE = { usda: 11251 };
+const CACAU = { usda: 19165 };
 const MAIONESE = { usda: 4025, contem: ['ovo'] };
 
 export const PRATOS_NOVOS = [
+  /* --- doces brasileiros -------------------------------------------- */
+  { id: 'brigadeiro', un: 'unidade', onde: 'Doces e lanches', nomes: ['Brigadeiro', 'Brigadeiro (Brazilian chocolate truffle)', 'Brigadeiro (trufa brasileña de chocolate)', 'Brigadeiro (truffe brésilienne au chocolat)', 'Brigadeiro (brasilianische Schokoladentrüffel)', 'Brigadeiro (tartufo brasiliano al cioccolato)'],
+    receita: [['leite-condensado', 16], ['manteiga', 1], [CACAU, 1], ['chocolate', 3]] },
+  { id: 'pudim-leite', un: 'fatia-torta', onde: 'Doces e lanches', nomes: ['Pudim de leite condensado', 'Brazilian flan (condensed milk)', 'Flan de leche condensada', 'Flan au lait concentré', 'Karamellpudding mit Kondensmilch', 'Budino al latte condensato'],
+    receita: [['leite-condensado', 40], ['leite', 40], ['ovo-cozido', 20], ['acucar', 5]] },
+
   /* --- alemã e austríaca -------------------------------------------- */
   { id: 'schnitzel', un: 'filé-empanado', nomes: ['Schnitzel (bife de porco empanado)', 'Pork schnitzel', 'Milanesa de cerdo', 'Escalope de porc panée', 'Schweineschnitzel', 'Cotoletta di maiale impanata'],
     receita: [['pernil-magro', 120], ['ovo-cozido', 15], [FARINHA_ROSCA, 20], [OLEO, 10]] },

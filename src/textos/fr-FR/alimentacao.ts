@@ -365,26 +365,22 @@ export const alimentacao = {
     /* De que preparo são os números — ver scripts/dados/consolidacao. */
 
     preparo: {
-
-      cru: 'Les chiffres sont ceux de l’aliment cru.',
-
-      cozido: 'Les chiffres sont ceux de l’aliment cuit, sans huile.',
-
-      grelhado: 'Les chiffres sont ceux de l’aliment grillé, sans huile.',
-
-      assado: 'Les chiffres sont ceux de l’aliment rôti, sans huile.',
-
-      frito: 'Les chiffres sont ceux de l’aliment frit.',
-
-      refogado: 'Les chiffres sont ceux de l’aliment sauté, avec l’huile de cuisson.',
-
+      cru: 'Mesuré cru.',
+      cozido: 'Mesuré cuit, sans huile.',
+      grelhado: 'Mesuré grillé, sans huile.',
+      assado: 'Mesuré rôti, sans huile.',
+      frito: 'Mesuré frit.',
+      refogado: 'Mesuré sauté, avec l’huile de cuisson.',
     },
-  },
+  },
+
 
   /* As prateleiras, pela chave com que ficam gravadas — ver
      logic/prateleiras. */
   prateleira: {
     'Arroz, massas e pães': 'Riz, pâtes et pains',
+    'Bebidas': 'Boissons',
+    'Molhos e gorduras': 'Sauces et matières grasses',
     'Café da manhã': 'Petit-déjeuner',
     'Carnes e aves': 'Viandes et volailles',
     'Castanhas e sementes': 'Fruits à coque et graines',

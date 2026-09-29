@@ -461,19 +461,12 @@ export const alimentacao = {
     /* De que preparo são os números — ver scripts/dados/consolidacao. */
 
     preparo: {
-
-      cru: 'I numeri sono dell’alimento crudo.',
-
-      cozido: 'I numeri sono dell’alimento cotto, senza olio.',
-
-      grelhado: 'I numeri sono dell’alimento alla griglia, senza olio.',
-
-      assado: 'I numeri sono dell’alimento arrosto, senza olio.',
-
-      frito: 'I numeri sono dell’alimento fritto.',
-
-      refogado: 'I numeri sono dell’alimento saltato in padella, con l’olio.',
-
+      cru: 'Misurato crudo.',
+      cozido: 'Misurato cotto, senza olio.',
+      grelhado: 'Misurato alla griglia, senza olio.',
+      assado: 'Misurato arrosto, senza olio.',
+      frito: 'Misurato fritto.',
+      refogado: 'Misurato saltato in padella, con l’olio.',
     },
   },
 
@@ -481,6 +474,8 @@ export const alimentacao = {
      logic/prateleiras. */
   prateleira: {
     'Arroz, massas e pães': 'Riso, pasta e pane',
+    'Bebidas': 'Bevande',
+    'Molhos e gorduras': 'Salse e grassi',
     'Café da manhã': 'Colazione',
     'Carnes e aves': 'Carne e pollame',
     'Castanhas e sementes': 'Frutta secca e semi',

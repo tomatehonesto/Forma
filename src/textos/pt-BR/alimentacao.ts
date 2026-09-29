@@ -480,26 +480,22 @@ export const alimentacao = {
     /* De que preparo são os números — ver scripts/dados/consolidacao. */
 
     preparo: {
-
-      cru: 'Os números são do alimento cru.',
-
-      cozido: 'Os números são do alimento cozido, sem óleo.',
-
-      grelhado: 'Os números são do alimento grelhado, sem óleo.',
-
-      assado: 'Os números são do alimento assado, sem óleo.',
-
-      frito: 'Os números são do alimento frito.',
-
-      refogado: 'Os números são do alimento refogado, com o óleo do refogado.',
-
+      cru: 'Medido cru.',
+      cozido: 'Medido cozido, sem óleo.',
+      grelhado: 'Medido grelhado, sem óleo.',
+      assado: 'Medido assado, sem óleo.',
+      frito: 'Medido frito.',
+      refogado: 'Medido refogado, com o óleo do refogado.',
     },
-  },
+  },
+
 
   /* As prateleiras, pela chave com que ficam gravadas — ver
      logic/prateleiras. */
   prateleira: {
     'Arroz, massas e pães': 'Arroz, massas e pães',
+    'Bebidas': 'Bebidas',
+    'Molhos e gorduras': 'Molhos e gorduras',
     'Café da manhã': 'Café da manhã',
     'Carnes e aves': 'Carnes e aves',
     'Castanhas e sementes': 'Castanhas e sementes',
