@@ -1,4 +1,4 @@
-import { PRATELEIRAS } from './prateleiras';
+import { PRATELEIRAS } from './prateleiras.js';
 
 /* A resposta do modelo sobre UMA porção, virada no rótulo que o
    aplicativo guarda: os números por 100 g e o peso da porção à parte.

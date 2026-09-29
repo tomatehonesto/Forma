@@ -1,9 +1,9 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod';
 import { z } from 'zod';
-import { PRATELEIRAS } from '../prateleiras';
-import { rotuloDaPorcao } from '../rotulo';
-import { abrirPorta } from '../cota';
+import { PRATELEIRAS } from '../prateleiras.js';
+import { rotuloDaPorcao } from '../rotulo.js';
+import { abrirPorta } from '../cota.js';
 
 /* ============================================================
    ESTIMAR PELO NOME
