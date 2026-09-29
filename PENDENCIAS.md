@@ -128,6 +128,59 @@ as que subiram. **Ninguém lê nada antes de isto fechar.**
   alcança uma cópia;
 - se a extensão `pgaudit` estiver disponível, o registro de quem leu.
 
+### 39. O servidor da IA não está publicado
+
+Aberto em 29/09/2026. **Sem ele, as três funções de IA não existem na
+loja:** a leitura da foto do prato, a leitura do laudo e a estimativa de
+um prato pelo nome. O aplicativo lida bem com a falta — cada uma some ou
+cai no caminho manual, sem fingir —, mas são três recursos anunciados.
+
+O código está pronto em `servidor/` (ver `servidor/README.md`):
+`api/analisar`, `api/laudo` e `api/estimar`, um projeto só na Vercel,
+região `gru1` (São Paulo), 60 s de teto.
+
+**Para publicar:**
+
+1. Na Vercel, importar o repositório `tomatehonesto/Forma`. Se ele não
+   aparecer na lista, falta dar ao app da Vercel no GitHub acesso a ele
+   (GitHub › Settings › Applications › Vercel › Repository access).
+2. **Root Directory: `servidor`.** Sem isso a Vercel tenta publicar o
+   aplicativo Expo inteiro.
+3. Variáveis de ambiente: `ANTHROPIC_API_KEY` (a chave da API, que só
+   mora aqui — nunca no aplicativo, no código ou no chat) e
+   `MORPHI_TOKEN` (um valor aleatório qualquer, o mesmo que vai no app).
+4. Deploy. A URL fica `https://<projeto>.vercel.app/api/analisar`.
+5. No aplicativo, `EXPO_PUBLIC_ANALISE_URL` com essa URL e
+   `EXPO_PUBLIC_ANALISE_TOKEN` com o mesmo token — no `.env` e nas
+   variáveis da build do EAS. O laudo e a estimativa acham a URL
+   sozinhos (trocam `/analisar` por `/laudo` e `/estimar`).
+6. Testar com coisa de verdade: uma foto de prato com item da lista e
+   item fora dela, um laudo em PDF e um em foto, e "galinhada caipira"
+   digitado. Conferir no iPhone, não só no navegador.
+
+**Antes da loja, e não só antes do teste:**
+
+- **O plano Hobby da Vercel não permite uso comercial.** Passar para o
+  Pro antes de o aplicativo cobrar alguém.
+- **Desligar o uso dos dados para treino** nas configurações da equipe
+  na Vercel ("Improve models with my data" estava ligado). Passa por lá
+  foto de prato e laudo de exame — dado de saúde.
+- **O token não é proteção.** Ele vai no pacote do aplicativo e é
+  extraível; impede que a URL vazada vire conta aberta, e só. A proteção
+  de verdade é o servidor conferir a sessão do Supabase (o JWT de quem
+  está logado) antes de chamar o modelo, e limitar por pessoa.
+- **O limite de uso da IA não existe no código.** Cada foto, laudo e
+  estimativa é uma chamada paga. O limite por pessoa (teto diário de
+  fotos e estimativas) é o que sustenta o preço — ver a conversa de
+  preço, item 21 — e entra junto com a conferência da sessão.
+- **A Política cita a Anthropic e a Vercel** (seção 7), e o laudo tem
+  aceite próprio. A estimativa pelo nome e a foto mandam só comida;
+  confirmar com o advogado (item 2) se a Política descreve as três
+  saídas como estão.
+- **O repositório é público.** O servidor não tem segredo no código —
+  as chaves ficam nas variáveis da Vercel —, mas a decisão de deixar o
+  código aberto é do dono.
+
 ---
 
 ## 🟡 Passa a valer quando a assinatura entrar
