@@ -128,7 +128,18 @@ as que subiram. **Ninguém lê nada antes de isto fechar.**
   alcança uma cópia;
 - se a extensão `pgaudit` estiver disponível, o registro de quem leu.
 
-### 39. O servidor da IA não está publicado
+### 39. O servidor da IA: publicado no teste, falta a produção
+
+**Atualizado em 29/09/2026:** publicado em
+`https://forma-servidor.vercel.app`, apontando para o morphi-dev, e o
+`.env.development` já liga o app a ele. Conferido de fora: sem sessão
+(ou com um JWT falso), as três funções respondem "sem-conta" e não chamam
+o modelo. Falta o passo 6 com uma conta de verdade, no iPhone. Na
+virada, trocar `SUPABASE_URL` e `SUPABASE_PUBLISHABLE_KEY` da Vercel
+pelas do projeto de produção e pôr as duas `EXPO_PUBLIC_ANALISE_*` nas
+variáveis da build do EAS. O crédito da Anthropic é pré-pago (US$ 5 no
+começo): quando acaba, a IA para e o app cai no caminho manual.
+
 
 Aberto em 29/09/2026. **Sem ele, as três funções de IA não existem na
 loja:** a leitura da foto do prato, a leitura do laudo e a estimativa de
