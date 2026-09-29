@@ -106,7 +106,7 @@ const DATA = /^\d{4}-\d{2}-\d{2}$/;
 const curto = (s: unknown, max: number) =>
   typeof s === 'string' && s.trim() ? s.trim().slice(0, max) : null;
 
-export default async function handler(req: Request): Promise<Response> {
+async function handler(req: Request): Promise<Response> {
   if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: CABECALHOS });
   if (req.method !== 'POST') return falhou('nao-reconheci', 405);
 
@@ -188,3 +188,8 @@ export default async function handler(req: Request): Promise<Response> {
     return falhou('sem-rede');
   }
 }
+
+/* A Vercel só entrega o Request da web a quem exporta `fetch`; um
+   `export default function` recebe os objetos do Node, e req.headers.get
+   quebra antes de a função começar. */
+export default { fetch: handler };
