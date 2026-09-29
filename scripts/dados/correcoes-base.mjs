@@ -23,6 +23,11 @@ const FARINHA = { usda: 20081 };
 const CALDO = { usda: 14411 };
 const MAIONESE = { usda: 4025, contem: ['ovo'] };
 const NACHOS = { usda: 19056 };
+const ACUCAR = { usda: 19335 };
+/* A massa de crepe e de panqueca: farinha, ovo e leite. Era a massa
+   fresca de lasanha da TACO (37), que não é o alimento do nome. */
+const MASSA_CREPE = [[FARINHA, 30], [TACO(489), 25], ['leite', 35]];
+const MASSA_PANQUECA = [[FARINHA, 23], [TACO(489), 20], ['leite', 27]];
 
 export const CORRECOES = {
   /* ---- receitas que faltavam o que define o prato ---- */
@@ -54,9 +59,39 @@ export const CORRECOES = {
   /* o de atum vem com maionese */
   'sanduiche-atum': { receita: [[TACO(52), 50], ['atum-lata', 55], ['tomate', 20], [MAIONESE, 15]] },
   /* o "crepe de queijo" levava presunto */
-  'crepe-queijo': { receita: [[TACO(37), 90], ['mussarela', 60]] },
+  'crepe-queijo': { receita: [...MASSA_CREPE, ['mussarela', 60]] },
   /* a soma saía sem caloria, com todos os componentes medidos */
-  'mac-and-cheese': { receita: [['macarrao', 150], ['queijo-prato', 50], ['leite', 80]] },
+  'mac-and-cheese': { receita: [['macarrao', 150], ['cheddar', 50], ['leite', 80]] },
+
+  /* ---- a segunda revisão (29/09/2026) ---- */
+  /* a massa era de lasanha */
+  'crepe-carne': { receita: [...MASSA_CREPE, [TACO(326), 50], [TACO(463), 30]] },
+  'crepe-frango': { receita: [...MASSA_CREPE, [TACO(404), 50], [TACO(465), 30]] },
+  'panqueca-carne': { receita: [...MASSA_PANQUECA, [TACO(326), 60], [TACO(161), 30]] },
+  'panqueca-frango': { receita: [...MASSA_PANQUECA, [TACO(404), 60], [TACO(161), 30]] },
+  /* a massa da quiche é farinha e manteiga */
+  'quiche-queijo': { receita: [[TACO(35), 45], ['manteiga', 15], [TACO(489), 55], ['mussarela', 40], [TACO(447), 35]], un: 'fatia-torta' },
+  /* paella sem azeite não existe, e ela leva mais que camarão */
+  'paella-frutos-do-mar': { receita: [['arroz', 200], [TACO(285), 70], ['mexilhao', 30], [AZEITE, 10]] },
+  /* o açaí na tigela daqui vem adoçado */
+  'acai-tigela': { receita: [[TACO(168), 250], [ACUCAR, 25], ['granola', 30], ['banana', 60]] },
+  /* o pão e a tortilha de verdade, que já estão na lista */
+  'bagel-cream-cheese': { receita: [['bagel', 90], ['cream-cheese', 30]] },
+  'shawarma-frango': { receita: [['pao-sirio', 70], [TACO(410), 100], [TACO(448), 30]] },
+  'kebab-carne': { receita: [['pao-sirio', 70], [TACO(328), 80], [TACO(448), 30]] },
+  'burrito-frango': { receita: [['tortilla-trigo', 70], [TACO(410), 80], [TACO(561), 60], [TACO(3), 60]] },
+  'wrap-frango': { receita: [['tortilla-trigo', 60], [TACO(410), 80], [TACO(161), 30]] },
+  'quesadilla-queijo': { receita: [['tortilla-trigo', 60], ['mussarela', 50]] },
+  /* o pad thai é de macarrão de arroz */
+  'pad-thai-camarao': { receita: [['macarrao-arroz', 80], [TACO(285), 80], [TACO(489), 40], [TACO(558), 15]] },
+  /* o salmão do sushi é cru */
+  sushi: { receita: [['arroz', 90], [TACO(316), 70]] },
+  /* o x-salada e o sanduíche de frango vêm com maionese */
+  'x-salada': { receita: [[TACO(54), 70], [TACO(416), 90], [TACO(463), 25], [TACO(78), 20], [TACO(161), 20], [MAIONESE, 15]] },
+  'sanduiche-frango': { receita: [[TACO(52), 50], [TACO(410), 60], [TACO(161), 20], [MAIONESE, 15]] },
+  /* o fígado acebolado vem em tiras, e a ricota fora do Brasil é cremosa */
+  figado: { un: 'porção' },
+  ricota: { un: 'colher', gUn: 30, qtd: 2 },
 
   /* ---- porções ---- */
   /* o peso escorrido, e não o da lata cheia */
@@ -70,7 +105,6 @@ export const CORRECOES = {
   /* ---- medidas: fatia de pizza, torta e bolo é "part" em francês e
      "Stück" em alemão; empanado é "Stück" em alemão; sopa vem em tigela ---- */
   'bolo-chocolate': { un: 'fatia-torta' },
-  'quiche-queijo': { un: 'fatia-torta' },
   'pizza-mussarela': { un: 'fatia-torta' },
   'pizza-calabresa': { un: 'fatia-torta' },
   'pizza-frango': { un: 'fatia-torta' },

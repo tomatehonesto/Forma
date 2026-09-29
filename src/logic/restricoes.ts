@@ -110,7 +110,7 @@ const CONTEM: Record<string, Ingrediente[]> = {
   peru: ['ave'],
   coxinha: ['ave', 'ovo', 'leite'],
   linguica: ['carne', 'ave'],
-  almondega: ['carne', 'ovo'],
+  almondega: ['carne', 'ovo', 'leite'],
   omelete: ['ovo', 'leite'],
   achocolatado: ['leite'],
 
@@ -169,7 +169,7 @@ const CONTEM: Record<string, Ingrediente[]> = {
   'risoto-frango': ['ave', 'leite'],
   canja: ['ave'],
   'sopa-carne': ['carne'],
-  'ramen-carne': ['carne', 'ovo'],
+  'ramen-carne': ['carne', 'ave', 'ovo', 'peixe'],
   'temaki-salmao': ['peixe'],
   'poke-salmao': ['peixe'],
   'gyoza-porco': ['carne'],
@@ -199,14 +199,14 @@ const CONTEM: Record<string, Ingrediente[]> = {
 
   /* lanches */
   chocolate: ['leite'],
-  'sanduiche-frango': ['ave'],
+  'sanduiche-frango': ['ave', 'ovo', 'leite'],
   'sanduiche-atum': ['peixe', 'ovo'],
   'sanduiche-peru': ['ave', 'leite'],
-  'x-salada': ['carne', 'leite'],
+  'x-salada': ['carne', 'leite', 'ovo'],
   'misto-quente': ['carne', 'leite'],
   'tapioca-frango': ['ave', 'leite'],
   'tapioca-queijo': ['leite'],
-  esfiha: ['carne'],
+  esfiha: ['carne', 'leite', 'ovo'],
   'pastel-carne': ['carne'],
   'pastel-queijo': ['leite'],
   croquete: ['carne', 'ovo', 'leite'],
@@ -235,6 +235,9 @@ const CONTEM: Record<string, Ingrediente[]> = {
   'macarrao-alho': ['leite'],
   /* a tapioca da TACO é "com manteiga" */
   tapioca: ['leite'],
+  /* a segunda revisão: a farofa pronta leva manteiga e quase sempre
+     bacon */
+  farofa: ['leite', 'carne'],
 };
 
 /* ⚠️ O PRATO SOMADO RESPONDE PELA RECEITA. Os pratos que entraram com a

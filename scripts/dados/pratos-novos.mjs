@@ -17,6 +17,10 @@
    "~". A regra da lista brasileira vale aqui: só prato que sai do fogo
    já misturado. Prato mais acompanhamento são dois itens.
 
+   contem: o que o prato costuma levar e a receita não soma — o molho
+   de peixe do pho, o ghee do dal, o sour cream das fajitas. Marcar a
+   mais é o erro seguro nas restrições.
+
    nomes: [português, inglês, espanhol, francês, alemão, italiano]. */
 const CEBOLA = { usda: 11282 };
 const AZEITE = { usda: 4053 };
@@ -37,7 +41,7 @@ const MAIONESE = { usda: 4025, contem: ['ovo'] };
 
 export const PRATOS_NOVOS = [
   /* --- alemã e austríaca -------------------------------------------- */
-  { id: 'schnitzel', un: 'filé-empanado', nomes: ['Schnitzel (bife de porco empanado)', 'Pork schnitzel', 'Escalope de cerdo empanado', 'Escalope de porc panée', 'Schweineschnitzel', 'Cotoletta di maiale impanata'],
+  { id: 'schnitzel', un: 'filé-empanado', nomes: ['Schnitzel (bife de porco empanado)', 'Pork schnitzel', 'Milanesa de cerdo', 'Escalope de porc panée', 'Schweineschnitzel', 'Cotoletta di maiale impanata'],
     receita: [['pernil-magro', 120], ['ovo-cozido', 15], [FARINHA_ROSCA, 20], [OLEO, 10]] },
   { id: 'currywurst', un: 'porção', nomes: ['Currywurst', 'Currywurst', 'Currywurst', 'Currywurst', 'Currywurst', 'Currywurst'],
     receita: [['bratwurst', 100], [KETCHUP, 40]] },
@@ -81,7 +85,7 @@ export const PRATOS_NOVOS = [
     receita: [['batata-frita', 150], [MOLHO_TOMATE, 40]] },
   { id: 'enchiladas-frango', un: 'porção', nomes: ['Enchiladas de frango', 'Chicken enchiladas', 'Enchiladas de pollo', 'Enchiladas au poulet', 'Hähnchen-Enchiladas', 'Enchiladas di pollo'],
     receita: [['tortilla-milho', 48], ['peito-frango', 80], [MOLHO_TOMATE, 60], ['cheddar', 25], ['creme-azedo', 15]] },
-  { id: 'fajitas-frango', un: 'porção', nomes: ['Fajitas de frango', 'Chicken fajitas', 'Fajitas de pollo', 'Fajitas au poulet', 'Hähnchen-Fajitas', 'Fajitas di pollo'],
+  { id: 'fajitas-frango', un: 'porção', contem: ['leite'], nomes: ['Fajitas de frango', 'Chicken fajitas', 'Fajitas de pollo', 'Fajitas au poulet', 'Hähnchen-Fajitas', 'Fajitas di pollo'],
     receita: [['tortilla-trigo', 48], ['peito-frango', 90], ['pimentao', 40], [CEBOLA, 30], [OLEO, 5]] },
   { id: 'lomo-saltado', un: 'prato', nomes: ['Lomo saltado', 'Lomo saltado (Peruvian beef stir-fry)', 'Lomo saltado', 'Lomo saltado (sauté de bœuf péruvien)', 'Lomo saltado (peruanisches Rindfleisch)', 'Lomo saltado (manzo saltato peruviano)'],
     receita: [['alcatra-grelhada', 120], ['batata-frita', 80], ['tomate', 50], [CEBOLA, 40], [SHOYU, 10]] },
@@ -99,7 +103,7 @@ export const PRATOS_NOVOS = [
     receita: [['aveia', 40], ['leite', 150], ['chia', 10], ['banana', 50]], onde: 'Café da manhã' },
 
   /* --- asiática, indiana e mediterrânea ----------------------------- */
-  { id: 'curry-frango', un: 'prato', nomes: ['Curry de frango', 'Chicken curry', 'Curry de pollo', 'Curry de poulet', 'Hähnchen-Curry', 'Curry di pollo'],
+  { id: 'curry-frango', un: 'prato', contem: ['leite'], nomes: ['Curry de frango', 'Chicken curry', 'Curry de pollo', 'Curry de poulet', 'Hähnchen-Curry', 'Curry di pollo'],
     receita: [['sobrecoxa', 130], [CEBOLA, 40], [MOLHO_TOMATE, 50], [LEITE_COCO, 60], [OLEO, 5]] },
   { id: 'butter-chicken', un: 'prato', nomes: ['Frango na manteiga (butter chicken)', 'Butter chicken', 'Pollo a la mantequilla', 'Poulet au beurre (butter chicken)', 'Butter Chicken', 'Pollo al burro (butter chicken)'],
     receita: [['peito-frango', 130], [CREME_LEITE, 30], ['manteiga', 10], [MOLHO_TOMATE, 60]] },
@@ -107,13 +111,13 @@ export const PRATOS_NOVOS = [
     receita: [['sobrecoxa', 150], [SHOYU, 15], ['mel', 10]] },
   { id: 'salmao-teriyaki', un: 'posta', nomes: ['Salmão teriyaki', 'Salmon teriyaki', 'Salmón teriyaki', 'Saumon teriyaki', 'Teriyaki-Lachs', 'Salmone teriyaki'],
     receita: [['salmao', 140], [SHOYU, 15], ['mel', 10]] },
-  { id: 'pho', un: 'tigela', nomes: ['Pho (sopa vietnamita)', 'Pho', 'Pho (sopa vietnamita)', 'Phở', 'Pho', 'Pho (zuppa vietnamita)'],
+  { id: 'pho', un: 'tigela', contem: ['peixe'], nomes: ['Pho (sopa vietnamita)', 'Pho', 'Pho (sopa vietnamita)', 'Phở', 'Pho', 'Pho (zuppa vietnamita)'],
     receita: [['macarrao-arroz', 150], ['alcatra-grelhada', 60], [CALDO, 300], [CEBOLA, 10]] },
-  { id: 'dal', un: 'tigela', nomes: ['Dal (lentilha indiana)', 'Dal (Indian lentils)', 'Dal (lentejas a la india)', 'Dal (lentilles à l’indienne)', 'Dal (indische Linsen)', 'Dal (lenticchie all’indiana)'],
+  { id: 'dal', un: 'tigela', contem: ['leite'], nomes: ['Dal (lentilha indiana)', 'Dal (Indian lentils)', 'Dal (lentejas a la india)', 'Dal (lentilles à l’indienne)', 'Dal (indische Linsen)', 'Dal (lenticchie all’indiana)'],
     receita: [['lentilha', 200], [CEBOLA, 30], ['tomate', 40], [OLEO, 8]] },
   { id: 'salada-grega', un: 'prato', nomes: ['Salada grega', 'Greek salad', 'Ensalada griega', 'Salade grecque', 'Griechischer Salat', 'Insalata greca'],
     receita: [['tomate', 100], ['pepino', 80], ['feta', 40], ['azeitona', 12], [CEBOLA, 20], [AZEITE, 10]] },
-  { id: 'moussaka', un: 'porção', nomes: ['Moussaka', 'Moussaka', 'Musaka', 'Moussaka', 'Moussaka', 'Moussaka'],
+  { id: 'moussaka', un: 'porção', contem: ['ovo'], nomes: ['Moussaka', 'Moussaka', 'Musaka', 'Moussaka', 'Moussaka', 'Moussaka'],
     receita: [['berinjela', 120], ['carne-moida', 80], [MOLHO_TOMATE, 40], ['leite', 60], ['manteiga', 5], [FARINHA, 5]] },
   { id: 'cuscuz-legumes', un: 'prato', nomes: ['Cuscuz marroquino com legumes', 'Couscous with vegetables', 'Cuscús con verduras', 'Couscous aux légumes', 'Couscous mit Gemüse', 'Cuscus con verdure'],
     receita: [['cuscuz-marroquino', 150], ['abobrinha', 60], ['cenoura', 40], ['grao-de-bico', 40], [AZEITE, 5]] },

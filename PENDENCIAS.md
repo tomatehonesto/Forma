@@ -1072,10 +1072,14 @@ tabela americana que saíram.
 
 O que ficou em aberto:
 
-**a) Os nomes são tradução minha.** As 365 comidas e as 24 medidas
-caseiras, em cinco idiomas, entram na revisão nativa do item 20 junto
-com os catálogos. O lugar é `scripts/dados/nomes-base.mjs`,
-`comidas-novas.mjs`, `pratos-novos.mjs` e `unidades.mjs`.
+**a) Os nomes foram revisados em duas rodadas, mas não por gente.** Em
+29/09/2026, um revisor por idioma e depois uma segunda passada
+multilíngue, com cada apontamento conferido antes de entrar: 97 trocas
+de nome (regionalismos no espanhol, cortes de carne, falsos cognatos,
+preparos trocados) e duas medidas novas. Não substitui um nativo lendo
+a tela; quando a revisão nativa do item 20 acontecer, os nomes vão
+junto. O lugar é `scripts/dados/nomes-base.mjs`, `comidas-novas.mjs`,
+`pratos-novos.mjs` e `unidades.mjs`.
 
 **b) As comidas novas vêm da SR Legacy (USDA, 2018).** É domínio público
 e é a base que traz porção caseira, mas é de 2018 e não tem alguns
@@ -1085,16 +1089,24 @@ algum país, a CIQUAL (França, Licence Ouverte) e o BLS 4.0 (Alemanha,
 CC BY 4.0) servem para completar — as duas permitem uso comercial citando
 a fonte.
 
-**c) Os pratos novos são somados por receita**, e a receita é minha: uma
+**c) Os pratos são somados por receita**, e a receita é minha: uma
 porção de restaurante, escrita componente por componente em
-`pratos-novos.mjs`. É a mesma régua dos pratos montados da lista
-brasileira, e erra conforme a mão de quem cozinhou — a tela escreve "~".
+`pratos-novos.mjs` e, para a lista antiga, em `correcoes-base.mjs`.
+Duas revisões de nutrição corrigiram o que faltava ao prato (moqueca sem
+leite de coco, sopa sem caldo, fritura que não estava, massa que não era
+a do nome). Continua sendo a régua de uma porção de restaurante, que
+erra conforme a mão de quem cozinhou — a tela escreve "~". A fibra da
+batata frita (8 g em 100 g) é a da TACO e parece alta; ficou, porque é
+medida de laboratório.
 
 **d) O que cada comida contém, para as restrições**, é julgamento: o mapa
 por id em `logic/restricoes` para a lista antiga, o campo `contem` para
-as comidas novas que fogem do corredor, e a receita para os pratos novos.
-Ele merece a mesma revisão que o resto — errar ali põe carne no prato de
-quem marcou vegano.
+as comidas novas que fogem do corredor, e a receita (mais `contem`) para
+os pratos novos. As duas revisões de nutrição acharam e corrigiram 30
+marcas faltando — o caldo de feijão com linguiça, o ovo da massa fresca,
+o iogurte do shawarma, o ghee do dal —, sempre marcando a mais quando o
+prato varia. A tela de restrições já diz que é orientação e não garantia
+(alergia não é o caso de uso), e é isso que segura o risco que sobra.
 
 **e) A leitura da foto usa a mesma lista**, com os nomes em português no
 prompt (`servidor/alimentos.json`, gerado na mesma passada). O item que

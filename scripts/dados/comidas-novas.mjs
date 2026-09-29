@@ -8,6 +8,9 @@
              aveia, presunto cru). Mesma regra dos poucos itens de rótulo
              da lista brasileira: a tela diz de onde veio.
 
+   rend     o rendimento de cozimento, quando a SR Legacy só traz o
+            alimento cru: os valores são divididos por ele.
+
    gUn é o peso de UMA medida caseira, e quase sempre saiu das porções
    da própria SR Legacy ("1 medium bagel = 105 g"); onde ela não traz
    porção, é medida de cozinha, como na lista brasileira.
@@ -23,10 +26,13 @@ export const NOVAS = [
   { id: 'bacon', usda: 10862, gUn: 11, qtd: 2, un: 'fatia', onde: 'Carnes e aves',
     nomes: ['Bacon frito', 'Fried bacon', 'Tocino frito', 'Bacon grillé', 'Gebratener Speck', 'Pancetta croccante'] },
   { id: 'salsicha', usda: 7950, gUn: 50, qtd: 1, un: 'unidade', onde: 'Carnes e aves', contem: ['carne', 'ave'], busca: 'hot dog cachorro quente frankfurt wurstel',
-    nomes: ['Salsicha', 'Hot dog (frank)', 'Salchicha', 'Saucisse de Francfort', 'Wiener Würstchen', 'Würstel'] },
+    nomes: ['Salsicha', 'Frankfurter (hot dog)', 'Salchicha', 'Saucisse de Francfort', 'Wiener Würstchen', 'Würstel'] },
   { id: 'bratwurst', usda: 7013, gUn: 85, qtd: 1, un: 'unidade', onde: 'Carnes e aves',
     nomes: ['Bratwurst (salsichão alemão)', 'Bratwurst', 'Salchicha bratwurst', 'Bratwurst (saucisse allemande)', 'Bratwurst', 'Bratwurst (salsiccia tedesca)'] },
-  { id: 'chorizo', usda: 7019, gUn: 60, qtd: 1, un: 'unidade', onde: 'Carnes e aves',
+  /* A SR Legacy só traz o chorizo cru, e ninguém come chorizo cru: o
+     rendimento de cozimento de 70% (perda de água e gordura na frigideira)
+     leva o número ao que vai para o prato. É estimativa minha. */
+  { id: 'chorizo', usda: 7019, rend: 0.7, gUn: 60, qtd: 1, un: 'unidade', onde: 'Carnes e aves',
     nomes: ['Chorizo', 'Chorizo', 'Chorizo', 'Chorizo', 'Chorizo', 'Chorizo'] },
   { id: 'presunto-cru', rotulo: { p: 25.9, kcal: 250, carb: 0.3, gord: 18, fibra: 0 }, gUn: 15, qtd: 2, un: 'fatia', onde: 'Carnes e aves', busca: 'parma serrano cru curado',
     nomes: ['Presunto cru (parma, serrano)', 'Prosciutto (cured ham)', 'Jamón serrano', 'Jambon cru', 'Rohschinken', 'Prosciutto crudo'] },
@@ -67,7 +73,7 @@ export const NOVAS = [
   { id: 'caranguejo', usda: 15140, gUn: 100, qtd: 1, un: 'porção', onde: 'Peixes e frutos do mar', busca: 'siri',
     nomes: ['Carne de caranguejo', 'Crab meat', 'Carne de cangrejo', 'Chair de crabe', 'Krabbenfleisch', 'Polpa di granchio'] },
   { id: 'anchova-lata', usda: 15002, gUn: 4, qtd: 3, un: 'filé', onde: 'Peixes e frutos do mar', busca: 'aliche',
-    nomes: ['Anchovas em conserva', 'Canned anchovies', 'Anchoas en aceite', 'Anchois à l’huile', 'Sardellenfilets', 'Acciughe sott’olio'] },
+    nomes: ['Anchovas em conserva', 'Canned anchovies', 'Anchoas en aceite', 'Anchois à l’huile', 'Sardellen in Öl', 'Acciughe sott’olio'] },
 
   /* --- ovos --------------------------------------------------------- */
   { id: 'clara-ovo', usda: 1124, gUn: 33, qtd: 2, un: 'unidade', onde: 'Ovos',
@@ -157,7 +163,7 @@ export const NOVAS = [
 
   /* --- verduras e legumes ------------------------------------------- */
   { id: 'abobrinha', usda: 11478, gUn: 90, qtd: 1, un: 'porção', onde: 'Verduras e legumes',
-    nomes: ['Abobrinha', 'Zucchini', 'Calabacín', 'Courgette', 'Zucchini', 'Zucchine'] },
+    nomes: ['Abobrinha', 'Zucchini', 'Calabacín (zucchini)', 'Courgette', 'Zucchini', 'Zucchine'] },
   { id: 'berinjela', usda: 11210, gUn: 100, qtd: 1, un: 'porção', onde: 'Verduras e legumes',
     nomes: ['Berinjela', 'Eggplant', 'Berenjena', 'Aubergine', 'Aubergine', 'Melanzane'] },
   { id: 'cogumelo', usda: 11263, gUn: 70, qtd: 1, un: 'porção', onde: 'Verduras e legumes', busca: 'champignon paris',

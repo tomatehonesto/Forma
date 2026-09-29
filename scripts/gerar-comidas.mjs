@@ -174,8 +174,12 @@ for (const c of NOVAS) {
     const row = SR.get(c.usda);
     if (!row) { erros.push(c.id + ': NDB ' + c.usda + ' não existe na SR Legacy'); continue; }
     if (typeof row.p !== 'number') { erros.push(c.id + ': NDB ' + c.usda + ' sem proteína'); continue; }
-    v = { p: r1(row.p), kcal: r0(row.kcal ?? null), carb: r1(row.carb ?? null), gord: r1(row.gord ?? null), fibra: r1(row.fibra ?? null) };
-    destaque = destaqueDe(row);
+    /* rend: o rendimento de cozimento, quando a linha é do alimento cru */
+    const d = c.rend ?? 1;
+    const div = (x) => (x == null ? null : x / d);
+    const r = Object.fromEntries(Object.entries(row).map(([k, x]) => [k, typeof x === 'number' ? x / d : x]));
+    v = { p: r1(row.p / d), kcal: r0(div(row.kcal ?? null)), carb: r1(div(row.carb ?? null)), gord: r1(div(row.gord ?? null)), fibra: r1(div(row.fibra ?? null)) };
+    destaque = destaqueDe(r);
   } else if (c.rotulo) {
     v = c.rotulo;
     destaque = soProteina(v.p);
@@ -263,7 +267,10 @@ for (const [id, c] of Object.entries(CORRECOES)) {
 
 /* Os pratos novos, somados. */
 for (const d of PRATOS_NOVOS) {
-  junta({ id: d.id, n: d.nomes, busca: '', ...somaReceita(d.id, d.receita), un: d.un, onde: d.onde ?? 'Pratos prontos' });
+  const soma = somaReceita(d.id, d.receita);
+  /* o que o prato costuma levar e a receita não soma */
+  const contem = [...new Set([...(soma.contem ?? []), ...(d.contem ?? [])])];
+  junta({ id: d.id, n: d.nomes, busca: '', ...soma, ...(contem.length ? { contem } : {}), un: d.un, onde: d.onde ?? 'Pratos prontos' });
 }
 
 if (erros.length) { console.error(erros.join('\n')); process.exit(1); }
