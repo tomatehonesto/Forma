@@ -1029,7 +1029,7 @@ export default function Exames() {
       rodape={semExames ? undefined : (
         <>
           <Botao label={K().importar} onPress={() => router.push('/medir-exame' as any)} />
-          <Botao label={K().enviarAoMedico} tom="fantasma" onPress={() => router.push('/exportar' as any)} />
+          <Botao label={K().enviarAoMedico} tom="fantasma" onPress={() => router.push('/resumo-medico' as any)} />
         </>
       )}
     >

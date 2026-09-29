@@ -100,8 +100,8 @@ export const aviso = {
   },
 
   telaExportar: {
-    titulo: 'Exporter',
-    lead: 'Un fichier avec vos relevés, à garder ou à emporter ailleurs.',
+    titulo: 'Une copie de vos données',
+    lead: 'C’est votre droit d’emporter vos données : tout ce que votre compte conserve en sort, sans limite de période, avec vos questions à Morphi.',
 
     periodo: 'Période',
     periodoAjuda: (de: string, ate: string, semanas: number) =>
@@ -131,27 +131,21 @@ export const aviso = {
     habitos: 'Repas, eau et exercice',
     habitosSub: (refeicoes: number) =>
       `${refeicoes} ${refeicoes === 1 ? 'repas noté' : 'repas notés'} et le journal du jour`,
-    completo: 'Le journal complet',
-    completoSub: 'Tout ce que garde votre compte, sans limite de période, avec vos questions',
 
     formatoTitulo: 'Il en sort un fichier .json',
-    formatoTexto: 'C’est le format qu’une autre application sait ouvrir et lire — pour garder une copie ou emporter vos relevés ailleurs. Pour le lire vous-même, choisissez le rapport en PDF.',
+    formatoTexto: 'C’est le format qu’une autre application sait ouvrir et lire. Pour la consultation, utilisez le PDF du résumé pour la consultation.',
 
-    gerar: 'Construire le fichier',
+    gerar: 'Créer la copie',
     gerando: 'Construction...',
-    verResumo: 'Voir le résumé de consultation',
 
     pronto: 'Fichier construit. Il ne va que là où vous le décidez.',
     erro: 'Nous n’avons pas pu construire le fichier sur cet appareil. Vos relevés sont toujours là, intacts.',
     parado: 'Le fichier n’est construit que quand vous touchez le bouton.',
-    formato: 'Format',
-    formatoPdf: 'Rapport en PDF',
-    formatoPdfSub: 'Organisé pour lire, imprimer ou apporter en consultation',
-    formatoJson: 'Fichier de données',
-    formatoJsonSub: 'Un .json pour emporter vos relevés vers une autre application',
     pdfTitulo: 'Vous obtenez un PDF',
     pdfTexto: 'Préparé sur cet appareil, avec la période et ce que vous avez inclus. Il ne part que là où vous le choisissez.',
     gerarPdf: 'Créer le PDF',
+    pdfConsultaTitulo: 'Le PDF de la consultation',
+    pdfConsultaLead: 'Choisissez la période et ce qui y figure. Le reste du document est prêt.',
   },
 
   telaPrivacidade: {

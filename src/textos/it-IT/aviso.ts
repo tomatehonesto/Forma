@@ -138,8 +138,8 @@ export const aviso = {
      prelievi annunciava un numero di prelievi che non c'è mai stato.
      ============================================================ */
   telaExportar: {
-    titulo: 'Esporta',
-    lead: 'Un file con i tuoi registri, da conservare o da portare altrove.',
+    titulo: 'Una copia dei tuoi dati',
+    lead: 'È un tuo diritto portare via i tuoi dati: esce tutto ciò che il tuo account conserva, senza limiti di periodo, con le tue domande a Morphi.',
 
     periodo: 'Periodo',
     periodoAjuda: (de: string, ate: string, semanas: number) =>
@@ -169,27 +169,21 @@ export const aviso = {
     habitos: 'Pasti, acqua e movimento',
     habitosSub: (refeicoes: number) =>
       `${refeicoes} ${refeicoes === 1 ? 'pasto' : 'pasti'} e il diario del giorno`,
-    completo: 'Il diario completo',
-    completoSub: 'Tutto quello che conserva il tuo account, senza limiti di periodo, con le tue domande',
 
     formatoTitulo: 'Esce un file .json',
-    formatoTexto: 'È il formato che un’altra app sa aprire e leggere — per tenere una copia o portare le tue registrazioni altrove. Per leggerlo tu, scegli il report in PDF.',
+    formatoTexto: 'È il formato che un’altra app sa aprire e leggere. Per la visita, usa il PDF del riepilogo per la visita.',
 
-    gerar: 'Crea il file',
+    gerar: 'Crea la copia',
     gerando: 'Sto creando…',
-    verResumo: 'Vedi il riepilogo per la visita',
 
     pronto: 'File creato. Va solo dove lo mandi tu.',
     erro: 'Non siamo riusciti a creare il file su questo dispositivo. I tuoi registri sono ancora qui, intatti.',
     parado: 'Il file viene creato solo quando tocchi il pulsante.',
-    formato: 'Formato',
-    formatoPdf: 'Report in PDF',
-    formatoPdfSub: 'Ordinato per leggere, stampare o portare alla visita',
-    formatoJson: 'File di dati',
-    formatoJsonSub: 'Un .json per portare le tue registrazioni in un’altra app',
     pdfTitulo: 'Esce un PDF',
     pdfTexto: 'Preparato su questo dispositivo, con il periodo e ciò che hai incluso. Va solo dove scegli tu.',
     gerarPdf: 'Crea il PDF',
+    pdfConsultaTitulo: 'Il PDF per la visita',
+    pdfConsultaLead: 'Scegli il periodo e cosa includere. Il resto del documento è pronto.',
   },
 
   /* ============================================================

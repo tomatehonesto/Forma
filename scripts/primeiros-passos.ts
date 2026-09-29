@@ -62,8 +62,7 @@ import { semanaQuePassou, marcoRecente } from '../src/logic/destaques';
 import { descobertas } from '../src/logic/descobertas';
 import { redeLancada, temRedeParceira } from '../src/logic/pais';
 import { unidadesDe, unidadePadrao, converterValor, converterFaixa, faixaTxt } from '../src/logic/unidadesDeExame';
-import { htmlDoResumo } from '../src/logic/resumoPdf';
-import { htmlDoRelatorio } from '../src/logic/relatorioPdf';
+import { htmlDoRelatorio, recortePadrao } from '../src/logic/relatorioPdf';
 import { dataDeTabela } from '../src/logic/pdf';
 import { limparLaudo, gravarLaudo } from '../src/logic/laudo';
 import { MARCADORES as MARCADORES_DO_SERVIDOR } from '../servidor/marcadores';
@@ -513,12 +512,16 @@ ok(converterFaixa('Glicemia jejum', '70–99', 'mg/dL', 'mmol/L') === '3.9–5.5
   'a faixa usual é convertida para a unidade do laudo');
 ok(faixaTxt('3.9–5.5') === '3,9–5,5' && faixaTxt('< 5,7') === '< 5,7', 'e escrita com o decimal de quem lê');
 
-console.log('\n19. O RESUMO EM PDF');
+console.log('\n19. O PDF DO MÉDICO, NO RECORTE PADRÃO');
 const comNota = clone(semente);
 (comNota.notes as any[]).push({ t: +hoje, text: 'Dor <forte> & tontura', done: false });
-const html = htmlDoResumo(comNota);
-ok(html.startsWith('<!DOCTYPE html>') && html.includes(T.resumo.pdf.titulo) && html.includes(semente.profile.name),
-  'o documento abre com o título e o nome de quem ele é');
+const padrao = recortePadrao(comNota);
+const html = htmlDoRelatorio(comNota, padrao);
+ok(html.startsWith('<!DOCTYPE html>') && html.includes(T.resumo.relatorio.titulo) && html.includes(`<h1>${semente.profile.name}</h1>`),
+  'o documento abre com o nome de quem ele é como manchete');
+ok(padrao.desde === (comNota as any).consultsHistory[0].t && !padrao.inclui.habitos && padrao.inclui.exames,
+  'com um toque, o PDF vem desde a última consulta, com o que é clínico e sem os hábitos');
+ok(html.includes(`<h2>${T.resumo.medicacao}</h2>`), 'a medicação, que só o resumo tinha, entrou no PDF único');
 ok(html.includes(nomeDoMarcador('Glicemia jejum')) && html.includes(T.resumo.pdf.referencia),
   'a tabela de exames tem os marcadores pelo nome e a coluna de referência');
 ok(html.includes('Dor &lt;forte&gt; &amp; tontura') && !html.includes('<forte>'),

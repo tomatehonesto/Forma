@@ -57,11 +57,9 @@ export const resumo = {
   enviado: 'Sent by you',
 
   pdf: {
-    titulo: 'Treatment summary',
     exame: 'Test',
     resultado: 'Result',
     referencia: 'Reference',
-    arquivo: (data: string) => `morphi-summary-${data}.pdf`,
   },
 
   relatorio: {
@@ -71,7 +69,6 @@ export const resumo = {
     variacao: 'Change in the period',
     aplicacoesNoPeriodo: 'Shots in the period',
     checkinsRespondidos: 'Check-ins answered',
-    doseAtual: 'Current dose',
     peso: 'Weight',
     medidas: 'Measurements',
     aplicacoes: 'Shots',
@@ -110,6 +107,7 @@ export const resumo = {
     enviarDeNovo: (doutor: string) => `Send again to ${doutor}`,
     enviado: 'Sent',
     compartilharPdf: 'Share as PDF',
+    ajustarPdf: 'Adjust the period and what goes in',
     montandoPdf: 'Building the PDF…',
 
     resumoDe: (data: string) => `Summary from ${data}`,

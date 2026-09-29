@@ -12,10 +12,9 @@ import { D_SIMBOLO, D_LETREIRO, LIMA_MARCA, LOCKUP, RAZAO_LOCKUP } from '../ui/m
 /* ============================================================
    OS PDFs DO APLICATIVO — o papel e a entrega
 
-   Dois documentos saem daqui: o resumo para a consulta (logic/resumoPdf)
-   e o relatório do tratamento de /exportar (logic/relatorioPdf). Os dois
-   usam a mesma folha — o mesmo cabeçalho, as mesmas tabelas, a mesma
-   tinta — para parecerem o que são: papéis do mesmo aplicativo.
+   Um documento sai daqui: o PDF do médico (logic/relatorioPdf), que o
+   Resumo para consulta gera com um toque e /pdf-consulta ajusta. A folha,
+   o cabeçalho, as tabelas e os blocos de sintomas e exames moram aqui.
 
    ⚠️ NADA SAI DO APARELHO SOZINHO. O PDF é montado aqui, fica no cache e
    só sai pela folha de compartilhar do sistema, com a pessoa escolhendo

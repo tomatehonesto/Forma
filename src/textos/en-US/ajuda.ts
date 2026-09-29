@@ -54,7 +54,7 @@ export const ajuda = {
     },
     {
       q: 'What if I uninstall the app?',
-      a: 'Your journal is kept in your account: reinstall, sign in, and it comes back whole. Only what you logged offline, and hadn’t reached your account yet, is lost. And if you want your own copy, you can build a file in Export.',
+      a: 'Your journal is kept in your account: reinstall, sign in, and it comes back whole. Only what you logged offline, and hadn’t reached your account yet, is lost. And if you want your own copy, it’s in Privacy and data › A copy of your data.',
     },
   ] as { q: string; a: string }[],
 
@@ -67,8 +67,8 @@ export const ajuda = {
   integracoesSub: 'Connect Apple Health or Health Connect',
   privacidade: 'Privacy and data',
   privacidadeSub: 'Where your journal is kept and what leaves it',
-  exportar: 'Export your data',
-  exportarSub: 'Build a file with what you logged',
+  exportar: 'A copy of your data',
+  exportarSub: 'Everything your account keeps, in a file another app can read',
 
   /* "Fale com a gente" — ver ../pt-BR/ajuda.ts */
   faleConosco: 'Talk to us',

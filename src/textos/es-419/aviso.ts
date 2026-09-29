@@ -99,8 +99,8 @@ export const aviso = {
   },
 
   telaExportar: {
-    titulo: 'Exportar',
-    lead: 'Un archivo con tus registros, para guardar o llevar a otro lado.',
+    titulo: 'Una copia de tus datos',
+    lead: 'Es tu derecho llevarte tus datos: sale todo lo que guarda tu cuenta, sin recorte de período, con tus preguntas a Morphi.',
 
     periodo: 'Período',
     periodoAjuda: (de: string, ate: string, semanas: number) =>
@@ -130,27 +130,21 @@ export const aviso = {
     habitos: 'Comidas, agua y ejercicio',
     habitosSub: (refeicoes: number) =>
       `${refeicoes} ${refeicoes === 1 ? 'comida' : 'comidas'} y el diario del día`,
-    completo: 'El diario completo',
-    completoSub: 'Todo lo que guarda tu cuenta, sin recorte de período, con tus preguntas',
 
     formatoTitulo: 'Sale un archivo .json',
-    formatoTexto: 'Es el formato que otra aplicación puede abrir y leer — sirve para guardar una copia o llevar tus registros a otro lugar. Para leerlo, elige el informe en PDF.',
+    formatoTexto: 'Es el formato que otra aplicación puede abrir y leer. Para llevar a la consulta, usa el PDF del resumen para la consulta.',
 
-    gerar: 'Armar el archivo',
+    gerar: 'Generar la copia',
     gerando: 'Armando...',
-    verResumo: 'Ver el resumen para la consulta',
 
     pronto: 'Archivo armado. Solo va adonde elijas.',
     erro: 'No pudimos armar el archivo en este aparato. Tus registros siguen aquí, intactos.',
     parado: 'El archivo solo se arma cuando tocas el botón.',
-    formato: 'Formato',
-    formatoPdf: 'Informe en PDF',
-    formatoPdfSub: 'Organizado para leer, imprimir o llevar a la consulta',
-    formatoJson: 'Archivo de datos',
-    formatoJsonSub: 'Un .json para llevar tus registros a otra aplicación',
     pdfTitulo: 'Sale un PDF',
     pdfTexto: 'Armado en este dispositivo, con el período y lo que incluiste. Solo va a donde tú elijas.',
     gerarPdf: 'Generar el PDF',
+    pdfConsultaTitulo: 'El PDF de la consulta',
+    pdfConsultaLead: 'Elige el período y lo que entra. El resto del documento viene listo.',
   },
 
   telaPrivacidade: {

@@ -54,7 +54,7 @@ export const ajuda = {
     },
     {
       q: '¿Y si desinstalo la aplicación?',
-      a: 'Tu diario queda guardado en tu cuenta: al instalar de nuevo y entrar, vuelve entero. Solo se pierde lo que registraste sin conexión y todavía no había llegado a la cuenta. Y, si quieres una copia tuya, puedes armar un archivo en Exportar.',
+      a: 'Tu diario queda guardado en tu cuenta: al instalar de nuevo y entrar, vuelve entero. Solo se pierde lo que registraste sin conexión y todavía no había llegado a la cuenta. Y, si quieres una copia tuya, está en Privacidad y datos › Una copia de tus datos.',
     },
   ] as { q: string; a: string }[],
 
@@ -67,8 +67,8 @@ export const ajuda = {
   integracoesSub: 'Conectar Apple Salud o Health Connect',
   privacidade: 'Privacidad y datos',
   privacidadeSub: 'Dónde queda tu diario y lo que sale de él',
-  exportar: 'Exportar tus datos',
-  exportarSub: 'Armar un archivo con lo que registraste',
+  exportar: 'Una copia de tus datos',
+  exportarSub: 'Todo lo que guarda tu cuenta, en un archivo que otra aplicación puede leer',
 
   /* "Fale com a gente" — ver ../pt-BR/ajuda.ts */
   faleConosco: 'Habla con nosotros',

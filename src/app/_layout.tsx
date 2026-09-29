@@ -431,6 +431,7 @@ export default function RootLayout() {
           <Stack.Screen name="semana" />
           <Stack.Screen name="notas" />
           <Stack.Screen name="exportar" />
+          <Stack.Screen name="pdf-consulta" />
           {/* ⚠️ A FOLHA É MONTADA À MÃO, e o `formSheet` nativo continua
               sobre a mesa — mas a justificativa antiga estava errada e não
               vale repetir.

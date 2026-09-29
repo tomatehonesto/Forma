@@ -82,13 +82,11 @@ export const resumo = {
      gênero em português, e a tela não sabe o de quem acompanha. A frase
      foi reescrita para não precisar saber.
      ============================================================ */
-  /* ---- o PDF do resumo (logic/resumoPdf) ---- */
+  /* ---- as colunas de exames do PDF (logic/pdf) ---- */
   pdf: {
-    titulo: 'Resumo de tratamento',
     exame: 'Exame',
     resultado: 'Resultado',
     referencia: 'Referência',
-    arquivo: (data: string) => `morphi-resumo-${data}.pdf`,
   },
 
   /* ---- o relatório em PDF de /exportar (logic/relatorioPdf) ---- */
@@ -99,7 +97,6 @@ export const resumo = {
     variacao: 'Variação no período',
     aplicacoesNoPeriodo: 'Aplicações no período',
     checkinsRespondidos: 'Check-ins respondidos',
-    doseAtual: 'Dose atual',
     peso: 'Peso',
     medidas: 'Medidas',
     aplicacoes: 'Aplicações',
@@ -138,6 +135,7 @@ export const resumo = {
     enviarDeNovo: (doutor: string) => `Enviar de novo a ${doutor}`,
     enviado: 'Enviado',
     compartilharPdf: 'Compartilhar em PDF',
+    ajustarPdf: 'Ajustar o período e o que entra',
     montandoPdf: 'Montando o PDF…',
 
     resumoDe: (data: string) => `Resumo de ${data}`,

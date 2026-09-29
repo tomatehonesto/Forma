@@ -59,7 +59,7 @@ export const ajuda = {
     },
     {
       q: 'E se disinstallo l’app?',
-      a: 'Il tuo diario resta salvato nel tuo account: reinstalla, accedi, e torna intero. Si perde solo quello che hai registrato senza connessione e che non era ancora arrivato all’account. E se vuoi una tua copia, puoi preparare un file in Esporta.',
+      a: 'Il tuo diario resta salvato nel tuo account: reinstalla, accedi, e torna intero. Si perde solo quello che hai registrato senza connessione e che non era ancora arrivato all’account. E se vuoi una tua copia, è in Privacy e dati › Una copia dei tuoi dati.',
     },
   ] as { q: string; a: string }[],
 
@@ -76,8 +76,8 @@ export const ajuda = {
   integracoesSub: 'Collegare Apple Salute o Health Connect',
   privacidade: 'Privacy e dati',
   privacidadeSub: 'Dove resta il tuo diario e che cosa ne esce',
-  exportar: 'Esporta i tuoi dati',
-  exportarSub: 'Creare un file con quello che hai registrato',
+  exportar: 'Una copia dei tuoi dati',
+  exportarSub: 'Tutto ciò che il tuo account conserva, in un file che un’altra app può leggere',
 
   /* "Fale com a gente" — ver ../pt-BR/ajuda.ts */
   faleConosco: 'Parla con noi',

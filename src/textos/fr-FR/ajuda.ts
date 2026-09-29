@@ -57,7 +57,7 @@ export const ajuda = {
     },
     {
       q: 'Et si je désinstalle l’application ?',
-      a: 'Votre journal est gardé dans votre compte : réinstallez, connectez-vous, et il revient entier. Seul ce que vous avez noté hors connexion, et qui n’était pas encore arrivé au compte, se perd. Et si vous voulez votre propre copie, vous pouvez construire un fichier dans Exporter.',
+      a: 'Votre journal est gardé dans votre compte : réinstallez, connectez-vous, et il revient entier. Seul ce que vous avez noté hors connexion, et qui n’était pas encore arrivé au compte, se perd. Et si vous voulez votre propre copie, elle est dans Confidentialité et données › Une copie de vos données.',
     },
   ] as { q: string; a: string }[],
 
@@ -70,8 +70,8 @@ export const ajuda = {
   integracoesSub: 'Brancher Apple Santé ou Health Connect',
   privacidade: 'Confidentialité et données',
   privacidadeSub: 'Où votre journal est gardé et ce qui en sort',
-  exportar: 'Exporter vos données',
-  exportarSub: 'Construire un fichier avec ce que vous avez noté',
+  exportar: 'Une copie de vos données',
+  exportarSub: 'Tout ce que votre compte conserve, dans un fichier lisible par une autre application',
 
   /* "Fale com a gente" — ver ../pt-BR/ajuda.ts */
   faleConosco: 'Contactez-nous',

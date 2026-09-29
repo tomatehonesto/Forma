@@ -91,7 +91,6 @@ export default function Ajuda() {
           <Linha ic="clock" titulo={K().lembretes} sub={K().lembretesSub} onPress={go('/lembretes')} />
           <Linha ic="trend" titulo={K().integracoes} sub={K().integracoesSub} onPress={go('/integracoes')} />
           <Linha ic="lock" titulo={K().privacidade} sub={K().privacidadeSub} onPress={go('/privacidade')} />
-          <Linha ic="doc" titulo={K().exportar} sub={K().exportarSub} onPress={go('/exportar')} />
         </Cartao>
       </Bloco>
 

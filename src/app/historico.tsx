@@ -74,7 +74,9 @@ export default function Historico() {
          ocupa mais largura do que ícone, e neste caso é o preço de não
          fazer a pessoa tocar para descobrir. */
       acao={K().exportar}
-      onAcao={() => router.push('/exportar' as any)}
+      /* o papel para a consulta mora no Resumo para consulta — /exportar
+         é só a cópia dos dados, na Privacidade */
+      onAcao={() => router.push('/resumo-medico' as any)}
     >
       {/* SAIU O "TOQUE EM QUALQUER LINHA PARA ABRIR". A frase só era
           verdade na aba de semanas: nas outras — check-ins, aplicações,

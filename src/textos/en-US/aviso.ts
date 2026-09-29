@@ -97,8 +97,8 @@ export const aviso = {
   },
 
   telaExportar: {
-    titulo: 'Export',
-    lead: 'A file with your entries, to keep or to take somewhere else.',
+    titulo: 'A copy of your data',
+    lead: 'It’s your right to take your data with you: everything your account keeps comes out, with no date cut-off, including your questions to Morphi.',
 
     periodo: 'Period',
     periodoAjuda: (de: string, ate: string, semanas: number) =>
@@ -128,27 +128,21 @@ export const aviso = {
     habitos: 'Meals, water and exercise',
     habitosSub: (refeicoes: number) =>
       `${refeicoes} ${refeicoes === 1 ? 'meal' : 'meals'} and the day’s diary`,
-    completo: 'The complete journal',
-    completoSub: 'Everything your account keeps, with no date range, including your questions',
 
     formatoTitulo: 'You get a .json file',
-    formatoTexto: 'It’s the format another app can open and read — for keeping a copy or taking your records somewhere else. To read it yourself, choose the PDF report.',
+    formatoTexto: 'It’s the format another app can open and read. To bring to an appointment, use the PDF from the appointment summary.',
 
-    gerar: 'Build the file',
+    gerar: 'Create the copy',
     gerando: 'Building...',
-    verResumo: 'View appointment summary',
 
     pronto: 'File built. It only goes where you choose.',
     erro: 'We couldn’t build the file on this device. Your entries are still here, untouched.',
     parado: 'The file is only built when you tap the button.',
-    formato: 'Format',
-    formatoPdf: 'PDF report',
-    formatoPdfSub: 'Organized to read, print or bring to your appointment',
-    formatoJson: 'Data file',
-    formatoJsonSub: 'A .json to take your records to another app',
     pdfTitulo: 'You get a PDF',
     pdfTexto: 'Built on this device, with the period and what you included. It only goes where you choose.',
     gerarPdf: 'Create the PDF',
+    pdfConsultaTitulo: 'The appointment PDF',
+    pdfConsultaLead: 'Choose the period and what goes in. The rest of the document is ready.',
   },
 
   telaPrivacidade: {

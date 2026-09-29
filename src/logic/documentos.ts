@@ -281,7 +281,7 @@ export const PRIVACIDADE = (): Documento => ({
     {
       titulo: '10. Por quanto tempo guardamos',
       itens: [
-        '<b>A conta e os registros do tratamento</b> — enquanto a sua conta existir. Você apaga cada registro onde ele aparece, e tudo de uma vez em Configurações › Apagar meus dados, que apaga a conta, o nosso banco e este aparelho na hora.',
+        '<b>A conta e os registros do tratamento</b> — enquanto a sua conta existir. Você apaga cada registro onde ele aparece, e tudo de uma vez em Privacidade e dados › Apagar meus dados, que apaga a conta, o nosso banco e este aparelho na hora.',
         `<b>As cópias de segurança do banco</b> — guardam o que foi apagado por até ${DIAS_DAS_COPIAS_DE_SEGURANCA} dias, e depois somem sozinhas. Elas existem para recuperar o banco de uma falha, e não são usadas para mais nada.`,
         '<b>Outro aparelho em que você entrou</b> — mantém a cópia local do diário até você sair da conta nele, ou até ele voltar a ter conexão e saber que a conta foi apagada.',
         '<b>As perguntas ao Morphi</b> — só no aparelho, que guarda as 12 mais recentes. Elas não vão para a conta.',
@@ -298,8 +298,8 @@ export const PRIVACIDADE = (): Documento => ({
         'Confirmar que há tratamento e <b>acessar</b> os seus dados — o aplicativo mostra tudo que você registrou.',
         '<b>Corrigir</b> dados incompletos, inexatos ou desatualizados — todo registro é editável onde aparece.',
         'Pedir <b>anonimização, bloqueio ou eliminação</b> de dados desnecessários ou tratados fora da lei.',
-        '<b>Levar os seus dados embora</b>, em formato estruturado e legível por máquina — Configurações › Exportar seus dados. O arquivo leva tudo o que a sua conta guarda, e as perguntas ao Morphi deste aparelho.',
-        '<b>Eliminar</b> os dados tratados com o seu consentimento — Configurações › Apagar meus dados, que apaga a conta e tudo o que ela guarda (com a ressalva das cópias de segurança, na seção 10).',
+        '<b>Levar os seus dados embora</b>, em formato estruturado e legível por máquina — Privacidade e dados › Uma cópia dos seus dados. O arquivo leva tudo o que a sua conta guarda, e as perguntas ao Morphi deste aparelho.',
+        '<b>Eliminar</b> os dados tratados com o seu consentimento — Privacidade e dados › Apagar meus dados, que apaga a conta e tudo o que ela guarda (com a ressalva das cópias de segurança, na seção 10).',
         'Saber com quem compartilhamos, o que está na seção 7.',
         '<b>Revogar o consentimento</b>, e ser informado das consequências de não o dar.',
         '<b>Opor-se</b> a tratamento feito sem consentimento.',
@@ -475,7 +475,7 @@ export const TERMOS = (): Documento => ({
     {
       titulo: '12. Encerramento',
       paragrafos: [
-        'Você pode parar de usar o Morphi quando quiser, e apagar a conta e tudo o que ela guarda em <b>Configurações › Apagar meus dados</b>. O que acontece com as cópias de segurança e com o que a clínica guarda está na Política de Privacidade, seção 10.',
+        'Você pode parar de usar o Morphi quando quiser, e apagar a conta e tudo o que ela guarda em <b>Privacidade e dados › Apagar meus dados</b>. O que acontece com as cópias de segurança e com o que a clínica guarda está na Política de Privacidade, seção 10.',
         'Podemos suspender ou encerrar o acesso em caso de descumprimento destes Termos ou de determinação legal, com aviso prévio sempre que possível — e você continua podendo exportar o que registrou.',
       ],
     },

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Share } from 'react-native';
+import { View, Share, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { examStatus, clinicaConectada, nomeDoMarcador, temAcompanhamento } from '../logic/derive';
@@ -8,7 +8,7 @@ import {
   type SecaoDoResumo,
 } from '../logic/resumo';
 import { fmtDate, now, relDay } from '../logic/time';
-import { compartilharResumoPdf } from '../logic/resumoPdf';
+import { compartilharRelatorioPdf, recortePadrao } from '../logic/relatorioPdf';
 import { Txt, Row, Vazio } from '../ui/kit';
 import { TelaInterna, Titulao, Bloco, Cartao, Linha, Botao, Aviso } from '../ui/internas';
 import { Icon } from '../ui/Icon';
@@ -86,15 +86,18 @@ export default function ResumoMedico() {
   const ultimo = envios[0];
   const [enviado, setEnviado] = useState(false);
 
-  /* ⚠️ O COMPARTILHAR SAI EM PDF (28/09/2026, pedido do dono) — ver
-     logic/resumoPdf. Se o PDF não sair (aparelho sem folha de
+  /* ⚠️ O COMPARTILHAR SAI EM PDF (28/09/2026), e é O PDF do médico
+     (29/09/2026, pedido do dono): o relatório de logic/relatorioPdf, com
+     um toque, no recorte padrão — desde a última consulta, tudo o que é
+     clínico. Quem quer outro período ajusta em /pdf-consulta, pelo link
+     embaixo do botão. Se o PDF não sair (aparelho sem folha de
      compartilhar, ou falha ao montar), o texto de antes continua sendo o
      caminho: a pessoa não pode ficar sem levar o resumo. */
   const [montando, setMontando] = useState(false);
   const compartilhar = async () => {
     if (montando) return;
     setMontando(true);
-    const r = await compartilharResumoPdf(S);
+    const r = await compartilharRelatorioPdf(S, recortePadrao(S));
     setMontando(false);
     if (r === 'erro' || r === 'sem-suporte') Share.share({ message: resumoEmTexto(S) }).catch(() => {});
   };
@@ -132,6 +135,10 @@ export default function ResumoMedico() {
             carregando={montando}
             onPress={compartilhar}
           />
+          <Pressable onPress={() => router.push('/pdf-consulta' as any)} hitSlop={8}
+            style={({ pressed }) => [{ alignSelf: 'center', paddingVertical: 4, opacity: pressed ? 0.6 : 1 }]}>
+            <Txt v="label" c={c.accent2}>{K().ajustarPdf}</Txt>
+          </Pressable>
         </View>
       }
     >

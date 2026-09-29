@@ -5,6 +5,7 @@ import {
 } from './derive';
 import { dataComAno, now, nf, doseTxt, startOfDay } from './time';
 import { pesoTxt, pesoV, pesoU, compTxt, aguaTxt } from './medidas';
+import { resumoDoTratamento } from './resumo';
 import {
   documento, esc, hojeIso, compartilharPdf, graficoDeLinha, dataDeTabela, blocoDeSintomas, tabelaDeExames,
   type ResultadoDoPdf,
@@ -31,6 +32,21 @@ import {
    ============================================================ */
 
 export type RecorteDoRelatorio = { desde: number; inclui: Record<string, boolean> };
+
+/* ⚠️ É UM PDF SÓ PARA O MÉDICO (29/09/2026, pedido do dono). O resumo
+   para a consulta tinha o seu PDF curto, e /exportar o relatório; eram
+   dois papéis parecidos para a mesma pessoa. Ficou este, com a medicação
+   que só o resumo tinha, e ele sai do Resumo para consulta com um toque —
+   com o recorte abaixo — ou de /pdf-consulta, onde a pessoa ajusta. */
+export const INCLUI_PADRAO = { aplicacoes: true, peso: true, sintomas: true, exames: true, notas: true, habitos: false };
+
+/** Desde a última consulta — é a pergunta que a consulta faz: o que
+    aconteceu desde a última vez. Sem consulta anterior, o tratamento
+    inteiro. */
+export function recortePadrao(S: State): RecorteDoRelatorio {
+  const ultima = ((S as any).consultsHistory as any[] | undefined)?.[0]?.t;
+  return { desde: ultima ?? S.profile.startT, inclui: { ...INCLUI_PADRAO } };
+}
 
 const secao = (titulo: string, conteudo: string, nota?: string, inteira = true) => `
   <section${inteira ? ' class="inteira"' : ''}>
@@ -66,12 +82,19 @@ export function htmlDoRelatorio(S: State, r: RecorteDoRelatorio): string {
   const variacao = pesos.length >= 2
     ? variacaoDe(pesoV(S, pesos[pesos.length - 1].kg - pesos[0].kg), pesoU(S)).delta : null;
   const cartoes = [
-    S.weights.length ? cartao(R.pesoAtual, pesoTxt(S, curWeight(S)), variacao ? `${R.variacao}: ${variacao}` : undefined) : '',
-    cartao(R.doseAtual, medComDose(S)),
+    S.weights.length ? cartao(R.pesoAtual, pesoTxt(S, curWeight(S))) : '',
+    variacao ? cartao(R.variacao, variacao) : '',
     r.inclui.aplicacoes ? cartao(R.aplicacoesNoPeriodo, String(aplicacoes.length)) : '',
     r.inclui.sintomas ? cartao(R.checkinsRespondidos, String(checkins.length)) : '',
   ].filter(Boolean).join('');
   let corpo = secao(R.visaoGeral, `<div class="cartoes">${cartoes}</div>`);
+
+  /* ---- a medicação: a mesma seção do resumo na tela ---- */
+  const medicacao = resumoDoTratamento(S).find((s) => s.id === 'medicacao');
+  if (medicacao?.linhas.length) {
+    corpo += secao(medicacao.titulo, `<table><tbody>${medicacao.linhas
+      .map((l) => `<tr><td>${esc(l.k)}</td><td class="num">${esc(l.v)}</td></tr>`).join('')}</tbody></table>`);
+  }
 
   /* ---- peso e medidas ---- */
   if (r.inclui.peso) {

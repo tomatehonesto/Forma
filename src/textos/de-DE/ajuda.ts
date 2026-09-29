@@ -60,7 +60,7 @@ export const ajuda = {
     },
     {
       q: 'Und wenn ich die App deinstalliere?',
-      a: 'Dein Tagebuch wird in deinem Konto aufbewahrt: neu installieren, anmelden, und es kommt vollständig zurück. Verloren geht nur, was du ohne Verbindung eingetragen hast und was noch nicht im Konto angekommen war. Und wenn du eine eigene Kopie willst, kannst du unter Exportieren eine Datei bauen.',
+      a: 'Dein Tagebuch wird in deinem Konto aufbewahrt: neu installieren, anmelden, und es kommt vollständig zurück. Verloren geht nur, was du ohne Verbindung eingetragen hast und was noch nicht im Konto angekommen war. Und wenn du eine eigene Kopie willst, findest du sie unter Datenschutz und Daten › Eine Kopie deiner Daten.',
     },
   ] as { q: string; a: string }[],
 
@@ -73,8 +73,8 @@ export const ajuda = {
   integracoesSub: 'Apple Health oder Health Connect verbinden',
   privacidade: 'Datenschutz und Daten',
   privacidadeSub: 'Wo dein Tagebuch liegt und was es verlässt',
-  exportar: 'Deine Daten exportieren',
-  exportarSub: 'Eine Datei mit dem bauen, was du eingetragen hast',
+  exportar: 'Eine Kopie deiner Daten',
+  exportarSub: 'Alles, was dein Konto speichert, in einer Datei, die eine andere App lesen kann',
 
   /* "Fale com a gente" — ver ../pt-BR/ajuda.ts */
   faleConosco: 'Kontakt',

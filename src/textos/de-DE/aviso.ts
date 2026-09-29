@@ -122,8 +122,8 @@ export const aviso = {
   },
 
   telaExportar: {
-    titulo: 'Exportieren',
-    lead: 'Eine Datei mit deinen Einträgen, zum Aufheben oder zum Mitnehmen an einen anderen Ort.',
+    titulo: 'Eine Kopie deiner Daten',
+    lead: 'Du hast das Recht, deine Daten mitzunehmen: Alles, was dein Konto speichert, kommt heraus, ohne Zeitraumgrenze und mit deinen Fragen an Morphi.',
 
     periodo: 'Zeitraum',
     periodoAjuda: (de: string, ate: string, semanas: number) =>
@@ -153,27 +153,21 @@ export const aviso = {
     habitos: 'Mahlzeiten, Wasser und Bewegung',
     habitosSub: (refeicoes: number) =>
       `${refeicoes} ${refeicoes === 1 ? 'Mahlzeit' : 'Mahlzeiten'} und das Tagebuch des Tages`,
-    completo: 'Das vollständige Tagebuch',
-    completoSub: 'Alles, was dein Konto aufbewahrt, ohne Zeitraum, mit deinen Fragen',
 
     formatoTitulo: 'Heraus kommt eine .json-Datei',
-    formatoTexto: 'Das ist das Format, das eine andere App öffnen und lesen kann — für eine Kopie oder um deine Einträge woandershin mitzunehmen. Zum Selberlesen wähl den Bericht als PDF.',
+    formatoTexto: 'Das ist das Format, das eine andere App öffnen und lesen kann. Für den Termin nimm das PDF aus der Terminübersicht.',
 
-    gerar: 'Die Datei erstellen',
+    gerar: 'Kopie erstellen',
     gerando: 'Wird gebaut...',
-    verResumo: 'Die Übersicht für den Termin ansehen',
 
     pronto: 'Datei gebaut. Sie geht nur dorthin, wohin du sie schickst.',
     erro: 'Wir konnten die Datei auf diesem Gerät nicht erstellen. Deine Einträge sind weiter hier, unangetastet.',
     parado: 'Die Datei wird erst erstellt, wenn du auf den Knopf tippst.',
-    formato: 'Format',
-    formatoPdf: 'Bericht als PDF',
-    formatoPdfSub: 'Geordnet zum Lesen, Drucken oder Mitnehmen zum Termin',
-    formatoJson: 'Datendatei',
-    formatoJsonSub: 'Eine .json, um deine Einträge in eine andere App mitzunehmen',
     pdfTitulo: 'Es entsteht ein PDF',
     pdfTexto: 'Auf diesem Gerät erstellt, mit dem Zeitraum und dem, was du ausgewählt hast. Es geht nur dorthin, wohin du es schickst.',
     gerarPdf: 'PDF erstellen',
+    pdfConsultaTitulo: 'Das PDF für den Termin',
+    pdfConsultaLead: 'Wähl den Zeitraum und was hineinkommt. Der Rest des Dokuments ist fertig.',
   },
 
   /* ⚠️ HIER STEHT DIE APP ALS SUBJEKT, und zwar mit Absicht: „Was die App

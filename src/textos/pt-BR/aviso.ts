@@ -181,8 +181,8 @@ export const aviso = {
      certa; a palavra é que não estava.
      ============================================================ */
   telaExportar: {
-    titulo: 'Exportar',
-    lead: 'Um arquivo com os seus registros, para guardar ou levar para outro lugar.',
+    titulo: 'Uma cópia dos seus dados',
+    lead: 'É o seu direito levar os seus dados: sai tudo o que a sua conta guarda, sem recorte de período, com as suas perguntas ao Morphi.',
 
     periodo: 'Período',
     periodoAjuda: (de: string, ate: string, semanas: number) =>
@@ -212,32 +212,25 @@ export const aviso = {
     habitos: 'Refeições, água e exercício',
     habitosSub: (refeicoes: number) =>
       `${refeicoes} ${refeicoes === 1 ? 'refeição' : 'refeições'} e o diário do dia`,
-    /* ⚠️ A PORTABILIDADE É DO QUE A CONTA GUARDA, E NÃO DO QUE A TELA
-       RESUME (fase 8). As linhas de cima são a leitura para gente; esta é
-       a cópia inteira, com todo tipo de registro, o perfil e as
-       perguntas — e não obedece ao período, porque recortar a própria
-       cópia não é levar os dados embora. */
-    completo: 'O diário completo',
-    completoSub: 'Tudo o que a sua conta guarda, sem recorte de período, com as suas perguntas',
 
+    /* ⚠️ A CÓPIA É DO QUE A CONTA GUARDA, E NÃO DO QUE A TELA RESUME (fase
+       8): todo tipo de registro, o perfil e as perguntas, sem recorte de
+       período — recortar a própria cópia não é levar os dados embora. As
+       linhas de cima são as do PDF da consulta (app/pdf-consulta). */
     formatoTitulo: 'Sai um arquivo .json',
-    formatoTexto: 'É o formato que outro aplicativo consegue abrir e ler — serve para guardar uma cópia ou levar os registros para outro lugar. Para ler, escolha o relatório em PDF.',
+    formatoTexto: 'É o formato que outro aplicativo consegue abrir e ler. Para levar à consulta, use o PDF do resumo para consulta.',
 
-    gerar: 'Gerar o arquivo',
+    gerar: 'Gerar a cópia',
     gerando: 'Gerando...',
-    verResumo: 'Ver o resumo para a consulta',
 
     pronto: 'Arquivo gerado. Ele só vai para onde você escolher.',
     erro: 'Não deu para gerar o arquivo neste aparelho. Os seus registros continuam aqui, intactos.',
     parado: 'O arquivo só é montado quando você toca no botão.',
-    formato: 'Formato',
-    formatoPdf: 'Relatório em PDF',
-    formatoPdfSub: 'Organizado para ler, imprimir ou levar à consulta',
-    formatoJson: 'Arquivo de dados',
-    formatoJsonSub: 'Um .json para levar os registros a outro aplicativo',
     pdfTitulo: 'Sai um PDF',
     pdfTexto: 'Montado neste aparelho, com o período e o que você incluiu. Ele só vai para onde você escolher.',
     gerarPdf: 'Gerar o PDF',
+    pdfConsultaTitulo: 'O PDF da consulta',
+    pdfConsultaLead: 'Escolha o período e o que entra. O resto do documento vem pronto.',
   },
 
   /* ============================================================

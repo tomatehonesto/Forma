@@ -80,11 +80,9 @@ export const resumo = {
      ancora un team" a chi aveva appena annotato il proprio medico.
      ============================================================ */
   pdf: {
-    titulo: 'Riepilogo della terapia',
     exame: 'Esame',
     resultado: 'Risultato',
     referencia: 'Riferimento',
-    arquivo: (data: string) => `morphi-riepilogo-${data}.pdf`,
   },
 
   relatorio: {
@@ -94,7 +92,6 @@ export const resumo = {
     variacao: 'Variazione nel periodo',
     aplicacoesNoPeriodo: 'Punture nel periodo',
     checkinsRespondidos: 'Check-in compilati',
-    doseAtual: 'Dose attuale',
     peso: 'Peso',
     medidas: 'Misure',
     aplicacoes: 'Punture',
@@ -133,6 +130,7 @@ export const resumo = {
     enviarDeNovo: (doutor: string) => `Invia di nuovo a ${doutor}`,
     enviado: 'Inviato',
     compartilharPdf: 'Condividi in PDF',
+    ajustarPdf: 'Modifica periodo e contenuto',
     montandoPdf: 'Preparo il PDF…',
 
     resumoDe: (data: string) => `Riepilogo del ${data}`,
