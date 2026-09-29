@@ -4,6 +4,7 @@ import { z } from 'zod';
 import ALIMENTOS from '../alimentos.json' with { type: 'json' };
 import { PRATELEIRAS } from '../prateleiras';
 import { rotuloDaPorcao } from '../rotulo';
+import { abrirPorta } from '../cota';
 
 /* ============================================================
    LER O PRATO
@@ -122,7 +123,7 @@ type TipoOk = (typeof TIPOS_OK)[number];
 const CABECALHOS = {
   'content-type': 'application/json; charset=utf-8',
   'access-control-allow-origin': '*',
-  'access-control-allow-headers': 'content-type, x-morphi-token',
+  'access-control-allow-headers': 'content-type, authorization, x-morphi-token',
   'access-control-allow-methods': 'POST, OPTIONS',
 };
 
@@ -132,7 +133,7 @@ const responder = (corpo: unknown, status = 200) =>
 /* Os motivos são os mesmos que o aplicativo já sabe mostrar. Qualquer
    falha vira um recado que aponta para a lista manual — errar calado
    deixaria a pessoa esperando por uma refeição que nunca entra. */
-const falhou = (motivo: 'sem-rede' | 'nao-reconheci', status = 200) =>
+const falhou = (motivo: 'sem-rede' | 'nao-reconheci' | 'sem-conta' | 'limite', status = 200) =>
   responder({ ok: false, motivo }, status);
 
 export default async function handler(req: Request): Promise<Response> {
@@ -166,6 +167,12 @@ export default async function handler(req: Request): Promise<Response> {
   } catch {
     return falhou('nao-reconheci', 400);
   }
+
+  /* A porta: a sessão de quem chama e o teto do dia — ver servidor/cota.
+     Depois de conferir o pedido, para um pedido malformado não gastar a
+     cota, e antes do modelo, que é o que custa. */
+  const porta = await abrirPorta(req, 'foto');
+  if (!porta.ok) return falhou(porta.motivo, porta.status);
 
   try {
     const r = await cliente.messages.parse({

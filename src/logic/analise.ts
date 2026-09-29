@@ -3,6 +3,7 @@ import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import { alimentoDe, type ItemComida } from './prato';
 import { limparRotulo, itemEstimado } from './estimativa';
 import { localAtual } from './local';
+import { cabecalhosDaIa, motivoDaPorta, type MotivoDaPorta } from './portaDaIa';
 
 /* ============================================================
    A LEITURA DA FOTO
@@ -32,7 +33,6 @@ import { localAtual } from './local';
    ============================================================ */
 
 const URL_ANALISE = process.env.EXPO_PUBLIC_ANALISE_URL;
-const TOKEN = process.env.EXPO_PUBLIC_ANALISE_TOKEN;
 
 /* A foto sai daqui com 1024 px de lado maior e qualidade 0,6.
 
@@ -58,7 +58,7 @@ async function encolher(uri: string): Promise<string | null> {
   }
 }
 
-export type Motivo = 'sem-servidor' | 'sem-rede' | 'nao-reconheci';
+export type Motivo = 'sem-servidor' | 'sem-rede' | 'nao-reconheci' | MotivoDaPorta;
 
 export type Analise =
   | { ok: true; itens: ItemComida[] }
@@ -72,6 +72,8 @@ export const RECADO = (): Record<Motivo, string> => ({
   'sem-servidor': T.aviso.fotoSemServidor,
   'sem-rede': T.aviso.fotoSemRede,
   'nao-reconheci': T.aviso.fotoNaoReconheci,
+  'sem-conta': T.comum.ia.semConta,
+  limite: T.comum.ia.limite,
 });
 
 /* Quantidade que veio de fora: inteiro, pelo menos 1, no máximo 20.
@@ -126,16 +128,13 @@ export async function analisarFoto(uri: string): Promise<Analise> {
     const r = await fetch(URL_ANALISE, {
       method: 'POST',
       signal: corta.signal,
-      headers: {
-        'content-type': 'application/json',
-        ...(TOKEN ? { 'x-morphi-token': TOKEN } : {}),
-      },
+      headers: await cabecalhosDaIa(),
       body: JSON.stringify({ imagem, tipo: 'image/jpeg', idioma: localAtual() }),
     });
 
     const corpo = await r.json().catch(() => null);
     if (!corpo || corpo.ok !== true) {
-      return { ok: false, motivo: corpo?.motivo === 'sem-rede' ? 'sem-rede' : 'nao-reconheci' };
+      return { ok: false, motivo: motivoDaPorta(corpo) ?? (corpo?.motivo === 'sem-rede' ? 'sem-rede' : 'nao-reconheci') };
     }
 
     const itens = limpar(corpo.itens);

@@ -97,4 +97,10 @@ export const comum = {
     oQueFazer: 'O QUE FAZER',
     umRegistroSo: 'Um registro só não desenha uma curva.',
   },
+  /* O que a porta do servidor da IA pode responder, igual para a foto, o
+     laudo e a estimativa pelo nome (ver logic/portaDaIa e servidor/cota). */
+  ia: {
+    semConta: 'Entre na sua conta para usar a leitura com IA.',
+    limite: 'Você chegou ao limite de leituras com IA de hoje. Amanhã ele volta — e dá para registrar à mão.',
+  },
 };

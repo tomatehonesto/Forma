@@ -75,6 +75,14 @@ if (!ENSAIO) {
     method: 'POST', body: JSON.stringify({ codigo: 'NAOEXISTE', versao_consentimento: 1 }),
   });
   ok(usar.corpo?.code === '42501', 'usar_convite não responde a quem não tem login', mostrar(usar));
+  /* A cota da IA é a porta do servidor da Vercel: sem login ela não abre,
+     e é isso que impede o token compartilhado do pacote de chamar o modelo. */
+  const cota = await pedir('/rest/v1/rpc/consumir_cota_da_ia', {
+    method: 'POST', body: JSON.stringify({ tipo: 'foto' }),
+  });
+  ok(cota.corpo?.code === '42501', 'a cota da IA não abre para quem não tem login', mostrar(cota));
+  const uso = await pedir('/rest/v1/uso_da_ia?select=*');
+  ok(uso.status === 404, 'a tabela de uso da IA não existe na API', mostrar(uso));
   const visao = await pedir('/rest/v1/perguntas_para_leitura?select=*');
   ok(visao.status === 404, 'a visão das perguntas não existe na API', mostrar(visao));
 }

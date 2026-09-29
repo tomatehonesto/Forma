@@ -55,6 +55,8 @@ const RECADO = (): Record<MotivoDoLaudo, string> => ({
   'sem-rede': K().erroSemRede,
   'nao-reconheci': K().erroNaoReconheci,
   grande: K().erroGrande,
+  'sem-conta': T.comum.ia.semConta,
+  limite: T.comum.ia.limite,
 });
 
 export default function Laudo() {

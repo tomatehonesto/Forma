@@ -4,6 +4,7 @@ import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import { now, startOfDay } from './time';
 import { REFERENCIA_DOS_MARCADORES } from './derive';
 import { unidadesDe, converterValor, converterFaixa } from './unidadesDeExame';
+import { cabecalhosDaIa, motivoDaPorta, type MotivoDaPorta } from './portaDaIa';
 
 /* ============================================================
    A LEITURA DO LAUDO
@@ -25,7 +26,6 @@ import { unidadesDe, converterValor, converterFaixa } from './unidadesDeExame';
    ============================================================ */
 
 const URL_ANALISE = process.env.EXPO_PUBLIC_ANALISE_URL;
-const TOKEN = process.env.EXPO_PUBLIC_ANALISE_TOKEN;
 /* A mesma função mora ao lado da leitura do prato; sem uma URL própria,
    ela sai da outra. */
 const URL_LAUDO = process.env.EXPO_PUBLIC_LAUDO_URL
@@ -96,7 +96,7 @@ export type LaudoLido = {
   naoReconhecidos: string[];
 };
 
-export type MotivoDoLaudo = 'sem-servidor' | 'sem-rede' | 'nao-reconheci' | 'grande';
+export type MotivoDoLaudo = 'sem-servidor' | 'sem-rede' | 'nao-reconheci' | 'grande' | MotivoDaPorta;
 export type Leitura = { ok: true; laudo: LaudoLido } | { ok: false; motivo: MotivoDoLaudo };
 
 /* A faixa só com o que uma faixa tem: números, o traço e os sinais. */
@@ -150,13 +150,13 @@ export async function lerLaudo(a: Arquivo): Promise<Leitura> {
     const r = await fetch(URL_LAUDO, {
       method: 'POST',
       signal: corta.signal,
-      headers: { 'content-type': 'application/json', ...(TOKEN ? { 'x-morphi-token': TOKEN } : {}) },
+      headers: await cabecalhosDaIa(),
       body: JSON.stringify({ arquivo, tipo: a.tipo === 'pdf' ? 'application/pdf' : 'image/jpeg' }),
     });
     const corpo = await r.json().catch(() => null);
     if (!corpo || corpo.ok !== true) {
       const m = corpo?.motivo;
-      return { ok: false, motivo: m === 'sem-rede' || m === 'grande' ? m : 'nao-reconheci' };
+      return { ok: false, motivo: motivoDaPorta(corpo) ?? (m === 'sem-rede' || m === 'grande' ? m : 'nao-reconheci') };
     }
     const laudo = limparLaudo(corpo);
     if (!laudo || !laudo.resultados.length) return { ok: false, motivo: 'nao-reconheci' };

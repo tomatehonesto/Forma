@@ -63,4 +63,8 @@ export const comum = {
     oQueFazer: 'WHAT TO DO',
     umRegistroSo: 'A single entry doesn’t make a curve.',
   },
+  ia: {
+    semConta: 'Sign in to your account to use AI reading.',
+    limite: 'You’ve reached today’s limit for AI readings. It resets tomorrow — and you can still log by hand.',
+  },
 };

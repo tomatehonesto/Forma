@@ -3,6 +3,7 @@ import type { Alimento } from './alimentos';
 import { localAtual } from './local';
 import { alimentoDoItem, type ItemComida, type Rotulo } from './prato';
 import { PRATELEIRAS } from './prateleiras';
+import { cabecalhosDaIa, motivoDaPorta, type MotivoDaPorta } from './portaDaIa';
 
 /* ============================================================
    O PRATO QUE A LISTA NÃO TEM, ESTIMADO PELO NOME
@@ -22,7 +23,6 @@ import { PRATELEIRAS } from './prateleiras';
    ============================================================ */
 
 const URL_ANALISE = process.env.EXPO_PUBLIC_ANALISE_URL;
-const TOKEN = process.env.EXPO_PUBLIC_ANALISE_TOKEN;
 
 /* Mora ao lado da leitura do prato; sem uma URL própria, é a mesma com
    o último trecho trocado — o mesmo desenho da leitura do laudo. */
@@ -31,7 +31,7 @@ const URL_ESTIMAR = process.env.EXPO_PUBLIC_ESTIMAR_URL
 
 export const estimativaLigada = () => !!URL_ESTIMAR;
 
-export type MotivoDaEstimativa = 'sem-servidor' | 'sem-rede' | 'nao-reconheci';
+export type MotivoDaEstimativa = 'sem-servidor' | 'sem-rede' | 'nao-reconheci' | MotivoDaPorta;
 
 export type Estimativa =
   | { ok: true; item: ItemComida }
@@ -82,15 +82,12 @@ export async function estimarPeloNome(nome: string): Promise<Estimativa> {
     const r = await fetch(URL_ESTIMAR, {
       method: 'POST',
       signal: corta.signal,
-      headers: {
-        'content-type': 'application/json',
-        ...(TOKEN ? { 'x-morphi-token': TOKEN } : {}),
-      },
+      headers: await cabecalhosDaIa(),
       body: JSON.stringify({ nome: escrito, idioma: localAtual() }),
     });
     const corpo = await r.json().catch(() => null);
     if (!corpo || corpo.ok !== true) {
-      return { ok: false, motivo: corpo?.motivo === 'sem-rede' ? 'sem-rede' : 'nao-reconheci' };
+      return { ok: false, motivo: motivoDaPorta(corpo) ?? (corpo?.motivo === 'sem-rede' ? 'sem-rede' : 'nao-reconheci') };
     }
     const rotulo = limparRotulo(corpo.rotulo);
     return rotulo ? { ok: true, item: itemEstimado(rotulo) } : { ok: false, motivo: 'nao-reconheci' };

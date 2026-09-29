@@ -73,6 +73,8 @@ import { PRATELEIRAS } from '../src/logic/prateleiras';
 import { PRATELEIRAS as PRATELEIRAS_DO_SERVIDOR } from '../servidor/prateleiras';
 import { rotuloDaPorcao } from '../servidor/rotulo';
 import { limpar as limparDaFoto } from '../src/logic/analise';
+import { abrirPorta } from '../servidor/cota';
+import { motivoDaPorta } from '../src/logic/portaDaIa';
 import { ALIMENTOS, dicionario, buscarAlimento } from '../src/logic/alimentos';
 import { COMIDAS, UNIDADES } from '../src/logic/comidas';
 import { trocarLocal } from '../src/logic/local';
@@ -716,5 +718,61 @@ const energiaFoto = energiaDoDia(comFoto, +hoje);
 ok(energiaFoto.estimadas === 1 && energiaFoto.kcal >= 450, 'a energia do dia conta a refeição com número estimado, e diz quantas');
 ok(seusPratos(comFoto).some((r) => r.nome === 'Bobó de camarão'), 'o prato estimado pela foto também volta como prato seu');
 
-console.log(falhas ? `\n${falhas} afirmação(ões) falharam\n` : '\ntodas as afirmações passaram\n');
-process.exit(falhas ? 1 : 0);
+console.log('\n27. A PORTA DO SERVIDOR DA IA');
+/* A porta é assíncrona, e a sonda roda em CommonJS, sem await no topo:
+   a seção é uma função, e o resultado final espera por ela. */
+const secaoDaPorta = (async () => {
+  const env = { ...process.env };
+  const fetchDeVerdade = globalThis.fetch;
+  let pedido: { url: string; headers: any; body: any } | null = null;
+  const responde = (status: number, corpo: unknown) => {
+    globalThis.fetch = (async (url: string, init: any) => {
+      pedido = { url, headers: init.headers, body: JSON.parse(init.body) };
+      return new Response(JSON.stringify(corpo), { status });
+    }) as any;
+  };
+  const req = (auth?: string) => new Request('https://x/api/analisar', { method: 'POST', headers: auth ? { authorization: auth } : {} });
+
+  delete process.env.SUPABASE_URL; delete process.env.SUPABASE_PUBLISHABLE_KEY; delete process.env.VERCEL_ENV;
+  ok((await abrirPorta(req(), 'foto')).ok, 'sem o Supabase configurado, em desenvolvimento, a porta deixa passar');
+  process.env.VERCEL_ENV = 'production';
+  const semConfig = await abrirPorta(req(), 'foto');
+  ok(!semConfig.ok && semConfig.motivo === 'sem-rede', 'em produção, sem o Supabase configurado, a porta fecha em vez de abrir');
+
+  process.env.SUPABASE_URL = 'https://projeto.supabase.co/';
+  process.env.SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_teste';
+  const semSessao = await abrirPorta(req(), 'foto');
+  ok(!semSessao.ok && semSessao.motivo === 'sem-conta' && semSessao.status === 401, 'sem o JWT da sessão, é "sem-conta"');
+
+  responde(200, { ok: true, limite: 20, restam: 19 });
+  const aberta = await abrirPorta(req('Bearer jwt.da.sessao'), 'estimativa');
+  ok(aberta.ok && pedido!.url === 'https://projeto.supabase.co/rest/v1/rpc/consumir_cota_da_ia'
+    && pedido!.headers.authorization === 'Bearer jwt.da.sessao' && pedido!.headers.apikey === 'sb_publishable_teste'
+    && pedido!.body.tipo === 'estimativa',
+    'com sessão, a porta repassa o JWT e a chave pública para a cota, com o tipo, e abre');
+  responde(200, { ok: false, limite: 20, restam: 0 });
+  const cheia = await abrirPorta(req('Bearer jwt.da.sessao'), 'foto');
+  ok(!cheia.ok && cheia.motivo === 'limite' && cheia.status === 429, 'passado o teto do dia, é "limite"');
+  responde(401, { message: 'JWT expired' });
+  const vencida = await abrirPorta(req('Bearer jwt.vencido'), 'laudo');
+  ok(!vencida.ok && vencida.motivo === 'sem-conta', 'um JWT recusado pelo Supabase é "sem-conta"');
+  responde(401, { code: '42501', message: 'sessão anônima' });
+  const anonima = await abrirPorta(req('Bearer jwt.anonimo'), 'foto');
+  ok(!anonima.ok && anonima.motivo === 'sem-conta', 'a sessão anônima recusada pela função é "sem-conta"');
+  responde(500, { message: 'erro' });
+  const quebrou = await abrirPorta(req('Bearer jwt.da.sessao'), 'foto');
+  ok(!quebrou.ok && quebrou.motivo === 'sem-rede', 'um erro do Supabase fecha a porta, e não a abre');
+
+  ok(motivoDaPorta({ ok: false, motivo: 'limite' }) === 'limite' && motivoDaPorta({ ok: false, motivo: 'sem-rede' }) === null,
+    'o aplicativo reconhece os dois motivos da porta, e só eles');
+
+  globalThis.fetch = fetchDeVerdade;
+  for (const k of ['SUPABASE_URL', 'SUPABASE_PUBLISHABLE_KEY', 'VERCEL_ENV']) {
+    if (env[k] === undefined) delete process.env[k]; else process.env[k] = env[k];
+  }
+})();
+
+secaoDaPorta.then(() => {
+  console.log(falhas ? `\n${falhas} afirmação(ões) falharam\n` : '\ntodas as afirmações passaram\n');
+  process.exit(falhas ? 1 : 0);
+});

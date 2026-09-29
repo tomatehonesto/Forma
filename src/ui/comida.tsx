@@ -63,6 +63,8 @@ export function BuscaAlimento({ valor, onChange, onEscolher, onLivre, onEstimado
   };
   const subDoCalculo = calculo === 'calculando' ? K().calculando
     : calculo === 'sem-rede' ? K().estimativaSemRede
+      : calculo === 'sem-conta' ? T.comum.ia.semConta
+      : calculo === 'limite' ? T.comum.ia.limite
       : calculo === 'nao-reconheci' || calculo === 'sem-servidor' ? K().estimativaNaoReconheci
         : K().calcularSub;
 

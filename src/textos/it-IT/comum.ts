@@ -82,4 +82,8 @@ export const comum = {
     oQueFazer: 'COSA FARE',
     umRegistroSo: 'Una sola voce non disegna una curva.',
   },
+  ia: {
+    semConta: 'Accedi al tuo account per usare la lettura con l’IA.',
+    limite: 'Hai raggiunto il limite di letture con l’IA di oggi. Domani torna disponibile — e puoi registrare a mano.',
+  },
 };

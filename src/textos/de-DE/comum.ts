@@ -103,4 +103,8 @@ export const comum = {
     oQueFazer: 'WAS ZU TUN IST',
     umRegistroSo: 'Ein einzelner Eintrag ergibt noch keine Kurve.',
   },
+  ia: {
+    semConta: 'Melde dich in deinem Konto an, um das Lesen mit KI zu nutzen.',
+    limite: 'Du hast das heutige Limit für KI-Auswertungen erreicht. Morgen geht es wieder — und du kannst von Hand eintragen.',
+  },
 };

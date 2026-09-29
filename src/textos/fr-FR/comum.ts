@@ -73,4 +73,8 @@ export const comum = {
     oQueFazer: 'QUE FAIRE',
     umRegistroSo: 'Une seule entrée ne dessine pas de courbe.',
   },
+  ia: {
+    semConta: 'Connectez-vous à votre compte pour utiliser la lecture par IA.',
+    limite: 'Vous avez atteint la limite de lectures par IA pour aujourd’hui. Elle revient demain — et vous pouvez saisir à la main.',
+  },
 };

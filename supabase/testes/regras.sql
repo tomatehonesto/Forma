@@ -55,6 +55,8 @@ declare
   v_ok boolean;
   v_total int;
   v_falhas int;
+  v_papel text;
+  i int;
 begin
   -- @MUTANTE@
 
@@ -608,6 +610,46 @@ begin
 
 
   -- ============================================================
+  -- A COTA DA IA
+  -- ============================================================
+  perform pg_temp.igual(pg_temp.valor(u_a::text, $$public.consumir_cota_da_ia('foto')->>'restam'$$), '19',
+    'a primeira foto do dia de A deixa dezenove');
+  perform pg_temp.igual(pg_temp.valor(u_b::text, $$public.consumir_cota_da_ia('foto')->>'restam'$$), '19',
+    'a cota de B é dela, e não anda com a de A');
+  for i in 1..19 loop
+    perform pg_temp.valor(u_a::text, $$public.consumir_cota_da_ia('foto')$$);
+  end loop;
+  perform pg_temp.igual(pg_temp.valor(u_a::text, $$public.consumir_cota_da_ia('foto')->>'ok'$$), 'false',
+    'passado o teto do dia, a foto é recusada');
+  perform pg_temp.igual((select vezes::text from private.uso_da_ia where user_id = u_a and tipo = 'foto'), '20',
+    'e a recusa não soma: a contagem para no teto');
+  perform pg_temp.igual(pg_temp.valor(u_a::text, $$public.consumir_cota_da_ia('laudo')->>'ok'$$), 'true',
+    'o teto da foto não tranca o laudo');
+  perform pg_temp.que(pg_temp.valor('anon', $$public.consumir_cota_da_ia('foto')$$) like 'erro:%',
+    'sem login, a cota não abre');
+  perform pg_temp.que(pg_temp.valor(u_a::text, $$public.consumir_cota_da_ia('video')$$) like 'erro:%',
+    'um tipo que não existe é recusado');
+  perform pg_temp.que(pg_temp.conta(u_a::text, $$select 1 from private.uso_da_ia$$) like 'erro:%',
+    'A não lê a tabela de uso pela API');
+  perform pg_temp.que(pg_temp.faz(u_a::text, $$delete from private.uso_da_ia where user_id = auth.uid()$$) like 'erro:%',
+    'A não apaga a própria contagem para zerar a cota');
+  -- A sessão anônima também é `authenticated`: sem a trava, uma sessão nova
+  -- por chamada nunca teria teto.
+  v_papel := current_user;
+  perform set_config('request.jwt.claims',
+    json_build_object('sub', u_b, 'role', 'authenticated', 'is_anonymous', true)::text, true);
+  perform set_config('role', 'authenticated', true);
+  begin
+    perform public.consumir_cota_da_ia('foto');
+    v_ok := true;
+  exception when others then
+    v_ok := false;
+  end;
+  perform set_config('role', v_papel, true);
+  perform pg_temp.que(not v_ok, 'uma sessão anônima não abre a cota');
+
+
+  -- ============================================================
   -- APAGAR A CONTA
   -- ============================================================
   begin
@@ -626,6 +668,7 @@ begin
       + (select count(*) from public.vinculos where paciente_id = u_a)
       + (select count(*) from public.mensagens where paciente_id = u_a)
       + (select count(*) from public.receitas where paciente_id = u_a)
+      + (select count(*) from private.uso_da_ia where user_id = u_a)
     )::text), '0',
     'apagar a conta não deixa linha de A em tabela nenhuma (a cópia do perfil inclusive)');
   perform pg_temp.igual((select count(*)::text from public.convites

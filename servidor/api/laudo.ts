@@ -2,6 +2,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod';
 import { z } from 'zod';
 import { MARCADORES, CHAVES } from '../marcadores.js';
+import { abrirPorta } from '../cota';
 
 /* ============================================================
    LER O LAUDO
@@ -91,14 +92,14 @@ const MAX_BASE64 = 4_300_000;
 const CABECALHOS = {
   'content-type': 'application/json; charset=utf-8',
   'access-control-allow-origin': '*',
-  'access-control-allow-headers': 'content-type, x-morphi-token',
+  'access-control-allow-headers': 'content-type, authorization, x-morphi-token',
   'access-control-allow-methods': 'POST, OPTIONS',
 };
 
 const responder = (corpo: unknown, status = 200) =>
   new Response(JSON.stringify(corpo), { status, headers: CABECALHOS });
 
-const falhou = (motivo: 'sem-rede' | 'nao-reconheci' | 'grande', status = 200) =>
+const falhou = (motivo: 'sem-rede' | 'nao-reconheci' | 'grande' | 'sem-conta' | 'limite', status = 200) =>
   responder({ ok: false, motivo }, status);
 
 const DATA = /^\d{4}-\d{2}-\d{2}$/;
@@ -129,6 +130,12 @@ export default async function handler(req: Request): Promise<Response> {
   } catch {
     return falhou('nao-reconheci', 400);
   }
+
+  /* A porta: a sessão de quem chama e o teto do dia — ver servidor/cota.
+     Depois de conferir o pedido, para um pedido malformado não gastar a
+     cota, e antes do modelo, que é o que custa. */
+  const porta = await abrirPorta(req, 'laudo');
+  if (!porta.ok) return falhou(porta.motivo, porta.status);
 
   try {
     const bloco = tipo === 'application/pdf'

@@ -147,8 +147,11 @@ região `gru1` (São Paulo), 60 s de teto.
 2. **Root Directory: `servidor`.** Sem isso a Vercel tenta publicar o
    aplicativo Expo inteiro.
 3. Variáveis de ambiente: `ANTHROPIC_API_KEY` (a chave da API, que só
-   mora aqui — nunca no aplicativo, no código ou no chat) e
+   mora aqui — nunca no aplicativo, no código ou no chat),
+   `SUPABASE_URL` e `SUPABASE_PUBLISHABLE_KEY` (a URL e a chave
+   **pública** do projeto de produção — a secreta não entra), e
    `MORPHI_TOKEN` (um valor aleatório qualquer, o mesmo que vai no app).
+   Sem as duas do Supabase, em produção, a porta fecha tudo.
 4. Deploy. A URL fica `https://<projeto>.vercel.app/api/analisar`.
 5. No aplicativo, `EXPO_PUBLIC_ANALISE_URL` com essa URL e
    `EXPO_PUBLIC_ANALISE_TOKEN` com o mesmo token — no `.env` e nas
@@ -165,14 +168,16 @@ região `gru1` (São Paulo), 60 s de teto.
 - **Desligar o uso dos dados para treino** nas configurações da equipe
   na Vercel ("Improve models with my data" estava ligado). Passa por lá
   foto de prato e laudo de exame — dado de saúde.
-- **O token não é proteção.** Ele vai no pacote do aplicativo e é
-  extraível; impede que a URL vazada vire conta aberta, e só. A proteção
-  de verdade é o servidor conferir a sessão do Supabase (o JWT de quem
-  está logado) antes de chamar o modelo, e limitar por pessoa.
-- **O limite de uso da IA não existe no código.** Cada foto, laudo e
-  estimativa é uma chamada paga. O limite por pessoa (teto diário de
-  fotos e estimativas) é o que sustenta o preço — ver a conversa de
-  preço, item 21 — e entra junto com a conferência da sessão.
+- ~~**O token não é proteção.**~~ **Resolvido em 29/09/2026:** o servidor
+  confere a sessão do Supabase e o teto do dia antes de chamar o modelo
+  (`servidor/cota.ts` e a migração `cota_da_ia`, que já está no
+  morphi-dev e sobe para a produção com as outras). Tetos por pessoa e
+  por dia: 20 fotos, 40 estimativas, 10 laudos. A trava das regras
+  (`scripts/regras.mjs`) prova a cota, com três mutantes.
+- **Os tetos são palpite meu,** pensados para quem registra tudo com
+  folga. Depois do lançamento, olhar o uso de verdade (a tabela
+  `private.uso_da_ia`) e ajustar — é o número que sustenta o preço
+  (item 21).
 - **A Política cita a Anthropic e a Vercel** (seção 7), e o laudo tem
   aceite próprio. A estimativa pelo nome e a foto mandam só comida;
   confirmar com o advogado (item 2) se a Política descreve as três

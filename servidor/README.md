@@ -48,7 +48,12 @@ e o item cai fora em silêncio.
    | Nome | Valor |
    |---|---|
    | `ANTHROPIC_API_KEY` | a sua chave |
+   | `SUPABASE_URL` | a URL do projeto do Supabase (`https://<ref>.supabase.co`) |
+   | `SUPABASE_PUBLISHABLE_KEY` | a chave **pública** do projeto (`sb_publishable_…`), a mesma do app |
    | `MORPHI_TOKEN` | uma frase qualquer que você inventar (opcional) |
+
+   ⚠️ **A chave secreta do Supabase (`sb_secret_…`) não entra aqui.** A
+   porta só precisa da pública — ver "A porta", abaixo.
 
 4. Deploy. A URL final é `https://<projeto>.vercel.app/api/analisar`.
 
@@ -66,16 +71,31 @@ escanear abre a câmera, a leitura devolve "ainda não está ligada" e a
 lista manual continua ali. Ligar a foto é variável de ambiente, não outro
 build.
 
-## Sobre o `MORPHI_TOKEN`
+## A porta: a sessão e o teto do dia
 
-Ele vale menos do que parece, e é melhor saber disso. O aplicativo carrega
-esse valor dentro do pacote, então quem abrir o pacote encontra. Ele
-impede que uma URL vazada em log vire conta aberta; não impede alguém
-decidido. Proteção de verdade só chega junto com conta de usuário.
+As três funções só chamam o modelo para quem está logado e ainda cabe no
+teto do dia (`cota.ts`). O aplicativo manda o JWT da sessão do Supabase em
+`Authorization`; a porta o repassa para `public.consumir_cota_da_ia`
+(`supabase/migrations`, "cota_da_ia") com a chave pública. Uma chamada
+só: o Supabase recusa um JWT inválido ou vencido, e a função soma um uso
+e diz se ainda cabe. Os tetos, por pessoa e por dia (UTC): **20 fotos,
+40 estimativas pelo nome, 10 laudos**. Mudar um é uma migração nova.
 
-Se você deixar `MORPHI_TOKEN` vazio na Vercel, a função aceita qualquer
-chamada. Para um piloto fechado, tudo bem. Para qualquer coisa pública,
-não.
+A resposta de recusa diz o motivo, e o aplicativo tem frase para cada um:
+`sem-conta` (401 — sem sessão, sessão vencida ou anônima) e `limite`
+(429 — o teto do dia).
+
+⚠️ **Em produção a porta falha fechada.** Sem `SUPABASE_URL` e
+`SUPABASE_PUBLISHABLE_KEY`, ela recusa tudo quando `VERCEL_ENV` é
+`production`. Numa prévia ou em desenvolvimento ela deixa passar, para o
+aplicativo poder ser testado sem conta.
+
+### E o `MORPHI_TOKEN`
+
+Ele continua, e vale o que sempre valeu: pouco. O aplicativo carrega esse
+valor dentro do pacote, então quem abrir o pacote encontra. Ele mantém uma
+URL vazada longe do modelo nas prévias, em que a porta deixa passar. A
+proteção é a sessão.
 
 ## Testar sem subir
 
@@ -114,8 +134,7 @@ laboratório e data da coleta. Não converte e não interpreta — quem lê o
 valor contra a faixa é o aplicativo, e quem confere cada linha contra o
 papel antes de salvar é a pessoa.
 
-Ela sobe junto com a do prato, no mesmo projeto, com as mesmas variáveis
-(`ANTHROPIC_API_KEY` e `MORPHI_TOKEN`). O aplicativo acha a URL sozinho
+Ela sobe junto com a do prato, no mesmo projeto, com as mesmas variáveis. O aplicativo acha a URL sozinho
 a partir de `EXPO_PUBLIC_ANALISE_URL` (troca `/analisar` por `/laudo`);
 se um dia ela morar em outro lugar, `EXPO_PUBLIC_LAUDO_URL` manda.
 
