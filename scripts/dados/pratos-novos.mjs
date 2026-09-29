@@ -33,10 +33,11 @@ const MOLHO_CAESAR = { usda: 43015, contem: ['ovo', 'peixe', 'leite'] };
 const CALDO = { usda: 14411 };
 const SHOYU = { usda: 16123 };
 const ALFACE = { usda: 11251 };
+const MAIONESE = { usda: 4025, contem: ['ovo'] };
 
 export const PRATOS_NOVOS = [
   /* --- alemã e austríaca -------------------------------------------- */
-  { id: 'schnitzel', un: 'filé', nomes: ['Schnitzel (bife de porco empanado)', 'Pork schnitzel', 'Escalope de cerdo empanizado', 'Escalope de porc pané', 'Schweineschnitzel', 'Cotoletta di maiale impanata'],
+  { id: 'schnitzel', un: 'filé-empanado', nomes: ['Schnitzel (bife de porco empanado)', 'Pork schnitzel', 'Escalope de cerdo empanado', 'Escalope de porc panée', 'Schweineschnitzel', 'Cotoletta di maiale impanata'],
     receita: [['pernil-magro', 120], ['ovo-cozido', 15], [FARINHA_ROSCA, 20], [OLEO, 10]] },
   { id: 'currywurst', un: 'porção', nomes: ['Currywurst', 'Currywurst', 'Currywurst', 'Currywurst', 'Currywurst', 'Currywurst'],
     receita: [['bratwurst', 100], [KETCHUP, 40]] },
@@ -45,18 +46,18 @@ export const PRATOS_NOVOS = [
   { id: 'kaesespaetzle', un: 'prato', nomes: ['Käsespätzle (massa com queijo)', 'Käsespätzle (cheese noodles)', 'Käsespätzle (pasta con queso)', 'Käsespätzle (pâtes au fromage)', 'Käsespätzle', 'Käsespätzle (gnocchetti al formaggio)'],
     receita: [['macarrao-ovo', 200], ['emmental', 45], [CEBOLA, 20], ['manteiga', 5]] },
   { id: 'salada-batata', un: 'porção', nomes: ['Salada de batata', 'Potato salad', 'Ensalada de papa', 'Salade de pommes de terre', 'Kartoffelsalat', 'Insalata di patate'],
-    receita: [['batata', 160], [CEBOLA, 20], [OLEO, 8]] },
+    receita: [['batata', 160], [MAIONESE, 30], [CEBOLA, 15]] },
 
   /* --- francesa ----------------------------------------------------- */
   { id: 'ratatouille', un: 'porção', nomes: ['Ratatouille', 'Ratatouille', 'Ratatouille', 'Ratatouille', 'Ratatouille', 'Ratatouille'],
     receita: [['berinjela', 80], ['abobrinha', 80], ['pimentao', 40], ['tomate', 60], [AZEITE, 8]] },
-  { id: 'boeuf-bourguignon', un: 'prato', nomes: ['Boeuf bourguignon (carne ao vinho)', 'Beef bourguignon', 'Res a la borgoñona', 'Bœuf bourguignon', 'Burgunderbraten', 'Manzo alla borgognona'],
+  { id: 'boeuf-bourguignon', un: 'prato', nomes: ['Boeuf bourguignon (carne ao vinho)', 'Beef bourguignon', 'Res a la borgoñona', 'Bœuf bourguignon', 'Bœuf bourguignon (Rindfleisch in Burgunder)', 'Manzo alla borgognona'],
     receita: [['carne-panela', 150], ['cogumelo', 40], ['cenoura', 30], [CEBOLA, 30], ['bacon', 10]] },
   { id: 'coq-au-vin', un: 'prato', nomes: ['Coq au vin (frango ao vinho)', 'Coq au vin', 'Pollo al vino', 'Coq au vin', 'Coq au Vin', 'Pollo al vino'],
     receita: [['sobrecoxa', 150], ['cogumelo', 40], ['bacon', 10], [CEBOLA, 30]] },
   { id: 'salada-nicoise', un: 'prato', nomes: ['Salada niçoise', 'Niçoise salad', 'Ensalada nizarda', 'Salade niçoise', 'Salat Niçoise', 'Insalata nizzarda'],
     receita: [[ALFACE, 60], ['atum-lata', 80], ['ovo-cozido', 50], ['tomate', 60], ['vagem', 40], ['batata', 60], ['azeitona', 12], [AZEITE, 8]] },
-  { id: 'quiche-lorraine', un: 'fatia', nomes: ['Quiche lorraine', 'Quiche lorraine', 'Quiche lorraine', 'Quiche lorraine', 'Quiche Lorraine', 'Quiche lorraine'],
+  { id: 'quiche-lorraine', un: 'fatia-torta', nomes: ['Quiche lorraine', 'Quiche Lorraine', 'Quiche lorraine', 'Quiche lorraine', 'Quiche Lorraine', 'Quiche lorraine'],
     receita: [[FARINHA, 35], ['manteiga', 15], ['ovo-cozido', 55], [CREME_LEITE, 40], ['bacon', 20], ['emmental', 15]] },
 
   /* --- italiana ----------------------------------------------------- */
@@ -66,12 +67,12 @@ export const PRATOS_NOVOS = [
     receita: [['macarrao', 200], [PESTO, 30]] },
   { id: 'risoto-cogumelos', un: 'prato', nomes: ['Risoto de cogumelos', 'Mushroom risotto', 'Risotto de champiñones', 'Risotto aux champignons', 'Pilzrisotto', 'Risotto ai funghi'],
     receita: [['arroz', 200], ['cogumelo', 70], ['parmesao', 10], ['manteiga', 8]] },
-  { id: 'minestrone', un: 'prato', nomes: ['Minestrone', 'Minestrone', 'Minestrone', 'Minestrone', 'Minestrone', 'Minestrone'],
+  { id: 'minestrone', un: 'tigela', nomes: ['Minestrone', 'Minestrone', 'Minestrone', 'Minestrone', 'Minestrone', 'Minestrone'],
     receita: [['sopa-legumes', 230], ['feijao-branco', 40], ['macarrao', 30]] },
   { id: 'caprese', un: 'porção', nomes: ['Salada caprese', 'Caprese salad', 'Ensalada caprese', 'Salade caprese', 'Caprese', 'Insalata caprese'],
     receita: [['mussarela-fresca', 100], ['tomate', 100], [AZEITE, 8]] },
   { id: 'berinjela-parmegiana', un: 'porção', nomes: ['Berinjela à parmegiana', 'Eggplant parmigiana', 'Berenjenas a la parmesana', 'Aubergines à la parmigiana', 'Auberginen-Parmigiana', 'Parmigiana di melanzane'],
-    receita: [['berinjela', 150], [MOLHO_MARINARA, 60], ['mussarela-fresca', 40], ['parmesao', 10], [OLEO, 10]] },
+    receita: [['berinjela', 150], ['ovo-cozido', 20], [FARINHA_ROSCA, 15], [MOLHO_MARINARA, 60], ['mussarela-fresca', 40], ['parmesao', 10], [OLEO, 10]] },
 
   /* --- espanhola e latino-americana --------------------------------- */
   { id: 'gazpacho', un: 'tigela', nomes: ['Gaspacho', 'Gazpacho', 'Gazpacho', 'Gaspacho', 'Gazpacho', 'Gazpacho'],
@@ -87,7 +88,7 @@ export const PRATOS_NOVOS = [
 
   /* --- inglesa e americana ------------------------------------------ */
   { id: 'fish-and-chips', un: 'porção', nomes: ['Peixe com fritas (fish and chips)', 'Fish and chips', 'Pescado con papas fritas', 'Fish and chips', 'Fish and Chips', 'Fish and chips'],
-    receita: [['pescada', 150], ['batata-frita', 150]] },
+    receita: [['pescada', 150], [FARINHA, 20], [OLEO, 10], ['batata-frita', 150]] },
   { id: 'shepherds-pie', un: 'porção', nomes: ['Torta de carne com purê', 'Shepherd’s pie', 'Pastel de carne con puré', 'Hachis parmentier', 'Shepherd’s Pie', 'Pasticcio di carne e purè'],
     receita: [['carne-moida', 120], ['pure-batata', 150], ['cenoura', 30], ['ervilha', 20]] },
   { id: 'ensopado-carne', un: 'prato', nomes: ['Ensopado de carne com batata', 'Beef stew', 'Estofado de res con papas', 'Ragoût de bœuf aux pommes de terre', 'Rindfleischeintopf', 'Spezzatino di manzo con patate'],
@@ -108,7 +109,7 @@ export const PRATOS_NOVOS = [
     receita: [['salmao', 140], [SHOYU, 15], ['mel', 10]] },
   { id: 'pho', un: 'tigela', nomes: ['Pho (sopa vietnamita)', 'Pho', 'Pho (sopa vietnamita)', 'Phở', 'Pho', 'Pho (zuppa vietnamita)'],
     receita: [['macarrao-arroz', 150], ['alcatra-grelhada', 60], [CALDO, 300], [CEBOLA, 10]] },
-  { id: 'dal', un: 'prato', nomes: ['Dal (lentilha indiana)', 'Dal (Indian lentils)', 'Dal (lentejas a la india)', 'Dal (lentilles à l’indienne)', 'Dal (indische Linsen)', 'Dal (lenticchie all’indiana)'],
+  { id: 'dal', un: 'tigela', nomes: ['Dal (lentilha indiana)', 'Dal (Indian lentils)', 'Dal (lentejas a la india)', 'Dal (lentilles à l’indienne)', 'Dal (indische Linsen)', 'Dal (lenticchie all’indiana)'],
     receita: [['lentilha', 200], [CEBOLA, 30], ['tomate', 40], [OLEO, 8]] },
   { id: 'salada-grega', un: 'prato', nomes: ['Salada grega', 'Greek salad', 'Ensalada griega', 'Salade grecque', 'Griechischer Salat', 'Insalata greca'],
     receita: [['tomate', 100], ['pepino', 80], ['feta', 40], ['azeitona', 12], [CEBOLA, 20], [AZEITE, 10]] },

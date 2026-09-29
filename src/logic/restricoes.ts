@@ -108,7 +108,7 @@ const CONTEM: Record<string, Ingrediente[]> = {
   sobrecoxa: ['ave'],
   'frango-milanesa': ['ave', 'ovo'],
   peru: ['ave'],
-  coxinha: ['ave', 'leite'],
+  coxinha: ['ave', 'ovo', 'leite'],
   linguica: ['carne', 'ave'],
   almondega: ['carne', 'ovo'],
   omelete: ['ovo', 'leite'],
@@ -140,10 +140,10 @@ const CONTEM: Record<string, Ingrediente[]> = {
   charuto: ['carne'],
   carbonara: ['carne', 'ovo', 'leite'],
   'macarrao-queijos': ['leite'],
-  'lasanha-carne': ['carne', 'leite'],
-  'lasanha-frango': ['ave', 'leite'],
-  'lasanha-presunto': ['carne', 'leite'],
-  nhoque: ['ovo'],
+  'lasanha-carne': ['carne', 'ovo', 'leite'],
+  'lasanha-frango': ['ave', 'ovo', 'leite'],
+  'lasanha-presunto': ['carne', 'ovo', 'leite'],
+  nhoque: ['ovo', 'leite'],
   'parmegiana-frango': ['ave', 'ovo', 'leite'],
   'parmegiana-carne': ['carne', 'ovo', 'leite'],
   'bife-milanesa': ['carne', 'ovo'],
@@ -181,9 +181,9 @@ const CONTEM: Record<string, Ingrediente[]> = {
   'burrito-frango': ['ave', 'leite'],
   'quesadilla-queijo': ['leite'],
   'chili-carne': ['carne'],
-  'shawarma-frango': ['ave'],
-  'kebab-carne': ['carne'],
-  'souvlaki-frango': ['ave'],
+  'shawarma-frango': ['ave', 'leite'],
+  'kebab-carne': ['carne', 'leite'],
+  'souvlaki-frango': ['ave', 'leite'],
   'tikka-masala': ['ave', 'leite'],
   'paella-frutos-do-mar': ['peixe'],
   'tortilla-espanhola': ['ovo'],
@@ -192,7 +192,7 @@ const CONTEM: Record<string, Ingrediente[]> = {
   'ceviche-peixe': ['peixe'],
 
   /* pães, massas e doces */
-  'pao-de-queijo': ['leite'],
+  'pao-de-queijo': ['leite', 'ovo'],
   'pao-sovado': ['leite', 'ovo'],
   'biscoito-recheado': ['leite'],
   'bolo-chocolate': ['ovo', 'leite'],
@@ -200,11 +200,11 @@ const CONTEM: Record<string, Ingrediente[]> = {
   /* lanches */
   chocolate: ['leite'],
   'sanduiche-frango': ['ave'],
-  'sanduiche-atum': ['peixe'],
+  'sanduiche-atum': ['peixe', 'ovo'],
   'sanduiche-peru': ['ave', 'leite'],
   'x-salada': ['carne', 'leite'],
   'misto-quente': ['carne', 'leite'],
-  'tapioca-frango': ['ave'],
+  'tapioca-frango': ['ave', 'leite'],
   'tapioca-queijo': ['leite'],
   esfiha: ['carne'],
   'pastel-carne': ['carne'],
@@ -223,9 +223,18 @@ const CONTEM: Record<string, Ingrediente[]> = {
   'smoothie-proteico': ['leite'],
   'torrada-abacate-ovo': ['ovo'],
   shakshuka: ['ovo'],
-  'croissant-presunto-queijo': ['carne', 'leite'],
+  'croissant-presunto-queijo': ['carne', 'ovo', 'leite'],
   'bagel-cream-cheese': ['leite'],
   'sanduiche-ovo': ['ovo'],
+
+  /* A revisão de 29/09/2026 achou estes, e o erro é sempre o mesmo: a
+     receita tinha o ingrediente, e o mapa não dizia.
+     O caldo de feijão leva linguiça — na TACO, de frango; na mesa, quase
+     sempre de porco —, e marcar de menos é o erro que machuca. */
+  'sopa-feijao': ['carne', 'ave'],
+  'macarrao-alho': ['leite'],
+  /* a tapioca da TACO é "com manteiga" */
+  tapioca: ['leite'],
 };
 
 /* ⚠️ O PRATO SOMADO RESPONDE PELA RECEITA. Os pratos que entraram com a

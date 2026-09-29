@@ -24,6 +24,11 @@
 
      USDA_SR=/caminho/FoodData_Central_sr_legacy_food_json_2018-04.json node scripts/gerar-comidas.mjs
 
+   ⚠️ E A TACO TAMBÉM, para as receitas corrigidas da lista brasileira
+   (dados/correcoes-base.mjs), que podem citar uma linha dela:
+
+     TACO_LOCAL=/caminho/TACO.json
+
    O script FALHA se um número NDB não existir, se um componente de
    receita não for achado, ou se uma comida ficar sem nome em algum dos
    seis idiomas: número inventado e tela em branco não passam daqui. */
@@ -33,6 +38,7 @@ import { UNIDADES } from './dados/unidades.mjs';
 import { NOMES_BASE } from './dados/nomes-base.mjs';
 import { NOVAS } from './dados/comidas-novas.mjs';
 import { PRATOS_NOVOS } from './dados/pratos-novos.mjs';
+import { CORRECOES } from './dados/correcoes-base.mjs';
 
 const LOCAIS = ['pt-BR', 'en-US', 'es-419', 'fr-FR', 'de-DE', 'it-IT'];
 const FONTE_SR = 'https://fdc.nal.usda.gov/fdc-datasets/FoodData_Central_sr_legacy_food_json_2018-04.zip';
@@ -61,6 +67,23 @@ const bruto = process.env.USDA_SR
     if (!r.ok) throw new Error('SR Legacy respondeu ' + r.status);
     return primeiroArquivoDoZip(Buffer.from(await r.arrayBuffer())).toString('utf8');
   })();
+
+/* ------------------------------------------------------------ a TACO */
+
+const FONTE_TACO = 'https://raw.githubusercontent.com/marcelosanto/tabela_taco/main/TACO.json';
+const TACO = new Map((process.env.TACO_LOCAL
+  ? JSON.parse(fs.readFileSync(process.env.TACO_LOCAL, 'utf8'))
+  : await fetch(FONTE_TACO).then((r) => r.json())
+).map((x) => [x.id, x]));
+/* A célula da TACO traz "Tr" para traço (zero na nossa precisão) e
+   texto para não analisado (null, nunca zero). */
+const celula = (v) => (typeof v === 'number' ? v : v === 'Tr' || v === 'tr' ? 0 : null);
+const linhaDaTaco = (id, rend = 1) => {
+  const x = TACO.get(id);
+  if (!x || typeof x.protein_g !== 'number') return null;
+  const d = (v) => { const c = celula(v); return c == null ? null : c / rend; };
+  return { p: x.protein_g / rend, kcal: d(x.energy_kcal), carb: d(x.carbohydrate_g), gord: d(x.lipid_g), fibra: d(x.fiber_g) };
+};
 
 /* Os nutrientes que o aplicativo usa, pelo id da FoodData Central. */
 const NUTRIENTES = {
@@ -166,30 +189,37 @@ for (const c of NOVAS) {
   });
 }
 
-/* Os pratos novos, somados. */
-for (const d of PRATOS_NOVOS) {
+/* A SOMA DE UMA RECEITA — a mesma conta para os pratos novos e para as
+   receitas corrigidas da lista brasileira. Cada componente entra com o
+   peso que tem no prato pronto; o perfil de 100 g é a soma dividida pelo
+   peso total. Um nutriente não analisado em UM componente deixa o prato
+   sem aquele nutriente: dizer 300 kcal quando faltou contar algo é pior
+   do que dizer "não sei". */
+function somaReceita(id, receita) {
   let peso = 0;
   const soma = { p: 0, kcal: 0, carb: 0, gord: 0, fibra: 0 };
   const falta = { kcal: false, carb: false, gord: false, fibra: false };
   const partes = [];
   const ids = [];
   const contem = new Set();
-  for (const [comp, g] of d.receita) {
+  for (const [comp, g] of receita) {
     let v;
     let rotulo;
     if (typeof comp === 'string') {
-      const c = porId.get(comp);
-      if (!c) { erros.push(d.id + ': componente ' + comp + ' não está na lista'); continue; }
-      v = c;
+      v = porId.get(comp);
+      if (!v) { erros.push(id + ': componente ' + comp + ' não está na lista'); continue; }
       rotulo = comp;
       ids.push(comp);
+    } else if (comp.taco) {
+      v = linhaDaTaco(comp.taco, comp.rend);
+      if (!v) { erros.push(id + ': TACO ' + comp.taco + ' não existe ou não tem proteína'); continue; }
+      rotulo = 'TACO ' + comp.taco + (comp.rend ? '÷' + String(comp.rend).replace('.', ',') : '');
     } else {
-      const row = SR.get(comp.usda);
-      if (!row) { erros.push(d.id + ': NDB ' + comp.usda + ' não existe'); continue; }
-      v = row;
+      v = SR.get(comp.usda);
+      if (!v) { erros.push(id + ': NDB ' + comp.usda + ' não existe'); continue; }
       rotulo = 'USDA ' + comp.usda;
-      for (const x of comp.contem ?? []) contem.add(x);
     }
+    for (const x of comp.contem ?? []) contem.add(x);
     peso += g;
     soma.p += ((v.p ?? 0) / 100) * g;
     for (const k of ['kcal', 'carb', 'gord', 'fibra']) {
@@ -200,17 +230,40 @@ for (const d of PRATOS_NOVOS) {
   }
   const p100 = (x) => +((x / peso) * 100).toFixed(1);
   const p = p100(soma.p);
-  junta({
-    id: d.id, n: d.nomes, busca: '',
+  return {
     p, kcal: falta.kcal ? null : Math.round((soma.kcal / peso) * 100),
     carb: falta.carb ? null : p100(soma.carb), gord: falta.gord ? null : p100(soma.gord),
     fibra: falta.fibra ? null : p100(soma.fibra),
-    gUn: peso, qtd: 1, un: d.un, onde: d.onde ?? 'Pratos prontos', prato: true,
+    gUn: peso, qtd: 1, prato: true,
     destaque: soProteina(p),
     fonte: 'soma ' + partes.join(' + '),
     receita: ids,
     ...(contem.size ? { contem: [...contem] } : {}),
-  });
+  };
+}
+
+/* As receitas corrigidas da lista brasileira: depois das comidas novas,
+   porque algumas citam uma delas (o croissant, o homus). O item fica no
+   lugar dele na lista — a ordem é a curadoria da busca. */
+for (const [id, c] of Object.entries(CORRECOES)) {
+  const alvo = porId.get(id);
+  if (!alvo) { erros.push('correção de ' + id + ': não está na lista'); continue; }
+  if (c.receita) {
+    delete alvo.taco;
+    Object.assign(alvo, somaReceita(id, c.receita));
+  }
+  if (c.gUn) alvo.gUn = c.gUn;
+  if (c.qtd) alvo.qtd = c.qtd;
+  if (c.onde) alvo.onde = c.onde;
+  if (c.un) {
+    if (!UNIDADES[c.un]) erros.push(id + ': unidade sem tradução: ' + c.un);
+    alvo.un = c.un;
+  }
+}
+
+/* Os pratos novos, somados. */
+for (const d of PRATOS_NOVOS) {
+  junta({ id: d.id, n: d.nomes, busca: '', ...somaReceita(d.id, d.receita), un: d.un, onde: d.onde ?? 'Pratos prontos' });
 }
 
 if (erros.length) { console.error(erros.join('\n')); process.exit(1); }

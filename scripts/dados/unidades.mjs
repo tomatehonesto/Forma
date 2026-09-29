@@ -6,7 +6,7 @@
 export const UNIDADES = {
   'filé':      { 'pt-BR': ['filé', 'filés'], 'en-US': ['fillet', 'fillets'], 'es-419': ['filete', 'filetes'], 'fr-FR': ['filet', 'filets'], 'de-DE': ['Filet', 'Filets'], 'it-IT': ['filetto', 'filetti'] },
   'pedaço':    { 'pt-BR': ['pedaço', 'pedaços'], 'en-US': ['piece', 'pieces'], 'es-419': ['trozo', 'trozos'], 'fr-FR': ['morceau', 'morceaux'], 'de-DE': ['Stück', 'Stück'], 'it-IT': ['pezzo', 'pezzi'] },
-  'unidade':   { 'pt-BR': ['unidade', 'unidades'], 'en-US': ['unit', 'units'], 'es-419': ['unidad', 'unidades'], 'fr-FR': ['unité', 'unités'], 'de-DE': ['Stück', 'Stück'], 'it-IT': ['unità', 'unità'] },
+  'unidade':   { 'pt-BR': ['unidade', 'unidades'], 'en-US': ['piece', 'pieces'], 'es-419': ['unidad', 'unidades'], 'fr-FR': ['unité', 'unités'], 'de-DE': ['Stück', 'Stück'], 'it-IT': ['unità', 'unità'] },
   'bife':      { 'pt-BR': ['bife', 'bifes'], 'en-US': ['steak', 'steaks'], 'es-419': ['bistec', 'bistecs'], 'fr-FR': ['steak', 'steaks'], 'de-DE': ['Steak', 'Steaks'], 'it-IT': ['bistecca', 'bistecche'] },
   'medalhão':  { 'pt-BR': ['medalhão', 'medalhões'], 'en-US': ['medallion', 'medallions'], 'es-419': ['medallón', 'medallones'], 'fr-FR': ['médaillon', 'médaillons'], 'de-DE': ['Medaillon', 'Medaillons'], 'it-IT': ['medaglione', 'medaglioni'] },
   'fatia':     { 'pt-BR': ['fatia', 'fatias'], 'en-US': ['slice', 'slices'], 'es-419': ['rebanada', 'rebanadas'], 'fr-FR': ['tranche', 'tranches'], 'de-DE': ['Scheibe', 'Scheiben'], 'it-IT': ['fetta', 'fette'] },
@@ -27,5 +27,12 @@ export const UNIDADES = {
   'rodela':    { 'pt-BR': ['rodela', 'rodelas'], 'en-US': ['ring', 'rings'], 'es-419': ['rodaja', 'rodajas'], 'fr-FR': ['rondelle', 'rondelles'], 'de-DE': ['Ring', 'Ringe'], 'it-IT': ['anello', 'anelli'] },
   'tigela':    { 'pt-BR': ['tigela', 'tigelas'], 'en-US': ['bowl', 'bowls'], 'es-419': ['tazón', 'tazones'], 'fr-FR': ['bol', 'bols'], 'de-DE': ['Schüssel', 'Schüsseln'], 'it-IT': ['ciotola', 'ciotole'] },
   'espetinho': { 'pt-BR': ['espetinho', 'espetinhos'], 'en-US': ['skewer', 'skewers'], 'es-419': ['brocheta', 'brochetas'], 'fr-FR': ['brochette', 'brochettes'], 'de-DE': ['Spieß', 'Spieße'], 'it-IT': ['spiedino', 'spiedini'] },
+  /* A fatia de pizza, de torta, de quiche e de bolo: em francês é "une
+     part", em alemão "ein Stück" — a "tranche" e a "Scheibe" são de pão e
+     de frios. Em português continua fatia. */
+  'fatia-torta': { 'pt-BR': ['fatia', 'fatias'], 'en-US': ['slice', 'slices'], 'es-419': ['porción', 'porciones'], 'fr-FR': ['part', 'parts'], 'de-DE': ['Stück', 'Stück'], 'it-IT': ['fetta', 'fette'] },
+  /* O empanado — milanesa, parmegiana, schnitzel: em alemão se conta em
+     "Stück", e "1 Filet Schnitzel" é redundante. */
+  'filé-empanado': { 'pt-BR': ['filé', 'filés'], 'en-US': ['cutlet', 'cutlets'], 'es-419': ['filete', 'filetes'], 'fr-FR': ['escalope', 'escalopes'], 'de-DE': ['Stück', 'Stück'], 'it-IT': ['cotoletta', 'cotolette'] },
   'bola':      { 'pt-BR': ['bola', 'bolas'], 'en-US': ['scoop', 'scoops'], 'es-419': ['bola', 'bolas'], 'fr-FR': ['boule', 'boules'], 'de-DE': ['Kugel', 'Kugeln'], 'it-IT': ['pallina', 'palline'] },
 };
