@@ -132,7 +132,7 @@ export const aviso = {
     completoSub: 'Everything your account keeps, with no date range, including your questions',
 
     formatoTitulo: 'You get a .json file',
-    formatoTexto: 'It’s the format another app can open and read — good for keeping a copy or moving your entries somewhere else. For a version made to be read by a person, use the appointment summary.',
+    formatoTexto: 'It’s the format another app can open and read — for keeping a copy or taking your records somewhere else. To read it yourself, choose the PDF report.',
 
     gerar: 'Build the file',
     gerando: 'Building...',
@@ -141,6 +141,14 @@ export const aviso = {
     pronto: 'File built. It only goes where you choose.',
     erro: 'We couldn’t build the file on this device. Your entries are still here, untouched.',
     parado: 'The file is only built when you tap the button.',
+    formato: 'Format',
+    formatoPdf: 'PDF report',
+    formatoPdfSub: 'Organized to read, print or bring to your appointment',
+    formatoJson: 'Data file',
+    formatoJsonSub: 'A .json to take your records to another app',
+    pdfTitulo: 'You get a PDF',
+    pdfTexto: 'Built on this device, with the period and what you included. It only goes where you choose.',
+    gerarPdf: 'Create the PDF',
   },
 
   telaPrivacidade: {

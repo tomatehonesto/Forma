@@ -135,7 +135,7 @@ export const aviso = {
     completoSub: 'Tout ce que garde votre compte, sans limite de période, avec vos questions',
 
     formatoTitulo: 'Il en sort un fichier .json',
-    formatoTexto: 'C’est le format qu’une autre application sait ouvrir et lire — il sert à garder une copie ou à emporter vos relevés ailleurs. Pour la version faite pour être lue par quelqu’un, prenez le résumé de consultation.',
+    formatoTexto: 'C’est le format qu’une autre application sait ouvrir et lire — pour garder une copie ou emporter vos relevés ailleurs. Pour le lire vous-même, choisissez le rapport en PDF.',
 
     gerar: 'Construire le fichier',
     gerando: 'Construction...',
@@ -144,6 +144,14 @@ export const aviso = {
     pronto: 'Fichier construit. Il ne va que là où vous le décidez.',
     erro: 'Nous n’avons pas pu construire le fichier sur cet appareil. Vos relevés sont toujours là, intacts.',
     parado: 'Le fichier n’est construit que quand vous touchez le bouton.',
+    formato: 'Format',
+    formatoPdf: 'Rapport en PDF',
+    formatoPdfSub: 'Organisé pour lire, imprimer ou apporter en consultation',
+    formatoJson: 'Fichier de données',
+    formatoJsonSub: 'Un .json pour emporter vos relevés vers une autre application',
+    pdfTitulo: 'Vous obtenez un PDF',
+    pdfTexto: 'Préparé sur cet appareil, avec la période et ce que vous avez inclus. Il ne part que là où vous le choisissez.',
+    gerarPdf: 'Créer le PDF',
   },
 
   telaPrivacidade: {

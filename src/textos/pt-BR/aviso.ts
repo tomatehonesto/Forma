@@ -221,7 +221,7 @@ export const aviso = {
     completoSub: 'Tudo o que a sua conta guarda, sem recorte de período, com as suas perguntas',
 
     formatoTitulo: 'Sai um arquivo .json',
-    formatoTexto: 'É o formato que outro aplicativo consegue abrir e ler — serve para guardar uma cópia ou levar os registros para outro lugar. Para a versão feita para alguém ler, use o resumo para consulta.',
+    formatoTexto: 'É o formato que outro aplicativo consegue abrir e ler — serve para guardar uma cópia ou levar os registros para outro lugar. Para ler, escolha o relatório em PDF.',
 
     gerar: 'Gerar o arquivo',
     gerando: 'Gerando...',
@@ -230,6 +230,14 @@ export const aviso = {
     pronto: 'Arquivo gerado. Ele só vai para onde você escolher.',
     erro: 'Não deu para gerar o arquivo neste aparelho. Os seus registros continuam aqui, intactos.',
     parado: 'O arquivo só é montado quando você toca no botão.',
+    formato: 'Formato',
+    formatoPdf: 'Relatório em PDF',
+    formatoPdfSub: 'Organizado para ler, imprimir ou levar à consulta',
+    formatoJson: 'Arquivo de dados',
+    formatoJsonSub: 'Um .json para levar os registros a outro aplicativo',
+    pdfTitulo: 'Sai um PDF',
+    pdfTexto: 'Montado neste aparelho, com o período e o que você incluiu. Ele só vai para onde você escolher.',
+    gerarPdf: 'Gerar o PDF',
   },
 
   /* ============================================================

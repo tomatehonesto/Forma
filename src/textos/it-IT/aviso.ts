@@ -173,7 +173,7 @@ export const aviso = {
     completoSub: 'Tutto quello che conserva il tuo account, senza limiti di periodo, con le tue domande',
 
     formatoTitulo: 'Esce un file .json',
-    formatoTexto: 'È il formato che un’altra app riesce ad aprire e leggere — serve a conservare una copia o a portare i registri altrove. Per una versione fatta per essere letta da una persona, usa il riepilogo per la visita.',
+    formatoTexto: 'È il formato che un’altra app sa aprire e leggere — per tenere una copia o portare le tue registrazioni altrove. Per leggerlo tu, scegli il report in PDF.',
 
     gerar: 'Crea il file',
     gerando: 'Sto creando…',
@@ -182,6 +182,14 @@ export const aviso = {
     pronto: 'File creato. Va solo dove lo mandi tu.',
     erro: 'Non siamo riusciti a creare il file su questo dispositivo. I tuoi registri sono ancora qui, intatti.',
     parado: 'Il file viene creato solo quando tocchi il pulsante.',
+    formato: 'Formato',
+    formatoPdf: 'Report in PDF',
+    formatoPdfSub: 'Ordinato per leggere, stampare o portare alla visita',
+    formatoJson: 'File di dati',
+    formatoJsonSub: 'Un .json per portare le tue registrazioni in un’altra app',
+    pdfTitulo: 'Esce un PDF',
+    pdfTexto: 'Preparato su questo dispositivo, con il periodo e ciò che hai incluso. Va solo dove scegli tu.',
+    gerarPdf: 'Crea il PDF',
   },
 
   /* ============================================================

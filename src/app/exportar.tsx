@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { notasAbertas } from '../logic/derive';
 import { dadosParaExportar, nomeDoArquivo, gerarArquivo } from '../logic/exportacao';
+import { compartilharRelatorioPdf } from '../logic/relatorioPdf';
 import { perguntasParaExportar } from '../logic/conta';
 import { DAY, now, dataLonga } from '../logic/time';
 import { Txt, Row } from '../ui/kit';
@@ -48,6 +49,12 @@ export default function Exportar() {
   const { c } = useTheme();
   const router = useRouter();
   const [per, setPer] = useState('consulta');
+  /* ⚠️ O PDF VEM PRIMEIRO (29/09/2026, pedido do dono). Quem toca em
+     Exportar quer, quase sempre, um papel para ler ou levar — e recebia um
+     .json. O arquivo de dados continua aqui, como segunda opção: é a
+     portabilidade da LGPD, que a Política promete em formato que outro
+     aplicativo lê. */
+  const [formato, setFormato] = useState<'pdf' | 'json'>('pdf');
   const [inclui, setInclui] = useState<Record<string, boolean>>({
     aplicacoes: true, peso: true, sintomas: true, exames: true, notas: true, habitos: false, completo: true,
   });
@@ -76,6 +83,11 @@ export default function Exportar() {
      promete é o contrário. */
   const gerar = async () => {
     setEstado('gerando');
+    if (formato === 'pdf') {
+      const r = await compartilharRelatorioPdf(S, { desde, inclui });
+      setEstado(r === 'erro' || r === 'sem-suporte' ? 'erro' : 'pronto');
+      return;
+    }
     /* as perguntas da conta só são pedidas quando o diário completo entra */
     const perguntas = inclui.completo ? await perguntasParaExportar() : undefined;
     const dados = dadosParaExportar(S, { desde, inclui, perguntas });
@@ -100,7 +112,7 @@ export default function Exportar() {
       rodape={
         <>
           <Botao
-            label={estado === 'gerando' ? K().gerando : K().gerar}
+            label={estado === 'gerando' ? K().gerando : formato === 'pdf' ? K().gerarPdf : K().gerar}
             desligado={estado === 'gerando'}
             onPress={gerar}
           />
@@ -109,6 +121,13 @@ export default function Exportar() {
       }
     >
       <Titulao titulo={K().titulo} lead={K().lead} />
+
+      <Campo rotulo={K().formato} ajuda={formato === 'pdf' ? K().formatoPdfSub : K().formatoJsonSub}>
+        <Opcoes>
+          <Opc label={K().formatoPdf} on={formato === 'pdf'} onPress={() => { setFormato('pdf'); setEstado('parado'); }} />
+          <Opc label={K().formatoJson} on={formato === 'json'} onPress={() => { setFormato('json'); setEstado('parado'); }} />
+        </Opcoes>
+      </Campo>
 
       <Campo
         rotulo={K().periodo}
@@ -129,15 +148,17 @@ export default function Exportar() {
           {linha('exames', K().exames, K().examesSub(conta.exames))}
           {linha('notas', K().notas, K().notasSub(conta.notas))}
           {linha('habitos', K().habitos, K().habitosSub(conta.refeicoes))}
-          {linha('completo', K().completo, K().completoSub)}
+          {/* o diário completo é a cópia para outro aplicativo — só no arquivo de dados */}
+          {formato === 'json' ? linha('completo', K().completo, K().completoSub) : null}
         </Cartao>
       </Bloco>
 
       {/* O FORMATO VAI DITO, e sem eufemismo. Um .json não é um documento
-          para ler no sofá, e prometer que é seria a mesma mentira do
-          "PDF" que esta tela oferecia sem gerar nenhum. Quem quer a
-          versão legível tem o resumo, que é o outro botão. */}
-      <Aviso ic="doc" titulo={K().formatoTitulo} texto={K().formatoTexto} />
+          para ler no sofá — e agora a tela gera, de fato, o PDF que ela
+          chegou a oferecer sem gerar nenhum (logic/relatorioPdf). */}
+      {formato === 'pdf'
+        ? <Aviso ic="doc" titulo={K().pdfTitulo} texto={K().pdfTexto} />
+        : <Aviso ic="doc" titulo={K().formatoTitulo} texto={K().formatoTexto} />}
 
       {estado === 'pronto' ? (
         <Row gap={8} style={{ alignItems: 'center', justifyContent: 'center' }}>

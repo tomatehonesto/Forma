@@ -134,7 +134,7 @@ export const aviso = {
     completoSub: 'Todo lo que guarda tu cuenta, sin recorte de período, con tus preguntas',
 
     formatoTitulo: 'Sale un archivo .json',
-    formatoTexto: 'Es el formato que otra aplicación puede abrir y leer — sirve para guardar una copia o llevar tus registros a otro lado. Para una versión hecha para que la lea una persona, usa el resumen para la consulta.',
+    formatoTexto: 'Es el formato que otra aplicación puede abrir y leer — sirve para guardar una copia o llevar tus registros a otro lugar. Para leerlo, elige el informe en PDF.',
 
     gerar: 'Armar el archivo',
     gerando: 'Armando...',
@@ -143,6 +143,14 @@ export const aviso = {
     pronto: 'Archivo armado. Solo va adonde elijas.',
     erro: 'No pudimos armar el archivo en este aparato. Tus registros siguen aquí, intactos.',
     parado: 'El archivo solo se arma cuando tocas el botón.',
+    formato: 'Formato',
+    formatoPdf: 'Informe en PDF',
+    formatoPdfSub: 'Organizado para leer, imprimir o llevar a la consulta',
+    formatoJson: 'Archivo de datos',
+    formatoJsonSub: 'Un .json para llevar tus registros a otra aplicación',
+    pdfTitulo: 'Sale un PDF',
+    pdfTexto: 'Armado en este dispositivo, con el período y lo que incluiste. Solo va a donde tú elijas.',
+    gerarPdf: 'Generar el PDF',
   },
 
   telaPrivacidade: {

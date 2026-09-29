@@ -63,6 +63,8 @@ import { descobertas } from '../src/logic/descobertas';
 import { redeLancada, temRedeParceira } from '../src/logic/pais';
 import { unidadesDe, unidadePadrao, converterValor, converterFaixa, faixaTxt } from '../src/logic/unidadesDeExame';
 import { htmlDoResumo } from '../src/logic/resumoPdf';
+import { htmlDoRelatorio } from '../src/logic/relatorioPdf';
+import { dataDeTabela } from '../src/logic/pdf';
 import { limparLaudo, gravarLaudo } from '../src/logic/laudo';
 import { MARCADORES as MARCADORES_DO_SERVIDOR } from '../servidor/marcadores';
 import { proximasDe, type Alerta } from '../src/logic/alertas';
@@ -559,6 +561,21 @@ const doApp = Object.fromEntries(examCats().flatMap(([, ms]) => ms).map((m) => [
 const doServidor = Object.fromEntries(Object.entries(MARCADORES_DO_SERVIDOR).map(([m, v]) => [m, [...v.unidades]]));
 ok(JSON.stringify(doApp) === JSON.stringify(doServidor),
   'a lista de marcadores e unidades do servidor é a mesma do aplicativo');
+
+console.log('\n21. O RELATÓRIO DE EXPORTAR');
+const RR = T.resumo.relatorio;
+const tudo = { aplicacoes: true, peso: true, sintomas: true, exames: true, notas: true, habitos: true };
+const relTudo = htmlDoRelatorio(semente, { desde: semente.profile.startT, inclui: tudo });
+ok(relTudo.startsWith('<!DOCTYPE html>') && [RR.visaoGeral, RR.peso, RR.aplicacoes, RR.sintomas, RR.exames, RR.habitos, RR.notas]
+  .every((t) => relTudo.includes(`<h2>${t}</h2>`)) && relTudo.includes('<svg'),
+  'com tudo incluído, o relatório tem as seções, e a curva do peso');
+const relSem = htmlDoRelatorio(semente, { desde: semente.profile.startT, inclui: { ...tudo, habitos: false, exames: false } });
+ok(!relSem.includes(`<h2>${RR.habitos}</h2>`) && !relSem.includes(`<h2>${RR.exames}</h2>`),
+  'o que a pessoa tirou não entra no papel');
+const primeiraPesagem = Math.min(...(semente.weights as any[]).map((w) => w.t));
+const relRecente = htmlDoRelatorio(semente, { desde: +hoje - 14 * DIA, inclui: tudo });
+ok(!relRecente.includes(dataDeTabela(primeiraPesagem)) && relTudo.includes(dataDeTabela(primeiraPesagem)),
+  'o período escolhido corta as tabelas: a primeira pesagem só aparece no tratamento inteiro');
 
 console.log(falhas ? `\n${falhas} afirmação(ões) falharam\n` : '\ntodas as afirmações passaram\n');
 process.exit(falhas ? 1 : 0);

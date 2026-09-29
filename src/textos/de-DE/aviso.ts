@@ -157,7 +157,7 @@ export const aviso = {
     completoSub: 'Alles, was dein Konto aufbewahrt, ohne Zeitraum, mit deinen Fragen',
 
     formatoTitulo: 'Heraus kommt eine .json-Datei',
-    formatoTexto: 'Das ist das Format, das eine andere App öffnen und lesen kann — gut, um eine Kopie aufzuheben oder deine Einträge woandershin mitzunehmen. Für die Fassung, die jemand lesen soll, nimm die Übersicht für den Termin.',
+    formatoTexto: 'Das ist das Format, das eine andere App öffnen und lesen kann — für eine Kopie oder um deine Einträge woandershin mitzunehmen. Zum Selberlesen wähl den Bericht als PDF.',
 
     gerar: 'Die Datei erstellen',
     gerando: 'Wird gebaut...',
@@ -166,6 +166,14 @@ export const aviso = {
     pronto: 'Datei gebaut. Sie geht nur dorthin, wohin du sie schickst.',
     erro: 'Wir konnten die Datei auf diesem Gerät nicht erstellen. Deine Einträge sind weiter hier, unangetastet.',
     parado: 'Die Datei wird erst erstellt, wenn du auf den Knopf tippst.',
+    formato: 'Format',
+    formatoPdf: 'Bericht als PDF',
+    formatoPdfSub: 'Geordnet zum Lesen, Drucken oder Mitnehmen zum Termin',
+    formatoJson: 'Datendatei',
+    formatoJsonSub: 'Eine .json, um deine Einträge in eine andere App mitzunehmen',
+    pdfTitulo: 'Es entsteht ein PDF',
+    pdfTexto: 'Auf diesem Gerät erstellt, mit dem Zeitraum und dem, was du ausgewählt hast. Es geht nur dorthin, wohin du es schickst.',
+    gerarPdf: 'PDF erstellen',
   },
 
   /* ⚠️ HIER STEHT DIE APP ALS SUBJEKT, und zwar mit Absicht: „Was die App
