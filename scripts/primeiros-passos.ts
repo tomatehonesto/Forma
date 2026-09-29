@@ -667,17 +667,25 @@ const idsDoCodigo = [
   'leite', 'suco-laranja', 'whey', 'sopa-legumes', 'sopa-feijao', 'sopa-carne', 'canja', 'achocolatado', 'vitamina-banana', 'smoothie-proteico', 'mingau-aveia',
 ];
 ok(idsDoCodigo.every((id) => !!alimentoDe(id)), 'todo id que o aplicativo usa existe na lista nova');
-ok(JSON.stringify((ALIMENTOS_DO_SERVIDOR as { id: string }[]).map((a) => a.id)) === JSON.stringify(COMIDAS.map((c) => c.id)),
-  'a lista que a leitura da foto usa é a mesma do aplicativo');
+ok(JSON.stringify((ALIMENTOS_DO_SERVIDOR as { id: string }[]).map((a) => a.id)) === JSON.stringify(COMIDAS.filter((c) => !c.oculto).map((c) => c.id)),
+  'a lista que a leitura da foto usa é a mesma do aplicativo, sem o que saiu das listas');
 trocarLocal('de-DE');
 const frangoDe = alimentoDe('peito-frango')!;
-ok(frangoDe.nome === 'Gegrillte Hähnchenbrust' && frangoDe.un === 'Filet', 'em alemão, o nome e a medida vêm em alemão');
+ok(frangoDe.nome === 'Hähnchenbrust' && frangoDe.un === 'Filet', 'em alemão, o nome e a medida vêm em alemão');
 ok(buscarAlimento('Hähnchenbrust')[0]?.id === 'peito-frango' && buscarAlimento('chicken breast').some((a) => a.id === 'peito-frango'),
   'a busca acha pelo nome do idioma de agora, e também pelo de outro idioma');
 ok(buscarAlimento('Schnitzel', 6, 'dicionario').every((a) => !a.prato) && buscarAlimento('Schnitzel').some((a) => a.id === 'schnitzel'),
   'a busca do dicionário deixa o prato de fora, e a do registro o acha');
 trocarLocal(null);
-ok(alimentoDe('peito-frango')!.nome === 'Peito de frango grelhado', 'de volta ao padrão, o nome volta ao português');
+ok(alimentoDe('peito-frango')!.nome === 'Peito de frango', 'de volta ao padrão, o nome volta ao português');
+ok(dicionario().filter((a) => /^Cenoura/.test(a.nome)).length === 1 && dicionario().filter((a) => /^Espinafre/.test(a.nome)).length === 1,
+  'uma entrada por alimento: a cenoura e o espinafre aparecem uma vez só no dicionário');
+ok(!ALIMENTOS().some((a) => a.id === 'cenoura' || a.id === 'whey' || a.id === 'suco-laranja') && !!alimentoDe('cenoura') && !!alimentoDe('whey'),
+  'o que saiu das listas continua existindo por dentro, para as receitas e a hidratação');
+ok(!dicionario().some((a) => a.id === 'batata-frita') && ALIMENTOS().some((a) => a.id === 'batata-frita'),
+  'a fritura comum sai do dicionário e continua na busca de refeição');
+ok(alimentoDe('peito-frango')!.preparo === 'grelhado' && alimentoDe('banana')!.preparo === 'cru',
+  'o alimento diz de que preparo são os números');
 const schnitzel = alimentoDe('schnitzel')!;
 ok(contemDe(schnitzel).includes('carne') && contemDe(schnitzel).includes('ovo'),
   'o prato somado contém o que as comidas da receita contêm');

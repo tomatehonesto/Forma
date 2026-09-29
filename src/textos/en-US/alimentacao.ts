@@ -325,6 +325,25 @@ export const alimentacao = {
     pesaPertoDe: (medida: string, peso: string) => `${medida} weighs about ${peso}.`,
 
     registrarComIsto: 'Log a meal with this',
+
+
+    /* De que preparo são os números — ver scripts/dados/consolidacao. */
+
+    preparo: {
+
+      cru: 'The numbers are for the raw food.',
+
+      cozido: 'The numbers are for the food cooked, without oil.',
+
+      grelhado: 'The numbers are for the food grilled, without oil.',
+
+      assado: 'The numbers are for the food roasted, without oil.',
+
+      frito: 'The numbers are for the food fried.',
+
+      refogado: 'The numbers are for the food sautéed, including the oil.',
+
+    },
   },
 
   /* As prateleiras, pela chave com que ficam gravadas — ver

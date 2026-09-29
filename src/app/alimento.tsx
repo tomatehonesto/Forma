@@ -340,6 +340,10 @@ export default function Alimento() {
                 "pesa perto de 0 g" seria pior do que não dizer nada. De
                 que porção os números são, quem conta é a procedência. */}
             {a.gUn != null ? `${K().pesaPertoDe(medidaDe(a, a.qtd), massaTxt(S, a.gUn * a.qtd))} ` : ''}
+            {/* De que preparo são os números. O dicionário tem uma entrada
+                por alimento, e o frango grelhado e o frito não são o mesmo
+                número: a frase diz qual é, e o óleo é outro item. */}
+            {a.preparo ? `${K().preparo[a.preparo]} ` : ''}
             {origemDoAlimento(a)}
           </Txt>
 

@@ -85,6 +85,10 @@ export type Alimento = {
   fonte?: string;
   /** Prato pronto: entra no registro, e fica fora do dicionário. */
   prato?: true;
+  /** Fora das duas listas, e existe por dentro — ver scripts/dados/consolidacao. */
+  oculto?: true;
+  /** De que preparo são os números, quando a tabela diz. */
+  preparo?: 'cru' | 'cozido' | 'grelhado' | 'assado' | 'frito' | 'refogado';
   /** As comidas da lista que o prato somado leva — ver logic/restricoes. */
   receita?: string[];
   /** O que ele tem, para as restrições, quando o corredor não diz. */
@@ -100,7 +104,7 @@ export type Alimento = {
 const semAcento = (s: string) =>
   s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
 
-let lista: { local: Local; todos: Alimento[]; dicionario: Alimento[] } | null = null;
+let lista: { local: Local; todos: Alimento[]; registro: Alimento[]; dicionario: Alimento[] } | null = null;
 
 function montar(c: ComidaGerada, i: number): Alimento {
   const [un, unp] = UNIDADES[c.un]?.[i] ?? [c.un, c.un];
@@ -114,13 +118,21 @@ function listas() {
   if (!lista || lista.local !== local) {
     const i = Math.max(0, (LOCAIS_DAS_COMIDAS as readonly string[]).indexOf(local));
     const todos = COMIDAS.map((c) => montar(c, i));
-    lista = { local, todos, dicionario: todos.filter((a) => !a.prato) };
+    const registro = todos.filter((a) => !a.oculto);
+    lista = { local, todos, registro, dicionario: registro.filter((a) => !a.prato) };
   }
   return lista;
 }
 
 /** A lista do REGISTRO: o dicionário e os pratos prontos. */
 export function ALIMENTOS(): Alimento[] {
+  return listas().registro;
+}
+
+/** TODAS as comidas, inclusive as que saíram das listas: é por aqui que
+    um id antigo — de uma receita, da semente, da hidratação — ainda
+    encontra o alimento dele. Ver scripts/dados/consolidacao. */
+export function todasAsComidas(): Alimento[] {
   return listas().todos;
 }
 

@@ -1,4 +1,4 @@
-import { ALIMENTOS, gramasDe, medidaDe, type Alimento } from './alimentos';
+import { todasAsComidas, gramasDe, medidaDe, type Alimento } from './alimentos';
 import { T } from '../textos';
 
 /* ============================================================
@@ -115,7 +115,7 @@ let porId: { lista: Alimento[]; mapa: Map<string, Alimento> } | null = null;
 /** O alimento da TABELA, ou null se ele for livre (ou o id sumir). */
 export function alimentoDe(id?: string): Alimento | null {
   if (!id) return null;
-  const lista = ALIMENTOS();
+  const lista = todasAsComidas();
   if (!porId || porId.lista !== lista) porId = { lista, mapa: new Map(lista.map((a) => [a.id, a])) };
   return porId.mapa.get(id) ?? null;
 }

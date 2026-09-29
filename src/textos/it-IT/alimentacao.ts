@@ -456,6 +456,25 @@ export const alimentacao = {
     pesaPertoDe: (medida: string, peso: string) => `${medida} pesa circa ${peso}.`,
 
     registrarComIsto: 'Registra un pasto con questo',
+
+
+    /* De que preparo são os números — ver scripts/dados/consolidacao. */
+
+    preparo: {
+
+      cru: 'I numeri sono dell’alimento crudo.',
+
+      cozido: 'I numeri sono dell’alimento cotto, senza olio.',
+
+      grelhado: 'I numeri sono dell’alimento alla griglia, senza olio.',
+
+      assado: 'I numeri sono dell’alimento arrosto, senza olio.',
+
+      frito: 'I numeri sono dell’alimento fritto.',
+
+      refogado: 'I numeri sono dell’alimento saltato in padella, con l’olio.',
+
+    },
   },
 
   /* As prateleiras, pela chave com que ficam gravadas — ver

@@ -39,6 +39,7 @@ import { NOMES_BASE } from './dados/nomes-base.mjs';
 import { NOVAS } from './dados/comidas-novas.mjs';
 import { PRATOS_NOVOS } from './dados/pratos-novos.mjs';
 import { CORRECOES } from './dados/correcoes-base.mjs';
+import { CONSOLIDACAO } from './dados/consolidacao.mjs';
 
 const LOCAIS = ['pt-BR', 'en-US', 'es-419', 'fr-FR', 'de-DE', 'it-IT'];
 const FONTE_SR = 'https://fdc.nal.usda.gov/fdc-datasets/FoodData_Central_sr_legacy_food_json_2018-04.zip';
@@ -84,6 +85,38 @@ const linhaDaTaco = (id, rend = 1) => {
   const d = (v) => { const c = celula(v); return c == null ? null : c / rend; };
   return { p: x.protein_g / rend, kcal: d(x.energy_kcal), carb: d(x.carbohydrate_g), gord: d(x.lipid_g), fibra: d(x.fiber_g) };
 };
+
+/* Uma linha da TACO no formato da SR, para o destaque sair pela mesma
+   régua. */
+const TACO_PARA_SR = {
+  protein_g: 'p', energy_kcal: 'kcal', carbohydrate_g: 'carb', lipid_g: 'gord', fiber_g: 'fibra',
+  vitaminC_mg: 'vitC', calcium_mg: 'calcio', iron_mg: 'ferro', magnesium_mg: 'magnesio', zinc_mg: 'zinco',
+  phosphorus_mg: 'fosforo', niacin_mg: 'niacina', thiamine_mg: 'tiamina', riboflavin_mg: 'riboflavina', rae_mcg: 'vitA',
+};
+const tacoComoSr = (id) => {
+  const x = TACO.get(id);
+  if (!x) return null;
+  const o = { d: x.description };
+  for (const [k, v] of Object.entries(TACO_PARA_SR)) { const c = celula(x[k]); if (c != null) o[v] = c; }
+  return o;
+};
+
+/* O PREPARO, LIDO DA DESCRIÇÃO DA PRÓPRIA TABELA — e não escrito à mão.
+   O dicionário tem uma entrada por alimento (ver dados/consolidacao), e
+   a tela do alimento diz de que preparo são os números: "grelhado, sem
+   óleo", "cru". A ordem importa: "stir-fried" é refogado antes de ser
+   frito, e "cooked, dry heat" é assado antes de ser cozido. */
+function preparoDe(descricao) {
+  if (!descricao) return null;
+  const d = descricao.toLowerCase();
+  if (/refogad|stir-fried|sautéed/.test(d)) return 'refogado';
+  if (/grelhad|grilled|broiled/.test(d)) return 'grelhado';
+  if (/assad|roasted|baked|dry heat/.test(d)) return 'assado';
+  if (/frit|fried/.test(d)) return 'frito';
+  if (/cozid|cooked|boiled|braised|stewed|moist heat|prepared/.test(d)) return 'cozido';
+  if (/\bcru\b|\bcrua\b|\braw\b/.test(d)) return 'cru';
+  return null;
+}
 
 /* Os nutrientes que o aplicativo usa, pelo id da FoodData Central. */
 const NUTRIENTES = {
@@ -163,6 +196,7 @@ for (const a of BASE) {
     destaque: a.destaque ?? null,
     ...(a.taco ? { taco: a.taco } : {}),
     ...(a.fonte ? { fonte: a.fonte } : {}),
+    preparo: a.taco ? preparoDe(TACO.get(a.taco)?.description) : null,
   });
 }
 
@@ -190,6 +224,7 @@ for (const c of NOVAS) {
     destaque,
     ...(c.usda ? { usda: c.usda } : { fonte: 'rótulo' }),
     ...(c.contem ? { contem: c.contem } : {}),
+    preparo: c.usda ? preparoDe(SR.get(c.usda)?.d) : null,
   });
 }
 
@@ -254,7 +289,7 @@ for (const [id, c] of Object.entries(CORRECOES)) {
   if (!alvo) { erros.push('correção de ' + id + ': não está na lista'); continue; }
   if (c.receita) {
     delete alvo.taco;
-    Object.assign(alvo, somaReceita(id, c.receita));
+    Object.assign(alvo, somaReceita(id, c.receita), { preparo: null });
   }
   if (c.gUn) alvo.gUn = c.gUn;
   if (c.qtd) alvo.qtd = c.qtd;
@@ -263,6 +298,27 @@ for (const [id, c] of Object.entries(CORRECOES)) {
     if (!UNIDADES[c.un]) erros.push(id + ': unidade sem tradução: ' + c.un);
     alvo.un = c.un;
   }
+}
+
+/* UMA ENTRADA POR ALIMENTO — ver dados/consolidacao. */
+for (const [id, c] of Object.entries(CONSOLIDACAO)) {
+  const alvo = porId.get(id);
+  if (!alvo) { erros.push('consolidação de ' + id + ': não está na lista'); continue; }
+  if (c.nomes) {
+    if (c.nomes.length !== 6 || c.nomes.some((x) => !x)) erros.push(id + ': consolidação sem os seis nomes');
+    alvo.n = c.nomes;
+  }
+  if (c.taco) {
+    const row = tacoComoSr(c.taco);
+    if (!row || typeof row.p !== 'number') { erros.push(id + ': TACO ' + c.taco + ' sem proteína'); continue; }
+    Object.assign(alvo, {
+      p: r1(row.p), kcal: r0(row.kcal ?? null), carb: r1(row.carb ?? null), gord: r1(row.gord ?? null), fibra: r1(row.fibra ?? null),
+      destaque: destaqueDe(row), taco: c.taco, preparo: preparoDe(row.d),
+    });
+    delete alvo.fonte;
+  }
+  if (c.prato) alvo.prato = true;
+  if (c.oculto) alvo.oculto = true;
 }
 
 /* Os pratos novos, somados. */
@@ -284,6 +340,8 @@ const linhas = comidas.map((c) => {
     `p: ${c.p}`, `kcal: ${c.kcal}`, `carb: ${c.carb}`, `gord: ${c.gord}`, `fibra: ${c.fibra}`,
     `gUn: ${c.gUn}`, `qtd: ${c.qtd}`, `un: ${lit(c.un)}`, `onde: ${lit(c.onde)}`,
     c.prato ? 'prato: true' : null,
+    c.oculto ? 'oculto: true' : null,
+    c.preparo ? `preparo: ${lit(c.preparo)}` : null,
     c.destaque ? `destaque: ${lit(c.destaque)}` : null,
     c.taco ? `taco: ${c.taco}` : null,
     c.usda ? `usda: ${c.usda}` : null,
@@ -298,7 +356,8 @@ const unidades = Object.entries(UNIDADES)
   .map(([k, v]) => `  ${lit(k)}: [${LOCAIS.map((l) => lit(v[l])).join(', ')}],`)
   .join('\n');
 
-const dicionario = comidas.filter((c) => !c.prato).length;
+const dicionario = comidas.filter((c) => !c.prato && !c.oculto).length;
+const ocultos = comidas.filter((c) => c.oculto).length;
 const saida = `/* ============================================================
    AS COMIDAS — a lista do aplicativo, em todo país
 
@@ -307,13 +366,15 @@ const saida = `/* ============================================================
 
      node scripts/gerar-comidas.mjs
 
-   ${comidas.length} comidas: ${dicionario} do dicionário e ${comidas.length - dicionario} pratos.
+   ${comidas.length} comidas: ${dicionario} do dicionário, ${comidas.length - dicionario - ocultos} pratos e ${ocultos} fora das listas.
 
    n        o nome, na ordem de LOCAIS_DAS_COMIDAS
    busca    palavras a mais para a busca, sem acento
    p…fibra  por 100 g; null é "não analisado", nunca zero
    gUn      gramas de UMA medida caseira (un)
    prato    prato pronto: entra no registro, fica fora do dicionário
+   oculto   fora das duas listas, e existe por dentro (ver consolidacao)
+   preparo  de que preparo são os números, lido da descrição da tabela
    taco / usda / fonte   de onde vieram os números
    receita  as comidas da lista que o prato somado leva
    contem   o que ele tem para as restrições, quando o corredor não diz
@@ -336,6 +397,10 @@ export type ComidaGerada = {
   un: string;
   onde: string;
   prato?: true;
+  /** fora das listas; existe para as refeições antigas, as receitas e a hidratação */
+  oculto?: true;
+  /** de que preparo são os números, quando a tabela diz */
+  preparo?: 'cru' | 'cozido' | 'grelhado' | 'assado' | 'frito' | 'refogado';
   destaque?: { nome: string; valor: number; un: string; pct: number };
   taco?: number;
   usda?: number;
@@ -358,7 +423,7 @@ fs.writeFileSync('src/logic/comidas.ts', saida);
 /* A MESMA lista para o servidor que lê a foto: o id, o nome em
    português — é a língua do prompt — e a medida em que ele deve contar.
    Gerada na mesma passada, para um id não existir de um lado só. */
-const paraServidor = comidas.map((c) => ({ id: c.id, nome: c.n[0], un: UNIDADES[c.un]['pt-BR'][0], unp: UNIDADES[c.un]['pt-BR'][1], padrao: c.qtd }));
+const paraServidor = comidas.filter((c) => !c.oculto).map((c) => ({ id: c.id, nome: c.n[0], un: UNIDADES[c.un]['pt-BR'][0], unp: UNIDADES[c.un]['pt-BR'][1], padrao: c.qtd }));
 fs.writeFileSync('servidor/alimentos.json', JSON.stringify(paraServidor) + '\n');
 
-console.log(`comidas: ${comidas.length} (${dicionario} no dicionário, ${comidas.length - dicionario} pratos)`);
+console.log(`comidas: ${comidas.length} (${dicionario} no dicionário, ${comidas.length - dicionario - ocultos} pratos, ${ocultos} fora das listas)`);
