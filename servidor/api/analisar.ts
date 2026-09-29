@@ -34,6 +34,15 @@ import ALIMENTOS from '../alimentos.json' with { type: 'json' };
 
 const cliente = new Anthropic();
 
+const IDIOMAS: Record<string, string> = {
+  'pt-BR': 'português do Brasil',
+  'en-US': 'inglês americano',
+  'es-419': 'espanhol latino-americano',
+  'fr-FR': 'francês',
+  'de-DE': 'alemão',
+  'it-IT': 'italiano',
+};
+
 const Item = z.object({
   id: z.string().nullable().describe('id da TABELA, quando o prato está lá'),
   nome: z.string().nullable().describe('nome em português, só quando não há id'),
@@ -63,8 +72,9 @@ REGRAS
    deixe nome e base nulos — os números daquele alimento já estão no
    aplicativo, e vêm de tabela oficial.
 
-3. Se nada na TABELA corresponde, devolva nome (em português, como se
-   fala: "Bobó de camarão") e base, que são as gramas de PROTEÍNA de UMA
+3. Se nada na TABELA corresponde, devolva nome (no idioma do
+   aplicativo, que vem junto da foto, como se fala: "Bobó de camarão",
+   "Pad thai") e base, que são as gramas de PROTEÍNA de UMA
    porção desse prato. Deixe id nulo.
 
 4. qtd é QUANTAS unidades daquela medida você vê na foto: quatro
@@ -118,9 +128,14 @@ export default async function handler(req: Request): Promise<Response> {
   }
 
   let imagem: string;
+  let idioma: string;
   let tipo: TipoOk;
   try {
-    const corpo = (await req.json()) as { imagem?: string; tipo?: string };
+    const corpo = (await req.json()) as { imagem?: string; tipo?: string; idioma?: string };
+    /* O nome do item que não está na tabela sai no idioma do
+       aplicativo — a tabela é uma só para todo país, e o nome que a
+       pessoa lê na lista precisa ser o dela. */
+    idioma = IDIOMAS[corpo.idioma ?? ''] ?? IDIOMAS['pt-BR'];
     if (!corpo.imagem) return falhou('nao-reconheci', 400);
     imagem = corpo.imagem.replace(/^data:[^;]+;base64,/, '');
     tipo = (TIPOS_OK as readonly string[]).includes(corpo.tipo || '')
@@ -143,13 +158,13 @@ export default async function handler(req: Request): Promise<Response> {
           role: 'user',
           content: [
             { type: 'image', source: { type: 'base64', media_type: tipo, data: imagem } },
-            { type: 'text', text: 'O que tem neste prato?' },
+            { type: 'text', text: `O que tem neste prato? Idioma do aplicativo: ${idioma}.` },
           ],
         },
       ],
       output_config: {
         format: zodOutputFormat(Resposta),
-        /* Reconhecer comida e casar com uma lista de 124 é tarefa de
+        /* Reconhecer comida e casar com uma lista de comidas é tarefa de
            percepção, não de raciocínio longo — e tem alguém olhando para
            uma roda girando enquanto isso. 'medium' é o meio-termo entre a
            espera e a qualidade do casamento; é uma palavra para trocar se

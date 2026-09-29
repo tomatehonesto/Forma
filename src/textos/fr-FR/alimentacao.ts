@@ -140,12 +140,11 @@ export const alimentacao = {
      elle décrit ce que la source N'EST PAS, alors que l'item sait dire ce
      qu'elle est. */
   origem: {
-    porCem: (fonte: string) => `${fonte}. Ce sont les valeurs pour 100 g, et le poids de chaque portion est celui que l’enseigne déclare elle-même.`,
-    porPorcaoSemPeso: (fonte: string) => `${fonte}. Ce sont les valeurs de la portion vendue par l’enseigne, et non de 100 g — elle publie l’étiquette du produit, sans dire combien il pèse.`,
-    porPorcaoComPeso: (fonte: string) => `${fonte}. Ce sont les valeurs de la portion vendue par l’enseigne, et non de 100 g — avec le poids qu’elle déclare elle-même.`,
     taco: 'Les chiffres viennent de la table brésilienne de composition des aliments, faite par l’Unicamp, qui mesure en laboratoire ce que chaque aliment contient.',
     somaTaco: 'C’est un plat composé : nous additionnons ingrédient par ingrédient avec la table de l’Unicamp, pour une portion de restaurant. La vôtre peut être plus grande ou plus petite.',
-    rotulo: 'La table de l’Unicamp n’analyse pas celui-ci, alors les chiffres viennent de l’étiquette de produits courants du commerce. D’une marque à l’autre ils changent un peu.',
+    rotulo: 'Aucune des tables que nous utilisons n’analyse celui-ci, alors les chiffres viennent de l’étiquette de produits courants du commerce. D’une marque à l’autre ils changent un peu.',
+    usda: 'Les chiffres viennent de la table de composition des aliments du ministère de l’Agriculture des États-Unis (USDA), qui mesure en laboratoire ce que chaque aliment contient.',
+    soma: 'C’est un plat composé : nous additionnons ingrédient par ingrédient avec les tables que nous utilisons, pour une portion de restaurant. La vôtre peut être plus grande ou plus petite.',
   },
 
   /* ⚠️ LE SOUS-TITRE DIT CE QUI RESTE, et pas seulement ce qui sort. « Sans
@@ -359,5 +358,35 @@ export const alimentacao = {
     pesaPertoDe: (medida: string, peso: string) => `${medida} pèse environ ${peso}.`,
 
     registrarComIsto: 'Noter un repas avec ceci',
+  },
+
+  /* As prateleiras, pela chave com que ficam gravadas — ver
+     logic/prateleiras. */
+  prateleira: {
+    'Arroz, massas e pães': 'Riz, pâtes et pains',
+    'Café da manhã': 'Petit-déjeuner',
+    'Carnes e aves': 'Viandes et volailles',
+    'Castanhas e sementes': 'Fruits à coque et graines',
+    'Doces e lanches': 'Sucré et en-cas',
+    'Frutas': 'Fruits',
+    'Grãos e feijões': 'Légumineuses',
+    'Leite e queijos': 'Produits laitiers',
+    'Ovos': 'Œufs',
+    'Peixes e frutos do mar': 'Poissons et fruits de mer',
+    'Pratos prontos': 'Plats',
+    'Suplementos': 'Compléments',
+    'Verduras e legumes': 'Légumes',
+  },
+
+  telaAlimentos: {
+    titulo: 'Aliments',
+    lead: (n: number) => `La table avec laquelle nous comptons, avec ${n} aliments. Touchez-en un pour voir l’étiquette complète.`,
+    busca: 'Cherchez un aliment',
+    tudo: 'Tout',
+    fora: (nomes: string, n: number) => `${nomes} : ${n} hors de la liste`,
+    verTudo: 'Tout voir',
+    sub: (medida: string, gramas: number) => `${medida} · ~${gramas} g de protéines`,
+    nenhum: 'Aucun aliment de ce nom. Essayez un mot plus court.',
+    verTodos: (n: number) => `Voir les ${n}`,
   },
 };

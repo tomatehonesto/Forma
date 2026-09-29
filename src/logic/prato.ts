@@ -319,39 +319,13 @@ export function insightDe(a: Alimento): Insight | null {
    é a forma mais rápida de um app parecer que não foi escrito para
    quem está lendo. */
 export function origemDoAlimento(a: Alimento): string {
-  /* ⚠️ O QUE O ITEM DECLARA VALE MAIS QUE O RECUO. Um produto de rede
-     traz a tabela da própria rede em `fonte`, e a frase de recuo — "a
-     tabela da Unicamp não analisa este" — é verdade e é inútil: ela
-     descreve o que a fonte NÃO é, quando o item sabe dizer o que ela é.
-
-     Um Big Mac dizendo "os números vêm do rótulo de produtos comuns no
-     mercado" esconde que eles vêm do McDonald's.
-
-     ⚠️⚠️ E A CONDIÇÃO NÃO É `porUnidade`, É TER FONTE. Enquanto só o
-     McDonald's estava na lista, as duas coisas andavam juntas, e a
-     primeira versão amarrou a frase à medida em vez de amarrar à
-     procedência. Aí entrou o Habib's, que publica por 100 g — e o
-     beirute voltou a dizer que os números vinham "do rótulo de produtos
-     comuns no mercado", escondendo a tabela da própria rede. A medida
-     muda a segunda frase, e não o direito de dizer de onde veio. */
-  if (a.fonte && !a.fonte.startsWith('soma TACO')) {
-    if (!a.porUnidade) {
-      return T.alimentacao.origem.porCem(a.fonte);
-    }
-    /* ⚠️ "SEM DIZER QUANTO ELE PESA" É SOBRE O McDONALD'S, e deixou de
-       valer para todo mundo quando o Burger King entrou: ele publica o
-       peso da porção na mesma tabela. Repetir a frase ali seria dizer
-       que a rede escondeu um número que está impresso. */
-    return a.gUn == null
-      ? T.alimentacao.origem.porPorcaoSemPeso(a.fonte)
-      : T.alimentacao.origem.porPorcaoComPeso(a.fonte);
-  }
-  if (a.taco) {
-    return T.alimentacao.origem.taco;
-  }
-  if (a.fonte && a.fonte.startsWith('soma TACO')) {
-    return T.alimentacao.origem.somaTaco;
-  }
+  if (a.taco) return T.alimentacao.origem.taco;
+  if (a.usda) return T.alimentacao.origem.usda;
+  /* O prato somado da lista brasileira só leva a TACO; o que entrou com a
+     lista de todos os países mistura a TACO e o USDA, e diz isso. As
+     frases das redes de fast food saíram com elas. */
+  if (a.fonte?.startsWith('soma TACO')) return T.alimentacao.origem.somaTaco;
+  if (a.fonte?.startsWith('soma')) return T.alimentacao.origem.soma;
   return T.alimentacao.origem.rotulo;
 }
 

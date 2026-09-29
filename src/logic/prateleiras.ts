@@ -1,9 +1,11 @@
+import { T } from '../textos';
+
 /* As treze prateleiras da tabela de alimentos.
 
    ⚠️ SÃO CHAVES, E NÃO TEXTO DE TELA: `restricoes.ts` sugere fonte de
    proteína por prateleira e `conselhos.ts` conta o corredor verde por
    ela, comparando com estas palavras exatas — e as duas tabelas de
-   alimentos já as usam assim (ver o alto de scripts/gerar-alimentos-us).
+   lista de comidas as usa assim (ver scripts/gerar-comidas).
 
    ⚠️ EXISTE UMA CÓPIA EM servidor/prateleiras.ts, e ela precisa existir:
    o Metro não lê a pasta do servidor (ver metro.config.js), e a
@@ -25,3 +27,8 @@ export const PRATELEIRAS = [
   'Suplementos',
   'Verduras e legumes',
 ] as const;
+
+/** O nome da prateleira no idioma de agora. A chave é a palavra em
+    português, e é ela que fica gravada; a tela nunca a mostra crua. */
+export const nomeDaPrateleira = (onde: string): string =>
+  (T.alimentacao.prateleira as Record<string, string>)[onde] ?? onde;

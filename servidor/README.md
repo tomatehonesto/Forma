@@ -21,11 +21,15 @@ servidor/
   vercel.json         60s de teto, região gru1 (São Paulo)
 ```
 
-`alimentos.json` sai do mesmo gerador que a tabela do aplicativo:
+`alimentos.json` sai do mesmo gerador que a lista de comidas do
+aplicativo — uma lista só, para todo país:
 
 ```bash
-node scripts/gerar-alimentos.mjs src/logic/alimentos.ts
+node scripts/gerar-comidas.mjs
 ```
+
+Os nomes vão em português, que é a língua do prompt; o item que não está
+na lista volta com o nome no idioma do aplicativo, que a foto leva junto.
 
 Rode isso sempre que a lista de alimentos mudar, senão um `id` existe de
 um lado e não do outro — o servidor devolve um id que o app não conhece,

@@ -22,13 +22,11 @@
 
 export type Mercado = 'br' | 'us';
 
-/* ⚠️ O MERCADO DECIDE QUAL TABELA DE ALIMENTOS O APLICATIVO USA, e essa é
-   a segunda coisa que ele passou a decidir.
-
-   Não é a mesma pergunta que o idioma nem que o sistema de medidas: um
-   brasileiro que prefere libras continua comendo feijão, e um americano
-   que lê em português continua comendo o que se vende lá. Comida é do
-   LUGAR, e por isso mora aqui e não no catálogo de textos. */
+/* ⚠️ A TABELA DE ALIMENTOS TAMBÉM SAIU DAQUI. Ela foi a segunda coisa
+   que o mercado decidia — uma base por lugar, a TACO aqui e a americana
+   lá —, e virou uma lista só, para todo país, com o nome de cada comida
+   nos seis idiomas (logic/alimentos). Quem está na França não cai mais
+   na lista brasileira com os nomes em português. */
 export const MERCADO: Mercado = 'br';
 
 /* ⚠️ A REDE SAIU DAQUI, e é a segunda coisa que este arquivo perdeu para

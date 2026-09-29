@@ -72,8 +72,12 @@ import { limparRotulo, itemEstimado, seusPratos, buscarNosSeus } from '../src/lo
 import { PRATELEIRAS } from '../src/logic/prateleiras';
 import { PRATELEIRAS as PRATELEIRAS_DO_SERVIDOR } from '../servidor/prateleiras';
 import { rotuloDaPorcao } from '../servidor/rotulo';
-import { ALIMENTOS } from '../src/logic/alimentos';
-import { alimentosUS } from '../src/logic/alimentos-us';
+import { ALIMENTOS, dicionario, buscarAlimento } from '../src/logic/alimentos';
+import { COMIDAS, UNIDADES } from '../src/logic/comidas';
+import { trocarLocal } from '../src/logic/local';
+import { contemDe, cabe } from '../src/logic/restricoes';
+import { alimentoDe } from '../src/logic/prato';
+import ALIMENTOS_DO_SERVIDOR from '../servidor/alimentos.json';
 import { limparLaudo, gravarLaudo } from '../src/logic/laudo';
 import { MARCADORES as MARCADORES_DO_SERVIDOR } from '../servidor/marcadores';
 import { proximasDe, type Alerta } from '../src/logic/alertas';
@@ -623,8 +627,8 @@ ok(!!(registrou.meals as any[])[0].itens[0].rotulo, 'a refeição nova já nasce
 console.log('\n24. O PRATO ESTIMADO PELO NOME');
 ok(JSON.stringify(PRATELEIRAS) === JSON.stringify(PRATELEIRAS_DO_SERVIDOR),
   'as prateleiras do servidor são as mesmas do aplicativo');
-ok([...ALIMENTOS(), ...alimentosUS()].every((a) => a.onde === 'Lanches de rede' || (PRATELEIRAS as readonly string[]).includes(a.onde)),
-  'toda prateleira das duas tabelas está na lista — menos a das redes de fast food, que a estimativa não usa');
+ok(ALIMENTOS().every((a) => (PRATELEIRAS as readonly string[]).includes(a.onde)),
+  'toda prateleira da lista de comidas está na lista de prateleiras');
 const carbonara = rotuloDaPorcao({
   nome: 'Carbonara', unidade: 'prato', unidades: 'pratos', gramas: 350,
   proteina: 24.5, kcal: 630, carboidrato: 70, gordura: 28, fibra: 3.5, prateleira: 'Pratos prontos',
@@ -649,6 +653,37 @@ ok(seusPratos(comPrato).length === 1 && seusPratos(comPrato)[0].p === 9,
   'os pratos seus vêm do diário, um de cada nome, o mais recente primeiro');
 ok(buscarNosSeus(comPrato, 'carbo').length === 1 && buscarNosSeus(comPrato, 'lasanha').length === 0,
   'a busca acha o prato já estimado pelo começo da palavra');
+
+console.log('\n25. UMA LISTA DE COMIDAS PARA TODO PAÍS');
+ok(COMIDAS.every((c) => c.n.length === 6 && c.n.every(Boolean) && UNIDADES[c.un]?.length === 6),
+  'toda comida tem nome e medida nos seis idiomas');
+ok(dicionario().length > 200 && dicionario().every((a) => !a.prato) && ALIMENTOS().length > dicionario().length,
+  'o dicionário é só comida de prateleira, e o registro tem também os pratos');
+ok(!ALIMENTOS().some((a) => (a as any).marca || a.onde === 'Lanches de rede'), 'o fast food saiu da lista');
+/* Os ids que o aplicativo escreve à mão: a semente, as bebidas, a água do prato. */
+const idsDoCodigo = [
+  ...(buildSeed().meals as any[]).flatMap((m) => (m.itens || []).map((it: any) => it.id)).filter(Boolean),
+  'leite', 'suco-laranja', 'whey', 'sopa-legumes', 'sopa-feijao', 'sopa-carne', 'canja', 'achocolatado', 'vitamina-banana', 'smoothie-proteico', 'mingau-aveia',
+];
+ok(idsDoCodigo.every((id) => !!alimentoDe(id)), 'todo id que o aplicativo usa existe na lista nova');
+ok(JSON.stringify((ALIMENTOS_DO_SERVIDOR as { id: string }[]).map((a) => a.id)) === JSON.stringify(COMIDAS.map((c) => c.id)),
+  'a lista que a leitura da foto usa é a mesma do aplicativo');
+trocarLocal('de-DE');
+const frangoDe = alimentoDe('peito-frango')!;
+ok(frangoDe.nome === 'Gegrillte Hähnchenbrust' && frangoDe.un === 'Filet', 'em alemão, o nome e a medida vêm em alemão');
+ok(buscarAlimento('Hähnchenbrust')[0]?.id === 'peito-frango' && buscarAlimento('chicken breast').some((a) => a.id === 'peito-frango'),
+  'a busca acha pelo nome do idioma de agora, e também pelo de outro idioma');
+ok(buscarAlimento('Schnitzel', 6, 'dicionario').every((a) => !a.prato) && buscarAlimento('Schnitzel').some((a) => a.id === 'schnitzel'),
+  'a busca do dicionário deixa o prato de fora, e a do registro o acha');
+trocarLocal(null);
+ok(alimentoDe('peito-frango')!.nome === 'Peito de frango grelhado', 'de volta ao padrão, o nome volta ao português');
+const schnitzel = alimentoDe('schnitzel')!;
+ok(contemDe(schnitzel).includes('carne') && contemDe(schnitzel).includes('ovo'),
+  'o prato somado contém o que as comidas da receita contêm');
+ok(contemDe(alimentoDe('salada-caesar')!).includes('ave') && contemDe(alimentoDe('salada-caesar')!).includes('peixe'),
+  'e o que a receita leva de fora da lista, como as anchovas do molho caesar');
+ok(cabe(alimentoDe('bebida-soja')!, ['vegano']) && !cabe(alimentoDe('leite-desnatado')!, ['vegano']),
+  'a bebida de soja cabe no vegano, mesmo na prateleira do leite');
 
 console.log(falhas ? `\n${falhas} afirmação(ões) falharam\n` : '\ntodas as afirmações passaram\n');
 process.exit(falhas ? 1 : 0);

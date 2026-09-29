@@ -113,12 +113,11 @@ export const alimentacao = {
 
   /* ---------- where the number came from, said in plain words ---------- */
   origem: {
-    porCem: (fonte: string) => `${fonte}. These are the per-100 g values, and the weight of each serving is what the chain itself declares.`,
-    porPorcaoSemPeso: (fonte: string) => `${fonte}. These are the values for the serving the chain sells, not for 100 g — it publishes the product label without saying how much it weighs.`,
-    porPorcaoComPeso: (fonte: string) => `${fonte}. These are the values for the serving the chain sells, not for 100 g — with the weight it declares itself.`,
     taco: 'The numbers come from the Brazilian food composition table, built by Unicamp, which measures in a lab what each food has in it.',
     somaTaco: 'This is a composed dish: we add it up ingredient by ingredient from the Unicamp table, at a restaurant portion. Yours may come out bigger or smaller.',
-    rotulo: 'The Unicamp table doesn\u2019t analyze this one, so the numbers come from the labels of products common in stores. They shift a little from brand to brand.',
+    rotulo: 'None of the tables we use analyzes this one, so the numbers come from the labels of products common in stores. They shift a little from brand to brand.',
+    usda: 'The numbers come from the food composition table of the U.S. Department of Agriculture (USDA), which measures in a lab what each food has in it.',
+    soma: 'This is a composed dish: we add it up ingredient by ingredient from the tables we use, at a restaurant portion. Yours may come out bigger or smaller.',
   },
 
   /* ⚠️ THE SUBTITLE SAYS WHAT STAYS, not just what goes. "No meat,
@@ -324,5 +323,35 @@ export const alimentacao = {
     pesaPertoDe: (medida: string, peso: string) => `${medida} weighs about ${peso}.`,
 
     registrarComIsto: 'Log a meal with this',
+  },
+
+  /* As prateleiras, pela chave com que ficam gravadas — ver
+     logic/prateleiras. */
+  prateleira: {
+    'Arroz, massas e pães': 'Rice, pasta and bread',
+    'Café da manhã': 'Breakfast',
+    'Carnes e aves': 'Meat and poultry',
+    'Castanhas e sementes': 'Nuts and seeds',
+    'Doces e lanches': 'Sweets and snacks',
+    'Frutas': 'Fruit',
+    'Grãos e feijões': 'Beans and legumes',
+    'Leite e queijos': 'Dairy and cheese',
+    'Ovos': 'Eggs',
+    'Peixes e frutos do mar': 'Fish and seafood',
+    'Pratos prontos': 'Dishes',
+    'Suplementos': 'Supplements',
+    'Verduras e legumes': 'Vegetables',
+  },
+
+  telaAlimentos: {
+    titulo: 'Foods',
+    lead: (n: number) => `The table we count with, with ${n} foods. Tap one to see the full label.`,
+    busca: 'Search for a food',
+    tudo: 'All',
+    fora: (nomes: string, n: number) => `${nomes}: ${n} left out`,
+    verTudo: 'Show all',
+    sub: (medida: string, gramas: number) => `${medida} · ~${gramas} g of protein`,
+    nenhum: 'No food by that name. Try a shorter word.',
+    verTodos: (n: number) => `See all ${n}`,
   },
 };

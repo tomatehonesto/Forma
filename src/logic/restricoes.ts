@@ -1,5 +1,5 @@
-import { ALIMENTOS, type Alimento } from './alimentos';
-import { CONTEM_REDE_BR } from './alimentos-rede-br';
+import { alimentoDe } from './prato';
+import { dicionario, type Alimento } from './alimentos';
 import { T } from '../textos';
 
 /* ============================================================
@@ -228,17 +228,28 @@ const CONTEM: Record<string, Ingrediente[]> = {
   'sanduiche-ovo': ['ovo'],
 };
 
-/* ⚠️ A PRATELEIRA NÃO SALVA O FAST FOOD. O recuo de `contemDe` é o
-   corredor — "Carnes e aves" contém carne —, e "Lanches de rede" não diz
-   nada: tem sanduíche de carne, de frango, de peixe e casquinha de
-   sorvete no mesmo lugar. Sem o mapa da rede, um Big Mac apareceria para
-   quem marcou vegano.
+/* ⚠️ O PRATO SOMADO RESPONDE PELA RECEITA. Os pratos que entraram com a
+   lista de todos os países não estão no mapa acima: cada um diz as
+   comidas da lista que leva (`receita`), e o que ele contém é a soma do
+   que cada uma contém — mais o que a receita leva de fora da lista, como
+   o creme de leite, que vem em `contem`. Um julgamento escrito uma vez,
+   na comida, vale em todo prato que a usa.
 
-   O que a rede declara é melhor do que prateleira, aliás: são os
-   alérgenos do produto, item por item, ditos por quem o faz. */
-export function contemDe(a: Alimento): Ingrediente[] {
-  const daRede = CONTEM_REDE_BR[a.id] as Ingrediente[] | undefined;
-  return CONTEM[a.id] ?? daRede ?? POR_CORREDOR[a.onde] ?? [];
+   E a comida nova de prateleira que foge do corredor — a bebida de soja
+   em "Leite e queijos", o pato em "Carnes e aves" — traz o `contem`
+   dela. */
+export function contemDe(a: Alimento, visto: Set<string> = new Set()): Ingrediente[] {
+  if (CONTEM[a.id]) return CONTEM[a.id];
+  if (a.receita) {
+    const soma = new Set<Ingrediente>(a.contem ?? []);
+    visto.add(a.id);
+    for (const id of a.receita) {
+      const c = alimentoDe(id);
+      if (c && !visto.has(id)) for (const x of contemDe(c, visto)) soma.add(x);
+    }
+    return [...soma];
+  }
+  return a.contem ?? POR_CORREDOR[a.onde] ?? [];
 }
 
 /** O que as restrições escolhidas tiram do prato, somadas. */
@@ -276,7 +287,7 @@ const PRATELEIRAS = [
 ];
 
 export function fontesDeProteina(ids: string[], quantas = 3): string[] {
-  return ALIMENTOS()
+  return dicionario()
     .filter((a) => a.p >= 6 && a.kcal && PRATELEIRAS.includes(a.onde) && cabe(a, ids))
     .sort((a, b) => (b.p / (b.kcal as number)) - (a.p / (a.kcal as number)))
     .slice(0, quantas)

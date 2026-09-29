@@ -151,16 +151,11 @@ export const alimentacao = {
      quer dizer nada para quem não sabe o que é TACO.
      ============================================================ */
   origem: {
-    /* ⚠️ O QUE O ITEM DECLARA VALE MAIS QUE O RECUO. Um produto de rede
-       traz a tabela da própria rede, e a frase de recuo — "a tabela da
-       Unicamp não analisa este" — é verdade e é inútil: ela descreve o
-       que a fonte NÃO é, quando o item sabe dizer o que ela é. */
-    porCem: (fonte: string) => `${fonte}. São os valores por 100 g, e o peso de cada porção é o que a própria rede declara.`,
-    porPorcaoSemPeso: (fonte: string) => `${fonte}. São os valores da porção que a rede vende, e não de 100 g — ela publica o rótulo do produto, sem dizer quanto ele pesa.`,
-    porPorcaoComPeso: (fonte: string) => `${fonte}. São os valores da porção que a rede vende, e não de 100 g — com o peso que ela mesma declara.`,
     taco: 'Os números vêm da tabela brasileira de composição de alimentos, feita pela Unicamp, que mede em laboratório o que cada comida tem dentro.',
     somaTaco: 'Este é um prato montado: somamos ingrediente por ingrediente pela tabela da Unicamp, numa porção de restaurante. O seu pode vir maior ou menor.',
-    rotulo: 'A tabela da Unicamp não analisa este, então os números vêm do rótulo de produtos comuns no mercado. De marca para marca eles mudam um pouco.',
+    rotulo: 'Nenhuma das tabelas que usamos analisa este, então os números vêm do rótulo de produtos comuns no mercado. De marca para marca eles mudam um pouco.',
+    usda: 'Os números vêm da tabela de composição de alimentos do Departamento de Agricultura dos Estados Unidos (USDA), que mede em laboratório o que cada comida tem dentro.',
+    soma: 'Este é um prato montado: somamos ingrediente por ingrediente pelas tabelas que usamos, numa porção de restaurante. O seu pode vir maior ou menor.',
   },
 
   /* ============================================================
@@ -478,5 +473,35 @@ export const alimentacao = {
     pesaPertoDe: (medida: string, peso: string) => `${medida} pesa perto de ${peso}.`,
 
     registrarComIsto: 'Registrar uma refeição com isto',
+  },
+
+  /* As prateleiras, pela chave com que ficam gravadas — ver
+     logic/prateleiras. */
+  prateleira: {
+    'Arroz, massas e pães': 'Arroz, massas e pães',
+    'Café da manhã': 'Café da manhã',
+    'Carnes e aves': 'Carnes e aves',
+    'Castanhas e sementes': 'Castanhas e sementes',
+    'Doces e lanches': 'Doces e lanches',
+    'Frutas': 'Frutas',
+    'Grãos e feijões': 'Grãos e feijões',
+    'Leite e queijos': 'Leite e queijos',
+    'Ovos': 'Ovos',
+    'Peixes e frutos do mar': 'Peixes e frutos do mar',
+    'Pratos prontos': 'Pratos prontos',
+    'Suplementos': 'Suplementos',
+    'Verduras e legumes': 'Verduras e legumes',
+  },
+
+  telaAlimentos: {
+    titulo: 'Alimentos',
+    lead: (n: number) => `A tabela que usamos para contar, com ${n} alimentos. Toque num deles para ver o rótulo inteiro.`,
+    busca: 'Procure um alimento',
+    tudo: 'Tudo',
+    fora: (nomes: string, n: number) => `${nomes}: ${n} fora da lista`,
+    verTudo: 'Ver tudo',
+    sub: (medida: string, gramas: number) => `${medida} · ~${gramas} g de proteína`,
+    nenhum: 'Nenhum alimento com esse nome. Tente uma palavra mais curta.',
+    verTodos: (n: number) => `Ver todos os ${n}`,
   },
 };

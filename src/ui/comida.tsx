@@ -102,12 +102,8 @@ export function BuscaAlimento({ valor, onChange, onEscolher, onLivre, onEstimado
               >
                 <View style={{ flex: 1 }}>
                   <Txt v="label" numberOfLines={1}>{a.nome}</Txt>
-                  {/* A marca na frente da porção, quando existe — a mesma
-                      linha da tela de alimentos. Ver o tipo em
-                      logic/alimentos: ela saiu do nome, e é aqui que
-                      separa os dois "Cheeseburger". */}
                   <Txt v="micro" c={c.tx4}>
-                    {K().itemSub(a.marca ? a.marca + ' · ' : '', medidaDe(a, a.qtd), gramasDe(a, a.qtd))}
+                    {K().itemSub('', medidaDe(a, a.qtd), gramasDe(a, a.qtd))}
                   </Txt>
                 </View>
                 <Icon name="plus" size={16} color={c.accent} sw={2.4} />

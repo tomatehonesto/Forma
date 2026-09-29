@@ -1,6 +1,7 @@
 import { T } from '../textos';
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import { alimentoDe, type ItemComida } from './prato';
+import { localAtual } from './local';
 
 /* ============================================================
    A LEITURA DA FOTO
@@ -123,7 +124,7 @@ export async function analisarFoto(uri: string): Promise<Analise> {
         'content-type': 'application/json',
         ...(TOKEN ? { 'x-morphi-token': TOKEN } : {}),
       },
-      body: JSON.stringify({ imagem, tipo: 'image/jpeg' }),
+      body: JSON.stringify({ imagem, tipo: 'image/jpeg', idioma: localAtual() }),
     });
 
     const corpo = await r.json().catch(() => null);

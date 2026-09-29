@@ -145,12 +145,11 @@ export const alimentacao = {
      er beschreibt, was die Quelle NICHT ist, während der Eintrag sagen
      kann, was sie ist. */
   origem: {
-    porCem: (fonte: string) => `${fonte}. Das sind die Werte pro 100 g, und das Gewicht jeder Portion ist das, was die Kette selbst angibt.`,
-    porPorcaoSemPeso: (fonte: string) => `${fonte}. Das sind die Werte der Portion, die die Kette verkauft, und nicht die für 100 g — sie veröffentlicht das Etikett des Produkts, ohne zu sagen, wie viel es wiegt.`,
-    porPorcaoComPeso: (fonte: string) => `${fonte}. Das sind die Werte der Portion, die die Kette verkauft, und nicht die für 100 g — mit dem Gewicht, das sie selbst angibt.`,
     taco: 'Die Zahlen kommen aus der brasilianischen Tabelle der Lebensmittelzusammensetzung, erstellt von der Unicamp, die im Labor misst, was in jedem Lebensmittel steckt.',
     somaTaco: 'Das ist ein zusammengesetztes Gericht: wir addieren Zutat für Zutat nach der Tabelle der Unicamp, für eine Restaurantportion. Deine kann größer oder kleiner ausfallen.',
-    rotulo: 'Die Tabelle der Unicamp führt dieses nicht, also kommen die Zahlen vom Etikett gängiger Handelsprodukte. Von Marke zu Marke ändern sie sich ein wenig.',
+    rotulo: 'Keine der Tabellen, die wir nutzen, führt dieses, also kommen die Zahlen vom Etikett gängiger Handelsprodukte. Von Marke zu Marke ändern sie sich ein wenig.',
+    usda: 'Die Zahlen kommen aus der Nährwerttabelle des US-Landwirtschaftsministeriums (USDA), das im Labor misst, was in jedem Lebensmittel steckt.',
+    soma: 'Das ist ein zusammengesetztes Gericht: Wir addieren Zutat für Zutat nach den Tabellen, die wir nutzen, für eine Restaurantportion. Deine kann größer oder kleiner ausfallen.',
   },
 
   /* ⚠️ DER UNTERTITEL SAGT, WAS BLEIBT, und nicht nur, was hinausgeht.
@@ -392,5 +391,35 @@ export const alimentacao = {
     pesaPertoDe: (medida: string, peso: string) => `${medida} wiegt etwa ${peso}.`,
 
     registrarComIsto: 'Eine Mahlzeit damit eintragen',
+  },
+
+  /* As prateleiras, pela chave com que ficam gravadas — ver
+     logic/prateleiras. */
+  prateleira: {
+    'Arroz, massas e pães': 'Reis, Nudeln und Brot',
+    'Café da manhã': 'Frühstück',
+    'Carnes e aves': 'Fleisch und Geflügel',
+    'Castanhas e sementes': 'Nüsse und Samen',
+    'Doces e lanches': 'Süßes und Snacks',
+    'Frutas': 'Obst',
+    'Grãos e feijões': 'Hülsenfrüchte',
+    'Leite e queijos': 'Milch und Käse',
+    'Ovos': 'Eier',
+    'Peixes e frutos do mar': 'Fisch und Meeresfrüchte',
+    'Pratos prontos': 'Gerichte',
+    'Suplementos': 'Nahrungsergänzung',
+    'Verduras e legumes': 'Gemüse',
+  },
+
+  telaAlimentos: {
+    titulo: 'Lebensmittel',
+    lead: (n: number) => `Die Tabelle, mit der wir rechnen, mit ${n} Lebensmitteln. Tippe eines an, um das ganze Etikett zu sehen.`,
+    busca: 'Nach einem Lebensmittel suchen',
+    tudo: 'Alle',
+    fora: (nomes: string, n: number) => `${nomes}: ${n} ausgeblendet`,
+    verTudo: 'Alle zeigen',
+    sub: (medida: string, gramas: number) => `${medida} · ~${gramas} g Protein`,
+    nenhum: 'Kein Lebensmittel mit diesem Namen. Versuch ein kürzeres Wort.',
+    verTodos: (n: number) => `Alle ${n} ansehen`,
   },
 };

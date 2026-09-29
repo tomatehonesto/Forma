@@ -999,101 +999,55 @@ exames é brasileiro. "TGO/TGP" é a nomenclatura daqui — nos Estados Unidos
 os mesmos marcadores são AST e ALT, e não é tradução de rótulo, é outro
 nome no laudo.
 
-## 🟡 18. As tabelas de alimentos: o que ficou em aberto
+## 🟡 18. A lista de comidas: o que ficou em aberto
 
-A base dos EUA entrou — 4.666 alimentos da FNDDS/USDA, com a porção
-caseira vinda do próprio dado. `MERCADO` em `src/logic/mercado.ts` escolhe
-qual tabela o aplicativo usa. Três coisas ficaram para depois:
+As duas bases por mercado — a TACO no Brasil e a FNDDS americana nos
+Estados Unidos — viraram **uma lista só, para todo país**, com o nome de
+cada comida nos seis idiomas: `src/logic/comidas.ts`, gerada por
+`scripts/gerar-comidas.mjs` a partir de `scripts/dados/`. Quem está na
+França ou no México deixou de cair na lista brasileira com os nomes em
+português. O fast food saiu (as três redes, os colhedores e a FNDDS), e o
+que a lista não tem é estimado pelo nome (`logic/estimativa`).
 
-**a) O pacote viaja nos dois mercados.** São 647 KB de string, e o
-`require` adiado evita o custo de LEITURA mas não o de tamanho: o Metro
-não tira um módulo do bundle por causa de uma constante. Quando existir
-build por mercado de verdade, é ela que escolhe o arquivo — hoje o
-brasileiro carrega a tabela americana sem nunca abrir.
+Ela tem duas portas: o **dicionário** (`dicionario()`), que é a tela de
+alimentos — comida de prateleira, o que cada uma traz —, e o **registro**
+(`ALIMENTOS()`), que é o dicionário mais os pratos prontos.
 
-**b) A lista americana não tem curadoria de importância.** A brasileira é
-ordenada à mão dentro de cada prateleira, do mais comum para o menos, e a
-busca usa essa ordem como desempate. A FNDDS não traz nada parecido, então
-a ordem é por nome mais curto — o que acerta "Broccoli, raw" antes de
-"Beef and broccoli" e erra "Rice cake" antes de "Rice, white, cooked".
+As refeições antigas não mudam: cada item guarda o rótulo do dia em que
+foi registrado (`ItemComida.rotulo`), inclusive os do fast food e da
+tabela americana que saíram.
 
-O que resolveria é frequência de consumo, que a FNDDS tem no inquérito
-mas não neste arquivo. Enquanto isso, quem procura arroz branco digita
-mais uma palavra.
+O que ficou em aberto:
 
-**c) As restrições caem para o nível da prateleira.** `contemDe` procura o
-alimento num mapa escrito à mão por id — e os ids americanos não estão
-nele —, então cai no que a PRATELEIRA contém. Funciona, e é mais grosso:
-"Carnes e aves" inteira conta como carne, sem distinguir o que tem
-lactose do que não tem. O mapa por id precisa ser escrito para os
-alimentos americanos que importam.
+**a) Os nomes são tradução minha.** As 365 comidas e as 24 medidas
+caseiras, em cinco idiomas, entram na revisão nativa do item 20 junto
+com os catálogos. O lugar é `scripts/dados/nomes-base.mjs`,
+`comidas-novas.mjs`, `pratos-novos.mjs` e `unidades.mjs`.
 
-**d) O fast food brasileiro tem três redes.** Estão
-dentro o McDonald's (54 itens), o Burger King (45) e o Habib's (18), cada
-um com a colheita em `scripts/dados/` e um script que a refaz. As duas que
-faltam não faltam por falta de trabalho:
+**b) As comidas novas vêm da SR Legacy (USDA, 2018).** É domínio público
+e é a base que traz porção caseira, mas é de 2018 e não tem alguns
+alimentos comuns na Europa. Skyr, quark, bebida de aveia e presunto cru
+entraram com valores de rótulo, marcados como tal. Se faltar alimento de
+algum país, a CIQUAL (França, Licence Ouverte) e o BLS 4.0 (Alemanha,
+CC BY 4.0) servem para completar — as duas permitem uso comercial citando
+a fonte.
 
-- **Bob's publica calorias, carboidrato e sódio — e não publica proteína.**
-  A proteína é o número central deste aplicativo, e estimá-la a partir do
-  nome do sanduíche seria inventar. Enquanto a rede não publicar, não
-  entra.
-- **O Subway fica de fora de propósito.** Lá a pessoa monta o lanche —
-  escolhe pão, proteína, queijo e o que mais quiser —, e um item
-  chamado "Subway Frango" seria um número médio com cara de dado. Quem
-  montou o próprio lanche registra o que pôs nele, que é o que a lista
-  geral já faz. A rede também não publica tabela no site, mas essa é a
-  razão menor.
+**c) Os pratos novos são somados por receita**, e a receita é minha: uma
+porção de restaurante, escrita componente por componente em
+`pratos-novos.mjs`. É a mesma régua dos pratos montados da lista
+brasileira, e erra conforme a mão de quem cozinhou — a tela escreve "~".
 
-**d.1) Do Habib's só entra o que é da casa.** A rede vende kibe, tabule,
-homus, arroz branco, batata frita e pastel, e nenhum é dela — a tabela
-geral já tem todos, medidos pela Unicamp. Pôr os dois lados criaria uma
-escolha sem resposta entre "Esfiha de carne" e "Habib's Esfiha de carne".
-A régua está no gerador, e é por linha de produto: Bib'Sfiha, Beirute e
-Genius. O McDonald's e o Burger King não precisam de régua porque o
-cardápio inteiro deles já é próprio.
+**d) O que cada comida contém, para as restrições**, é julgamento: o mapa
+por id em `logic/restricoes` para a lista antiga, o campo `contem` para
+as comidas novas que fogem do corredor, e a receita para os pratos novos.
+Ele merece a mesma revisão que o resto — errar ali põe carne no prato de
+quem marcou vegano.
 
-**d.1.1) E a prateleira é de salgado.** A sobremesa das três redes ficou
-de fora — 150 itens, contra os 117 que entraram. O cardápio de sobremesa
-de uma rede é quase todo variação da mesma coisa, dezenove sundaes que
-mudam a calda, e três deles juntos enterravam o sanduíche procurado
-debaixo de sabor de sorvete. O que um doce de rede acrescenta ao dia já
-está em "Doces e lanches", na tabela geral; o que só existe na rede é o
-salgado.
-
-A perda que dói é uma: o shake proteico do Burger King, doce pela régua e
-proteína pelo conteúdo. Se tiver de voltar, é tirar "shake" da lista
-`DOCE` no gerador e pôr o nome dele numa exceção.
-
-**d.2) O que as fontes erram, e o que fizemos.** Vale saber, porque volta
-na próxima colheita:
-
-- O botão "Ver Tabela" do site do Burger King aponta para um arquivo que
-  responde AccessDenied. O que responde é o nome sem data, e é nele que
-  `colher-bk.mjs` bate. Se cair, o jeito de achar o novo está no alto do
-  script.
-- A tabela do Burger King erra o próprio %VD em várias linhas — publica
-  "56 g (121%)" onde 56 g de 50 são 112%. Por isso a conferência é pela
-  caloria calculada dos macros, que é física, e não pela porcentagem
-  deles.
-- Uma linha dela, "BK® Chicken – 4 unidades", traz 40 g e 1 g de proteína
-  enquanto as de 6 e 10 unidades trazem 18 g por unidade. É coerente
-  consigo mesma e incoerente com os irmãos: ficou de fora.
-- Oito itens do Habib's não declaram alérgeno nenhum, e ficaram de fora
-  por isso — sem declaração não dá para distinguir "não tem leite" de
-  "não disseram", e o que não está marcado o aplicativo mostra a quem
-  filtrou lactose. Um deles é comida de verdade: o "Sorvete de Creme".
-
-**d.3) A restrição do Burger King sai do nome.** A tabela dele liga
-alérgeno a INGREDIENTE — o queijo cheddar, a calda de morango — e não a
-produto, e montar a receita de cada sanduíche a partir disso é um trabalho
-que a fonte não sustenta. A lista de palavras no gerador é generosa de
-propósito: marcar de menos é o erro que machuca.
-
-**e) A colheita envelhece.** As redes mudam receita e cardápio, e a nossa
-cópia tem a data em que foi feita — 21/09/2026. Não há nada que avise
-quando ela ficar velha. Antes de subir para a loja, vale recolher: são
-três comandos, `colher-habibs`, `colher-bk` e o colhedor de navegador do
-McDonald's, e depois `gerar-fastfood-br`.
+**e) A leitura da foto usa a mesma lista**, com os nomes em português no
+prompt (`servidor/alimentos.json`, gerado na mesma passada). O item que
+ela não acha na lista volta só com a proteína estimada; o que o nome
+digitado estima volta com o rótulo inteiro. Igualar as duas é o próximo
+passo natural.
 
 ## 🔴 19. A extração de textos não terminou, e são 1.150 frases
 
@@ -2158,10 +2112,9 @@ catálogo separado dos outros porque não é o aplicativo falando, e
 1. **A persona é lida uma vez.** O que a semente grava fica gravado; quem
    troca de idioma depois continua com a persona antiga até tocar em
    "Reconstruir a semente", no fim do Perfil.
-2. **Os nomes dos alimentos são do MERCADO, não do idioma.** A build é do
-   mercado brasileiro, e "comida é do lugar" (`logic/mercado`): a Julia
-   come arroz integral e peito de frango grelhado, com os nomes da TACO.
-   Resolve-se com build por mercado — ver o item 18.
+2. ~~**Os nomes dos alimentos são do MERCADO, não do idioma.**~~ Resolvido:
+   a lista de comidas é uma só, com o nome de cada uma nos seis idiomas —
+   ver o item 18.
 3. **A saída 2 continua de pé como decisão separada**: instalação nova
    ainda abre na demonstração, agora na persona do idioma do aparelho.
 4. **A prosa das cinco personas foi escrita por mim**, e entra na revisão

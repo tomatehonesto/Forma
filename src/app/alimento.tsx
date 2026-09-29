@@ -8,6 +8,7 @@ import { VidroDegrade } from '../ui/vidro';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { alimentoDe, insightDe, origemDoAlimento } from '../logic/prato';
 import { medidaDe, porUnidadeDe } from '../logic/alimentos';
+import { nomeDaPrateleira } from '../logic/prateleiras';
 import { massaTxt } from '../logic/medidas';
 import { numeroEnxuto } from '../logic/local';
 import { useStore } from '../logic/store';
@@ -147,12 +148,9 @@ export default function Alimento() {
             <Icon name="back" size={16} color={c.onHero} sw={2.2} />
           </View>
         </Pressable>
-        {/* ⚠️ A MARCA NO LUGAR DA PRATELEIRA, quando existe: "Burger
-            King" diz mais do que "Lanches de rede" numa tela que já é
-            sobre um produto de rede — e é o que identifica o
-            "Cheeseburger" que está aberto, já que o nome sozinho não
-            distingue mais. */}
-        <Txt v="label" c={c.onHero}>{a.marca ?? a.onde}</Txt>
+        {/* A prateleira no idioma de agora: `onde` é chave, e não texto
+            de tela — ver logic/prateleiras. */}
+        <Txt v="label" c={c.onHero}>{nomeDaPrateleira(a.onde)}</Txt>
         <View style={{ width: 36 }} />
       </Row>
 

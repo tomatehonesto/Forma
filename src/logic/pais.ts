@@ -240,8 +240,9 @@ export const redeLancada = () => REDE_LANCADA;
     lançada. Ver logic/mercado. */
 export const temRedeParceira = (p: Pais = paisAtual()) => redeLancada() && p === 'BR';
 
-/** Qual tabela de composição de alimentos. Hoje existem duas. */
-export const tabelaDeAlimentos = (p: Pais = paisAtual()): 'us' | 'br' => (p === 'US' ? 'us' : 'br');
+/* A tabela de alimentos por país morou aqui, e saiu: a lista de comidas
+   passou a ser uma só, com o nome de cada comida nos seis idiomas — ver
+   logic/alimentos. */
 
 /* ⚠️ A MOEDA É SÍMBOLO MAIS POSIÇÃO, e não só símbolo: "R$ 24,92" põe o
    símbolo antes com espaço, "24,92 €" põe depois, e "$24.92" põe antes

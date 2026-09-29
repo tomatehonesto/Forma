@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { View, TextInput, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ALIMENTOS, buscarAlimento, gramasDe, medidaDe, type Alimento } from '../logic/alimentos';
+import { dicionario, buscarAlimento, gramasDe, medidaDe, type Alimento } from '../logic/alimentos';
+import { nomeDaPrateleira } from '../logic/prateleiras';
+import { localAtual } from '../logic/local';
+import { T } from '../textos';
 import { cabe } from '../logic/restricoes';
 import { RESTRICOES } from '../logic/restricoes';
 import { useStore } from '../logic/store';
@@ -10,6 +13,9 @@ import { TelaInterna, Titulao, Cartao, Chips, Linha } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { ty, radius } from '../theme';
+
+/* ⚠️ É FUNÇÃO, porque lê o catálogo. Ver src/textos/README. */
+const K = () => T.alimentacao.telaAlimentos;
 
 /* ============================================================
    CONSULTAR ALIMENTOS
@@ -23,8 +29,13 @@ import { ty, radius } from '../theme';
    onde olhar.
 
    Aqui ela é destino, e não meio. O que muda: dá para chegar sem ter
-   comido nada, os 224 alimentos ficam visíveis, e cada um abre com o
-   rótulo inteiro em vez de um número só.
+   comido nada, os alimentos ficam visíveis, e cada um abre com o rótulo
+   inteiro em vez de um número só.
+
+   ⚠️ É O DICIONÁRIO, E NÃO A LISTA DO REGISTRO. Aqui se explora comida
+   — o que cada uma traz —, e ninguém procura os benefícios de uma
+   carbonara. Os pratos prontos continuam na busca de quem registra uma
+   refeição; nesta tela eles não entram. Ver logic/alimentos.
    ============================================================ */
 
 /* Quantos cabem antes de a lista virar rolagem sem fim. O resto entra
@@ -55,9 +66,12 @@ export default function Alimentos() {
     .join(', ');
 
 
+  /* Em ordem alfabética no idioma de agora — "Œufs" e "Äpfel" têm lugar
+     certo em francês e em alemão, e não é o do português. */
+  const local = localAtual();
   const emOrdem = React.useMemo(
-    () => [...ALIMENTOS()].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR')),
-    [],
+    () => [...dicionario()].sort((a, b) => a.nome.localeCompare(b.nome, local)),
+    [local],
   );
 
   /* AS PRATELEIRAS, na ordem em que aparecem na lista.
@@ -67,7 +81,7 @@ export default function Alimentos() {
      e o toque nela levaria a lugar nenhum. */
   const prateleiras = React.useMemo(() => {
     const vistas = new Map<string, number>();
-    for (const a of ALIMENTOS()) {
+    for (const a of dicionario()) {
       if (filtraRestricao && !cabe(a, restricoes)) continue;
       vistas.set(a.onde, (vistas.get(a.onde) || 0) + 1);
     }
@@ -75,7 +89,7 @@ export default function Alimentos() {
   }, [filtraRestricao, restricoes]);
 
   const procurando = termo.trim().length >= 2;
-  const base = procurando ? buscarAlimento(termo, 200) : emOrdem;
+  const base = procurando ? buscarAlimento(termo, 200, 'dicionario') : emOrdem;
   const filtrados = onde ? base.filter((a) => a.onde === onde) : base;
   const foraDaRestricao = filtraRestricao
     ? filtrados.filter((a) => !cabe(a, restricoes)).length
@@ -88,10 +102,10 @@ export default function Alimentos() {
   const achados: Alimento[] = procurando || onde || tudo ? naRestricao : naRestricao.slice(0, TETO);
 
   return (
-    <TelaInterna titulo="Alimentos">
+    <TelaInterna titulo={K().titulo}>
       <Titulao
-        titulo="Alimentos"
-        lead={`A tabela que usamos para contar, com ${ALIMENTOS().length} alimentos e pratos. Toque num deles para ver o rótulo inteiro.`}
+        titulo={K().titulo}
+        lead={K().lead(dicionario().length)}
       />
 
       <View style={{ gap: 12 }}>
@@ -106,7 +120,7 @@ export default function Alimentos() {
           <TextInput
             value={termo}
             onChangeText={setTermo}
-            placeholder="Procure um alimento ou um prato"
+            placeholder={K().busca}
             placeholderTextColor={c.tx4}
             style={[ty.body, { flex: 1, color: c.tx, paddingVertical: 13 }]}
           />
@@ -119,9 +133,9 @@ export default function Alimentos() {
         <Chips
           itens={[
             /* O NÚMERO É O DO QUE O TOQUE ENTREGA, e não o da tabela: com
-               a restrição ligada, "Tudo 224" prometeria 224 e mostraria 81. */
-            { id: '', label: 'Tudo', n: prateleiras.reduce((x, [, k]) => x + k, 0) },
-            ...prateleiras.map(([nome, n]) => ({ id: nome, label: nome, n })),
+               a restrição ligada, "Tudo" com o total da tabela prometeria tudo e mostraria 81. */
+            { id: '', label: K().tudo, n: prateleiras.reduce((x, [, k]) => x + k, 0) },
+            ...prateleiras.map(([nome, n]) => ({ id: nome, label: nomeDaPrateleira(nome), n })),
           ]}
           valor={onde}
           onChange={setOnde}
@@ -145,10 +159,10 @@ export default function Alimentos() {
           }}>
             <Icon name="filter" size={14} color={c.limeSoftInk} sw={2} />
             <Txt v="caption" c={c.limeSoftInk} style={{ flex: 1 }}>
-              {nomesDaRestricao}: {foraDaRestricao} fora da lista
+              {K().fora(nomesDaRestricao, foraDaRestricao)}
             </Txt>
             <Pressable onPress={() => setSemFiltro(true)} hitSlop={8} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-              <Txt v="label" c={c.limeSoftInk}>Ver tudo</Txt>
+              <Txt v="label" c={c.limeSoftInk}>{K().verTudo}</Txt>
             </Pressable>
           </Row>
         ) : null}
@@ -161,22 +175,15 @@ export default function Alimentos() {
                 titulo={a.nome}
                 /* A porção padrão junto do nome: é ela que transforma
                    "32 g de proteína por 100 g" em "um filé", que é a
-                   única forma em que alguém come frango.
-
-                   ⚠️ E A MARCA VEM NA FRENTE DELA, quando existe. Ver o
-                   tipo em logic/alimentos: ela saiu do nome para a lista
-                   parar de se ler como uma lista de redes, e é aqui que
-                   ela continua à vista — inclusive para separar os dois
-                   "Cheeseburger" que existem. */
-                sub={[a.marca, `${medidaDe(a, a.qtd)} · ~${gramasDe(a, a.qtd)} g de proteína`]
-                  .filter(Boolean).join(' · ')}
+                   única forma em que alguém come frango. */
+                sub={K().sub(medidaDe(a, a.qtd), gramasDe(a, a.qtd))}
                 onPress={() => router.push(`/alimento?id=${a.id}` as any)}
               />
             ))}
           </Cartao>
         ) : (
           <Txt v="caption" c={c.tx3} style={{ paddingVertical: 22, textAlign: 'center' }}>
-            Nenhum alimento com esse nome. Tente uma palavra mais curta.
+            {K().nenhum}
           </Txt>
         )}
 
@@ -185,7 +192,7 @@ export default function Alimentos() {
             /* O número é o da lista que a pessoa está vendo, e não o da
                tabela inteira: com a restrição ligada, "ver todos os 224"
                prometeria 224 e entregaria 72. */
-            titulo={`Ver todos os ${naRestricao.length}`}
+            titulo={K().verTodos(naRestricao.length)}
             seta={false}
             onPress={() => setTudo(true)}
           />
