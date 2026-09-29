@@ -1,7 +1,6 @@
 import type { State } from './seed';
-import { ALIMENTOS } from './alimentos';
 import { listaPt, metasDoDia, diaDaRefeicao } from './derive';
-import { nutrientesDe, gramasItem, MOMENTOS, type ItemComida } from './prato';
+import { nutrientesDe, gramasItem, alimentoDoItem, MOMENTOS, type ItemComida } from './prato';
 import { DAY, now, startOfDay } from './time';
 import { fontesDeProteina } from './restricoes';
 import { T } from '../textos';
@@ -170,10 +169,12 @@ export function conselhosDaRotina(S: State): Conselho[] {
      não em quantos a pessoa comeu verdura. São coisas diferentes, e um
      prato pronto pode ter legume dentro sem o app saber. Por isso ela
      mostra a contagem e sugere, em vez de afirmar falta. */
-  const idVerde = new Set(ALIMENTOS().filter((a) => CORREDOR_VERDE.includes(a.onde)).map((a) => a.id));
+  /* A prateleira sai do rótulo gravado no item, e não da tabela de hoje:
+     a verdura registrada no mês passado continua verdura. */
+  const verde = (it: ItemComida) => CORREDOR_VERDE.includes(alimentoDoItem(it)?.onde ?? '');
   const comItens = dias.filter((d) => d.refeicoes.some((m) => itensDe(m).length));
   if (comItens.length >= MINIMO_DE_DIAS) {
-    const verdes = comItens.filter((d) => d.refeicoes.some((m) => itensDe(m).some((it) => it.id && idVerde.has(it.id))));
+    const verdes = comItens.filter((d) => d.refeicoes.some((m) => itensDe(m).some(verde)));
     if (verdes.length <= comItens.length / 3) {
       fora.push({
         id: 'verde',

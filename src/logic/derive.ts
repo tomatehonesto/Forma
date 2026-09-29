@@ -11,7 +11,7 @@ import { conquistas, eventosDeConquista, feitas } from './conquistas';
 import { faixaTxt } from './unidadesDeExame';
 import { ehForca, iconeDe } from './modalidades';
 import {
-  MOMENTOS, aguaDe, alimentoDe, momentoDaHora, nomeItem, nutrientesDe, somaDe, type ItemComida,
+  MOMENTOS, aguaDe, alimentoDe, comRotulo, momentoDaHora, nomeItem, nutrientesDe, somaDe, type ItemComida,
 } from './prato';
 import { BEBIDA_PADRAO, bebidaDe, type Bebida } from './bebidas';
 import { faixaDe } from './escalas';
@@ -3990,7 +3990,7 @@ export function editarRefeicao(
   if (!m) return;
   const dia = (s.checkins as any[]).find((c) => c.t === +startOfDay(new Date(t)));
   if (dia) dia.prot = Math.max(0, (dia.prot || 0) - (m.g || 0) + dados.g);
-  Object.assign(m, dados);
+  Object.assign(m, dados.itens ? { ...dados, itens: (dados.itens as ItemComida[]).map(comRotulo) } : dados);
 }
 
 /* OS FAVORITOS — pratos que se repetem.
@@ -4026,7 +4026,7 @@ export function apagarFavorito(s: any, nome: string) {
 export function guardarFavorito(s: any, fav: Favorito) {
   const atuais = favoritos(s as any);
   if (atuais.some((f) => f.nome === fav.nome)) return;
-  s.favMeals = [...(s.favMeals || []), fav];
+  s.favMeals = [...(s.favMeals || []), fav.itens ? { ...fav, itens: (fav.itens as ItemComida[]).map(comRotulo) } : fav];
 }
 
 export function apagarRefeicao(s: any, t: number, gramas: number) {
@@ -4140,7 +4140,7 @@ export function registrarRefeicao(
   const g = d.g ?? somaDe(d.itens);
   s.meals.unshift({
     t: +now(), name: d.name, g, prot: faixaDe(g), tag: d.tag,
-    fonte: d.fonte ?? 'manual', itens: d.itens,
+    fonte: d.fonte ?? 'manual', itens: d.itens.map(comRotulo),
   });
   const c = registroDoDia(s, +startOfDay(now()));
   c.prot = (c.prot || 0) + g;

@@ -48,6 +48,39 @@ export const MOMENTOS = (): [string, string][] => {
 export const iconeDaRefeicao = (nome: string) =>
   MOMENTOS().find(([, n]) => n === nome)?.[0] ?? 'cutlery';
 
+/* ============================================================
+   O RÓTULO GRAVADO COM O ITEM
+
+   ⚠️⚠️ O REGISTRO GUARDAVA SÓ O ID, e os números eram buscados na tabela
+   toda vez que alguém olhava. Isso amarrava o passado à tabela de hoje:
+   no dia em que um alimento saísse da lista — ou mudasse de número —,
+   as calorias da terça passada mudariam junto, ou sumiriam, sem ninguém
+   ter tocado na terça.
+
+   Agora o item leva uma cópia do rótulo do momento em que foi
+   registrado. O que a pessoa comeu fica com os números com que foi
+   registrado; a tabela continua sendo de onde eles saem da primeira vez.
+
+   O NOME E A MEDIDA CONTINUAM VINDO DA TABELA, quando o alimento ainda
+   está lá, e é de propósito: são texto, e a tabela os escreve no idioma
+   de agora. O rótulo gravado só fala por eles quando o alimento sumiu.
+   ============================================================ */
+export type Rotulo = {
+  nome: string;
+  un: string;
+  unp: string;
+  gUn: number | null;
+  p: number;
+  kcal: number | null;
+  carb: number | null;
+  gord: number | null;
+  fibra: number | null;
+  onde: string;
+  porUnidade?: true;
+  /** conta como líquido na hidratação — ver LIQUIDOS */
+  liquido?: true;
+};
+
 export type ItemComida = {
   /** Alimento da tabela. */
   id?: string;
@@ -57,28 +90,62 @@ export type ItemComida = {
   base?: number;
   /** Quantas unidades. */
   qtd: number;
+  /** Os números do alimento no momento do registro. */
+  rotulo?: Rotulo;
 };
 
 export type Origem = 'tabela' | 'estimado' | 'sem-conta';
 
 /** De onde sai — ou não sai — o número deste item. */
 export function origemDe(it: ItemComida): Origem {
-  if (alimentoDe(it.id)) return 'tabela';
+  if (alimentoDoItem(it)) return 'tabela';
   return it.base != null ? 'estimado' : 'sem-conta';
 }
 
-/** O alimento de um item, ou null se ele for livre (ou o id sumir). */
+/* ⚠️ UM MAPA, E NÃO UM `find`. A migração que grava o rótulo passa por
+   todas as refeições do diário, e com a lista americana cada `find`
+   percorria 4.666 alimentos. O mapa se refaz quando a lista muda — a
+   lista segue o país, e o país pode mudar. */
+let porId: { lista: Alimento[]; mapa: Map<string, Alimento> } | null = null;
+
+/** O alimento da TABELA, ou null se ele for livre (ou o id sumir). */
 export function alimentoDe(id?: string): Alimento | null {
-  return (id && ALIMENTOS().find((a) => a.id === id)) || null;
+  if (!id) return null;
+  const lista = ALIMENTOS();
+  if (!porId || porId.lista !== lista) porId = { lista, mapa: new Map(lista.map((a) => [a.id, a])) };
+  return porId.mapa.get(id) ?? null;
+}
+
+/** O alimento com que o item faz conta: o rótulo gravado nele, e a
+    tabela só para o registro antigo, de antes do rótulo. */
+export function alimentoDoItem(it: ItemComida): Alimento | null {
+  const r = it.rotulo;
+  if (r) return { id: it.id ?? '', busca: '', qtd: 1, ...r };
+  return alimentoDe(it.id);
+}
+
+const rotuloDe = (a: Alimento): Rotulo => ({
+  nome: a.nome, un: a.un, unp: a.unp, gUn: a.gUn,
+  p: a.p, kcal: a.kcal, carb: a.carb, gord: a.gord, fibra: a.fibra, onde: a.onde,
+  ...(a.porUnidade ? { porUnidade: true as const } : {}),
+  ...(LIQUIDOS.has(a.id) ? { liquido: true as const } : {}),
+});
+
+/** O item com o rótulo da tabela gravado nele. Quem já tem rótulo fica
+    como está: o número de um registro é o do dia em que foi feito. */
+export function comRotulo(it: ItemComida): ItemComida {
+  if (it.rotulo || !it.id) return it;
+  const a = alimentoDe(it.id);
+  return a ? { ...it, rotulo: rotuloDe(a) } : it;
 }
 
 export function nomeItem(it: ItemComida): string {
-  return alimentoDe(it.id)?.nome ?? it.nome ?? '';
+  return alimentoDe(it.id)?.nome ?? it.rotulo?.nome ?? it.nome ?? '';
 }
 
 /** Quantos, e de quê: "4 colheres", "1 filé", "2 porções". */
 export function medidaItem(it: ItemComida): string {
-  const a = alimentoDe(it.id);
+  const a = alimentoDe(it.id) ?? alimentoDoItem(it);
   if (a) return medidaDe(a, it.qtd);
   return T.alimentacao.prato.porcoes(it.qtd);
 }
@@ -95,7 +162,7 @@ export function ressalvaItem(it: ItemComida): string | null {
 }
 
 export function gramasItem(it: ItemComida): number {
-  const a = alimentoDe(it.id);
+  const a = alimentoDoItem(it);
   if (a) return gramasDe(a, it.qtd);
   return Math.round((it.base ?? 0) * Math.max(0, it.qtd));
 }
@@ -134,7 +201,7 @@ export type Nutrientes = { kcal: number; carb: number; gord: number; fibra: numb
     devolver zero aqui faria o prato somar um item de peso nenhum. Quem
     pergunta o peso tem de saber lidar com não saber. */
 export function pesoItem(it: ItemComida): number | null {
-  const a = alimentoDe(it.id);
+  const a = alimentoDoItem(it);
   return a && a.gUn != null ? a.gUn * Math.max(0, it.qtd) : null;
 }
 
@@ -148,7 +215,7 @@ export type SomaDoPrato = Nutrientes & {
 export function nutrientesDe(itens: ItemComida[]): SomaDoPrato {
   const s: SomaDoPrato = { kcal: 0, carb: 0, gord: 0, fibra: 0, fora: 0, contados: 0 };
   for (const it of itens) {
-    const a = alimentoDe(it.id);
+    const a = alimentoDoItem(it);
     const g = pesoItem(it);
     if (!a || g == null || a.kcal == null) { s.fora++; continue; }
     s.contados++;
@@ -347,9 +414,10 @@ const CINZAS = 1;
 
 /** Quantos mililitros de água este item do prato traz. */
 export function aguaItem(it: ItemComida): number {
-  const a = alimentoDe(it.id);
+  const a = alimentoDoItem(it);
   const g = pesoItem(it);
-  if (!a || g == null || !LIQUIDOS.has(a.id)) return 0;
+  const liquido = it.rotulo ? it.rotulo.liquido === true : !!a && LIQUIDOS.has(a.id);
+  if (!a || g == null || !liquido) return 0;
   if (a.carb == null || a.gord == null) return 0;
   const pct = Math.max(0, 100 - (a.p + a.carb + a.gord + CINZAS));
   return Math.round((pct / 100) * g);

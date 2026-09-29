@@ -4,7 +4,7 @@ export type Tema = 'light' | 'dark' | 'system';
 /* SEED — paciente coerente (Mariana, ~semana 10 de tratamento). Porta verbatim do protótipo. */
 import { daysAgo, addDays, startOfDay, now, semanaDoTratamento, DAY } from './time';
 import { indicadorDe, M, doseCycle, RENOVAR_COM } from './derive';
-import { nomeItem, somaDe, type ItemComida } from './prato';
+import { comRotulo, nomeItem, somaDe, type ItemComida } from './prato';
 import { marcarComoVistas, conquistas, feitas } from './conquistas';
 import { formaDe } from './formas';
 import type { Notificacao, FaseDoCiclo } from './notificacoes';
@@ -1311,6 +1311,19 @@ export function ensureDefaults(S: any) {
   if (!S.semente && S.vitaisHerdadosLimpos !== true) {
     S.vitals = { pa: [], fc: [], glic: [], spo2: [], fr: [] };
     S.vitaisHerdadosLimpos = true;
+  }
+  /* ⚠️ O RÓTULO EM CADA ITEM DE REFEIÇÃO, e nos favoritos. O registro
+     antigo guardava só o id do alimento, e os números vinham da tabela de
+     hoje; enquanto o alimento ainda está nela, a cópia sai igual ao que a
+     pessoa via. Quem já tem rótulo não é tocado — ver comRotulo, em
+     logic/prato. */
+  for (const lista of [S.meals, S.favMeals]) {
+    if (!Array.isArray(lista)) continue;
+    for (const m of lista) {
+      if (m && typeof m === 'object' && Array.isArray(m.itens) && m.itens.some((it: ItemComida) => it?.id && !it.rotulo)) {
+        m.itens = m.itens.map(comRotulo);
+      }
+    }
   }
   /* A identidade de cada item do diário — por último, porque algumas
      migrações acima criam itens. Ver logic/identidade. */

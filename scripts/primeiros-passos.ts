@@ -65,6 +65,9 @@ import { unidadesDe, unidadePadrao, converterValor, converterFaixa, faixaTxt } f
 import { htmlDoRelatorio, recortePadrao } from '../src/logic/relatorioPdf';
 import { dataDeTabela } from '../src/logic/pdf';
 import { localDePartida } from '../src/logic/local';
+import { ensureDefaults } from '../src/logic/seed';
+import { energiaDoDia, registrarRefeicao, aguaDoDia } from '../src/logic/derive';
+import { gramasItem, nomeItem, nutrientesDe, comRotulo, type ItemComida } from '../src/logic/prato';
 import { limparLaudo, gravarLaudo } from '../src/logic/laudo';
 import { MARCADORES as MARCADORES_DO_SERVIDOR } from '../servidor/marcadores';
 import { proximasDe, type Alerta } from '../src/logic/alertas';
@@ -588,6 +591,28 @@ ok(localDePartida('pt') === 'pt-BR' && localDePartida('es') === 'es-419' && loca
   'o aparelho num idioma que temos abre nele');
 ok(localDePartida('') === 'pt-BR' && localDePartida(null) === 'pt-BR',
   'o aparelho que não disse idioma nenhum fica com o padrão do build');
+
+console.log('\n23. O RÓTULO GRAVADO EM CADA ITEM DE REFEIÇÃO');
+const semRotulo = clone(semente);
+const comR = ensureDefaults(clone(semente)) as State;
+const itensDaSemente = (comR.meals as any[]).flatMap((m) => (m.itens || []) as ItemComida[]).filter((it) => it.id);
+ok(itensDaSemente.length > 0 && itensDaSemente.every((it) => it.rotulo && typeof it.rotulo.p === 'number'),
+  'a migração grava o rótulo em todo item de tabela do diário');
+const diasDaSemente = [...new Set((comR.meals as any[]).map((m) => +new Date(new Date(m.t).setHours(0, 0, 0, 0))))];
+ok(diasDaSemente.every((d) => JSON.stringify(energiaDoDia(comR, d)) === JSON.stringify(energiaDoDia(semRotulo, d))
+  && aguaDoDia(comR, d) === aguaDoDia(semRotulo, d)),
+  'com o rótulo, a energia e a água de cada dia são as mesmas de antes');
+const umItem = itensDaSemente[0];
+const orfao: ItemComida = { ...umItem, id: 'alimento-que-saiu-da-tabela' };
+ok(gramasItem(orfao) === gramasItem(umItem) && nomeItem(orfao) === nomeItem(umItem)
+  && nutrientesDe([orfao]).kcal === nutrientesDe([umItem]).kcal,
+  'o alimento que sair da tabela continua com o nome e os números do dia em que foi registrado');
+const mudado = { ...umItem, rotulo: { ...umItem.rotulo!, p: umItem.rotulo!.p * 2 } };
+ok(gramasItem(mudado) !== gramasItem(umItem), 'o número do registro é o do rótulo gravado, e não o da tabela de hoje');
+ok(comRotulo(mudado) === mudado, 'quem já tem rótulo não é regravado');
+const registrou = clone(novo);
+registrarRefeicao(registrou, { name: 'Almoço', tag: '', itens: [{ id: umItem.id, qtd: 2 }] });
+ok(!!(registrou.meals as any[])[0].itens[0].rotulo, 'a refeição nova já nasce com o rótulo');
 
 console.log(falhas ? `\n${falhas} afirmação(ões) falharam\n` : '\ntodas as afirmações passaram\n');
 process.exit(falhas ? 1 : 0);
