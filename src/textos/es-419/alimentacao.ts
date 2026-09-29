@@ -116,6 +116,7 @@ export const alimentacao = {
        tabla no dice nada: es el caso normal, y anunciarlo sería ruido en
        todas las líneas para avisar sobre ninguna. */
     estimado: 'estimado por la foto',
+    estimadoPeloNome: 'estimado por el nombre',
     semConta: 'todavía no entra en la cuenta',
 
     /* ⚠️ LA LECTURA DE UN ALIMENTO NO PROHÍBE NADA. "No está prohibido,
@@ -285,6 +286,7 @@ export const alimentacao = {
     semContaVarios: (quantos: number) =>
       `${quantos} ítems no entran en esa cuenta — todavía no tengo la proteína de ellos.`,
     estimadoPelaFoto: 'Parte de este total fue estimada por la foto, y no salió de la tabla.',
+    estimadoPelaIa: 'Parte de este total fue estimada, sin una tabla detrás.',
 
     pratosFavoritos: 'Platos favoritos',
     pratosGuardados: (quantos: number) =>
@@ -297,6 +299,12 @@ export const alimentacao = {
       `${marca}${medida} · ~${gramas} g de proteína`,
     anotarEscrito: (texto: string) => `Anotar “${texto}”`,
     semProteinaAinda: 'Todavía no tengo la proteína de ese',
+    calcularEscrito: (texto: string) => `Calcular “${texto}”`,
+    calcularSub: 'Estimamos una porción por el nombre',
+    calculando: 'Calculando…',
+    seuPrato: 'tu plato',
+    estimativaSemRede: 'Sin conexión ahora. Puedes anotarlo sin la cuenta.',
+    estimativaNaoReconheci: 'No reconocimos eso como comida. Puedes anotarlo igual.',
     escanear: 'Escanear',
     lendoOPrato: 'Leyendo el plato…',
     confiraALista: 'Revisa la lista de abajo y ajusta lo que haga falta.',

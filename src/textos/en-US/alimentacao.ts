@@ -96,6 +96,8 @@ export const alimentacao = {
     porcoes: (qtd: number) => `${qtd} ${qtd === 1 ? 'serving' : 'servings'}`,
 
     estimado: 'estimated from the photo',
+
+    estimadoPeloNome: 'estimated from the name',
     semConta: 'not counted yet',
 
     /* ⚠️ THE READ OF A FOOD FORBIDS NOTHING. "It isn't off-limits, but it
@@ -260,6 +262,7 @@ export const alimentacao = {
     semContaVarios: (quantos: number) =>
       `${quantos} items don’t go into this count — I don’t have their protein yet.`,
     estimadoPelaFoto: 'Part of this total was estimated from the photo, not looked up in the table.',
+    estimadoPelaIa: 'Part of this total was estimated, with no table behind it.',
 
     pratosFavoritos: 'Favorite plates',
     pratosGuardados: (quantos: number) =>
@@ -272,6 +275,12 @@ export const alimentacao = {
       `${marca}${medida} · ~${gramas} g of protein`,
     anotarEscrito: (texto: string) => `Note down “${texto}”`,
     semProteinaAinda: 'I don’t have the protein for that one yet',
+    calcularEscrito: (texto: string) => `Calculate “${texto}”`,
+    calcularSub: 'We estimate one serving from the name',
+    calculando: 'Calculating…',
+    seuPrato: 'your dish',
+    estimativaSemRede: 'No connection right now. You can add it without the numbers.',
+    estimativaNaoReconheci: 'We didn’t recognize that as food. You can still add it.',
     escanear: 'Scan',
     lendoOPrato: 'Reading the plate…',
     confiraALista: 'Check the list below and adjust what you need.',

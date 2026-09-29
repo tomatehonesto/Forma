@@ -124,6 +124,7 @@ export const alimentacao = {
        anzukündigen wäre Rauschen auf allen Zeilen, um vor keiner zu
        warnen. */
     estimado: 'anhand des Fotos geschätzt',
+    estimadoPeloNome: 'anhand des Namens geschätzt',
     semConta: 'zählt noch nicht mit',
 
     /* ⚠️ DIE LESART EINES LEBENSMITTELS VERBIETET NICHTS. „Es ist nicht
@@ -325,6 +326,7 @@ export const alimentacao = {
     semContaVarios: (quantos: number) =>
       `${quantos} Posten gehen nicht in diese Rechnung ein — ihr Eiweiß habe ich noch nicht.`,
     estimadoPelaFoto: 'Ein Teil dieser Summe wurde aus dem Foto geschätzt und nicht aus der Tabelle.',
+    estimadoPelaIa: 'Ein Teil dieser Summe ist geschätzt, ohne Tabelle dahinter.',
 
     pratosFavoritos: 'Lieblingsteller',
     pratosGuardados: (quantos: number) =>
@@ -337,6 +339,12 @@ export const alimentacao = {
       `${marca}${medida} · ~${gramas} g Eiweiß`,
     anotarEscrito: (texto: string) => `Notieren “${texto}”`,
     semProteinaAinda: 'Das Eiweiß davon habe ich noch nicht',
+    calcularEscrito: (texto: string) => `„${texto}“ berechnen`,
+    calcularSub: 'Wir schätzen eine Portion anhand des Namens',
+    calculando: 'Wird berechnet …',
+    seuPrato: 'dein Gericht',
+    estimativaSemRede: 'Gerade keine Verbindung. Du kannst es ohne Werte notieren.',
+    estimativaNaoReconheci: 'Das haben wir nicht als Essen erkannt. Du kannst es trotzdem notieren.',
     escanear: 'Scannen',
     lendoOPrato: 'Der Teller wird gelesen…',
     confiraALista: 'Schau die Liste unten durch und pass an, was nötig ist.',

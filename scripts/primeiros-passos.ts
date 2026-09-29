@@ -67,7 +67,13 @@ import { dataDeTabela } from '../src/logic/pdf';
 import { localDePartida } from '../src/logic/local';
 import { ensureDefaults } from '../src/logic/seed';
 import { energiaDoDia, registrarRefeicao, aguaDoDia } from '../src/logic/derive';
-import { gramasItem, nomeItem, nutrientesDe, comRotulo, type ItemComida } from '../src/logic/prato';
+import { gramasItem, nomeItem, nutrientesDe, comRotulo, origemDe, ressalvaItem, type ItemComida } from '../src/logic/prato';
+import { limparRotulo, itemEstimado, seusPratos, buscarNosSeus } from '../src/logic/estimativa';
+import { PRATELEIRAS } from '../src/logic/prateleiras';
+import { PRATELEIRAS as PRATELEIRAS_DO_SERVIDOR } from '../servidor/prateleiras';
+import { rotuloDaPorcao } from '../servidor/rotulo';
+import { ALIMENTOS } from '../src/logic/alimentos';
+import { alimentosUS } from '../src/logic/alimentos-us';
 import { limparLaudo, gravarLaudo } from '../src/logic/laudo';
 import { MARCADORES as MARCADORES_DO_SERVIDOR } from '../servidor/marcadores';
 import { proximasDe, type Alerta } from '../src/logic/alertas';
@@ -613,6 +619,36 @@ ok(comRotulo(mudado) === mudado, 'quem já tem rótulo não é regravado');
 const registrou = clone(novo);
 registrarRefeicao(registrou, { name: 'Almoço', tag: '', itens: [{ id: umItem.id, qtd: 2 }] });
 ok(!!(registrou.meals as any[])[0].itens[0].rotulo, 'a refeição nova já nasce com o rótulo');
+
+console.log('\n24. O PRATO ESTIMADO PELO NOME');
+ok(JSON.stringify(PRATELEIRAS) === JSON.stringify(PRATELEIRAS_DO_SERVIDOR),
+  'as prateleiras do servidor são as mesmas do aplicativo');
+ok([...ALIMENTOS(), ...alimentosUS()].every((a) => a.onde === 'Lanches de rede' || (PRATELEIRAS as readonly string[]).includes(a.onde)),
+  'toda prateleira das duas tabelas está na lista — menos a das redes de fast food, que a estimativa não usa');
+const carbonara = rotuloDaPorcao({
+  nome: 'Carbonara', unidade: 'prato', unidades: 'pratos', gramas: 350,
+  proteina: 24.5, kcal: 630, carboidrato: 70, gordura: 28, fibra: 3.5, prateleira: 'Pratos prontos',
+});
+const limpo = limparRotulo(carbonara);
+ok(!!limpo && limpo.p === 7 && limpo.kcal === 180 && limpo.gUn === 350,
+  'o servidor converte a porção para 100 g, e o aplicativo aceita o que ele devolve');
+ok(rotuloDaPorcao({ ...(carbonara as any), gramas: 2, unidade: 'x', unidades: 'x', proteina: 1, carboidrato: 1, gordura: 1, fibra: 0, prateleira: 'Pratos prontos' }) === null,
+  'uma porção de 2 g é erro, e não entra');
+ok(limparRotulo({ ...carbonara, kcal: undefined }) === null && limparRotulo({ ...carbonara, onde: 'Sapatos' }) === null,
+  'um rótulo com campo faltando, ou com prateleira inventada, não entra');
+const itemC = itemEstimado(limpo!, 2);
+ok(origemDe(itemC) === 'estimado' && ressalvaItem(itemC) === T.alimentacao.prato.estimadoPeloNome,
+  'o item estimado diz que é estimado, e por onde');
+ok(gramasItem(itemC) === 49 && nutrientesDe([itemC]).kcal === 1260 && nutrientesDe([itemC]).fora === 0,
+  'duas porções contam a proteína e entram na energia do dia');
+ok(nomeItem(itemC) === 'Carbonara', 'o nome é o do prato estimado');
+const comPrato = clone(novo);
+registrarRefeicao(comPrato, { name: 'Almoço', tag: '', itens: [itemC] });
+registrarRefeicao(comPrato, { name: 'Jantar', tag: '', itens: [itemEstimado({ ...limpo!, p: 9 })] });
+ok(seusPratos(comPrato).length === 1 && seusPratos(comPrato)[0].p === 9,
+  'os pratos seus vêm do diário, um de cada nome, o mais recente primeiro');
+ok(buscarNosSeus(comPrato, 'carbo').length === 1 && buscarNosSeus(comPrato, 'lasanha').length === 0,
+  'a busca acha o prato já estimado pelo começo da palavra');
 
 console.log(falhas ? `\n${falhas} afirmação(ões) falharam\n` : '\ntodas as afirmações passaram\n');
 process.exit(falhas ? 1 : 0);

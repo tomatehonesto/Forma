@@ -92,12 +92,16 @@ export type ItemComida = {
   qtd: number;
   /** Os números do alimento no momento do registro. */
   rotulo?: Rotulo;
+  /** O rótulo não veio de tabela: foi estimado pelo nome — ver
+      logic/estimativa. A tela diz isso ao lado do item. */
+  estimado?: 'nome';
 };
 
 export type Origem = 'tabela' | 'estimado' | 'sem-conta';
 
 /** De onde sai — ou não sai — o número deste item. */
 export function origemDe(it: ItemComida): Origem {
+  if (it.estimado) return 'estimado';
   if (alimentoDoItem(it)) return 'tabela';
   return it.base != null ? 'estimado' : 'sem-conta';
 }
@@ -155,7 +159,7 @@ export function medidaItem(it: ItemComida): string {
     linhas para avisar sobre nenhuma. */
 export function ressalvaItem(it: ItemComida): string | null {
   switch (origemDe(it)) {
-    case 'estimado': return T.alimentacao.prato.estimado;
+    case 'estimado': return it.estimado === 'nome' ? T.alimentacao.prato.estimadoPeloNome : T.alimentacao.prato.estimado;
     case 'sem-conta': return T.alimentacao.prato.semConta;
     default: return null;
   }

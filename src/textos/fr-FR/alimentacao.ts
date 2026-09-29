@@ -119,6 +119,7 @@ export const alimentacao = {
        table ne dit rien : c'est le cas normal, et l'annoncer serait du
        bruit sur toutes les lignes pour prévenir sur aucune. */
     estimado: 'estimé d’après la photo',
+    estimadoPeloNome: 'estimé d’après le nom',
     semConta: 'n’entre pas encore dans le compte',
 
     /* ⚠️ LA LECTURE D'UN ALIMENT N'INTERDIT RIEN. « Ce n'est pas interdit,
@@ -296,6 +297,7 @@ export const alimentacao = {
     semContaVarios: (quantos: number) =>
       `${quantos} éléments n’entrent pas dans ce compte — je n’ai pas encore leurs protéines.`,
     estimadoPelaFoto: 'Une partie de ce total a été estimée par la photo, et non relevée dans la table.',
+    estimadoPelaIa: 'Une partie de ce total a été estimée, sans table derrière.',
 
     pratosFavoritos: 'Assiettes favorites',
     pratosGuardados: (quantos: number) =>
@@ -308,6 +310,12 @@ export const alimentacao = {
       `${marca}${medida} · ~${gramas} g de protéines`,
     anotarEscrito: (texto: string) => `Noter “${texto}”`,
     semProteinaAinda: 'Je n’ai pas encore les protéines de celui-là',
+    calcularEscrito: (texto: string) => `Calculer “${texto}”`,
+    calcularSub: 'Nous estimons une portion d’après le nom',
+    calculando: 'Calcul en cours…',
+    seuPrato: 'votre plat',
+    estimativaSemRede: 'Pas de connexion pour l’instant. Vous pouvez le noter sans le calcul.',
+    estimativaNaoReconheci: 'Nous n’avons pas reconnu un aliment. Vous pouvez le noter quand même.',
     escanear: 'Scanner',
     lendoOPrato: 'Lecture de l’assiette…',
     confiraALista: 'Vérifiez la liste ci-dessous et ajustez ce qu’il faut.',

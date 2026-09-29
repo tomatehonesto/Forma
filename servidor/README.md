@@ -1,6 +1,6 @@
 # O servidor que lê o prato e o laudo
 
-Duas funções — a do prato e a do laudo. Elas existem por um motivo só: a
+Três funções — a do prato, a do laudo e a que estima um prato pelo nome. Elas existem por um motivo só: a
 chave da API não pode ir no aplicativo. Tudo que é empacotado no app é extraível — chave no pacote é
 chave publicada.
 
@@ -13,8 +13,11 @@ têm banco e não guardam a foto nem o laudo.
 servidor/
   api/analisar.ts     a leitura do prato
   api/laudo.ts        a leitura do laudo (PDF ou foto)
+  api/estimar.ts      o rótulo de um prato, estimado pelo nome
   alimentos.json      a tabela, GERADA — não edite à mão
   marcadores.ts       os 15 marcadores do laudo e as unidades de cada um
+  prateleiras.ts      as 13 prateleiras da tabela de alimentos
+  rotulo.ts           a porção estimada virada em rótulo por 100 g
   vercel.json         60s de teto, região gru1 (São Paulo)
 ```
 
@@ -118,3 +121,21 @@ faz ela falhar.
 antes da primeira leitura, e a Política de Privacidade (minuta, em
 `src/logic/documentos.ts`) descreve o envio — as duas coisas precisam da
 revisão do advogado antes de a leitura ser ligada na loja.
+
+## A estimativa pelo nome
+
+`api/estimar.ts` recebe o que a pessoa digitou — "galinhada", "pad thai"
+— e o idioma do aplicativo, e devolve o rótulo de UMA porção comum: o
+peso dela e proteína, energia, carboidrato, gordura e fibra por 100 g. O
+aplicativo só pede quando nada da lista bateu, e com um toque, nunca a
+cada letra. Ele grava a estimativa no próprio registro, marcada como
+estimada, e da segunda vez o prato sai do diário, sem chamar o servidor.
+
+Mesmas variáveis e mesmo projeto das outras duas. A URL sai de
+`EXPO_PUBLIC_ANALISE_URL` (troca `/analisar` por `/estimar`); se um dia
+ela morar em outro lugar, `EXPO_PUBLIC_ESTIMAR_URL` manda.
+
+⚠️ `prateleiras.ts` repete a lista do aplicativo (`src/logic/prateleiras`),
+pelo mesmo motivo dos marcadores. A sonda dos primeiros passos (seção 24)
+confere que as duas continuam iguais e que a conta de `rotulo.ts` sai no
+formato que o aplicativo aceita.

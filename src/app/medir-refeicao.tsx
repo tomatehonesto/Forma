@@ -280,6 +280,10 @@ export default function MedirRefeicao() {
             setItens((v) => [...v, { nome, qtd: 1 }]);
             setBusca('');
           }}
+          onEstimado={(it) => {
+            setItens((v) => [...v, it]);
+            setBusca('');
+          }}
         />
       </View>
       {/* O PRATO VEM ANTES DO ATALHO, assim que tem alguma coisa nele.
@@ -326,7 +330,7 @@ export default function MedirRefeicao() {
 
           {estimados.length ? (
             <Txt v="micro" c={c.tx4} style={{ paddingHorizontal: 2 }}>
-              {K().estimadoPelaFoto}
+              {estimados.some((it) => it.estimado === 'nome') ? K().estimadoPelaIa : K().estimadoPelaFoto}
             </Txt>
           ) : null}
         </View>

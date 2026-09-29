@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Pressable, TextInput, StyleSheet, ActivityIndicator } from 'react-native';
 import { Image } from 'expo-image';
 import { buscarAlimento, gramasDe, medidaDe, type Alimento } from '../logic/alimentos';
@@ -8,6 +8,11 @@ import { Icon } from './Icon';
 import { useTheme } from './useTheme';
 import { font, radius, ty } from '../theme';
 import { T } from '../textos';
+import { useStore } from '../logic/store';
+import {
+  buscarNosSeus, comoAlimento, estimarPeloNome, estimativaLigada, itemEstimado,
+  type MotivoDaEstimativa,
+} from '../logic/estimativa';
 
 /* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
    de módulo congela o idioma no import. */
@@ -25,19 +30,41 @@ const K = () => T.alimentacao.telaMedirRefeicao;
 /* ------------------------------------------------------------------ */
 
 /** Campo de texto que sugere alimentos enquanto se digita. */
-export function BuscaAlimento({ valor, onChange, onEscolher, onLivre, jaTem }: {
+export function BuscaAlimento({ valor, onChange, onEscolher, onLivre, onEstimado, jaTem }: {
   valor: string;
   onChange: (v: string) => void;
   onEscolher: (a: Alimento) => void;
   /** Guardar o que foi digitado, quando a tabela não tem. */
   onLivre: (nome: string) => void;
+  /** Um prato estimado pelo nome — agora, ou de uma vez anterior. */
+  onEstimado?: (it: ItemComida) => void;
   /** Ids já na lista — somem das sugestões para não entrar duas vezes. */
   jaTem?: string[];
 }) {
   const { c } = useTheme();
+  const S = useStore((x) => x.S);
   const achados = buscarAlimento(valor).filter((a) => !jaTem?.includes(a.id));
+  /* Os pratos que a pessoa já estimou vêm do diário dela, e entram
+     depois da lista: o que tem tabela responde primeiro. */
+  const seus = onEstimado ? buscarNosSeus(S, valor) : [];
   const escrito = valor.trim();
-  const semPar = escrito.length >= 2 && achados.length === 0;
+  const semPar = escrito.length >= 2 && achados.length === 0 && seus.length === 0;
+
+  /* O pedido ao servidor, e o que ele respondeu. Muda o texto, e tudo
+     volta ao começo: o recado de antes era sobre outra palavra. */
+  const [calculo, setCalculo] = useState<'parado' | 'calculando' | MotivoDaEstimativa>('parado');
+  useEffect(() => { setCalculo('parado'); }, [valor]);
+  const calcular = async () => {
+    if (!onEstimado || calculo === 'calculando') return;
+    setCalculo('calculando');
+    const r = await estimarPeloNome(escrito);
+    if (r.ok) { setCalculo('parado'); onEstimado(r.item); }
+    else setCalculo(r.motivo);
+  };
+  const subDoCalculo = calculo === 'calculando' ? K().calculando
+    : calculo === 'sem-rede' ? K().estimativaSemRede
+      : calculo === 'nao-reconheci' || calculo === 'sem-servidor' ? K().estimativaNaoReconheci
+        : K().calcularSub;
 
   return (
     <View>
@@ -88,6 +115,57 @@ export function BuscaAlimento({ valor, onChange, onEscolher, onLivre, jaTem }: {
             </Pressable>
           ))}
         </View>
+      ) : null}
+
+      {seus.length ? (
+        <View style={{
+          marginTop: 6, backgroundColor: c.bg1, borderWidth: 1, borderColor: c.line,
+          borderRadius: radius.md, overflow: 'hidden',
+        }}>
+          {seus.map((r, i) => {
+            const a = comoAlimento(r);
+            return (
+              <Pressable key={r.nome} onPress={() => onEstimado?.(itemEstimado(r))} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+                <Row
+                  gap={10}
+                  style={{
+                    paddingHorizontal: 13, paddingVertical: 10,
+                    borderTopWidth: i ? StyleSheet.hairlineWidth : 0, borderTopColor: c.line,
+                  }}
+                >
+                  <View style={{ flex: 1 }}>
+                    <Txt v="label" numberOfLines={1}>{r.nome}</Txt>
+                    <Txt v="micro" c={c.tx4}>
+                      {K().itemSub(K().seuPrato + ' · ', medidaDe(a, 1), gramasDe(a, 1))}
+                    </Txt>
+                  </View>
+                  <Icon name="plus" size={16} color={c.accent} sw={2.4} />
+                </Row>
+              </Pressable>
+            );
+          })}
+        </View>
+      ) : null}
+
+      {/* O QUE A LISTA NÃO TEM, CALCULADO PELO NOME. Aparece só quando
+          nada bateu — nem a lista, nem os pratos que a pessoa já estimou
+          —, e pede o cálculo com um toque, em vez de a cada letra: cada
+          pedido é uma chamada ao modelo. Ver logic/estimativa. */}
+      {semPar && onEstimado && estimativaLigada() ? (
+        <Pressable onPress={calcular} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
+          <Row gap={10} style={{
+            marginTop: 6, backgroundColor: c.bg1, borderWidth: 1, borderColor: c.line,
+            borderRadius: radius.md, paddingHorizontal: 13, paddingVertical: 10,
+          }}>
+            <View style={{ flex: 1 }}>
+              <Txt v="label" numberOfLines={1}>{K().calcularEscrito(escrito)}</Txt>
+              <Txt v="micro" c={c.tx4}>{subDoCalculo}</Txt>
+            </View>
+            {calculo === 'calculando'
+              ? <ActivityIndicator size="small" color={c.accent} />
+              : <Icon name="plus" size={16} color={c.accent} sw={2.4} />}
+          </Row>
+        </Pressable>
       ) : null}
 
       {/* A tabela tem 144 alimentos e o Brasil tem mais. Sem esta saída,
