@@ -1959,9 +1959,7 @@ export default function Cadastro() {
                 motivo de o botão ter apagado. */}
             {idade < IDADE_MINIMA ? (
               <Txt v="caption" c={c.tx2} style={{ marginTop: 14, lineHeight: 21 }}>
-                Este aplicativo é exclusivo para maiores de {IDADE_MINIMA} anos. O tratamento
-                de quem ainda não tem essa idade é acompanhado pela equipe de
-                saúde, junto com quem responde legalmente por essa pessoa.
+                {K().ritmoTela.idadeMinima(IDADE_MINIMA)}
               </Txt>
             ) : null}
           </View>
@@ -2281,7 +2279,7 @@ export default function Cadastro() {
                   <Txt v="body" c={c.tx2}>kg</Txt>
                 </Row>
                 <Txt v="caption" c={c.tx2} style={{ textAlign: 'center', marginTop: 4 }}>
-                  Uma semana de cada vez — e eu acompanho cada uma delas com você.
+                  {K().ritmoTela.umaSemana}
                 </Txt>
               </View>
             )}
@@ -2332,13 +2330,12 @@ export default function Cadastro() {
                 );
               })}
               <Txt v="caption" c={c.tx3} style={{ marginTop: 4 }}>
-                É o ritmo que você quer seguir, não uma previsão: quanto o peso desce
-                depende do corpo e da dose.
+                {K().ritmoTela.naoEPrevisao}
               </Txt>
             </View>
           ) : (
             <Txt v="note" c={c.tx3}>
-              Sua meta não é perder peso, então não há ritmo a escolher aqui.
+              {K().ritmoTela.semRitmo}
             </Txt>
           )
         ) : null}

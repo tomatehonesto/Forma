@@ -103,4 +103,19 @@ export const perfil = {
   /* ---------- il piè di pagina ---------- */
   sair: 'Esci dall’account',
   versao: (numero: string) => `Morphi · versione ${numero}`,
+  telaAparencia: {
+    titulo: 'Aspetto',
+    lead: 'Rendi l’app tua. Il colore che scegli arriva a tutte le schermate — e perfino all’icona, nella schermata Home.',
+    exemplo: 'ANTEPRIMA',
+    bomDia: 'Buongiorno',
+    diaSemana: 'Giorno 12 · settimana 2',
+    metasDeHoje: 'I tuoi obiettivi di oggi',
+    registrar: 'Registra',
+    verJornada: 'Vedi il percorso',
+    escolhaTema: 'Scegli il tema',
+    escolhaCor: 'Scegli il tuo colore',
+    sistema: 'Sistema',
+    claro: 'Chiaro',
+    escuro: 'Scuro',
+  },
 };

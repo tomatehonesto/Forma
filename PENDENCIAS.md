@@ -1132,7 +1132,26 @@ portuguesa, com quatro letras ou mais, e não via template literal nem
 texto solto dentro de JSX. A conta refeita com um inventário próprio
 (`scratchpad/inventario4.mjs`, o método está abaixo) deu **1.585**.
 
-**Medido em 24/09/2026: faltam 320, em 59 arquivos.** (`/notificacoes` saiu da lista.)
+**Medido em 29/09/2026: o inventário conta 235 frases em 55 arquivos, e
+quase nenhuma é texto de tela que alguém vê fora do Brasil.** O que sobra:
+
+| o quê | frases | por quê fica |
+|---|---|---|
+| `/companion` | 66 | a tela vai ser refeita (ver abaixo) |
+| `logic/local` | 40 | nome de idioma e formato, não é fala |
+| telas da rede parceira (`/prescricao`, `/conversa`, `/especialista`, `/clinica`) | ~25 | só existem com clínica parceira, que é brasileira; fora do Brasil se apagam pelo dado. Entram na fila quando a rede sair do Brasil |
+| atalhos de desenvolvimento (Perfil, assinatura, suspenso, ditado no Expo Go) | ~23 | só aparecem em `__DEV__` |
+| falso positivo | o resto | rota (`/conta?de=cadastro`), CSS e HTML do PDF, chave interna, fórmula |
+
+⚠️ **E A PROVA NÃO É O INVENTÁRIO, É A TELA.** O inventário e a varredura
+de JSX deixaram passar "Check-in feito" na prévia da Aparência. A
+conferência que vale foi abrir 73 telas com o aplicativo em alemão e
+procurar palavras portuguesas no texto renderizado: o que apareceu foi o
+diário de exemplo (as notas e a meta da Mariana, que é uma paciente
+brasileira — numa instalação nova em alemão a persona é alemã, item 27)
+e os atalhos de desenvolvimento. O que faltava — "3 dias grátis" nos
+planos — entrou. **Refazer essa varredura antes de publicar**, com as
+telas do cadastro e as que pedem parâmetro, que ela não cobriu.
 
 ⚠️⚠️ **E ESTE NÚMERO SUBSTITUI OS ANTERIORES, porque a rede era cega.** A
 regra do inventário que pega texto solto de JSX barrava `\n` dentro do

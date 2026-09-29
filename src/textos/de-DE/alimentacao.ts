@@ -169,6 +169,9 @@ export const alimentacao = {
     semPeixeSub: 'Fisch, Garnelen und Meeresfrüchte fallen weg.',
     semCarneVermelha: 'Ohne rotes Fleisch',
     semCarneVermelhaSub: 'Rind und Schwein fallen weg. Geflügel und Fisch bleiben.',
+    telaTitulo: 'Ernährungseinschränkung',
+    telaTituloGrande: 'Ernährungseinschränkungen',
+    telaLead: 'Markiere, was nicht auf deinen Teller kommt: Wir schlagen nur noch vor, was passt, und die Lebensmittelliste zeigt zuerst, was geht — ohne den Rest zu verstecken. Bei einer Allergie prüfe immer das Etikett, denn Marke und Zubereitung können wir nicht kennen.',
   },
 
   /* ⚠️⚠️ DER ENERGIESATZ TRÄGT EIN `<b>` IN SICH, und das ist keine
@@ -477,5 +480,15 @@ export const alimentacao = {
     nenhuma: 'keine',
     outraPlaceholder: 'Kombucha, isotonisches Getränk, Zuckerrohrsaft…',
     quantidade: 'Menge',
+    doses: (d: number): string => `${d} ${d === 1 ? 'Messlöffel' : 'Messlöffel'}`,
+    semWhey: 'Ohne Whey',
+  },
+  telaCamera: {
+    precisa: 'Die Kamera wird gebraucht',
+    porque: 'Die Kamera liest den Teller und schätzt das Protein der Mahlzeit. Das Foto wird dafür verwendet und für nichts anderes.',
+    permitir: 'Kamera erlauben',
+    escolherFoto: 'Ein Foto wählen',
+    agoraNao: 'Jetzt nicht',
+    enquadre: 'Der ganze Teller, von oben',
   },
 };

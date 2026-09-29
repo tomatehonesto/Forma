@@ -12,6 +12,7 @@ import { Txt, Row } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { radius, alfa } from '../theme';
+import { T } from '../textos';
 
 /* ============================================================
    CONQUISTA ALCANÇADA
@@ -109,7 +110,7 @@ export default function ConquistaOk() {
         paddingBottom: (insets.bottom || 12) + 20, paddingHorizontal: 24,
         alignItems: 'center', justifyContent: 'center', gap: 18,
       }}>
-        <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 1.4 }}>CONQUISTA ALCANÇADA</Txt>
+        <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 1.4 }}>{T.conquistas.telaConquistaOk.alcancada}</Txt>
 
         <View style={{
           width: 96, height: 96, borderRadius: 34, backgroundColor: c.lime,
@@ -163,7 +164,7 @@ export default function ConquistaOk() {
         {resto.length ? (
           <View style={{ alignSelf: 'stretch', gap: 8, marginTop: 6 }}>
             <Txt v="micro" c={c.onHero2} style={{ textAlign: 'center', letterSpacing: 1 }}>
-              NO MESMO REGISTRO
+              {T.conquistas.telaConquistaOk.noMesmoRegistro}
             </Txt>
             {resto.map((q) => (
               <Row key={q.id} gap={10} style={{

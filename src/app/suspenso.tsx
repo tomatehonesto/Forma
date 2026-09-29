@@ -133,11 +133,10 @@ export default function Suspenso() {
             uma linha inteira do título; a linha é o preço de não parecer
             uma porta fechada. */}
         <Txt v="display" c={c.tx} style={{ marginTop: 16, letterSpacing: -0.6 }}>
-          O seu acesso está temporariamente suspenso
+          {T.assinatura.suspenso.tituloTela}
         </Txt>
         <Txt v="note" c={c.tx3} style={{ marginTop: 8, lineHeight: 23 }}>
-          {clinica} informou que o vínculo de tratamento foi encerrado — e era ele que cobria o
-          aplicativo para você.
+          {T.assinatura.suspenso.vinculoEncerrado(clinica)}
         </Txt>
 
         {/* ⚠️ OS TRÊS ITENS SÃO CORPO DE TEXTO, E NÃO LETRA MIÚDA.

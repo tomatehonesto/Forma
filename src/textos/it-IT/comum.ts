@@ -70,4 +70,16 @@ export const comum = {
     cuidado: 'Cura',
     insights: 'Insight',
   },
+  ditado: {
+    semPermissao: 'Ci serve il tuo permesso per usare il microfono.',
+    semReconhecimento: 'Il tuo dispositivo non ha abilitato il riconoscimento vocale.',
+    naoOuvimos: 'Non abbiamo sentito niente. Puoi parlare di nuovo.',
+    semConexao: 'Nessuna connessione per trascrivere adesso.',
+    semMicrofone: 'Non siamo riusciti a usare il microfono adesso.',
+    generica: 'Non siamo riusciti ad ascoltare adesso — puoi anche scrivere.',
+  },
+  aviso: {
+    oQueFazer: 'COSA FARE',
+    umRegistroSo: 'Una sola voce non disegna una curva.',
+  },
 };

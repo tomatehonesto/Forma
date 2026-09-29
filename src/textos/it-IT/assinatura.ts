@@ -159,6 +159,8 @@ export const assinatura = {
     naoPaga: 'Tu non paghi — l’accesso arriva dal legame',
     aindaNaoLigada: 'L’abbonamento non è ancora attivo',
     temCodigo: 'Ho un codice di invito',
+    cobrancaAindaNao: 'Questa schermata esiste, l’addebito ancora no. Non ti è stato addebitato nulla, e l’app resta completa così com’è.',
+    diasGratis: (n: number): string => `${n} ${n === 1 ? 'giorno gratis' : 'giorni gratis'}`,
   },
 
   /* ============================================================
@@ -280,6 +282,10 @@ export const assinatura = {
     vazioPaganteTexto: 'Quando l’abbonamento comincerà, ogni addebito comparirà qui con la data e la cifra.',
     inicioDoTeste: 'Inizio della prova gratuita',
     comprovante: 'La ricevuta ufficiale di ogni addebito',
+    plano: (nome: string) => ` · piano ${nome}`,
+    reembolsada: 'Rimborsata',
+    recibosNa: (loja: string) => `Ricevute su ${loja}`,
+    quemCobra: (loja: string) => `L’addebito è fatto da ${loja}, e la ricevuta è sua. Quello che vedi qui è la lettura di quelle ricevute — se un importo non torna, vale quello dello store.`,
   },
 
   /* ============================================================
@@ -294,6 +300,8 @@ export const assinatura = {
     nadaCobrado: 'Non è stato addebitato niente, e non lo sarà senza che tu lo scelga.',
     verOsPlanos: 'Vedi i piani',
     outroCodigo: 'Ho un altro codice',
+    tituloTela: 'Il tuo accesso è temporaneamente sospeso',
+    vinculoEncerrado: (clinica: string) => `${clinica} ha comunicato che il rapporto di trattamento è terminato — ed era quello a coprire l’app per te.`,
   },
 
 };

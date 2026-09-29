@@ -186,4 +186,8 @@ export const conquistas = {
     ossoDaRegra: 'Die Stufen entstehen aus deinen Einträgen. Verschwindet ein Eintrag, verschwindet die Stufe mit, die er geschlossen hat.',
     aCaminho: 'Unterwegs',
   },
+  telaConquistaOk: {
+    alcancada: 'ERFOLG ERREICHT',
+    noMesmoRegistro: 'IM SELBEN EINTRAG',
+  },
 };

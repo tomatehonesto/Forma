@@ -165,4 +165,8 @@ export const conquistas = {
     ossoDaRegra: 'Les niveaux sortent de vos relevés. Si un relevé disparaît, le niveau qu’il a fermé disparaît avec lui.',
     aCaminho: 'En chemin',
   },
+  telaConquistaOk: {
+    alcancada: 'SUCCÈS DÉBLOQUÉ',
+    noMesmoRegistro: 'DANS LA MÊME ENTRÉE',
+  },
 };

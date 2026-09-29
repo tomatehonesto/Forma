@@ -166,6 +166,8 @@ export const assinatura = {
     naoPaga: 'Você não paga — o acesso vem do vínculo',
     aindaNaoLigada: 'A assinatura ainda não está ligada',
     temCodigo: 'Tenho um código de convite',
+    cobrancaAindaNao: 'Esta tela existe, a cobrança ainda não. Nada foi cobrado de você, e o aplicativo segue inteiro do jeito que está.',
+    diasGratis: (n: number): string => `${n} ${n === 1 ? 'dia grátis' : 'dias grátis'}`,
   },
 
   /* ============================================================
@@ -300,6 +302,10 @@ export const assinatura = {
     vazioPaganteTexto: 'Quando a assinatura começar, cada cobrança aparece aqui com a data e o valor.',
     inicioDoTeste: 'Início do teste grátis',
     comprovante: 'O comprovante oficial de cada cobrança',
+    plano: (nome: string) => ` · plano ${nome}`,
+    reembolsada: 'Reembolsada',
+    recibosNa: (loja: string) => `Recibos na ${loja}`,
+    quemCobra: (loja: string) => `A cobrança é feita pela ${loja}, e o recibo é dela. O que aparece aqui é a leitura desses recibos — se algum valor não bater, o que vale é o da loja.`,
   },
 
   /* ============================================================
@@ -314,6 +320,8 @@ export const assinatura = {
     nadaCobrado: 'Nada foi cobrado, e nada vai ser sem você escolher.',
     verOsPlanos: 'Ver os planos',
     outroCodigo: 'Tenho outro código',
+    tituloTela: 'O seu acesso está temporariamente suspenso',
+    vinculoEncerrado: (clinica: string) => `${clinica} informou que o vínculo de tratamento foi encerrado — e era ele que cobria o aplicativo para você.`,
   },
 
 };

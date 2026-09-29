@@ -60,4 +60,19 @@ export const perfil = {
 
   sair: 'Se déconnecter',
   versao: (numero: string) => `Morphi · version ${numero}`,
+  telaAparencia: {
+    titulo: 'Apparence',
+    lead: 'Faites de l’application la vôtre. La couleur choisie s’applique à tous les écrans — et même à l’icône, sur votre écran d’accueil.',
+    exemplo: 'APERÇU',
+    bomDia: 'Bonjour',
+    diaSemana: 'Jour 12 · semaine 2',
+    metasDeHoje: 'Vos objectifs du jour',
+    registrar: 'Enregistrer',
+    verJornada: 'Voir le parcours',
+    escolhaTema: 'Choisissez le thème',
+    escolhaCor: 'Choisissez votre couleur',
+    sistema: 'Système',
+    claro: 'Clair',
+    escuro: 'Sombre',
+  },
 };

@@ -56,12 +56,12 @@ export default function Unidades() {
 
   return (
     <SheetScreen
-      titulo="Unidades de medida"
-      sub="Muda só como os números aparecem."
+      titulo={T.medidas.telaMedir.unidadesTitulo}
+      sub={T.medidas.telaMedir.unidadesSub}
       onClose={() => router.back()}
     >
       <View style={{ marginTop: 18, gap: 10 }}>
-        <Campo rotulo="Como você lê medidas" nu>
+        <Campo rotulo={T.medidas.telaMedir.comoLe} nu>
           {/* ⚠️ O ESCOLHIDO É CHEIO, COMO NO CADASTRO, e antes era uma
               pastilha escrita "em uso" no canto da linha.
 
@@ -100,8 +100,7 @@ export default function Unidades() {
         </Txt>
 
         <Txt v="caption" c="#8A8F98" style={{ paddingHorizontal: 2 }}>
-          A dose do medicamento continua em miligrama, e a proteína em grama —
-          são as mesmas unidades nos dois sistemas.
+          {T.medidas.telaMedir.mesmasUnidades}
         </Txt>
       </View>
     </SheetScreen>

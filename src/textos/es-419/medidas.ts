@@ -122,5 +122,9 @@ export const medidas = {
     nenhumaObrigatoria: 'Ninguna es obligatoria. Medir solo la cintura es un registro tan bueno como medir las cuatro.',
     desdeAUltima: (sinal: string, v: string) => `${sinal}${v} desde la última`,
     registrar: (n: number): string => (n === 1 ? 'Registrar la medida' : 'Registrar las medidas'),
+    unidadesTitulo: 'Unidades de medida',
+    unidadesSub: 'Solo cambia cómo se muestran los números.',
+    comoLe: 'Cómo lees las medidas',
+    mesmasUnidades: 'La dosis del medicamento sigue en miligramos, y la proteína en gramos — son las mismas unidades en los dos sistemas.',
   },
 };

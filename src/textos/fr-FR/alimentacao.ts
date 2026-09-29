@@ -164,6 +164,9 @@ export const alimentacao = {
     semPeixeSub: 'Poisson, crevettes et fruits de mer sortent.',
     semCarneVermelha: 'Sans viande rouge',
     semCarneVermelhaSub: 'Bœuf et porc sortent. Volaille et poisson restent.',
+    telaTitulo: 'Restriction alimentaire',
+    telaTituloGrande: 'Restrictions alimentaires',
+    telaLead: 'Indiquez ce qui reste hors de votre assiette : nous ne suggérons que ce qui convient, et la liste d’aliments montre d’abord ce qui va — sans cacher le reste. En cas d’allergie, vérifiez toujours l’étiquette, car nous ne pouvons pas connaître la marque ni la préparation.',
   },
 
   /* ⚠️⚠️ LA PHRASE DE L'ÉNERGIE PORTE UN `<b>` À L'INTÉRIEUR, et ce n'est
@@ -444,5 +447,15 @@ export const alimentacao = {
     nenhuma: 'aucune',
     outraPlaceholder: 'Kombucha, boisson isotonique, jus de canne…',
     quantidade: 'Quantité',
+    doses: (d: number): string => `${d} ${d === 1 ? 'dose' : 'doses'}`,
+    semWhey: 'Sans whey',
+  },
+  telaCamera: {
+    precisa: 'La caméra est nécessaire',
+    porque: 'C’est la caméra qui lit l’assiette et estime les protéines du repas. La photo sert à cela et à rien d’autre.',
+    permitir: 'Autoriser la caméra',
+    escolherFoto: 'Choisir une photo',
+    agoraNao: 'Pas maintenant',
+    enquadre: 'L’assiette entière, vue de dessus',
   },
 };

@@ -133,6 +133,8 @@ export const assinatura = {
     naoPaga: 'No pagas — el acceso viene del vínculo',
     aindaNaoLigada: 'La suscripción todavía no está activada',
     temCodigo: 'Tengo un código de invitación',
+    cobrancaAindaNao: 'Esta pantalla existe, el cobro todavía no. No se te cobró nada, y la app sigue completa como está.',
+    diasGratis: (n: number): string => `${n} ${n === 1 ? 'día gratis' : 'días gratis'}`,
   },
 
   /* ⚠️⚠️ LA PANTALLA PREGUNTA, PERO NO RETIENE. Quien la abrió ya decidió,
@@ -242,6 +244,10 @@ export const assinatura = {
     vazioPaganteTexto: 'Cuando empiece la suscripción, cada cobro aparece aquí con su fecha y su monto.',
     inicioDoTeste: 'Inicio de la prueba gratis',
     comprovante: 'El comprobante oficial de cada cobro',
+    plano: (nome: string) => ` · plan ${nome}`,
+    reembolsada: 'Reembolsada',
+    recibosNa: (loja: string) => `Recibos en ${loja}`,
+    quemCobra: (loja: string) => `El cobro lo hace ${loja}, y el recibo es suyo. Lo que ves aquí es la lectura de esos recibos — si algún valor no coincide, el que vale es el de la tienda.`,
   },
 
   /* ⚠️ LO QUE ESTÁ SUSPENDIDO ES LA SUSCRIPCIÓN, Y NO LA CUENTA. Las dos
@@ -252,6 +258,8 @@ export const assinatura = {
     nadaCobrado: 'No se cobró nada, y nada se va a cobrar sin que lo elijas.',
     verOsPlanos: 'Ver los planes',
     outroCodigo: 'Tengo otro código',
+    tituloTela: 'Tu acceso está suspendido temporalmente',
+    vinculoEncerrado: (clinica: string) => `${clinica} informó que el vínculo de tratamiento terminó — y era lo que cubría la app para ti.`,
   },
 
 };

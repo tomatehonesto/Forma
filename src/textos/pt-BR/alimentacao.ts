@@ -182,6 +182,9 @@ export const alimentacao = {
     semPeixeSub: 'Peixe, camarão e frutos do mar ficam fora.',
     semCarneVermelha: 'Sem carne vermelha',
     semCarneVermelhaSub: 'Boi e porco ficam fora. Frango e peixe continuam.',
+    telaTitulo: 'Restrição alimentar',
+    telaTituloGrande: 'Restrições alimentares',
+    telaLead: 'Marque o que fica fora do seu prato: passamos a sugerir só o que cabe, e a tabela de alimentos mostra primeiro o que serve — sem esconder o resto. Em caso de alergia, confira sempre o rótulo, porque a marca e o preparo a gente não tem como saber.',
   },
 
   /* ============================================================
@@ -564,5 +567,16 @@ export const alimentacao = {
     nenhuma: 'nenhuma',
     outraPlaceholder: 'Kombucha, isotônico, caldo de cana…',
     quantidade: 'Quantidade',
+    doses: (d: number): string => `${d} ${d === 1 ? 'dose' : 'doses'}`,
+    semWhey: 'Sem whey',
+  },
+  /* A câmera que lê o prato (ui/CameraPrato). */
+  telaCamera: {
+    precisa: 'Precisa da câmera',
+    porque: 'É a câmera que lê o prato e estima a proteína da refeição. A foto é usada para isso e nada mais.',
+    permitir: 'Permitir a câmera',
+    escolherFoto: 'Escolher uma foto',
+    agoraNao: 'Agora não',
+    enquadre: 'O prato inteiro, visto de cima',
   },
 };

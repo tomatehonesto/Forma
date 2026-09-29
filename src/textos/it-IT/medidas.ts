@@ -157,5 +157,9 @@ export const medidas = {
     nenhumaObrigatoria: 'Nessuna è obbligatoria. Misurare solo la vita vale quanto misurarle tutte e quattro.',
     desdeAUltima: (sinal: string, v: string) => `${sinal}${v} dall’ultima volta`,
     registrar: (n: number): string => (n === 1 ? 'Registra la misura' : 'Registra le misure'),
+    unidadesTitulo: 'Unità di misura',
+    unidadesSub: 'Cambia solo come appaiono i numeri.',
+    comoLe: 'Come leggi le misure',
+    mesmasUnidades: 'La dose del farmaco resta in milligrammi e le proteine in grammi — sono le stesse unità nei due sistemi.',
   },
 };

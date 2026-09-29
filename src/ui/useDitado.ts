@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { Platform } from 'react-native';
 import Constants, { ExecutionEnvironment } from 'expo-constants';
+import { T } from '../textos';
 
 /* ============================================================
    O DITADO — falar em vez de digitar, no campo do companion.
@@ -107,15 +108,19 @@ export const estadoDoDitado = (): EstadoDoDitado => {
 
 /* As falhas que a pessoa pode resolver ganham frase própria; o resto cai
    na genérica, que oferece a saída que sempre existiu — escrever. */
-const MENSAGENS: Record<string, string> = {
-  'not-allowed': 'Precisamos da sua permissão para usar o microfone.',
-  'service-not-allowed': 'O seu aparelho não liberou o reconhecimento de fala.',
-  'no-speech': 'Não ouvi nada. Pode falar de novo.',
-  'network': 'Sem conexão para transcrever agora.',
-  'audio-capture': 'Não consegui usar o microfone agora.',
+/* ⚠️ É FUNÇÃO, porque lê o catálogo. Ver src/textos/README. */
+const MENSAGENS = (): Record<string, string> => {
+  const t = T.comum.ditado;
+  return {
+    'not-allowed': t.semPermissao,
+    'service-not-allowed': t.semReconhecimento,
+    'no-speech': t.naoOuvimos,
+    'network': t.semConexao,
+    'audio-capture': t.semMicrofone,
+  };
 };
 const mensagemDoErro = (code?: string) =>
-  (code && MENSAGENS[code]) || 'Não consegui ouvir agora — dá para escrever também.';
+  (code && MENSAGENS()[code]) || T.comum.ditado.generica;
 
 /* Texto de desenvolvimento, e ele diz isso de si. Só aparece no Expo Go. */
 const AVISO_EXPO_GO = 'O ditado precisa de uma build de desenvolvimento — no Expo Go o módulo de voz não existe. Aqui o botão está só para a tela ficar completa.';
@@ -150,7 +155,7 @@ export function useDitado(escrever: (texto: string) => void) {
     if (!Modulo) { setErro(mensagemDoErro()); return; }
     try {
       const p = await Modulo.requestPermissionsAsync();
-      if (!p.granted) { setErro(MENSAGENS['not-allowed']); return; }
+      if (!p.granted) { setErro(MENSAGENS()['not-allowed']); return; }
       Modulo.start({
         lang: 'pt-BR',
         /* O texto aparece enquanto ela fala, e não só no fim: sem isso o

@@ -368,4 +368,12 @@ export const cadastro = {
        cadastro, é registro — muda toda semana e tem tela própria. */
     rodape: 'Para registrar uma pesagem nova, use o botão de registrar.',
   },
+  /* As frases da pergunta de ritmo no cadastro. A primeira é do
+     companheiro, e por isso é "eu". */
+  ritmoTela: {
+    umaSemana: 'Uma semana de cada vez — e eu acompanho cada uma delas com você.',
+    naoEPrevisao: 'É o ritmo que você quer seguir, não uma previsão: quanto o peso desce depende do corpo e da dose.',
+    semRitmo: 'Sua meta não é perder peso, então não há ritmo a escolher aqui.',
+    idadeMinima: (idade: number) => `Este aplicativo é exclusivo para maiores de ${idade} anos. O tratamento de quem ainda não tem essa idade é acompanhado pela equipe de saúde, junto com quem responde legalmente por essa pessoa.`,
+  },
 };

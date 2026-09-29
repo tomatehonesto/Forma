@@ -180,4 +180,8 @@ export const conquistas = {
     ossoDaRegra: 'I livelli escono dai tuoi registri. Se un registro sparisce, sparisce con lui anche il livello che aveva chiuso.',
     aCaminho: 'In arrivo',
   },
+  telaConquistaOk: {
+    alcancada: 'TRAGUARDO RAGGIUNTO',
+    noMesmoRegistro: 'NELLA STESSA VOCE',
+  },
 };

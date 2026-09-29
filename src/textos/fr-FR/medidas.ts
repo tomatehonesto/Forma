@@ -122,5 +122,9 @@ export const medidas = {
     nenhumaObrigatoria: 'Aucune n’est obligatoire. Mesurer seulement la taille vaut autant que mesurer les quatre.',
     desdeAUltima: (sinal: string, v: string) => `${sinal}${v} depuis la dernière`,
     registrar: (n: number): string => (n === 1 ? 'Enregistrer la mesure' : 'Enregistrer les mesures'),
+    unidadesTitulo: 'Unités de mesure',
+    unidadesSub: 'Cela change seulement l’affichage des chiffres.',
+    comoLe: 'Comment vous lisez les mesures',
+    mesmasUnidades: 'La dose du médicament reste en milligrammes, et les protéines en grammes — ce sont les mêmes unités dans les deux systèmes.',
   },
 };

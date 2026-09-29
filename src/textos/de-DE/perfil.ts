@@ -66,4 +66,19 @@ export const perfil = {
 
   sair: 'Abmelden',
   versao: (numero: string) => `Morphi · Version ${numero}`,
+  telaAparencia: {
+    titulo: 'Erscheinungsbild',
+    lead: 'Gestalte die App nach deinem Geschmack. Die Farbe, die du wählst, gilt für alle Bildschirme — und sogar für das Symbol auf deinem Startbildschirm.',
+    exemplo: 'SO SIEHT ES AUS',
+    bomDia: 'Guten Morgen',
+    diaSemana: 'Tag 12 · Woche 2',
+    metasDeHoje: 'Deine Ziele für heute',
+    registrar: 'Eintragen',
+    verJornada: 'Reise ansehen',
+    escolhaTema: 'Wähle das Design',
+    escolhaCor: 'Wähle deine Farbe',
+    sistema: 'System',
+    claro: 'Hell',
+    escuro: 'Dunkel',
+  },
 };

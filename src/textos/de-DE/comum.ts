@@ -91,4 +91,16 @@ export const comum = {
     cuidado: 'Betreuung',
     insights: 'Insights',
   },
+  ditado: {
+    semPermissao: 'Wir brauchen deine Erlaubnis, um das Mikrofon zu nutzen.',
+    semReconhecimento: 'Dein Gerät hat die Spracherkennung nicht freigegeben.',
+    naoOuvimos: 'Wir haben nichts gehört. Sprich gern noch einmal.',
+    semConexao: 'Gerade keine Verbindung zum Transkribieren.',
+    semMicrofone: 'Wir konnten das Mikrofon gerade nicht nutzen.',
+    generica: 'Wir konnten gerade nicht zuhören — du kannst auch schreiben.',
+  },
+  aviso: {
+    oQueFazer: 'WAS ZU TUN IST',
+    umRegistroSo: 'Ein einzelner Eintrag ergibt noch keine Kurve.',
+  },
 };

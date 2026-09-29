@@ -35,7 +35,9 @@ export default function MetaClinica() {
   const router = useRouter();
   const { alvo } = useLocalSearchParams<{ alvo?: string }>();
 
-  const chave = ((alvo as ChaveDeAlvo) || 'peso') as ChaveDeAlvo;
+  /* Uma chave que não existe — um link antigo, digitado — cai no peso, em vez
+     de derrubar a tela lendo a régua de um alvo que não há. */
+  const chave: ChaveDeAlvo = alvo && alvo in ALVOS() ? (alvo as ChaveDeAlvo) : 'peso';
   const def = ALVOS()[chave];
   const atual = metaClinica(S, chave);
   const r = def.regua;

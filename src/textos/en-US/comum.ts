@@ -51,4 +51,16 @@ export const comum = {
     cuidado: 'Care',
     insights: 'Insights',
   },
+  ditado: {
+    semPermissao: 'We need your permission to use the microphone.',
+    semReconhecimento: 'Your device hasn’t allowed speech recognition.',
+    naoOuvimos: 'We didn’t hear anything. You can speak again.',
+    semConexao: 'No connection to transcribe right now.',
+    semMicrofone: 'We couldn’t use the microphone right now.',
+    generica: 'We couldn’t listen right now — you can type instead.',
+  },
+  aviso: {
+    oQueFazer: 'WHAT TO DO',
+    umRegistroSo: 'A single entry doesn’t make a curve.',
+  },
 };

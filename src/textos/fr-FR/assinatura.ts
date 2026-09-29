@@ -163,6 +163,8 @@ export const assinatura = {
     naoPaga: 'Vous ne payez pas — l’accès vient du lien',
     aindaNaoLigada: 'L’abonnement n’est pas encore activé',
     temCodigo: 'J’ai un code d’invitation',
+    cobrancaAindaNao: 'Cet écran existe, la facturation pas encore. Rien ne vous a été facturé, et l’application reste entière telle qu’elle est.',
+    diasGratis: (n: number): string => `${n} ${n === 1 ? 'jour gratuit' : 'jours gratuits'}`,
   },
 
   /* ============================================================
@@ -293,6 +295,10 @@ export const assinatura = {
     vazioPaganteTexto: 'Quand l’abonnement commencera, chaque prélèvement apparaîtra ici avec sa date et son montant.',
     inicioDoTeste: 'Début de l’essai gratuit',
     comprovante: 'Le justificatif officiel de chaque prélèvement',
+    plano: (nome: string) => ` · formule ${nome}`,
+    reembolsada: 'Remboursée',
+    recibosNa: (loja: string) => `Reçus sur ${loja}`,
+    quemCobra: (loja: string) => `La facturation est faite par ${loja}, et le reçu vient d’elle. Ce qui apparaît ici est la lecture de ces reçus — si un montant ne correspond pas, c’est celui de la boutique qui compte.`,
   },
 
   /* ============================================================
@@ -307,6 +313,8 @@ export const assinatura = {
     nadaCobrado: 'Rien n’a été prélevé, et rien ne le sera sans que vous le choisissiez.',
     verOsPlanos: 'Voir les offres',
     outroCodigo: 'J’ai un autre code',
+    tituloTela: 'Votre accès est temporairement suspendu',
+    vinculoEncerrado: (clinica: string) => `${clinica} a indiqué que le lien de traitement a pris fin — et c’est lui qui couvrait l’application pour vous.`,
   },
 
 };

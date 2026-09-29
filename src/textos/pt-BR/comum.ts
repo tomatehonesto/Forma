@@ -82,4 +82,19 @@ export const comum = {
     cuidado: 'Cuidado',
     insights: 'Insights',
   },
+  /* As falhas do ditado (ui/useDitado). As que a pessoa pode resolver
+     ganham frase própria; o resto cai na genérica, que oferece a saída que
+     sempre existiu — escrever. */
+  ditado: {
+    semPermissao: 'Precisamos da sua permissão para usar o microfone.',
+    semReconhecimento: 'O seu aparelho não liberou o reconhecimento de fala.',
+    naoOuvimos: 'Não ouvimos nada. Pode falar de novo.',
+    semConexao: 'Sem conexão para transcrever agora.',
+    semMicrofone: 'Não conseguimos usar o microfone agora.',
+    generica: 'Não conseguimos ouvir agora — dá para escrever também.',
+  },
+  aviso: {
+    oQueFazer: 'O QUE FAZER',
+    umRegistroSo: 'Um registro só não desenha uma curva.',
+  },
 };

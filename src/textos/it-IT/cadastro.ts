@@ -350,4 +350,10 @@ export const cadastro = {
        schermata sua. */
     rodape: 'Per registrare una pesata nuova, usa il pulsante di registrazione.',
   },
+  ritmoTela: {
+    umaSemana: 'Una settimana alla volta — e ti accompagno in ognuna.',
+    naoEPrevisao: 'È il ritmo che vuoi seguire, non una previsione: quanto peso scende dipende dal corpo e dalla dose.',
+    semRitmo: 'Il tuo obiettivo non è perdere peso, quindi qui non c’è un ritmo da scegliere.',
+    idadeMinima: (idade: number) => `Questa app è riservata ai maggiori di ${idade} anni. Il trattamento di chi non ha ancora quell’età è seguito dall’équipe sanitaria, insieme a chi ne è legalmente responsabile.`,
+  },
 };

@@ -122,5 +122,9 @@ export const medidas = {
     nenhumaObrigatoria: 'None of them is required. Measuring just your waist is as good an entry as measuring all four.',
     desdeAUltima: (sinal: string, v: string) => `${sinal}${v} since the last one`,
     registrar: (n: number): string => (n === 1 ? 'Log the measurement' : 'Log the measurements'),
+    unidadesTitulo: 'Units of measurement',
+    unidadesSub: 'It only changes how the numbers are shown.',
+    comoLe: 'How you read measurements',
+    mesmasUnidades: 'Your medication dose stays in milligrams, and protein in grams — they’re the same units in both systems.',
   },
 };

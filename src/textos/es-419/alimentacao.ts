@@ -160,6 +160,9 @@ export const alimentacao = {
     semPeixeSub: 'Pescado, camarón y mariscos quedan fuera.',
     semCarneVermelha: 'Sin carne roja',
     semCarneVermelhaSub: 'Res y cerdo quedan fuera. Pollo y pescado siguen.',
+    telaTitulo: 'Restricción alimentaria',
+    telaTituloGrande: 'Restricciones alimentarias',
+    telaLead: 'Marca lo que queda fuera de tu plato: solo sugerimos lo que encaja, y la tabla de alimentos muestra primero lo que sirve — sin esconder el resto. Si tienes alergia, revisa siempre la etiqueta, porque no podemos saber la marca ni la preparación.',
   },
 
   /* ⚠️ La frase de la energía trae `<b>` adentro, y eso suelta el ORDEN de
@@ -433,5 +436,15 @@ export const alimentacao = {
     nenhuma: 'ninguna',
     outraPlaceholder: 'Kombucha, bebida isotónica, jugo de caña…',
     quantidade: 'Cantidad',
+    doses: (d: number): string => `${d} ${d === 1 ? 'medida' : 'medidas'}`,
+    semWhey: 'Sin whey',
+  },
+  telaCamera: {
+    precisa: 'Se necesita la cámara',
+    porque: 'La cámara lee el plato y estima la proteína de la comida. La foto se usa para eso y nada más.',
+    permitir: 'Permitir la cámara',
+    escolherFoto: 'Elegir una foto',
+    agoraNao: 'Ahora no',
+    enquadre: 'El plato entero, visto desde arriba',
   },
 };

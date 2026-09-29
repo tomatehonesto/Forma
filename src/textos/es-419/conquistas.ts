@@ -157,4 +157,8 @@ export const conquistas = {
     ossoDaRegra: 'Los niveles salen de tus registros. Si un registro se va, el nivel que cerró se va con él.',
     aCaminho: 'En camino',
   },
+  telaConquistaOk: {
+    alcancada: 'LOGRO ALCANZADO',
+    noMesmoRegistro: 'EN EL MISMO REGISTRO',
+  },
 };

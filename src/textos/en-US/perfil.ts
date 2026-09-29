@@ -60,4 +60,19 @@ export const perfil = {
 
   sair: 'Sign out',
   versao: (numero: string) => `Morphi · version ${numero}`,
+  telaAparencia: {
+    titulo: 'Appearance',
+    lead: 'Make the app your own. The color you choose goes to every screen — and even to the icon on your home screen.',
+    exemplo: 'PREVIEW',
+    bomDia: 'Good morning',
+    diaSemana: 'Day 12 · week 2',
+    metasDeHoje: 'Today’s goals',
+    registrar: 'Log',
+    verJornada: 'See the journey',
+    escolhaTema: 'Choose the theme',
+    escolhaCor: 'Choose your color',
+    sistema: 'System',
+    claro: 'Light',
+    escuro: 'Dark',
+  },
 };

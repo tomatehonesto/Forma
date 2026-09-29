@@ -663,7 +663,7 @@ export default function Planos() {
                         </View>
                       ) : p.teste ? (
                         <View style={{ backgroundColor: c.lime, borderRadius: radius.pill, paddingHorizontal: 8, paddingVertical: 3 }}>
-                          <Txt v="micro" c={c.limeInk}>{p.teste} dias grátis</Txt>
+                          <Txt v="micro" c={c.limeInk}>{V().diasGratis(p.teste)}</Txt>
                         </View>
                       ) : null}
                     </Row>
@@ -745,8 +745,7 @@ export default function Planos() {
             <View style={{ marginTop: 12, backgroundColor: c.bg1, borderRadius: radius.lg, padding: 16, gap: 5 }}>
               <Txt v="bodyMed" c={c.tx}>{V().aindaNaoLigada}</Txt>
               <Txt v="caption" c={c.tx3} style={{ lineHeight: 19 }}>
-                Esta tela existe, a cobrança ainda não. Nada foi cobrado de você, e o aplicativo
-                segue inteiro do jeito que está.
+                {V().cobrancaAindaNao}
               </Txt>
             </View>
           ) : null}

@@ -195,7 +195,7 @@ export default function MedirAgua() {
                     borderRadius: radius.md, paddingVertical: 11, alignItems: 'center',
                   }}>
                     <Txt v="caption" c={doses === d ? c.accentInk : c.tx}>
-                      {d === 0 ? 'Sem whey' : `${d} ${d === 1 ? 'dose' : 'doses'}`}
+                      {d === 0 ? K().semWhey : K().doses(d)}
                     </Txt>
                   </View>
                 </Pressable>

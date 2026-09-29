@@ -162,4 +162,8 @@ export const conquistas = {
     ossoDaRegra: 'Levels come out of your records. If a record goes, the level it closed goes with it.',
     aCaminho: 'On the way',
   },
+  telaConquistaOk: {
+    alcancada: 'ACHIEVEMENT UNLOCKED',
+    noMesmoRegistro: 'IN THE SAME ENTRY',
+  },
 };

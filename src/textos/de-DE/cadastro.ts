@@ -295,4 +295,10 @@ export const cadastro = {
 
     rodape: 'Um eine neue Wiegung einzutragen, nimm die Eintragen-Taste.',
   },
+  ritmoTela: {
+    umaSemana: 'Eine Woche nach der anderen — und ich begleite dich durch jede davon.',
+    naoEPrevisao: 'Das ist das Tempo, das du anstrebst, keine Vorhersage: Wie viel Gewicht du verlierst, hängt vom Körper und von der Dosis ab.',
+    semRitmo: 'Dein Ziel ist nicht abzunehmen, also gibt es hier kein Tempo zu wählen.',
+    idadeMinima: (idade: number) => `Diese App ist nur für Personen ab ${idade} Jahren. Die Behandlung Jüngerer begleitet das Behandlungsteam, zusammen mit der Person, die rechtlich für sie verantwortlich ist.`,
+  },
 };

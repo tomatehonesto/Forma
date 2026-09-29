@@ -66,8 +66,8 @@ export default function Cobrancas() {
               <Linha
                 key={l.t}
                 titulo={l.estado === 'teste' ? T.assinatura.extrato.inicioDoTeste : preco(l.valor)}
-                sub={`${dataComAno(l.t)}${plano ? ` · plano ${plano.nome.toLowerCase()}` : ''}`}
-                selo={l.estado === 'reembolsada' ? 'Reembolsada' : undefined}
+                sub={`${dataComAno(l.t)}${plano ? T.assinatura.extrato.plano(plano.nome.toLowerCase()) : ''}`}
+                selo={l.estado === 'reembolsada' ? T.assinatura.extrato.reembolsada : undefined}
                 seloTom="neutra"
                 seta={false}
               />
@@ -84,15 +84,14 @@ export default function Cobrancas() {
       <Cartao>
         <Linha
           ic="send"
-          titulo={`Recibos na ${NOME_DA_LOJA}`}
+          titulo={T.assinatura.extrato.recibosNa(NOME_DA_LOJA)}
           sub={T.assinatura.extrato.comprovante}
           onPress={() => Linking.openURL(HISTORICO_NA_LOJA)}
         />
       </Cartao>
 
       <Txt v="caption" c={c.tx3} style={{ paddingHorizontal: 2, lineHeight: 20 }}>
-        A cobrança é feita pela {NOME_DA_LOJA}, e o recibo é dela. O que aparece aqui é a leitura
-        desses recibos — se algum valor não bater, o que vale é o da loja.
+        {T.assinatura.extrato.quemCobra(NOME_DA_LOJA)}
       </Txt>
     </TelaInterna>
   );

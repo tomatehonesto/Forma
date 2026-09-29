@@ -283,4 +283,10 @@ export const cadastro = {
 
     rodape: 'Pour noter une nouvelle pesée, utilisez le bouton de saisie.',
   },
+  ritmoTela: {
+    umaSemana: 'Une semaine à la fois — et je vous accompagne dans chacune d’elles.',
+    naoEPrevisao: 'C’est le rythme que vous voulez suivre, pas une prévision : la perte de poids dépend du corps et de la dose.',
+    semRitmo: 'Votre objectif n’est pas de perdre du poids, il n’y a donc pas de rythme à choisir ici.',
+    idadeMinima: (idade: number) => `Cette application est réservée aux personnes de ${idade} ans et plus. Le traitement des plus jeunes est suivi par l’équipe soignante, avec la personne qui en est légalement responsable.`,
+  },
 };

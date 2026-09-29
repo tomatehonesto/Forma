@@ -97,6 +97,8 @@ export const assinatura = {
     naoPaga: 'You don’t pay — access comes from your clinic link',
     aindaNaoLigada: 'Subscriptions aren’t turned on yet',
     temCodigo: 'I have an invite code',
+    cobrancaAindaNao: 'This screen exists; billing doesn’t yet. You haven’t been charged anything, and the app stays whole as it is.',
+    diasGratis: (n: number): string => `${n} ${n === 1 ? 'day free' : 'days free'}`,
   },
 
   /* ⚠️ THE SCREEN ASKS, BUT DOESN'T HOLD. Whoever opened it has already
@@ -188,6 +190,10 @@ export const assinatura = {
     vazioPaganteTexto: 'Once the subscription starts, each charge appears here with its date and amount.',
     inicioDoTeste: 'Free trial started',
     comprovante: 'The official receipt for each charge',
+    plano: (nome: string) => ` · ${nome} plan`,
+    reembolsada: 'Refunded',
+    recibosNa: (loja: string) => `Receipts in ${loja}`,
+    quemCobra: (loja: string) => `Billing is done by ${loja}, and the receipt is theirs. What you see here is a reading of those receipts — if any amount doesn’t match, the store’s is the one that counts.`,
   },
 
   suspenso: {
@@ -196,6 +202,8 @@ export const assinatura = {
     nadaCobrado: 'Nothing was charged, and nothing will be without you choosing it.',
     verOsPlanos: 'View plans',
     outroCodigo: 'I have another code',
+    tituloTela: 'Your access is temporarily suspended',
+    vinculoEncerrado: (clinica: string) => `${clinica} reported that the treatment link has ended — and it was what covered the app for you.`,
   },
 
 };

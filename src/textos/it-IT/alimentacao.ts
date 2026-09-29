@@ -176,6 +176,9 @@ export const alimentacao = {
     semPeixeSub: 'Pesce, gamberi e frutti di mare restano fuori.',
     semCarneVermelha: 'Senza carne rossa',
     semCarneVermelhaSub: 'Manzo e maiale restano fuori. Pollo e pesce restano.',
+    telaTitulo: 'Restrizione alimentare',
+    telaTituloGrande: 'Restrizioni alimentari',
+    telaLead: 'Segna ciò che resta fuori dal tuo piatto: suggeriamo solo ciò che va bene, e la lista degli alimenti mostra prima ciò che serve — senza nascondere il resto. In caso di allergia, controlla sempre l’etichetta, perché non possiamo sapere la marca né la preparazione.',
   },
 
   /* ============================================================
@@ -539,5 +542,15 @@ export const alimentacao = {
     nenhuma: 'nessuna',
     outraPlaceholder: 'Kombucha, bevanda isotonica, succo di canna…',
     quantidade: 'Quantità',
+    doses: (d: number): string => `${d} ${d === 1 ? 'misurino' : 'misurini'}`,
+    semWhey: 'Senza whey',
+  },
+  telaCamera: {
+    precisa: 'Serve la fotocamera',
+    porque: 'È la fotocamera a leggere il piatto e a stimare le proteine del pasto. La foto serve a questo e a nient’altro.',
+    permitir: 'Consenti la fotocamera',
+    escolherFoto: 'Scegli una foto',
+    agoraNao: 'Non ora',
+    enquadre: 'Il piatto intero, visto dall’alto',
   },
 };

@@ -116,4 +116,21 @@ export const perfil = {
   /* ---------- o rodapé ---------- */
   sair: 'Sair da conta',
   versao: (numero: string) => `Morphi · versão ${numero}`,
+  /* A tela de aparência (app/aparencia). A prévia usa texto de exemplo, e
+     não nome de gente. Os nomes das paletas são nomes próprios e ficam. */
+  telaAparencia: {
+    titulo: 'Aparência',
+    lead: 'Deixe o aplicativo com a sua cara. A cor que você escolher vai para todas as telas — e até para o ícone, na sua tela inicial.',
+    exemplo: 'EXEMPLO DE COMO FICA',
+    bomDia: 'Bom dia',
+    diaSemana: 'Dia 12 · semana 2',
+    metasDeHoje: 'Suas metas de hoje',
+    registrar: 'Registrar',
+    verJornada: 'Ver a jornada',
+    escolhaTema: 'Escolha o tema',
+    escolhaCor: 'Escolha a sua cor',
+    sistema: 'Sistema',
+    claro: 'Claro',
+    escuro: 'Escuro',
+  },
 };

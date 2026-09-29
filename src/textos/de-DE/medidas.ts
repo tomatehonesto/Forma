@@ -139,5 +139,9 @@ export const medidas = {
     nenhumaObrigatoria: 'Keine davon ist Pflicht. Nur die Taille zu messen ist ein genauso guter Eintrag wie alle vier.',
     desdeAUltima: (sinal: string, v: string) => `${sinal}${v} seit dem letzten Mal`,
     registrar: (n: number): string => (n === 1 ? 'Maß eintragen' : 'Maße eintragen'),
+    unidadesTitulo: 'Maßeinheiten',
+    unidadesSub: 'Ändert nur, wie die Zahlen angezeigt werden.',
+    comoLe: 'Wie du Maße liest',
+    mesmasUnidades: 'Die Dosis deines Medikaments bleibt in Milligramm und das Protein in Gramm — das sind in beiden Systemen dieselben Einheiten.',
   },
 };

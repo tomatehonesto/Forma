@@ -159,6 +159,8 @@ export const assinatura = {
     naoPaga: 'Du zahlst nicht — der Zugang kommt aus der Verbindung',
     aindaNaoLigada: 'Das Abo ist noch nicht aktiv',
     temCodigo: 'Ich habe einen Einladungscode',
+    cobrancaAindaNao: 'Diesen Bildschirm gibt es, die Abrechnung noch nicht. Dir wurde nichts berechnet, und die App bleibt vollständig, wie sie ist.',
+    diasGratis: (n: number): string => `${n} ${n === 1 ? 'Tag gratis' : 'Tage gratis'}`,
   },
 
   /* ============================================================
@@ -283,6 +285,10 @@ export const assinatura = {
     vazioPaganteTexto: 'Sobald das Abo beginnt, erscheint jede Abbuchung hier mit Datum und Betrag.',
     inicioDoTeste: 'Beginn der Gratis-Tage',
     comprovante: 'Der offizielle Beleg jeder Abbuchung',
+    plano: (nome: string) => ` · ${nome}-Abo`,
+    reembolsada: 'Erstattet',
+    recibosNa: (loja: string) => `Belege im ${loja}`,
+    quemCobra: (loja: string) => `Die Abrechnung erfolgt über ${loja}, und der Beleg kommt von dort. Was du hier siehst, ist eine Lesart dieser Belege — wenn ein Betrag nicht passt, gilt der des Stores.`,
   },
 
   /* ============================================================
@@ -298,6 +304,8 @@ export const assinatura = {
     nadaCobrado: 'Es wurde nichts abgebucht, und es wird nichts ohne deine Wahl abgebucht.',
     verOsPlanos: 'Angebote ansehen',
     outroCodigo: 'Ich habe einen anderen Code',
+    tituloTela: 'Dein Zugang ist vorübergehend gesperrt',
+    vinculoEncerrado: (clinica: string) => `${clinica} hat mitgeteilt, dass die Behandlungsverbindung beendet wurde — und sie hat die App für dich abgedeckt.`,
   },
 
 };

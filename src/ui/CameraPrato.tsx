@@ -6,6 +6,10 @@ import { Txt, Row } from './kit';
 import { Icon } from './Icon';
 import { useTheme } from './useTheme';
 import { radius } from '../theme';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, porque lê o catálogo. Ver src/textos/README. */
+const K = () => T.alimentacao.telaCamera;
 
 /* ============================================================
    A CÂMERA DO PRATO
@@ -60,15 +64,14 @@ export function CameraPrato({ onFoto, onFechar }: {
     return (
       <View style={{ flex: 1, backgroundColor: c.bg, padding: 24, justifyContent: 'center' }}>
         <Icon name="camera" size={28} color={c.tx3} sw={1.8} />
-        <Txt v="h2" style={{ marginTop: 16 }}>Precisa da câmera</Txt>
+        <Txt v="h2" style={{ marginTop: 16 }}>{K().precisa}</Txt>
         <Txt v="caption" c={c.tx3} style={{ marginTop: 8 }}>
-          É a câmera que lê o prato e estima a proteína da refeição. A foto é usada para
-          isso e nada mais.
+          {K().porque}
         </Txt>
 
         <Pressable onPress={pedirPermissao} style={({ pressed }) => [{ marginTop: 22, opacity: pressed ? 0.8 : 1 }]}>
           <View style={{ backgroundColor: c.accent, borderRadius: radius.pill, paddingVertical: 15, alignItems: 'center' }}>
-            <Txt v="body" c={c.accentInk}>Permitir a câmera</Txt>
+            <Txt v="body" c={c.accentInk}>{K().permitir}</Txt>
           </View>
         </Pressable>
 
@@ -76,12 +79,12 @@ export function CameraPrato({ onFoto, onFechar }: {
             tirada: negar o acesso não devia fechar o caminho inteiro. */}
         <Pressable onPress={daGaleria} style={({ pressed }) => [{ marginTop: 10, opacity: pressed ? 0.7 : 1 }]}>
           <View style={{ paddingVertical: 13, alignItems: 'center' }}>
-            <Txt v="label" c={c.accent}>Escolher uma foto</Txt>
+            <Txt v="label" c={c.accent}>{K().escolherFoto}</Txt>
           </View>
         </Pressable>
         <Pressable onPress={onFechar} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
           <View style={{ paddingVertical: 8, alignItems: 'center' }}>
-            <Txt v="label" c={c.tx3}>Agora não</Txt>
+            <Txt v="label" c={c.tx3}>{K().agoraNao}</Txt>
           </View>
         </Pressable>
       </View>
@@ -104,7 +107,7 @@ export function CameraPrato({ onFoto, onFechar }: {
 
       <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, paddingBottom: 46, paddingHorizontal: 28 }}>
         <Txt v="caption" c="rgba(255,255,255,0.86)" style={{ textAlign: 'center', marginBottom: 20 }}>
-          O prato inteiro, visto de cima
+          {K().enquadre}
         </Txt>
 
         <Row style={{ justifyContent: 'space-between', alignItems: 'center' }}>

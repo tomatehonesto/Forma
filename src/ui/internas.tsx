@@ -1223,7 +1223,7 @@ export function CardCurva({
         />
       ) : (
         <Txt v="caption" c={c.tx3} style={{ paddingHorizontal: PAD, paddingBottom: 20 }}>
-          Um registro só não desenha uma curva.
+          {T.comum.aviso.umRegistroSo}
         </Txt>
       )}
     </View>
@@ -1327,7 +1327,7 @@ export function Aviso({ ic = 'info', titulo, texto, acao, dentro, destaque, chil
 
         {acao ? (
           <View style={{ gap: 3, marginTop: 3 }}>
-            <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>O QUE FAZER</Txt>
+            <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>{T.comum.aviso.oQueFazer}</Txt>
             {/* Em tinta cheia, e não na cinza do texto de cima: é a parte
                 que a pessoa precisa levar embora da tela. */}
             <Txt v={vTexto} c={c.tx}>{acao}</Txt>

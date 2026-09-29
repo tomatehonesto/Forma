@@ -5,6 +5,7 @@ import { RESTRICOES } from '../logic/restricoes';
 import { Txt, Row } from '../ui/kit';
 import { TelaInterna, Titulao, Bloco, Cartao } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
+import { T } from '../textos';
 
 /* ============================================================
    O QUE VOCÊ NÃO COME
@@ -39,9 +40,9 @@ export default function Restricao() {
   });
 
   return (
-    <TelaInterna titulo="Restrição alimentar">
+    <TelaInterna titulo={T.alimentacao.restricoes.telaTitulo}>
       <Titulao
-        titulo="Restrições alimentares"
+        titulo={T.alimentacao.restricoes.telaTituloGrande}
         /* TUDO O QUE PRECISA SER DITO, DITO AQUI EM CIMA.
 
            Havia um aviso no pé da tela, e ele tinha dois problemas: quem
@@ -53,7 +54,7 @@ export default function Restricao() {
            que acontece ao marcar, e o que continua sendo responsabilidade
            do rótulo. Elas moram na abertura, que é onde alguém lê antes de
            decidir. */
-        lead="Marque o que fica fora do seu prato: passamos a sugerir só o que cabe, e a tabela de alimentos mostra primeiro o que serve — sem esconder o resto. Em caso de alergia, confira sempre o rótulo, porque a marca e o preparo a gente não tem como saber."
+        lead={T.alimentacao.restricoes.telaLead}
       />
 
       <Bloco>

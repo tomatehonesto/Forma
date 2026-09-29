@@ -137,6 +137,9 @@ export const alimentacao = {
     semPeixeSub: 'Fish, shrimp and shellfish are out.',
     semCarneVermelha: 'No red meat',
     semCarneVermelhaSub: 'Beef and pork are out. Chicken and fish stay.',
+    telaTitulo: 'Dietary restriction',
+    telaTituloGrande: 'Dietary restrictions',
+    telaLead: 'Mark what stays off your plate: we’ll only suggest what fits, and the food list shows what works first — without hiding the rest. If you have an allergy, always check the label, because we can’t know the brand or how it was prepared.',
   },
 
   /* ⚠️ The energy sentence carries `<b>` inside so the QUANTITY can sit
@@ -409,5 +412,15 @@ export const alimentacao = {
     nenhuma: 'none',
     outraPlaceholder: 'Kombucha, sports drink, sugarcane juice…',
     quantidade: 'Amount',
+    doses: (d: number): string => `${d} ${d === 1 ? 'scoop' : 'scoops'}`,
+    semWhey: 'No whey',
+  },
+  telaCamera: {
+    precisa: 'The camera is needed',
+    porque: 'The camera reads the plate and estimates the meal’s protein. The photo is used for that and nothing else.',
+    permitir: 'Allow the camera',
+    escolherFoto: 'Choose a photo',
+    agoraNao: 'Not now',
+    enquadre: 'The whole plate, seen from above',
   },
 };

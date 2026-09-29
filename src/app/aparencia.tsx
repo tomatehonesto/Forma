@@ -13,6 +13,10 @@ import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { PALETAS, paletaDe, alfa, mix, radius, font } from '../theme';
 import type { Tema } from '../logic/seed';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, porque lê o catálogo. Ver src/textos/README. */
+const K = () => T.perfil.telaAparencia;
 
 /* ============================================================
    APARÊNCIA
@@ -43,10 +47,12 @@ import type { Tema } from '../logic/seed';
    um esqueleto responde a única pergunta que a tela faz.
    ============================================================ */
 
-const MODOS: { id: Tema; nome: string; ic: string }[] = [
-  { id: 'system', nome: 'Sistema', ic: 'contrast' },
-  { id: 'light', nome: 'Claro', ic: 'sun' },
-  { id: 'dark', nome: 'Escuro', ic: 'moon' },
+/* O nome sai do catálogo na hora de desenhar (`chave`), e não daqui:
+   constante de módulo congelaria o idioma no import. */
+const MODOS: { id: Tema; chave: 'sistema' | 'claro' | 'escuro'; ic: string }[] = [
+  { id: 'system', chave: 'sistema', ic: 'contrast' },
+  { id: 'light', chave: 'claro', ic: 'sun' },
+  { id: 'dark', chave: 'escuro', ic: 'moon' },
 ];
 
 /* O ÍCONE DESENHADO, com a mesma rampa e as mesmas proporções de
@@ -115,10 +121,10 @@ export default function Aparencia() {
   const escolher = (id: string) => { setPaleta(id); trocarIcone(id); };
 
   return (
-    <TelaInterna titulo="Aparência">
+    <TelaInterna titulo={K().titulo}>
       <Titulao
-        titulo="Aparência"
-        lead="Deixe o aplicativo com a sua cara. A cor que você escolher vai para todas as telas — e até para o ícone, na sua tela inicial."
+        titulo={K().titulo}
+        lead={K().lead}
       />
 
       {/* ---- a prévia ----
@@ -127,7 +133,7 @@ export default function Aparencia() {
           com aurora, ícone e botão no alto de uma tela de ajuste lê como
           conteúdo de verdade — e a pessoa tenta tocar no "Registrar". */}
       <View style={{ gap: 10 }}>
-        <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.4 }}>EXEMPLO DE COMO FICA</Txt>
+        <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1.4 }}>{K().exemplo}</Txt>
 
         <View style={{
           borderRadius: radius.xl, overflow: 'hidden',
@@ -150,8 +156,8 @@ export default function Aparencia() {
             <Row gap={12} style={{ padding: 16, alignItems: 'center' }}>
               <IconeDaPaleta acao={paleta.acaoClara} marca={paleta.alcancado} lado={40} />
               <View style={{ flex: 1, gap: 3 }}>
-                <Txt v="bodyMed" c="#FFFFFF">Bom dia</Txt>
-                <Txt v="micro" c="rgba(255,255,255,0.72)">Dia 12 · semana 2</Txt>
+                <Txt v="bodyMed" c="#FFFFFF">{K().bomDia}</Txt>
+                <Txt v="micro" c="rgba(255,255,255,0.72)">{K().diaSemana}</Txt>
               </View>
             </Row>
 
@@ -167,7 +173,7 @@ export default function Aparencia() {
                 paddingLeft: 9, paddingRight: 12, paddingVertical: 6,
               }}>
                 <Icon name="check" size={12} color={paleta.alcancadoInk} sw={3} />
-                <Txt v="tag" c={paleta.alcancadoInk} style={{ fontFamily: font.bodyMed }}>Check-in feito</Txt>
+                <Txt v="tag" c={paleta.alcancadoInk} style={{ fontFamily: font.bodyMed }}>{T.home.telaInicio.checkinFeito}</Txt>
               </Row>
             </View>
           </View>
@@ -176,7 +182,7 @@ export default function Aparencia() {
               o botão cheio e o link. */}
           <View style={{ padding: 16, gap: 14 }}>
             <View style={{ gap: 6 }}>
-              <Txt v="bodyMed">Suas metas de hoje</Txt>
+              <Txt v="bodyMed">{K().metasDeHoje}</Txt>
               <Barra larg="62%" cor={c.bg3} />
             </View>
             <Row gap={14} style={{ alignItems: 'center' }}>
@@ -185,10 +191,10 @@ export default function Aparencia() {
                 borderRadius: radius.pill, paddingHorizontal: 18, paddingVertical: 9,
               }}>
                 <Txt v="tag" c={isDark ? paleta.inkEscuro : paleta.inkClaro} style={{ fontFamily: font.bodyMed }}>
-                  Registrar
+                  {K().registrar}
                 </Txt>
               </View>
-              <Txt v="tag" c={isDark ? paleta.acaoEscura : paleta.acaoClara}>Ver a jornada</Txt>
+              <Txt v="tag" c={isDark ? paleta.acaoEscura : paleta.acaoClara}>{K().verJornada}</Txt>
             </Row>
           </View>
         </View>
@@ -207,7 +213,7 @@ export default function Aparencia() {
           gosta" acima de cinco bolinhas coloridas. Texto que descreve o
           controle que está a um centímetro dele é o app lendo a tela em
           voz alta para quem está olhando. */}
-      <Bloco titulo="Escolha o tema">
+      <Bloco titulo={K().escolhaTema}>
         <Row gap={8}>
           {MODOS.map((m) => {
             const on = tema === m.id;
@@ -230,7 +236,7 @@ export default function Aparencia() {
                   paddingVertical: 10,
                 }}>
                   <Icon name={m.ic} size={15} color={on ? c.accentInk : c.tx3} sw={1.9} />
-                  <Txt v="label" c={on ? c.accentInk : c.tx2}>{m.nome}</Txt>
+                  <Txt v="label" c={on ? c.accentInk : c.tx2}>{K()[m.chave]}</Txt>
                 </Row>
               </Pressable>
             );
@@ -243,7 +249,7 @@ export default function Aparencia() {
           uma linha só por definição: se uma sexta paleta entrar um dia, o
           certo é ela não caber e alguém ter de decidir — e não a grade
           quebrar sozinha numa segunda fileira com um item solto. */}
-      <Bloco titulo="Escolha a sua cor">
+      <Bloco titulo={K().escolhaCor}>
         <Row>
           {PALETAS.map((p) => {
             const on = p.id === paletaId;

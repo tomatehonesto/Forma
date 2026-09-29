@@ -238,4 +238,10 @@ export const cadastro = {
 
     rodape: 'To log a new weigh-in, use the log button.',
   },
+  ritmoTela: {
+    umaSemana: 'One week at a time — and I’ll be with you through each of them.',
+    naoEPrevisao: 'It’s the pace you want to follow, not a forecast: how much weight comes off depends on your body and your dose.',
+    semRitmo: 'Your goal isn’t to lose weight, so there’s no pace to choose here.',
+    idadeMinima: (idade: number) => `This app is only for people aged ${idade} and over. Treatment for anyone younger is followed by the health team, together with whoever is legally responsible for them.`,
+  },
 };
