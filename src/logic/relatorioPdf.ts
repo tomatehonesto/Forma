@@ -1,12 +1,14 @@
 import { T } from '../textos';
 import type { State } from './seed';
 import {
-  M, curWeight, medComDose, nomeDoMarcador, respostaNoDia, siteLabel, variacaoDe, aguaDoDia,
+  M, curWeight, medComDose, respostaNoDia, siteLabel, variacaoDe, aguaDoDia,
 } from './derive';
 import { dataComAno, now, nf, doseTxt, startOfDay } from './time';
 import { pesoTxt, pesoV, pesoU, compTxt, aguaTxt } from './medidas';
-import { faixaTxt } from './unidadesDeExame';
-import { documento, esc, hojeIso, compartilharPdf, graficoDeLinha, dataDeTabela, type ResultadoDoPdf } from './pdf';
+import {
+  documento, esc, hojeIso, compartilharPdf, graficoDeLinha, dataDeTabela, blocoDeSintomas, tabelaDeExames,
+  type ResultadoDoPdf,
+} from './pdf';
 
 /* ============================================================
    O RELATÓRIO DO TRATAMENTO — o PDF de /exportar
@@ -29,9 +31,6 @@ import { documento, esc, hojeIso, compartilharPdf, graficoDeLinha, dataDeTabela,
    ============================================================ */
 
 export type RecorteDoRelatorio = { desde: number; inclui: Record<string, boolean> };
-
-const numero = (v: number | null | undefined, casas = 1) =>
-  v == null || !Number.isFinite(v) ? '—' : nf(v, v % 1 ? casas : 0);
 
 const secao = (titulo: string, conteudo: string, nota?: string, inteira = true) => `
   <section${inteira ? ' class="inteira"' : ''}>
@@ -110,30 +109,17 @@ export function htmlDoRelatorio(S: State, r: RecorteDoRelatorio): string {
     ) : vazio, undefined, false);
   }
 
-  /* ---- sintomas: só os dias respondidos, e o que ficou em branco é traço ---- */
+  /* ---- sintomas: em palavras, com a faixa dos dias (logic/pdf) ---- */
   if (r.inclui.sintomas) {
-    corpo += secao(R.sintomas, checkins.length ? tabela(
-      [{ t: R.data }, { t: Q.nausea, num: true }, { t: Q.fome, num: true }, { t: Q.energia, num: true }, { t: Q.sono, num: true }],
-      checkins.slice().reverse().map((c: any) => [
-        esc(dataDeTabela(c.t)), esc(numero(c.nausea)), esc(numero(c.fome)), esc(numero(c.energia)),
-        esc(c.sono != null ? `${numero(c.sono)} h` : '—'),
-      ]),
-    ) : vazio, undefined, false);
+    corpo += secao(R.sintomas, blocoDeSintomas(checkins) || vazio);
   }
 
-  /* ---- exames: cada marcador com as coletas do período ---- */
+  /* ---- exames: os marcadores com coleta no período, um por linha, com
+     o último valor e a etiqueta (logic/pdf). O anterior pode ser de antes
+     do período: é ele que diz para onde o número andou. ---- */
   if (r.inclui.exames) {
-    const exames = (S.exams as any[])
-      .map((e) => ({ e, vs: (e.values || []).filter((v: any) => v.t >= desde).sort((a: any, b: any) => b.t - a.t) }))
-      .filter((x) => x.vs.length);
-    corpo += secao(R.exames, exames.length ? tabela(
-      [{ t: Q.pdf.exame }, { t: Q.pdf.resultado, num: true }, { t: Q.pdf.referencia, num: true }],
-      exames.map(({ e, vs }) => [
-        esc(nomeDoMarcador(e.marker)),
-        vs.map((v: any) => `${esc(`${numero(v.v)}${e.unit ? ` ${e.unit}` : ''}`)} <span class="fraco">· ${esc(dataDeTabela(v.t))}</span>`).join('<br>'),
-        esc(e.ref ? `${faixaTxt(e.ref)}${e.unit ? ` ${e.unit}` : ''}` : '—'),
-      ]),
-    ) : vazio);
+    const exames = (S.exams as any[]).filter((e) => (e.values || []).some((v: any) => v.t >= desde));
+    corpo += secao(R.exames, exames.length ? tabelaDeExames(exames) : vazio);
   }
 
   /* ---- hábitos, como médias ---- */

@@ -1,10 +1,11 @@
 import { T } from '../textos';
 import type { State } from './seed';
-import { examLast, nomeDoMarcador } from './derive';
-import { resumoDoTratamento, valorDoExame } from './resumo';
-import { faixaTxt } from './unidadesDeExame';
-import { dataComAno, now } from './time';
-import { documento, esc, hojeIso, compartilharPdf, dataDeTabela, type ResultadoDoPdf } from './pdf';
+import { respostaNoDia } from './derive';
+import { resumoDoTratamento } from './resumo';
+import { dataComAno, now, startOfDay, DAY } from './time';
+import {
+  documento, esc, hojeIso, compartilharPdf, blocoDeSintomas, tabelaDeExames, type ResultadoDoPdf,
+} from './pdf';
 
 /* ============================================================
    O RESUMO EM PDF
@@ -31,25 +32,21 @@ export function htmlDoResumo(S: State): string {
   const P = R.pdf;
   const secoes = resumoDoTratamento(S);
   const para = [p.doctor, p.clinic].filter(Boolean).join(' · ');
+  /* os mesmos catorze dias que a seção de sintomas do resumo lê */
+  const desde = +startOfDay(now()) - 13 * DAY;
+  const ultimosDias = (S.checkins as any[]).filter((c) => c.t >= desde && respostaNoDia(c)).sort((a, b) => a.t - b.t);
 
   const corpo = secoes.map((s) => {
     const nota = s.nota ? `<p class="nota">${esc(s.nota)}</p>` : '';
+    /* exames e sintomas com os blocos comuns (logic/pdf): o exame com a
+       etiqueta, e o sintoma em palavras — sem a nota de "média", que o
+       papel não mostra mais */
     if (s.id === 'exames' && s.exames?.length) {
-      const linhas = s.exames.map((e: any) => `
-        <tr>
-          <td>${esc(nomeDoMarcador(e.marker))}</td>
-          <td class="num">${esc(valorDoExame(e))}</td>
-          <td class="num">${esc(e.ref ? `${faixaTxt(e.ref)}${e.unit ? ` ${e.unit}` : ''}` : '—')}</td>
-          <td class="num">${esc(dataDeTabela(examLast(e).t))}</td>
-        </tr>`).join('');
-      return `
-        <section class="inteira">
-          <h2>${esc(s.titulo)}</h2>${nota}
-          <table>
-            <thead><tr><th>${esc(P.exame)}</th><th class="num">${esc(P.resultado)}</th><th class="num">${esc(P.referencia)}</th><th class="num">${esc(P.coleta)}</th></tr></thead>
-            <tbody>${linhas}</tbody>
-          </table>
-        </section>`;
+      return `<section class="inteira"><h2>${esc(s.titulo)}</h2>${tabelaDeExames(s.exames)}</section>`;
+    }
+    if (s.id === 'sintomas') {
+      const bloco = blocoDeSintomas(ultimosDias);
+      return `<section class="inteira"><h2>${esc(s.titulo)}</h2>${bloco || `<p class="nota">${esc(s.nota ?? '')}</p>`}</section>`;
     }
     if (s.id === 'notas') {
       const itens = (s.notas ?? []).map((n) => `<li>${esc(n.text)}</li>`).join('');

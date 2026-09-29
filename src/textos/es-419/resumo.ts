@@ -64,7 +64,6 @@ export const resumo = {
     exame: 'Examen',
     resultado: 'Resultado',
     referencia: 'Referencia',
-    coleta: 'Toma',
     arquivo: (data: string) => `morphi-resumen-${data}.pdf`,
   },
 
@@ -96,6 +95,14 @@ export const resumo = {
     para: (quem: string) => `Para ${quem}`,
     minutos: (min: number) => `${min} min`,
     arquivo: (data: string) => `morphi-informe-${data}.pdf`,
+    semEnjoo: 'Sin náuseas',
+    melhor: 'mejor',
+    pior: 'peor',
+    cadaQuadrado: 'Cada cuadrado es un día respondido, del más antiguo al más reciente.',
+    diasDe: (n: number, total: number) => `${n} de ${total} ${total === 1 ? 'día' : 'días'}`,
+    piorEm: (palavra: string, n: number) => `En el peor momento: “${palavra}”, ${n === 1 ? 'en 1 día' : `en ${n} días`}`,
+    antes: (valor: string, data: string) => `antes: ${valor} el ${data}`,
+    coletadoEm: (data: string) => `toma del ${data}`,
   },
 
   tela: {

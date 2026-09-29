@@ -84,7 +84,6 @@ export const resumo = {
     exame: 'Esame',
     resultado: 'Risultato',
     referencia: 'Riferimento',
-    coleta: 'Prelievo',
     arquivo: (data: string) => `morphi-riepilogo-${data}.pdf`,
   },
 
@@ -116,6 +115,14 @@ export const resumo = {
     para: (quem: string) => `Per ${quem}`,
     minutos: (min: number) => `${min} min`,
     arquivo: (data: string) => `morphi-report-${data}.pdf`,
+    semEnjoo: 'Nessuna nausea',
+    melhor: 'meglio',
+    pior: 'peggio',
+    cadaQuadrado: 'Ogni quadrato è un giorno compilato, dal più vecchio al più recente.',
+    diasDe: (n: number, total: number) => `${n} su ${total} ${total === 1 ? 'giorno' : 'giorni'}`,
+    piorEm: (palavra: string, n: number) => `Nel momento peggiore: «${palavra}», ${n === 1 ? 'in 1 giorno' : `in ${n} giorni`}`,
+    antes: (valor: string, data: string) => `prima: ${valor} il ${data}`,
+    coletadoEm: (data: string) => `prelievo del ${data}`,
   },
 
   tela: {
