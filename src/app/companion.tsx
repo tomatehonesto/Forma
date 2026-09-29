@@ -313,7 +313,16 @@ export default function Companion() {
 
   /* A pergunta que chega pelo endereço traz a origem junto — ver
      logic/perguntas: sem nada, é uma sugestão nossa. */
-  const { q, origem } = useLocalSearchParams<{ q?: string; origem?: string }>();
+  const { q, origem, escrever } = useLocalSearchParams<{ q?: string; origem?: string; escrever?: string }>();
+  /* Quem chega pelo campo do Insights veio para escrever: o teclado já
+     abre. O atraso deixa a transição da tela terminar antes — focado no
+     meio dela, o teclado sobe junto e a animação engasga. */
+  const campoRef = useRef<TextInput>(null);
+  useEffect(() => {
+    if (escrever !== '1' || q) return;
+    const t = setTimeout(() => campoRef.current?.focus(), 350);
+    return () => clearTimeout(t);
+  }, [escrever]);
   const askedRef = useRef(false);
   useEffect(() => {
     if (q && !askedRef.current) {
@@ -552,6 +561,7 @@ export default function Companion() {
           <Row gap={10}>
             <Row gap={10} style={{ flex: 1, backgroundColor: c.bg1, borderRadius: radius.pill, paddingLeft: 18, paddingRight: 8, paddingVertical: 4 }}>
               <TextInput
+                ref={campoRef}
                 value={input} onChangeText={setInput} onSubmitEditing={() => ask(input, 'digitada')}
                 /* ⚠️ O TEXTO ENCURTOU PORQUE O CAMPO ENCURTOU. Com o
                    microfone dentro da pílula, 'Pergunte sobre sua jornada'

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { View, Pressable, ScrollView, StyleSheet, TextInput, useWindowDimensions } from 'react-native';
+import { View, Pressable, ScrollView, StyleSheet, useWindowDimensions } from 'react-native';
 import { useAurora } from '../../ui/aurora';
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
@@ -150,12 +150,7 @@ export default function Insights() {
   const perguntar = (q: string, origem?: OrigemNoEndereco) => () =>
     router.push(enderecoDoCompanheiro(q, origem) as any);
 
-  const [pergunta, setPergunta] = useState('');
   const [tudo, setTudo] = useState(false);
-  const enviar = () => {
-    const q = pergunta.trim();
-    if (q) { setPergunta(''); router.push(enderecoDoCompanheiro(q, 'digitada') as any); }
-  };
 
   const recentes = useMemo(() => recentQuestions(S), [S]);
   /* o que ela já perguntou sai das sugestões — a mesma frase nas duas
@@ -328,20 +323,23 @@ export default function Insights() {
           </Txt>
 
           {/* o campo é o vidro — e fica na faixa ainda saturada do gradiente,
-              porque vidro sobre branco não é vidro, é contorno */}
-          <Row gap={10} style={{ backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine, borderRadius: radius.pill, paddingLeft: 18, paddingRight: 6, marginTop: 24 }}>
-            <TextInput
-              value={pergunta} onChangeText={setPergunta}
-              onSubmitEditing={enviar} returnKeyType="send"
-              placeholder={K().escreva} placeholderTextColor={c.onHero2}
-              style={{ flex: 1, paddingVertical: 15, color: c.onHero, fontFamily: font.body, fontSize: 19 }}
-            />
-            <Pressable onPress={enviar} hitSlop={8} disabled={!pergunta.trim()} style={({ pressed }) => [{ opacity: !pergunta.trim() ? 0.35 : pressed ? 0.6 : 1 }]}>
-              <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: c.lime, alignItems: 'center', justifyContent: 'center' }}>
+              porque vidro sobre branco não é vidro, é contorno.
+
+              ⚠️ PARECE UM CAMPO, E É UMA PORTA. Escrever aqui abria o
+              teclado em cima do hero, e a resposta vinha em outra tela de
+              qualquer jeito. Agora o toque leva ao Morphi Intelligence com
+              o campo de lá já focado: a pessoa escreve onde a conversa
+              acontece. */}
+          <Pressable onPress={go('/companion?escrever=1')} style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1, marginTop: 24 }]}>
+            <Row gap={10} style={{ backgroundColor: c.glass, borderWidth: 1, borderColor: c.glassLine, borderRadius: radius.pill, paddingLeft: 18, paddingRight: 6 }}>
+              <Txt v="body" c={c.onHero2} numberOfLines={1} style={{ flex: 1, paddingVertical: 15, fontFamily: font.body, fontSize: 19, lineHeight: 24 }}>
+                {K().escreva}
+              </Txt>
+              <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: c.lime, alignItems: 'center', justifyContent: 'center', opacity: 0.35 }}>
                 <Icon name="send" size={17} color={c.limeInk} sw={2} />
               </View>
-            </Pressable>
-          </Row>
+            </Row>
+          </Pressable>
 
           {/* Uma pergunta por linha, cada chip do tamanho do próprio texto e
               centrada. Perde o desenho de nuvem da referência, e ganha o que
