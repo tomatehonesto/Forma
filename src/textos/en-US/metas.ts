@@ -358,4 +358,16 @@ export const metas = {
     contamosPorVoce: 'This one we count for you',
     contamosTexto: 'It comes from your check-ins over the last fourteen days, and only from the days you answered. There’s no way to mark it by hand — and that’s what makes the number mean something.',
   },
+  telaMetaDaEquipe: {
+    outraPessoa: 'Someone else on the team',
+    titulo: (nome: string) => `${nome} · from the team`,
+    sub: 'The number the team set, noted by you',
+    valor: 'Value',
+    quemDefiniu: 'Who set it',
+    quemAjuda: 'It’s kept with the number, so you remember where it came from.',
+    naoSubstituiPeso: 'This number doesn’t replace your weight goal. That one still measures your Journey — the two coexist, and when they disagree it’s a topic for your next appointment.',
+    passaACobrar: 'Once saved, this becomes the number the app tracks, and it no longer changes from the slider in Daily numbers: it’s part of your treatment. To let it go, just remove this note here.',
+    guardar: (valor: string) => `Save ${valor}`,
+    remover: 'Remove the team’s goal',
+  },
 };

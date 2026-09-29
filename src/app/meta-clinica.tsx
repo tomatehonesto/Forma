@@ -6,6 +6,10 @@ import { ALVOS, metaClinica, mudarAlvo, type ChaveDeAlvo } from '../logic/derive
 import { now, dataLonga } from '../logic/time';
 import { Txt, SheetScreen } from '../ui/kit';
 import { Campo, Opcoes, Opc, Botao, Regua, Aviso } from '../ui/internas';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, porque lê o catálogo. Ver src/textos/README. */
+const K = () => T.metas.telaMetaDaEquipe;
 
 /* ⚠️⚠️ ESTA FOLHA ANOTA, E NÃO RECEBE — e a diferença é a tela inteira.
 
@@ -55,7 +59,7 @@ export default function MetaClinica() {
   const nomes: string[] = [
     ...(medica ? [medica] : []),
     ...((S.team as any[]) ?? []).map((m) => m.name),
-    'Outra pessoa da equipe',
+    K().outraPessoa,
   ];
 
   /* ⚠️ O PESO NÃO ENTRA EM `targets`, OS OUTROS TRÊS ENTRAM. Não é
@@ -94,12 +98,12 @@ export default function MetaClinica() {
 
   return (
     <SheetScreen
-      titulo={`${def.nome} · da equipe`}
-      sub="O número que ela definiu, anotado por você"
+      titulo={K().titulo(def.nome)}
+      sub={K().sub}
       onClose={() => router.back()}
     >
       <View style={{ marginTop: 18, gap: 10 }}>
-        <Campo rotulo="Valor" nu>
+        <Campo rotulo={K().valor} nu>
           <Regua
             min={r.min} max={r.max} passo={r.passo} tracoCada={r.tracoCada}
             casas={r.casas} esp={r.esp} salto={r.salto}
@@ -110,8 +114,8 @@ export default function MetaClinica() {
         </Campo>
 
         <Campo
-          rotulo="Quem definiu"
-          ajuda="Fica guardado junto do número, para você lembrar de onde ele veio."
+          rotulo={K().quemDefiniu}
+          ajuda={K().quemAjuda}
         >
           <Opcoes>
             {nomes.map((n) => (
@@ -123,13 +127,13 @@ export default function MetaClinica() {
         <Aviso
           ic="steth"
           texto={chave === 'peso'
-            ? 'Este número não substitui a sua meta de peso. Ela continua sendo a que mede a sua Jornada — as duas convivem, e quando discordam é assunto para a próxima consulta.'
+            ? K().naoSubstituiPeso
             /* ⚠️ ISTO DIZIA "você pode mudá-lo depois, em Os números do
                dia", e deixou de ser verdade quando o número da equipe
                passou a travar a régua de lá. Promessa que a tela não
                cumpre é do tipo que só se descobre no dia em que a pessoa
                precisa — e aí ela já não confia no resto. */
-            : 'Guardando, este passa a ser o número que o aplicativo cobra, e ele não se muda mais pela régua de Os números do dia: é parte do seu tratamento. Para soltá-lo, é só remover esta anotação aqui.'}
+            : K().passaACobrar}
         />
 
         {atual ? (
@@ -138,8 +142,8 @@ export default function MetaClinica() {
           </Txt>
         ) : null}
 
-        <Botao label={`Guardar ${def.escreve(v, S)} ${def.un(S)}`} onPress={salvar} desligado={!por} />
-        {atual ? <Botao label="Remover a meta da equipe" tom="fantasma" onPress={remover} /> : null}
+        <Botao label={K().guardar(`${def.escreve(v, S)} ${def.un(S)}`)} onPress={salvar} desligado={!por} />
+        {atual ? <Botao label={K().remover} tom="fantasma" onPress={remover} /> : null}
       </View>
     </SheetScreen>
   );

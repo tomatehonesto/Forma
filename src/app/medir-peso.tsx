@@ -7,6 +7,10 @@ import { now, nf, dataComDiaDaSemana, maiuscula } from '../logic/time';
 import { Row, SheetScreen } from '../ui/kit';
 import { Campo, Selo, Botao, Regua } from '../ui/internas';
 import { pesoTxt, pesoV, pesoKg, reguaDePeso } from '../logic/medidas';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, porque lê o catálogo. Ver src/textos/README. */
+const K = () => T.medidas.telaMedir;
 
 /* ============================================================
    A PESAGEM, E SÓ A PESAGEM.
@@ -69,7 +73,7 @@ export default function MedirPeso() {
 
   return (
     <SheetScreen
-      titulo="Quanto você está pesando?"
+      titulo={K().tituloPeso}
       sub={maiuscula(dataComDiaDaSemana(hoje))}
       onClose={() => router.back()}
     >
@@ -86,7 +90,7 @@ export default function MedirPeso() {
             180): ali é o cadastro sugerindo uma faixa plausível para quem
             está começando; aqui é o registro de um número que já existe, e
             um limite apertado viraria um valor que não entra. */}
-        <Campo rotulo="Peso">
+        <Campo rotulo={T.medidas.corpo.peso}>
           <Regua
             {...reguaDePeso(S, 30, 250)}
             valor={pesoV(S, peso)} onEscolhe={(v) => setPeso(pesoKg(S, v))}
@@ -94,14 +98,14 @@ export default function MedirPeso() {
           {Math.abs(delta) >= 0.05 ? (
             <Row style={{ justifyContent: 'center' }}>
               <Selo
-                label={`${delta < 0 ? '−' : '+'}${pesoTxt(S, Math.abs(delta))} desde o último`}
+                label={K().desdeOUltimo(delta < 0 ? '−' : '+', pesoTxt(S, Math.abs(delta)))}
                 tom={delta < 0 ? 'lima' : 'neutra'}
               />
             </Row>
           ) : null}
         </Campo>
 
-        <Botao label={`Salvar ${pesoTxt(S, peso)}`} onPress={salvar} />
+        <Botao label={K().salvar(pesoTxt(S, peso))} onPress={salvar} />
       </View>
     </SheetScreen>
   );

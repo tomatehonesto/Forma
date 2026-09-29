@@ -8,6 +8,10 @@ import { Txt, SheetScreen } from '../ui/kit';
 import { Campo, Opcoes, Opc, Regua, Botao } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 import { compTxt, compU, compV, compCm, reguaDeComp, sistemaDe } from '../logic/medidas';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, porque lê o catálogo. Ver src/textos/README. */
+const K = () => T.medidas.telaMedir;
 
 /* Novas medidas — captura, não a tela de histórico. É a sessão de fita
    métrica, e agora é a ÚNICA: /medir-peso trazia três medidas de carona e
@@ -33,13 +37,16 @@ import { compTxt, compU, compV, compCm, reguaDeComp, sistemaDe } from '../logic/
    ponto de partida do controle, não sugestão de corpo. Com histórico,
    abrir o chip já é a afirmação — sem histórico, não há número para
    afirmar, e o chip aberto e intocado não grava. */
-const CAMPOS: [string, string, number, number, number][] = [
-  // chave, rótulo, mínimo, máximo, onde a régua abre sem histórico
-  ['cintura', 'Cintura', 50, 180, 90],
-  ['quadril', 'Quadril', 60, 190, 100],
-  ['braco', 'Braço', 15, 70, 32],
-  ['coxa', 'Coxa', 25, 110, 55],
+/* O rótulo sai do catálogo na hora de desenhar (medidas.corpo), e não
+   daqui: constante de módulo congelaria o idioma no import. */
+const CAMPOS: ['cintura' | 'quadril' | 'braco' | 'coxa', number, number, number][] = [
+  // chave, mínimo, máximo, onde a régua abre sem histórico
+  ['cintura', 50, 180, 90],
+  ['quadril', 60, 190, 100],
+  ['braco', 15, 70, 32],
+  ['coxa', 25, 110, 55],
 ];
+const rotuloDe = (k: string) => (T.medidas.corpo as Record<string, string>)[k] ?? k;
 
 
 export default function MedirMedidas() {
@@ -52,7 +59,7 @@ export default function MedirMedidas() {
   const [abertas, setAbertas] = useState<string[]>([]);
   const [tocadas, setTocadas] = useState<string[]>([]);
   const [medidas, setMedidas] = useState<Record<string, number>>(
-    Object.fromEntries(CAMPOS.map(([k, , , , padrao]) => [k, ultima?.[k] || padrao])),
+    Object.fromEntries(CAMPOS.map(([k, , , padrao]) => [k, ultima?.[k] || padrao])),
   );
 
   const alterna = (k: string) =>
@@ -86,18 +93,18 @@ export default function MedirMedidas() {
 
   return (
     <SheetScreen
-      titulo="Quais são suas medidas?"
-      sub={ultima ? 'as réguas abrem na última medição' : undefined}
+      titulo={K().tituloMedidas}
+      sub={ultima ? K().abremNaUltima : undefined}
       onClose={() => router.back()}
     >
       <View style={{ marginTop: 18, gap: 10 }}>
         <Campo
-          rotulo="O que você mediu"
-          ajuda="Nenhuma delas é obrigatória. Medir só a cintura é um registro tão bom quanto medir as quatro."
+          rotulo={K().oQueMediu}
+          ajuda={K().nenhumaObrigatoria}
         >
           <Opcoes>
-            {CAMPOS.map(([k, rotulo]) => (
-              <Opc key={k} label={rotulo} on={abertas.includes(k)} onPress={() => alterna(k)} />
+            {CAMPOS.map(([k]) => (
+              <Opc key={k} label={rotuloDe(k)} on={abertas.includes(k)} onPress={() => alterna(k)} />
             ))}
           </Opcoes>
 
@@ -114,15 +121,15 @@ export default function MedirMedidas() {
                     tela repetindo a palavra que a pessoa acabou de tocar.
                     Com duas ou mais ele deixa de ser eco: passa a ser o que
                     diz qual régua é qual. */}
-                {abertas.length > 1 ? <Txt v="caption" c={c.tx3}>{campo[1]}</Txt> : null}
+                {abertas.length > 1 ? <Txt v="caption" c={c.tx3}>{rotuloDe(k)}</Txt> : null}
                 <Regua
                   key={`${k}-${sistemaDe(S)}`}
-                  {...reguaDeComp(S, campo[2], campo[3])}
+                  {...reguaDeComp(S, campo[1], campo[2])}
                   valor={compV(S, medidas[k])} onEscolhe={(v) => mexer(k, compCm(S, v))}
                 />
                 {Math.abs(d) >= 0.1 ? (
                   <Txt v="micro" c={d < 0 ? c.limeSoftInk : c.tx3} style={{ textAlign: 'center' }}>
-                    {d < 0 ? '−' : '+'}{compTxt(S, Math.abs(d))} desde a última
+                    {K().desdeAUltima(d < 0 ? '−' : '+', compTxt(S, Math.abs(d)))}
                   </Txt>
                 ) : null}
               </View>
@@ -131,7 +138,7 @@ export default function MedirMedidas() {
         </Campo>
 
         <Botao
-          label={gravaveis.length === 1 ? 'Registrar a medida' : 'Registrar as medidas'}
+          label={K().registrar(gravaveis.length)}
           onPress={salvar}
           desligado={!gravaveis.length}
         />

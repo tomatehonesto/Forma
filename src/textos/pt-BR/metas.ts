@@ -437,4 +437,17 @@ export const metas = {
     contamosPorVoce: 'Esta nós contamos por você',
     contamosTexto: 'Sai dos seus check-ins dos últimos catorze dias, e só dos dias que você respondeu. Não dá para marcar à mão — e é isso que faz o número valer alguma coisa.',
   },
+  /* A meta que a equipe definiu, anotada pela pessoa (app/meta-clinica). */
+  telaMetaDaEquipe: {
+    outraPessoa: 'Outra pessoa da equipe',
+    titulo: (nome: string) => `${nome} · da equipe`,
+    sub: 'O número que a equipe definiu, anotado por você',
+    valor: 'Valor',
+    quemDefiniu: 'Quem definiu',
+    quemAjuda: 'Fica guardado junto do número, para você lembrar de onde ele veio.',
+    naoSubstituiPeso: 'Este número não substitui a sua meta de peso. Ela continua sendo a que mede a sua Jornada — as duas convivem, e quando discordam é assunto para a próxima consulta.',
+    passaACobrar: 'Guardando, este passa a ser o número que o aplicativo cobra, e ele não se muda mais pela régua de Os números do dia: é parte do seu tratamento. Para soltá-lo, é só remover esta anotação aqui.',
+    guardar: (valor: string) => `Guardar ${valor}`,
+    remover: 'Remover a meta da equipe',
+  },
 };

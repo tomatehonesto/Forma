@@ -7,6 +7,10 @@ import { gramasItem, medidaItem, nomeItem, somaDe, type ItemComida } from '../lo
 import { Txt, Row, IconBadge, SheetScreen } from '../ui/kit';
 import { Cartao, Linha, Botao } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, porque lê o catálogo. Ver src/textos/README. */
+const K = () => T.alimentacao.telaFavorito;
 
 /* ============================================================
    UM PRATO FAVORITO
@@ -36,9 +40,9 @@ export default function Favorito() {
 
   if (!f) {
     return (
-      <SheetScreen titulo="Prato favorito" sub="Não encontrei este prato" onClose={() => router.back()}>
+      <SheetScreen titulo={K().titulo} sub={K().naoEncontrado} onClose={() => router.back()}>
         <Txt v="caption" c={c.tx3} style={{ marginTop: 18 }}>
-          Ele pode ter sido apagado em outra tela.
+          {K().podeTerSidoApagado}
         </Txt>
       </SheetScreen>
     );
@@ -55,7 +59,7 @@ export default function Favorito() {
   return (
     <SheetScreen
       titulo={f.nome}
-      sub={itens.length ? `${itens.length} ${itens.length === 1 ? 'item' : 'itens'}` : 'Sem prato guardado'}
+      sub={itens.length ? K().itens(itens.length) : K().semPrato}
       onClose={() => router.back()}
     >
       <View style={{ marginTop: 20, gap: 10 }}>
@@ -65,9 +69,9 @@ export default function Favorito() {
             <View style={{ flex: 1 }}>
               <Txt v="metric">
                 ~{g}
-                <Txt v="label" c={c.tx3}> g de proteína</Txt>
+                <Txt v="label" c={c.tx3}>{K().deProteina}</Txt>
               </Txt>
-              <Txt v="caption" c={c.tx3}>cada vez que você registrar este prato</Txt>
+              <Txt v="caption" c={c.tx3}>{K().cadaVez}</Txt>
             </View>
           </Row>
         </Cartao>
@@ -82,7 +86,7 @@ export default function Favorito() {
               <Linha
                 key={`${it.id || it.nome}-${i}`}
                 titulo={nomeItem(it)}
-                sub={`${medidaItem(it)} · ~${gramasItem(it)} g de proteína`}
+                sub={K().linha(medidaItem(it), gramasItem(it))}
                 seta={false}
               />
             ))}
@@ -91,17 +95,17 @@ export default function Favorito() {
 
         <View style={{ marginTop: 8, gap: 8 }}>
           <Botao
-            label="Registrar uma refeição com este prato"
+            label={K().registrar}
             onPress={() => {
               router.back();
               router.push(`/medir-refeicao?prato=${encodeURIComponent(f.nome)}` as any);
             }}
           />
-          <Botao label="Apagar dos favoritos" tom="perigo" onPress={apagar} />
+          <Botao label={K().apagar} tom="perigo" onPress={apagar} />
         </View>
 
         <Txt v="caption" c={c.tx3} style={{ textAlign: 'center', marginTop: 2 }}>
-          Apagar tira o prato dos favoritos. As refeições já registradas com ele ficam.
+          {K().apagarTira}
         </Txt>
       </View>
     </SheetScreen>

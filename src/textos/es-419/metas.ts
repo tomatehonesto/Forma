@@ -363,4 +363,16 @@ export const metas = {
     contamosPorVoce: 'Esta la contamos nosotros',
     contamosTexto: 'Sale de tus check-ins de los últimos catorce días, y solo de los días que respondiste. No se puede marcar a mano — y eso es lo que hace que el número valga algo.',
   },
+  telaMetaDaEquipe: {
+    outraPessoa: 'Otra persona del equipo',
+    titulo: (nome: string) => `${nome} · del equipo`,
+    sub: 'El número que definió el equipo, anotado por ti',
+    valor: 'Valor',
+    quemDefiniu: 'Quién lo definió',
+    quemAjuda: 'Se guarda junto al número, para que recuerdes de dónde vino.',
+    naoSubstituiPeso: 'Este número no reemplaza tu meta de peso. Esa sigue siendo la que mide tu Jornada — las dos conviven, y cuando no coinciden es tema para la próxima consulta.',
+    passaACobrar: 'Al guardarlo, este pasa a ser el número que la app sigue, y ya no cambia con la regla de Los números del día: es parte de tu tratamiento. Para soltarlo, solo quita esta anotación aquí.',
+    guardar: (valor: string) => `Guardar ${valor}`,
+    remover: 'Quitar la meta del equipo',
+  },
 };

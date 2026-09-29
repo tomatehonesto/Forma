@@ -441,4 +441,16 @@ export const metas = {
     contamosPorVoce: 'Dieses zählen wir für dich',
     contamosTexto: 'Es kommt aus deinen Check-ins der letzten vierzehn Tage, und nur aus den Tagen, an denen du geantwortet hast. Es lässt sich nicht von Hand abhaken — und genau das macht die Zahl etwas wert.',
   },
+  telaMetaDaEquipe: {
+    outraPessoa: 'Jemand anderes aus dem Team',
+    titulo: (nome: string) => `${nome} · vom Team`,
+    sub: 'Die Zahl, die das Team festgelegt hat, von dir notiert',
+    valor: 'Wert',
+    quemDefiniu: 'Wer ihn festgelegt hat',
+    quemAjuda: 'Es wird mit der Zahl gespeichert, damit du weißt, woher sie kommt.',
+    naoSubstituiPeso: 'Diese Zahl ersetzt dein Gewichtsziel nicht. Das misst weiter deine Reise — beide bestehen nebeneinander, und wenn sie sich widersprechen, ist das ein Thema für den nächsten Termin.',
+    passaACobrar: 'Sobald gespeichert, ist das die Zahl, der die App folgt, und sie ändert sich nicht mehr über die Skala bei Die Zahlen des Tages: Sie gehört zu deiner Behandlung. Um sie zu lösen, entferne einfach diese Notiz hier.',
+    guardar: (valor: string) => `${valor} speichern`,
+    remover: 'Ziel des Teams entfernen',
+  },
 };

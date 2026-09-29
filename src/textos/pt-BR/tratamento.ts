@@ -665,4 +665,34 @@ export const tratamento = {
 
     apagarTreino: 'Apagar este treino',
   },
+  /* A anotação de consulta (app/medir-anotacao), a nota (app/nota) e a
+     lista de notas (app/notas). "A conversar" é a pauta; "já conversadas"
+     é o histórico. */
+  telaNotas: {
+    sugestoes: (): string[] => ['Ajuste de dose', 'Exame para repetir', 'Sintoma para acompanhar', 'Dúvida para a próxima'],
+    oQueLembrar: 'O que você quer lembrar?',
+    com: (nome: string) => `com ${nome}`,
+    anotacaoPlaceholder: 'O que foi orientado, o que mudou, o que você quer perguntar depois…',
+    jaAnotado: 'JÁ ANOTADO',
+    guardarAnotacao: 'Guardar anotação',
+    notaTitulo: 'Nota para a consulta',
+    guardadaAte: (ate: string | null) => (ate ? `Fica guardada até a consulta de ${ate}.` : 'Fica guardada até a sua próxima consulta.'),
+    soEntraNoRelatorio: 'Só entra no relatório se você marcar as notas na hora de exportar.',
+    notaPlaceholder: 'O que você quer lembrar de falar?',
+    guardarNota: 'Guardar nota',
+    voltarParaPauta: 'Voltar para a pauta',
+    jaConversei: 'Já conversei isso',
+    apagar: 'Apagar',
+    listaTitulo: 'Notas para a consulta',
+    novaNota: 'Nova nota',
+    notas: 'Notas',
+    listaLead: (ate: string | null) => `${ate ? `Guardadas até a consulta de ${ate}.` : 'Guardadas até a sua próxima consulta.'} Marque as que você já conversou.`,
+    aConversar: 'A conversar',
+    jaConversadas: 'Já conversadas',
+    nadaNaPauta: 'Nada na pauta ainda',
+    nenhumaConversada: 'Nenhuma conversada ainda',
+    suasNotasEstao: (n: number): string => `${n === 1 ? 'Sua nota está' : 'Suas notas estão'} em “A conversar”.`,
+    entramNoRelatorio: 'As notas entram no relatório',
+    entramTexto: 'Ao exportar o histórico, você escolhe se as anotações vão junto.',
+  },
 };

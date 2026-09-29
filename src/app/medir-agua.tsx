@@ -11,6 +11,10 @@ import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { font, radius } from '../theme';
 import { sistemaDe } from '../logic/medidas';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, porque lê o catálogo. Ver src/textos/README. */
+const K = () => T.alimentacao.telaAguaRegistro;
 
 /* ============================================================
    QUANTO VOCÊ BEBEU
@@ -97,8 +101,8 @@ export default function MedirAgua() {
 
   return (
     <SheetScreen
-      titulo="Quanto você bebeu?"
-      sub="Toque quantas vezes precisar"
+      titulo={K().titulo}
+      sub={K().sub}
       onClose={() => router.back()}
       rodape={(
         /* Em zero não há o que gravar, e o botão diz o que falta em vez de
@@ -116,8 +120,8 @@ export default function MedirAgua() {
                 de progresso: a tela inteira fala em litros. */}
             <Txt v="body" c={escolhido === 0 ? c.tx4 : c.accentInk}>
               {escolhido === 0
-                ? 'Escolha a quantidade'
-                : `Adicionar ${L(escolhido)} L${bebida.id === BEBIDA_PADRAO ? '' : ` de ${bebida.nome.toLowerCase()}`}`}
+                ? K().escolha
+                : K().adicionar(L(escolhido), bebida.id === BEBIDA_PADRAO ? null : bebida.nome.toLowerCase())}
             </Txt>
           </View>
         </Pressable>
@@ -128,7 +132,7 @@ export default function MedirAgua() {
         <Row style={{ alignItems: 'flex-end' }}>
           <Metric value={L(atual)} unit="L" />
           <View style={{ flex: 1 }} />
-          <Txt v="note" c={c.tx3}>de {L(alvo)} L hoje</Txt>
+          <Txt v="note" c={c.tx3}>{K().deHoje(L(alvo))}</Txt>
         </Row>
         <View style={{ height: 6, borderRadius: radius.pill, backgroundColor: c.bg2, overflow: 'hidden', marginTop: 14 }}>
           <View style={{ width: `${Math.max(2, pct * 100)}%`, height: 6, borderRadius: radius.pill, backgroundColor: c.accent }} />
@@ -146,7 +150,7 @@ export default function MedirAgua() {
           que vem em lata. Um "+ Garrafão" ao lado de café seria atalho
           para uma coisa que ninguém faz. */}
       <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 18, marginTop: 7, gap: 12 }}>
-        <Txt v="caption" c={c.tx3}>O que você bebeu</Txt>
+        <Txt v="caption" c={c.tx3}>{K().oQueBebeu}</Txt>
         <Row style={{ flexWrap: 'wrap', gap: 7 }}>
           {BEBIDAS().map((b) => {
             const on = b.id === bebida.id;
@@ -178,9 +182,9 @@ export default function MedirAgua() {
         {bebida.porDose ? (
           <View style={{ gap: 9 }}>
             <Row style={{ justifyContent: 'space-between', alignItems: 'baseline' }}>
-              <Txt v="caption" c={c.tx3}>Quantas doses de proteína</Txt>
+              <Txt v="caption" c={c.tx3}>{K().dosesDeProteina}</Txt>
               <Txt v="caption" c={c.tx3}>
-                {doses === 0 ? 'nenhuma' : `~${somaDe([{ id: bebida.porDose, qtd: doses }])} g`}
+                {doses === 0 ? K().nenhuma : `~${somaDe([{ id: bebida.porDose, qtd: doses }])} g`}
               </Txt>
             </Row>
             <Row gap={7}>
@@ -207,7 +211,7 @@ export default function MedirAgua() {
           <TextInput
             value={nome}
             onChangeText={setNome}
-            placeholder="Kombucha, isotônico, caldo de cana…"
+            placeholder={K().outraPlaceholder}
             placeholderTextColor={c.tx4}
             style={{
               backgroundColor: c.bg2, borderRadius: radius.md,
@@ -224,7 +228,7 @@ export default function MedirAgua() {
           a tela, e o cartão é só onde o número se forma. */}
       <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, padding: 18, marginTop: 7 }}>
         <Row style={{ justifyContent: 'space-between', alignItems: 'baseline' }}>
-          <Txt v="caption" c={c.tx3}>Quantidade</Txt>
+          <Txt v="caption" c={c.tx3}>{K().quantidade}</Txt>
           <Metric value={L(escolhido)} unit="L" v="h2" />
         </Row>
         <Slider

@@ -7,6 +7,10 @@ import { Txt, SheetScreen } from '../ui/kit';
 import { Cartao, Linha, Botao } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 import { pesoTxt, compTxt } from '../logic/medidas';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, porque lê o catálogo. Ver src/textos/README. */
+const K = () => T.medidas.telaRegistro;
 
 /* ============================================================
    UM REGISTRO
@@ -79,27 +83,27 @@ export default function Registro() {
   return (
     <SheetScreen
       titulo={valor}
-      sub={`${data}, manhã · registrado por você`}
+      sub={K().sub(data)}
       onClose={() => router.back()}
     >
       <View style={{ marginTop: 18, gap: 8 }}>
         <Cartao>
-          <Linha titulo="Valor" sub={valor} seta={false} />
-          <Linha titulo="Data e hora" sub={`${data}, ${fmtTime(d)}`} seta={false} />
-          <Linha titulo="Semana" sub={`Semana ${semana} do tratamento`} seta={false} />
+          <Linha titulo={K().valor} sub={valor} seta={false} />
+          <Linha titulo={K().dataEHora} sub={`${data}, ${fmtTime(d)}`} seta={false} />
+          <Linha titulo={K().semana} sub={K().semanaDoTratamento(semana)} seta={false} />
         </Cartao>
 
         <View style={{ marginTop: 8, gap: 8 }}>
           <Botao
-            label="Corrigir registro"
+            label={K().corrigir}
             tom="fantasma"
             onPress={() => { router.back(); router.push((daFita ? '/medir-medidas' : '/medir-peso') as any); }}
           />
-          <Botao label="Apagar" tom="perigo" onPress={apagar} />
+          <Botao label={K().apagar} tom="perigo" onPress={apagar} />
         </View>
 
         <Txt v="caption" c={c.tx3} style={{ textAlign: 'center', marginTop: 2 }}>
-          Apagar tira o registro do gráfico e do relatório do seu médico.
+          {K().apagarTira}
         </Txt>
       </View>
     </SheetScreen>

@@ -506,4 +506,17 @@ export const home = {
     reabrir: 'Erste Schritte',
     reabrirSub: (feitos: number, total: number) => `${feitos} von ${total} erledigt · auf Start zeigen`,
   },
+  telaCheckinOk: {
+    concluido: 'Check-in erledigt',
+    diasSeguidos: (n: number): string => (n === 1 ? 'TAG IN FOLGE MIT CHECK-IN' : 'TAGE IN FOLGE MIT CHECK-IN'),
+    energia: 'Energie',
+    sono: 'Schlaf',
+    humor: 'Stimmung',
+    comoFoiODia: 'WIE DER TAG WAR',
+    sintomas: 'SYMPTOME',
+    nenhumHoje: 'Heute keine',
+    naoEsqueca: 'NICHT VERGESSEN',
+    oQueFazer: 'WAS ZU TUN IST',
+    voltarHome: 'Zurück zur Startseite',
+  },
 };

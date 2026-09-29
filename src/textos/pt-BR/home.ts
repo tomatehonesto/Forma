@@ -723,4 +723,19 @@ export const home = {
     reabrir: 'Primeiros passos',
     reabrirSub: (feitos: number, total: number) => `${feitos} de ${total} feitos · mostrar na Home`,
   },
+  /* A tela que fecha o check-in (app/checkin-ok). Os títulos de seção vêm
+     em maiúsculas porque a tela os desenha assim — em micro, espaçados. */
+  telaCheckinOk: {
+    concluido: 'Check-in concluído',
+    diasSeguidos: (n: number): string => (n === 1 ? 'DIA SEGUIDO DE CHECK-IN' : 'DIAS SEGUIDOS DE CHECK-IN'),
+    energia: 'Energia',
+    sono: 'Sono',
+    humor: 'Humor',
+    comoFoiODia: 'COMO FOI O DIA',
+    sintomas: 'SINTOMAS',
+    nenhumHoje: 'Nenhum hoje',
+    naoEsqueca: 'NÃO SE ESQUEÇA',
+    oQueFazer: 'O QUE FAZER',
+    voltarHome: 'Voltar para a Home',
+  },
 };

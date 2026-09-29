@@ -521,4 +521,48 @@ export const alimentacao = {
     nenhum: 'Nenhum alimento com esse nome. Tente uma palavra mais curta.',
     verTodos: (n: number) => `Ver todos os ${n}`,
   },
+  /* A folha de uma refeição do diário (app/refeicao). "de proteína" vai por
+     extenso: um grama sem dono é a dúvida que a folha existe para não deixar. */
+  telaRefeicao: {
+    titulo: 'Refeição',
+    naoEncontrada: 'Não encontramos este registro',
+    podeTerSidoApagada: 'Ela pode ter sido apagada em outra tela.',
+    deProteina: ' g de proteína',
+    quando: (hora: string, semana: number) => `às ${hora} · semana ${semana} do tratamento`,
+    noPrato: 'No prato',
+    origem: 'Origem',
+    pelaFoto: 'Pela foto — a câmera leu o prato e estimou',
+    porVoce: 'Por você — registrado nesta tela',
+    corrigir: 'Corrigir',
+    apagar: 'Apagar',
+    apagarTira: (g: number) => `Apagar tira os ${g} g da proteína daquele dia.`,
+  },
+  /* A folha de um prato favorito (app/favorito). */
+  telaFavorito: {
+    titulo: 'Prato favorito',
+    naoEncontrado: 'Não encontramos este prato',
+    podeTerSidoApagado: 'Ele pode ter sido apagado em outra tela.',
+    itens: (n: number) => `${n} ${n === 1 ? 'item' : 'itens'}`,
+    semPrato: 'Sem prato guardado',
+    deProteina: ' g de proteína',
+    cadaVez: 'cada vez que você registrar este prato',
+    linha: (medida: string, g: number) => `${medida} · ~${g} g de proteína`,
+    registrar: 'Registrar uma refeição com este prato',
+    apagar: 'Apagar dos favoritos',
+    apagarTira: 'Apagar tira o prato dos favoritos. As refeições já registradas com ele ficam.',
+  },
+  /* A folha de registrar o que se bebeu (app/medir-agua). A tela inteira
+     fala em litros, e o nome da bebida vem de bebidas.nomes. */
+  telaAguaRegistro: {
+    titulo: 'Quanto você bebeu?',
+    sub: 'Toque quantas vezes precisar',
+    escolha: 'Escolha a quantidade',
+    adicionar: (litros: string, bebida: string | null) => `Adicionar ${litros} L${bebida ? ` de ${bebida}` : ''}`,
+    deHoje: (alvo: string) => `de ${alvo} L hoje`,
+    oQueBebeu: 'O que você bebeu',
+    dosesDeProteina: 'Quantas doses de proteína',
+    nenhuma: 'nenhuma',
+    outraPlaceholder: 'Kombucha, isotônico, caldo de cana…',
+    quantidade: 'Quantidade',
+  },
 };

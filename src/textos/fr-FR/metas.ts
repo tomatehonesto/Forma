@@ -432,4 +432,16 @@ export const metas = {
     contamosPorVoce: 'Celui-ci, nous le comptons pour vous',
     contamosTexto: 'Il sort de vos check-ins des quatorze derniers jours, et seulement des jours où vous avez répondu. Il ne se coche pas à la main — et c’est ce qui fait que le chiffre vaut quelque chose.',
   },
+  telaMetaDaEquipe: {
+    outraPessoa: 'Une autre personne de l’équipe',
+    titulo: (nome: string) => `${nome} · de l’équipe`,
+    sub: 'Le chiffre fixé par l’équipe, noté par vous',
+    valor: 'Valeur',
+    quemDefiniu: 'Qui l’a fixé',
+    quemAjuda: 'C’est gardé avec le chiffre, pour vous rappeler d’où il vient.',
+    naoSubstituiPeso: 'Ce chiffre ne remplace pas votre objectif de poids. C’est toujours lui qui mesure votre Parcours — les deux coexistent, et quand ils divergent, c’est un sujet pour la prochaine consultation.',
+    passaACobrar: 'Une fois enregistré, c’est ce chiffre que l’application suit, et il ne change plus avec la règle des Chiffres du jour : il fait partie de votre traitement. Pour le libérer, retirez simplement cette note ici.',
+    guardar: (valor: string) => `Enregistrer ${valor}`,
+    remover: 'Retirer l’objectif de l’équipe',
+  },
 };

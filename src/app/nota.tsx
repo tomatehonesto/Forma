@@ -6,6 +6,10 @@ import { notas, temConsulta } from '../logic/derive';
 import { now, dataLonga } from '../logic/time';
 import { SheetScreen } from '../ui/kit';
 import { Campo, Texto, Botao } from '../ui/internas';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, porque lê o catálogo. Ver src/textos/README. */
+const K = () => T.tratamento.telaNotas;
 
 /* ============================================================
    UMA NOTA
@@ -58,30 +62,30 @@ export default function Nota() {
 
   return (
     <SheetScreen
-      titulo="Nota para a consulta"
-      sub={ate ? `Fica guardada até a consulta de ${ate}.` : 'Fica guardada até a sua próxima consulta.'}
+      titulo={K().notaTitulo}
+      sub={K().guardadaAte(ate)}
       onClose={() => router.back()}
     >
       <View style={{ marginTop: 18, gap: 10 }}>
-        <Campo ajuda="Só entra no relatório se você marcar as notas na hora de exportar.">
+        <Campo ajuda={K().soEntraNoRelatorio}>
           <Texto
             valor={texto}
             onChange={setTexto}
-            placeholder="O que você quer lembrar de falar?"
+            placeholder={K().notaPlaceholder}
             linhas={4}
           />
         </Campo>
 
-        <Botao label="Guardar nota" onPress={guardar} />
+        <Botao label={K().guardarNota} onPress={guardar} />
 
         {existente ? (
           <>
             <Botao
-              label={existente.done ? 'Voltar para a pauta' : 'Já conversei isso'}
+              label={existente.done ? K().voltarParaPauta : K().jaConversei}
               tom="fantasma"
               onPress={marcar}
             />
-            <Botao label="Apagar" tom="perigo" onPress={apagar} />
+            <Botao label={K().apagar} tom="perigo" onPress={apagar} />
           </>
         ) : null}
       </View>

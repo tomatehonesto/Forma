@@ -8,6 +8,10 @@ import { semanaDoTratamento, dataComDiaDaSemana } from '../logic/time';
 import { Txt, Row, IconBadge, SheetScreen } from '../ui/kit';
 import { Cartao, Linha, Botao } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, porque lê o catálogo. Ver src/textos/README. */
+const K = () => T.alimentacao.telaRefeicao;
 
 /* ============================================================
    UMA REFEIÇÃO
@@ -48,9 +52,9 @@ export default function Refeicao() {
 
   if (!m) {
     return (
-      <SheetScreen titulo="Refeição" sub="Não encontrei este registro" onClose={() => router.back()}>
+      <SheetScreen titulo={K().titulo} sub={K().naoEncontrada} onClose={() => router.back()}>
         <Txt v="caption" c={c.tx3} style={{ marginTop: 18 }}>
-          Ela pode ter sido apagada em outra tela.
+          {K().podeTerSidoApagada}
         </Txt>
       </SheetScreen>
     );
@@ -74,15 +78,15 @@ export default function Refeicao() {
             <View style={{ flex: 1 }}>
               <Txt v="metric">
                 ~{g}
-                <Txt v="label" c={c.tx3}> g de proteína</Txt>
+                <Txt v="label" c={c.tx3}>{K().deProteina}</Txt>
               </Txt>
-              <Txt v="caption" c={c.tx3}>às {hora} · semana {semana} do tratamento</Txt>
+              <Txt v="caption" c={c.tx3}>{K().quando(hora, semana)}</Txt>
             </View>
           </Row>
         </Cartao>
 
         <Cartao>
-          {m.tag ? <Linha ic="utensils" titulo="No prato" sub={m.tag} seta={false} /> : null}
+          {m.tag ? <Linha ic="utensils" titulo={K().noPrato} sub={m.tag} seta={false} /> : null}
           {/* De onde veio o número. Numa folha cujas duas ações são
               corrigir e apagar, saber se os gramas foram calculados do que
               você escreveu ou estimados de uma foto é o que decide se
@@ -90,25 +94,25 @@ export default function Refeicao() {
               porção. */}
           <Linha
             ic={pelaFoto ? 'camera' : 'pencil'}
-            titulo="Origem"
+            titulo={K().origem}
             sub={pelaFoto
-              ? 'Pela foto — a câmera leu o prato e estimou'
-              : 'Por você — registrado nesta tela'}
+              ? K().pelaFoto
+              : K().porVoce}
             seta={false}
           />
         </Cartao>
 
         <View style={{ marginTop: 8, gap: 8 }}>
           <Botao
-            label="Corrigir"
+            label={K().corrigir}
             tom="fantasma"
             onPress={() => { router.back(); router.push(`/medir-refeicao?t=${quando}` as any); }}
           />
-          <Botao label="Apagar" tom="perigo" onPress={apagar} />
+          <Botao label={K().apagar} tom="perigo" onPress={apagar} />
         </View>
 
         <Txt v="caption" c={c.tx3} style={{ textAlign: 'center', marginTop: 2 }}>
-          Apagar tira os {g} g da proteína daquele dia.
+          {K().apagarTira(g)}
         </Txt>
       </View>
     </SheetScreen>

@@ -501,4 +501,17 @@ export const home = {
     reabrir: 'Premiers pas',
     reabrirSub: (feitos: number, total: number) => `${feitos} sur ${total} faits · afficher sur l’Accueil`,
   },
+  telaCheckinOk: {
+    concluido: 'Check-in terminé',
+    diasSeguidos: (n: number): string => (n === 1 ? 'JOUR DE CHECK-IN D’AFFILÉE' : 'JOURS DE CHECK-IN D’AFFILÉE'),
+    energia: 'Énergie',
+    sono: 'Sommeil',
+    humor: 'Humeur',
+    comoFoiODia: 'COMMENT S’EST PASSÉE LA JOURNÉE',
+    sintomas: 'SYMPTÔMES',
+    nenhumHoje: 'Aucun aujourd’hui',
+    naoEsqueca: 'N’OUBLIEZ PAS',
+    oQueFazer: 'QUE FAIRE',
+    voltarHome: 'Retour à l’accueil',
+  },
 };

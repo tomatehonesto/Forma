@@ -5,6 +5,10 @@ import { notas, temConsulta } from '../logic/derive';
 import { dataLonga } from '../logic/time';
 import { Vazio } from '../ui/kit';
 import { TelaInterna, Titulao, Chips, Cartao, Linha, Aviso, Botao } from '../ui/internas';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, porque lê o catálogo. Ver src/textos/README. */
+const K = () => T.tratamento.telaNotas;
 
 /* ============================================================
    NOTAS PARA A CONSULTA
@@ -35,20 +39,20 @@ export default function Notas() {
 
   return (
     <TelaInterna
-      titulo="Notas para a consulta"
+      titulo={K().listaTitulo}
       iconeAcao="plus"
       onAcao={() => router.push('/nota' as any)}
-      rodape={<Botao label="Nova nota" onPress={() => router.push('/nota' as any)} />}
+      rodape={<Botao label={K().novaNota} onPress={() => router.push('/nota' as any)} />}
     >
       <Titulao
-        titulo="Notas"
-        lead={`${ate ? `Guardadas até a consulta de ${ate}.` : 'Guardadas até a sua próxima consulta.'} Marque as que você já conversou.`}
+        titulo={K().notas}
+        lead={K().listaLead(ate)}
       />
 
       <Chips
         itens={[
-          { id: 'abertas', label: 'A conversar', n: abertas.length },
-          { id: 'feitas', label: 'Já conversadas', n: feitas.length },
+          { id: 'abertas', label: K().aConversar, n: abertas.length },
+          { id: 'feitas', label: K().jaConversadas, n: feitas.length },
         ]}
         valor={aba}
         onChange={setAba}
@@ -78,17 +82,17 @@ export default function Notas() {
            no botão fixo embaixo e no "+" da barra. */
         <Vazio
           ic="pencil"
-          titulo={aba === 'abertas' ? 'Nada na pauta ainda' : 'Nenhuma conversada ainda'}
+          titulo={aba === 'abertas' ? K().nadaNaPauta : K().nenhumaConversada}
           texto={aba === 'feitas' && abertas.length
-            ? `${abertas.length === 1 ? 'Sua nota está' : 'Suas notas estão'} em “A conversar”.`
+            ? K().suasNotasEstao(abertas.length)
             : undefined}
         />
       )}
 
       <Aviso
         ic="arrowup"
-        titulo="As notas entram no relatório"
-        texto="Ao exportar o histórico, você escolhe se as anotações vão junto."
+        titulo={K().entramNoRelatorio}
+        texto={K().entramTexto}
       />
     </TelaInterna>
   );

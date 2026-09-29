@@ -479,4 +479,17 @@ export const home = {
     reabrir: 'Primeros pasos',
     reabrirSub: (feitos: number, total: number) => `${feitos} de ${total} hechos · mostrar en Inicio`,
   },
+  telaCheckinOk: {
+    concluido: 'Check-in listo',
+    diasSeguidos: (n: number): string => (n === 1 ? 'DÍA SEGUIDO DE CHECK-IN' : 'DÍAS SEGUIDOS DE CHECK-IN'),
+    energia: 'Energía',
+    sono: 'Sueño',
+    humor: 'Ánimo',
+    comoFoiODia: 'CÓMO FUE EL DÍA',
+    sintomas: 'SÍNTOMAS',
+    nenhumHoje: 'Ninguno hoy',
+    naoEsqueca: 'NO LO OLVIDES',
+    oQueFazer: 'QUÉ HACER',
+    voltarHome: 'Volver al inicio',
+  },
 };

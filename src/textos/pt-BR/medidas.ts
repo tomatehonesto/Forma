@@ -175,4 +175,30 @@ export const medidas = {
     naoSeDigitam: 'Estes números não se digitam',
     naoSeDigitamTexto: 'Pressão, saturação e frequência chegam de um aparelho conectado — e essa ligação ainda não existe nesta versão. Um resultado de laboratório entra por Exames.',
   },
+  /* A folha de uma pesagem ou de uma medida (app/registro).
+     ⚠️ O SUBTÍTULO DIZIA "manhã" PARA TODO REGISTRO, fosse ele da hora que
+     fosse. A hora está na linha de baixo; o subtítulo diz só quem registrou. */
+  telaRegistro: {
+    sub: (data: string) => `${data} · registrado por você`,
+    valor: 'Valor',
+    dataEHora: 'Data e hora',
+    semana: 'Semana',
+    semanaDoTratamento: (n: number) => `Semana ${n} do tratamento`,
+    corrigir: 'Corrigir registro',
+    apagar: 'Apagar',
+    apagarTira: 'Apagar tira o registro do gráfico e do relatório do seu médico.',
+  },
+  /* As folhas de registrar o peso (app/medir-peso) e as medidas
+     (app/medir-medidas). Os nomes das medidas vêm de `corpo`, acima. */
+  telaMedir: {
+    tituloPeso: 'Quanto você está pesando?',
+    desdeOUltimo: (sinal: string, v: string) => `${sinal}${v} desde o último`,
+    salvar: (v: string) => `Salvar ${v}`,
+    tituloMedidas: 'Quais são suas medidas?',
+    abremNaUltima: 'as réguas abrem na última medição',
+    oQueMediu: 'O que você mediu',
+    nenhumaObrigatoria: 'Nenhuma delas é obrigatória. Medir só a cintura é um registro tão bom quanto medir as quatro.',
+    desdeAUltima: (sinal: string, v: string) => `${sinal}${v} desde a última`,
+    registrar: (n: number): string => (n === 1 ? 'Registrar a medida' : 'Registrar as medidas'),
+  },
 };

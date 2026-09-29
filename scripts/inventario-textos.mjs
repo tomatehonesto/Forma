@@ -2,7 +2,10 @@
 
    Fora da conta, de propósito:
      · src/textos/          é o catálogo
-     · logic/alimentos*.ts  nome de comida (TACO/FNDDS/redes) — dado
+     · logic/alimentos*.ts  nome de comida — dado
+     · logic/comidas.ts     a lista de comidas, gerada, já nos seis idiomas
+     · logic/prateleiras.ts as chaves das prateleiras (o nome de tela
+                            está no catálogo)
      · logic/documentos.ts  minuta jurídica
      · logic/seed.ts        a semente de demonstração — dado, não fala
      · logic/meds.ts?       nome de medicamento é marca */
@@ -10,7 +13,7 @@ import { readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const RAIZ = 'C:/dev/Forma/src';
-const FORA = [/textos[\\/]/, /logic[\\/]alimentos/, /logic[\\/]documentos/, /logic[\\/]seed\.ts$/];
+const FORA = [/textos[\\/]/, /logic[\\/]alimentos/, /logic[\\/]comidas\.ts$/, /logic[\\/]prateleiras\.ts$/, /logic[\\/]documentos/, /logic[\\/]seed\.ts$/];
 
 const PT = /[çãõáéíóúâêôàÇÃÕÁÉÍÓÚÂÊÔÀ]|\b(voc[eê]|sua|seu|n[ãa]o|para|com|que|dia|dias|dose|peso|hoje|meta|semana|ver|fazer|de|do|da|em|uma|um)\b/i;
 

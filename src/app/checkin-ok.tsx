@@ -14,6 +14,10 @@ import { Txt, Row, Rolagem } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { radius, font, alfa } from '../theme';
+import { T } from '../textos';
+
+/* ⚠️ É FUNÇÃO, porque lê o catálogo. Ver src/textos/README. */
+const K = () => T.home.telaCheckinOk;
 
 /* ============================================================
    CHECK-IN CONCLUÍDO
@@ -104,9 +108,9 @@ export default function CheckinOk() {
      respondida: a lista é das perguntas que a tela faz todo dia, e some-
      -las esconderia o que ficou em branco. */
   const respostas: [string, string | null][] = [
-    ['Energia', energia ? ENERGIA()[energia - 1] : null],
-    ['Sono', sono != null ? SONO()[sono - 5] : null],
-    ['Humor', humor != null ? HUMOR()[humor - 1] : null],
+    [K().energia, energia ? ENERGIA()[energia - 1] : null],
+    [K().sono, sono != null ? SONO()[sono - 5] : null],
+    [K().humor, humor != null ? HUMOR()[humor - 1] : null],
   ];
 
   /* Os sintomas, pelo nome. Cada um tem a sua prova de existência: coluna
@@ -209,7 +213,7 @@ export default function CheckinOk() {
               <Icon name="check" size={16} color={c.limeInk} sw={2.8} />
             </Animated.View>
             <Animated.View style={subindo}>
-              <Txt v="h2" c={c.onHero}>Check-in concluído</Txt>
+              <Txt v="h2" c={c.onHero}>{K().concluido}</Txt>
             </Animated.View>
           </Row>
 
@@ -224,7 +228,7 @@ export default function CheckinOk() {
                 <Txt v="hero" c={c.lime} style={{ fontSize: 76, lineHeight: 82 }}>{n}</Txt>
               </Animated.View>
               <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 2, marginTop: 2 }}>
-                {n === 1 ? 'DIA SEGUIDO DE CHECK-IN' : 'DIAS SEGUIDOS DE CHECK-IN'}
+                {K().diasSeguidos(n)}
               </Txt>
             </View>
 
@@ -240,7 +244,7 @@ export default function CheckinOk() {
         </View>
 
         <Animated.View style={[subindo, { gap: 10 }]}>
-          <Secao titulo="COMO FOI O DIA" />
+          <Secao titulo={K().comoFoiODia} />
           {/* Lista dentro de um cartão de vidro: rótulo à esquerda,
               resposta à direita. São sempre as mesmas três perguntas, e
               uma tabela é o formato de quem lê pares — o cartão é o que
@@ -269,17 +273,17 @@ export default function CheckinOk() {
         </Animated.View>
 
         <Animated.View style={[subindo, { gap: 10 }]}>
-          <Secao titulo="SINTOMAS" />
+          <Secao titulo={K().sintomas} />
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 7 }}>
             {sintomas.length
               ? sintomas.map((s) => <Pastilha key={s} label={s} />)
-              : <Pastilha label="Nenhum hoje" />}
+              : <Pastilha label={K().nenhumHoje} />}
           </View>
         </Animated.View>
 
         {lembretes.length ? (
           <Animated.View style={[subindo, { gap: 12 }]}>
-            <Secao titulo="NÃO SE ESQUEÇA" aura />
+            <Secao titulo={K().naoEsqueca} aura />
 
             {urgente ? (
               /* O que manda procurar atendimento hoje não vira linha. */
@@ -294,7 +298,7 @@ export default function CheckinOk() {
                 <Txt v="label" c={c.onHero} style={{ marginTop: 1 }}>{urgente.titulo}</Txt>
                 <Txt v="tag" c={c.onHero2}>{urgente.texto}</Txt>
                 <View style={{ gap: 3, marginTop: 3 }}>
-                  <Txt v="micro" c={c.lime} style={{ letterSpacing: 1 }}>O QUE FAZER</Txt>
+                  <Txt v="micro" c={c.lime} style={{ letterSpacing: 1 }}>{K().oQueFazer}</Txt>
                   <Txt v="tag" c={c.onHero}>{urgente.acao}</Txt>
                 </View>
               </View>
@@ -326,7 +330,7 @@ export default function CheckinOk() {
             cores fechando o que aquele botão abriu. */}
         <Pressable onPress={sair} style={({ pressed }) => [{ opacity: pressed ? 0.85 : 1 }]}>
           <View style={{ backgroundColor: c.lime, borderRadius: radius.pill, paddingVertical: 16, alignItems: 'center' }}>
-            <Txt v="bodyMed" c={c.limeInk}>Voltar para a Home</Txt>
+            <Txt v="bodyMed" c={c.limeInk}>{K().voltarHome}</Txt>
           </View>
         </Pressable>
       </View>

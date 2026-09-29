@@ -424,4 +424,16 @@ export const metas = {
     contamosPorVoce: 'Questo lo contiamo noi per te',
     contamosTexto: 'Esce dai tuoi check-in degli ultimi quattordici giorni, e solo dai giorni a cui hai risposto. Non si può segnare a mano — ed è questo che fa valere qualcosa il numero.',
   },
+  telaMetaDaEquipe: {
+    outraPessoa: 'Un’altra persona del team',
+    titulo: (nome: string) => `${nome} · dal team`,
+    sub: 'Il numero fissato dal team, annotato da te',
+    valor: 'Valore',
+    quemDefiniu: 'Chi l’ha fissato',
+    quemAjuda: 'Resta salvato con il numero, così ricordi da dove viene.',
+    naoSubstituiPeso: 'Questo numero non sostituisce il tuo obiettivo di peso. È quello a misurare il tuo Percorso — i due convivono, e quando non coincidono è un tema per la prossima visita.',
+    passaACobrar: 'Una volta salvato, è questo il numero che l’app segue, e non cambia più con il cursore di I numeri del giorno: fa parte del tuo trattamento. Per toglierlo, basta rimuovere questa nota qui.',
+    guardar: (valor: string) => `Salva ${valor}`,
+    remover: 'Rimuovi l’obiettivo del team',
+  },
 };
