@@ -29,7 +29,10 @@ node scripts/gerar-comidas.mjs
 ```
 
 Os nomes vão em português, que é a língua do prompt; o item que não está
-na lista volta com o nome no idioma do aplicativo, que a foto leva junto.
+na lista volta com o nome no idioma do aplicativo, que a foto leva junto,
+e com o rótulo inteiro de uma porção — o mesmo formato de `api/estimar`,
+convertido por `rotulo.ts`. `nome` e `base` continuam indo junto, para
+a versão do aplicativo que ainda só lê a proteína.
 
 Rode isso sempre que a lista de alimentos mudar, senão um `id` existe de
 um lado e não do outro — o servidor devolve um id que o app não conhece,

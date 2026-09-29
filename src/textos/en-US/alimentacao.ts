@@ -160,6 +160,8 @@ export const alimentacao = {
     foraDaConta: (fora: number, total: number) =>
       `${fora} of ${total} ${total === 1 ? 'meal isn’t' : 'meals aren’t'} in this count: only a plate built from the table has a checked label.`,
 
+    comEstimativa: (n: number) => `${n === 1 ? 'One meal counts' : `${n} meals count`} with estimated numbers, not table values.`,
+
     carboidrato: 'Carbs',
     gordura: 'Fat',
     fibra: 'Fiber',

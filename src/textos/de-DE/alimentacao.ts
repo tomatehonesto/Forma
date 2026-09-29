@@ -209,6 +209,8 @@ export const alimentacao = {
     foraDaConta: (fora: number, total: number) =>
       `${fora} von ${total} ${total === 1 ? 'Mahlzeit zählt' : 'Mahlzeiten zählen'} hier nicht mit: nur ein aus der Tabelle gebauter Teller hat ein geprüftes Etikett.`,
 
+    comEstimativa: (n: number) => `${n === 1 ? 'Eine Mahlzeit zählt' : `${n} Mahlzeiten zählen`} mit geschätzten Werten, nicht mit Tabellenwerten.`,
+
     carboidrato: 'Kohlenhydrate',
     gordura: 'Fett',
     fibra: 'Ballaststoffe',

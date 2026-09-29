@@ -1,6 +1,7 @@
 import { T } from '../textos';
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import { alimentoDe, type ItemComida } from './prato';
+import { limparRotulo, itemEstimado } from './estimativa';
 import { localAtual } from './local';
 
 /* ============================================================
@@ -83,14 +84,19 @@ const qtdDe = (v: unknown) =>
    nome — o cartão não desenha nada, mas a linha embaixo da soma anuncia
    "não entra nessa conta" sem dizer o quê, e o registro salva um item
    fantasma. O que vem da rede vale como proposta, não como verdade. */
-function limpar(bruto: unknown): ItemComida[] {
+export function limpar(bruto: unknown): ItemComida[] {
   if (!Array.isArray(bruto)) return [];
   const itens: ItemComida[] = [];
   for (const x of bruto) {
     if (!x || typeof x !== 'object') continue;
     const it = x as any;
     const qtd = qtdDe(it.qtd);
-    if (typeof it.id === 'string' && alimentoDe(it.id)) itens.push({ id: it.id, qtd });
+    if (typeof it.id === 'string' && alimentoDe(it.id)) { itens.push({ id: it.id, qtd }); continue; }
+    /* O item fora da tabela vem com o rótulo inteiro de uma porção, e é
+       conferido pela mesma limpeza da estimativa pelo nome: meio rótulo
+       não entra. Sem rótulo — o servidor de antes —, fica a proteína. */
+    const rotulo = limparRotulo(it.rotulo);
+    if (rotulo) itens.push(itemEstimado(rotulo, qtd, 'foto'));
     else if (typeof it.nome === 'string' && it.nome && typeof it.base === 'number') {
       itens.push({ nome: it.nome, base: Math.max(0, Math.round(it.base)), qtd });
     }

@@ -2426,20 +2426,22 @@ export function metasDoDia(S: State): { kcal: number; prot: number; carb: number
 
 /* O QUE O PRATO DO DIA ENTREGOU, além da proteína.
 
-   Só entra refeição cujo prato está montado com alimentos da tabela — a
-   estimativa da foto responde por proteína, e nada mais. `fora` conta as
+   Só entra refeição cujo prato tem rótulo — da tabela, ou estimado pelo
+   nome ou pela foto; `estimadas` conta as que entraram com número
+   estimado, para a tela dizer. `fora` conta as
    refeições que ficaram de fora inteiras ou pela metade, para a tela
    poder dizer de quantas essa soma NÃO fala. Sem esse número, um dia de
    três refeições estimadas apareceria como 0 kcal, e zero ali seria
    mentira: a pessoa comeu. */
 export function energiaDoDia(S: State, t: number) {
   const refeicoes = refeicoesDoDia(S, t);
-  const soma = { kcal: 0, carb: 0, gord: 0, fibra: 0, fora: 0, refeicoes: refeicoes.length };
+  const soma = { kcal: 0, carb: 0, gord: 0, fibra: 0, fora: 0, estimadas: 0, refeicoes: refeicoes.length };
   for (const m of refeicoes) {
     const itens = (m.itens || []) as ItemComida[];
     if (!itens.length) { soma.fora++; continue; }
     const n = nutrientesDe(itens);
     if (n.fora > 0 || n.contados === 0) soma.fora++;
+    if (n.estimados > 0) soma.estimadas++;
     soma.kcal += n.kcal;
     soma.carb += n.carb;
     soma.gord += n.gord;

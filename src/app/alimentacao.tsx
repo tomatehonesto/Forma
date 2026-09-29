@@ -151,9 +151,10 @@ export default function Alimentacao() {
           de escrever um número sem que ninguém saiba qual dos dois olhar.
 
           E A CONTA SÓ FALA DO QUE TEM RÓTULO. Prato montado pela tabela
-          tem caloria conferida; refeição estimada pela foto responde por
-          proteína, e nada mais. Em vez de somar zero pelas outras em
-          silêncio, a tela diz de quantas ela não está falando. */}
+          tem caloria conferida, e o estimado pelo nome ou pela foto tem
+          um rótulo estimado — que entra, e a tela diz em quantas
+          refeições. O que não tem rótulo nenhum fica fora, e a tela diz
+          de quantas ela não está falando. */}
       <Bloco titulo={K().energiaTitulo}>
         <View style={{ gap: 10 }}>
           <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 16, gap: 10 }, shadowCard(c)]}>
@@ -215,6 +216,11 @@ export default function Alimentacao() {
             {energia.fora > 0 ? (
               <Txt v="caption" c={c.tx3}>
                 {K().foraDaConta(energia.fora, energia.refeicoes)}
+              </Txt>
+            ) : null}
+            {energia.estimadas > 0 ? (
+              <Txt v="caption" c={c.tx3}>
+                {K().comEstimativa(energia.estimadas)}
               </Txt>
             ) : null}
           </View>

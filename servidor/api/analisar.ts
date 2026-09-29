@@ -2,6 +2,8 @@ import Anthropic from '@anthropic-ai/sdk';
 import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod';
 import { z } from 'zod';
 import ALIMENTOS from '../alimentos.json' with { type: 'json' };
+import { PRATELEIRAS } from '../prateleiras';
+import { rotuloDaPorcao } from '../rotulo';
 
 /* ============================================================
    LER O PRATO
@@ -43,10 +45,27 @@ const IDIOMAS: Record<string, string> = {
   'it-IT': 'italiano',
 };
 
+/* ⚠️ O ITEM FORA DA TABELA VOLTA COM O RÓTULO INTEIRO, e não só com a
+   proteína. Antes ele trazia um número só — a proteína de uma porção —,
+   e a energia do dia ficava sem ele. É o mesmo formato da estimativa pelo
+   nome (api/estimar): uma porção comum, o peso dela e os nutrientes; o
+   aplicativo guarda o rótulo e diz que foi estimado pela foto. */
+const Porcao = z.object({
+  nome: z.string().describe('o nome do prato no idioma do aplicativo, com inicial maiúscula'),
+  unidade: z.string().describe('a medida de UMA porção no idioma do aplicativo, no singular'),
+  unidades: z.string().describe('a mesma medida no plural'),
+  gramas: z.number().describe('quanto pesa UMA porção comum, em gramas'),
+  proteina: z.number().describe('gramas de proteína de UMA porção'),
+  kcal: z.number().describe('quilocalorias de UMA porção'),
+  carboidrato: z.number().describe('gramas de carboidrato de UMA porção'),
+  gordura: z.number().describe('gramas de gordura de UMA porção'),
+  fibra: z.number().describe('gramas de fibra de UMA porção'),
+  prateleira: z.enum(PRATELEIRAS).describe('em que grupo este alimento cai'),
+});
+
 const Item = z.object({
   id: z.string().nullable().describe('id da TABELA, quando o prato está lá'),
-  nome: z.string().nullable().describe('nome em português, só quando não há id'),
-  base: z.number().nullable().describe('gramas de proteína de uma porção normal, só quando não há id'),
+  porcao: Porcao.nullable().describe('o rótulo de UMA porção comum, só quando não há id'),
   qtd: z.number().int().min(1).max(20).describe('quantas unidades da medida daquele alimento'),
 });
 export const Resposta = z.object({ itens: z.array(Item) });
@@ -72,10 +91,13 @@ REGRAS
    deixe nome e base nulos — os números daquele alimento já estão no
    aplicativo, e vêm de tabela oficial.
 
-3. Se nada na TABELA corresponde, devolva nome (no idioma do
-   aplicativo, que vem junto da foto, como se fala: "Bobó de camarão",
-   "Pad thai") e base, que são as gramas de PROTEÍNA de UMA
-   porção desse prato. Deixe id nulo.
+3. Se nada na TABELA corresponde, deixe id nulo e devolva porcao: o
+   rótulo de UMA porção comum desse prato, na versão mais comum dele —
+   o nome no idioma do aplicativo, que vem junto da foto, como se fala
+   ("Bobó de camarão", "Pad thai"); a medida; o peso; e proteína,
+   energia, carboidrato, gordura e fibra dessa porção. Os números têm de
+   ser coerentes entre si: 4 kcal por grama de proteína e de carboidrato,
+   9 por grama de gordura.
 
 4. qtd é QUANTAS unidades daquela medida você vê na foto: quatro
    colheres de arroz, um filé, duas fatias. Conte o que está no prato,
@@ -179,12 +201,17 @@ export default async function handler(req: Request): Promise<Response> {
     /* O modelo pode inventar um id que não existe. Se isso passar, o
        aplicativo mostra um item sem nome e sem número — pior do que não
        ter achado. Então id desconhecido perde o id e vira item livre,
-       quando ele mandou nome e base; senão o item cai fora. */
+       quando ele mandou a porção; senão o item cai fora.
+
+       ⚠️ `nome` e `base` continuam indo junto do rótulo, para a versão
+       do aplicativo que ainda não sabe ler `rotulo`: ela registra o
+       item com a proteína, como sempre fez. */
     const itens = bruto
       .map((it) => {
         if (it.id && conhecidos.has(it.id)) return { id: it.id, qtd: it.qtd };
-        if (it.nome && it.base != null && it.base >= 0) {
-          return { nome: it.nome, base: Math.round(it.base), qtd: it.qtd };
+        const rotulo = it.porcao ? rotuloDaPorcao(it.porcao) : null;
+        if (rotulo) {
+          return { nome: rotulo.nome, base: Math.round(Math.max(0, it.porcao!.proteina)), rotulo, qtd: it.qtd };
         }
         return null;
       })

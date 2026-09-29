@@ -92,9 +92,9 @@ export type ItemComida = {
   qtd: number;
   /** Os números do alimento no momento do registro. */
   rotulo?: Rotulo;
-  /** O rótulo não veio de tabela: foi estimado pelo nome — ver
-      logic/estimativa. A tela diz isso ao lado do item. */
-  estimado?: 'nome';
+  /** O rótulo não veio de tabela: foi estimado pelo nome digitado ou
+      pela foto — ver logic/estimativa. A tela diz isso ao lado do item. */
+  estimado?: 'nome' | 'foto';
 };
 
 export type Origem = 'tabela' | 'estimado' | 'sem-conta';
@@ -178,11 +178,16 @@ export function somaDe(itens: ItemComida[]): number {
 /* ============================================================
    O RESTO DO PRATO: ENERGIA, CARBOIDRATO, GORDURA E FIBRA
 
-   A proteína de um item pode vir de três lugares — da tabela, da
-   estimativa da foto, ou de lugar nenhum. O resto do rótulo vem de um
-   só: a tabela. Quem estimou proteína olhando a foto estimou proteína, e
-   nada mais; tirar a caloria dali seria construir um número em cima de
-   outro que já era aproximação.
+   O rótulo de um item vem da tabela, de uma estimativa — pelo nome ou
+   pela foto, que devolvem o rótulo inteiro de uma porção — ou de lugar
+   nenhum. O item antigo da foto, de quando ela só devolvia a proteína,
+   responde por proteína e nada mais: tirar a caloria dali seria
+   construir um número em cima de outro que já era aproximação.
+
+   ⚠️ A ESTIMATIVA ENTRA NA SOMA, E A SOMA DIZ ISSO. `estimados` conta
+   quantos itens contados vieram de estimativa, e a tela da alimentação
+   diz de quantas refeições o número é estimado — somar calado seria
+   apresentar um palpite com a cara de um rótulo conferido.
 
    POR ISSO ESTA SOMA É UM PISO, E A TELA DIZ ISSO. Ela soma o que tem
    rótulo conferido e conta à parte os itens que ficaram de fora, em vez
@@ -214,15 +219,18 @@ export type SomaDoPrato = Nutrientes & {
   fora: number;
   /** quantos entraram */
   contados: number;
+  /** dos que entraram, quantos vieram de estimativa */
+  estimados: number;
 };
 
 export function nutrientesDe(itens: ItemComida[]): SomaDoPrato {
-  const s: SomaDoPrato = { kcal: 0, carb: 0, gord: 0, fibra: 0, fora: 0, contados: 0 };
+  const s: SomaDoPrato = { kcal: 0, carb: 0, gord: 0, fibra: 0, fora: 0, contados: 0, estimados: 0 };
   for (const it of itens) {
     const a = alimentoDoItem(it);
     const g = pesoItem(it);
     if (!a || g == null || a.kcal == null) { s.fora++; continue; }
     s.contados++;
+    if (it.estimado) s.estimados++;
     s.kcal += (a.kcal / 100) * g;
     if (a.carb != null) s.carb += (a.carb / 100) * g;
     if (a.gord != null) s.gord += (a.gord / 100) * g;

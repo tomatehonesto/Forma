@@ -1045,9 +1045,10 @@ quem marcou vegano.
 
 **e) A leitura da foto usa a mesma lista**, com os nomes em português no
 prompt (`servidor/alimentos.json`, gerado na mesma passada). O item que
-ela não acha na lista volta só com a proteína estimada; o que o nome
-digitado estima volta com o rótulo inteiro. Igualar as duas é o próximo
-passo natural.
+ela não acha na lista volta com o rótulo inteiro de uma porção, como a
+estimativa pelo nome, e entra na energia do dia — que diz quantas
+refeições entraram com número estimado. Os dois caminhos só valem
+depois do deploy do servidor.
 
 ## 🔴 19. A extração de textos não terminou, e são 1.150 frases
 

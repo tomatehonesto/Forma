@@ -230,6 +230,8 @@ export const alimentacao = {
     foraDaConta: (fora: number, total: number) =>
       `${fora} de ${total} ${total === 1 ? 'refeição não entra' : 'refeições não entram'} nesta conta: só o prato montado pela tabela tem rótulo conferido.`,
 
+    comEstimativa: (n: number) => `${n === 1 ? 'Uma refeição entra' : `${n} refeições entram`} com números estimados, e não de tabela.`,
+
     carboidrato: 'Carboidrato',
     gordura: 'Gordura',
     fibra: 'Fibra',

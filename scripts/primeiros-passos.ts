@@ -72,6 +72,7 @@ import { limparRotulo, itemEstimado, seusPratos, buscarNosSeus } from '../src/lo
 import { PRATELEIRAS } from '../src/logic/prateleiras';
 import { PRATELEIRAS as PRATELEIRAS_DO_SERVIDOR } from '../servidor/prateleiras';
 import { rotuloDaPorcao } from '../servidor/rotulo';
+import { limpar as limparDaFoto } from '../src/logic/analise';
 import { ALIMENTOS, dicionario, buscarAlimento } from '../src/logic/alimentos';
 import { COMIDAS, UNIDADES } from '../src/logic/comidas';
 import { trocarLocal } from '../src/logic/local';
@@ -684,6 +685,28 @@ ok(contemDe(alimentoDe('salada-caesar')!).includes('ave') && contemDe(alimentoDe
   'e o que a receita leva de fora da lista, como as anchovas do molho caesar');
 ok(cabe(alimentoDe('bebida-soja')!, ['vegano']) && !cabe(alimentoDe('leite-desnatado')!, ['vegano']),
   'a bebida de soja cabe no vegano, mesmo na prateleira do leite');
+
+console.log('\n26. A FOTO DEVOLVE O RÓTULO INTEIRO DO QUE NÃO ESTÁ NA LISTA');
+const porcaoFoto = { nome: 'Bobó de camarão', unidade: 'prato', unidades: 'pratos', gramas: 300,
+  proteina: 24, kcal: 450, carboidrato: 45, gordura: 20, fibra: 3, prateleira: 'Pratos prontos' as const };
+/* o que o servidor devolve: o rótulo, e nome e base para a versão antiga */
+const daFoto = limparDaFoto([
+  { id: 'arroz', qtd: 4 },
+  { nome: 'Bobó de camarão', base: 24, rotulo: rotuloDaPorcao(porcaoFoto), qtd: 1 },
+  { nome: 'Farofa da vó', base: 3, qtd: 1 },
+]);
+ok(daFoto.length === 3 && daFoto[1].estimado === 'foto' && !!daFoto[1].rotulo && daFoto[2].base === 3 && !daFoto[2].rotulo,
+  'o item fora da lista vem com o rótulo e marcado como da foto; o formato antigo continua entrando');
+ok(ressalvaItem(daFoto[1]) === T.alimentacao.prato.estimado && gramasItem(daFoto[1]) === 24,
+  'a tela diz que foi estimado pela foto, e a proteína é a da porção');
+const somaFoto = nutrientesDe(daFoto);
+ok(somaFoto.contados === 2 && somaFoto.estimados === 1 && somaFoto.fora === 1,
+  'o prato da foto entra na energia como estimado, e o item só com proteína fica fora');
+const comFoto = clone(novo);
+registrarRefeicao(comFoto, { name: 'Almoço', tag: '', itens: daFoto, fonte: 'foto' });
+const energiaFoto = energiaDoDia(comFoto, +hoje);
+ok(energiaFoto.estimadas === 1 && energiaFoto.kcal >= 450, 'a energia do dia conta a refeição com número estimado, e diz quantas');
+ok(seusPratos(comFoto).some((r) => r.nome === 'Bobó de camarão'), 'o prato estimado pela foto também volta como prato seu');
 
 console.log(falhas ? `\n${falhas} afirmação(ões) falharam\n` : '\ntodas as afirmações passaram\n');
 process.exit(falhas ? 1 : 0);

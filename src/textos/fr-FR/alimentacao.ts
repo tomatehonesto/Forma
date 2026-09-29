@@ -195,6 +195,8 @@ export const alimentacao = {
     foraDaConta: (fora: number, total: number) =>
       `${fora} repas sur ${total} ${total === 1 ? 'n’entre pas' : 'n’entrent pas'} dans ce compte : seule une assiette construite avec la table a une étiquette vérifiée.`,
 
+    comEstimativa: (n: number) => `${n === 1 ? 'Un repas compte' : `${n} repas comptent`} avec des chiffres estimés, et non tirés d’une table.`,
+
     carboidrato: 'Glucides',
     gordura: 'Lipides',
     fibra: 'Fibres',

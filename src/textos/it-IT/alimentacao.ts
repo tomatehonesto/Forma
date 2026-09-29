@@ -217,6 +217,8 @@ export const alimentacao = {
     foraDaConta: (fora: number, total: number) =>
       `${fora} ${total === 1 ? 'pasto su' : 'pasti su'} ${total} non ${total === 1 ? 'entra' : 'entrano'} in questo conto: solo un piatto composto con la tabella ha un’etichetta verificata.`,
 
+    comEstimativa: (n: number) => `${n === 1 ? 'Un pasto entra' : `${n} pasti entrano`} con numeri stimati, e non da tabella.`,
+
     carboidrato: 'Carboidrati',
     gordura: 'Grassi',
     fibra: 'Fibre',

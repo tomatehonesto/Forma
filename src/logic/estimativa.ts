@@ -63,9 +63,10 @@ export function limparRotulo(bruto: unknown): Rotulo | null {
   return { nome, un, unp, gUn, p, kcal, carb, gord, fibra, onde };
 }
 
-/** O item de prato que nasce de um rótulo estimado. */
-export const itemEstimado = (rotulo: Rotulo, qtd = 1): ItemComida =>
-  ({ nome: rotulo.nome, qtd, rotulo, estimado: 'nome' });
+/** O item de prato que nasce de um rótulo estimado — pelo nome digitado
+    ou pela foto (ver logic/analise). */
+export const itemEstimado = (rotulo: Rotulo, qtd = 1, por: 'nome' | 'foto' = 'nome'): ItemComida =>
+  ({ nome: rotulo.nome, qtd, rotulo, estimado: por });
 
 /** Pergunta ao servidor o rótulo de uma porção do que foi digitado. */
 export async function estimarPeloNome(nome: string): Promise<Estimativa> {
@@ -103,14 +104,15 @@ export async function estimarPeloNome(nome: string): Promise<Estimativa> {
 const semAcento = (s: string) =>
   s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
 
-/** Os pratos que a pessoa já estimou, do mais recente para o mais
-    antigo, um de cada nome. Ver o alto do arquivo. */
+/** Os pratos que a pessoa já estimou — pelo nome ou pela foto —, do
+    mais recente para o mais antigo, um de cada nome. Ver o alto do
+    arquivo. */
 export function seusPratos(S: State): Rotulo[] {
   const vistos = new Set<string>();
   const lista: Rotulo[] = [];
   for (const m of ((S as any).meals || []) as any[]) {
     for (const it of (m?.itens || []) as ItemComida[]) {
-      if (it?.estimado !== 'nome' || !it.rotulo) continue;
+      if (!it?.estimado || !it.rotulo) continue;
       const chave = semAcento(it.rotulo.nome);
       if (vistos.has(chave)) continue;
       vistos.add(chave);
