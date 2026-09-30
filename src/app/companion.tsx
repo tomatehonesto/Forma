@@ -74,6 +74,31 @@ const K = () => T.companion.telaConversa;
 
 const PAD = 24;
 
+/** O assunto de cada pergunta sugerida, para a etiqueta do card. Sai da
+    CHAVE da pergunta no catálogo (T.rotina.perguntas), e não do texto:
+    assim vale nos seis idiomas. Pergunta sem assunto conhecido leva o de
+    tratamento. */
+const ASSUNTOS: Record<string, { ic: string; rotulo: () => string }> = {
+  maisFome: { ic: 'utensils', rotulo: () => K().assuntoApetite },
+  semFome: { ic: 'utensils', rotulo: () => K().assuntoApetite },
+  depoisDaAplicacao: { ic: 'syringe', rotulo: () => K().assuntoTratamento },
+  primeiraDose: { ic: 'syringe', rotulo: () => K().assuntoTratamento },
+  trocarODia: { ic: 'cal', rotulo: () => K().assuntoTratamento },
+  comoFunciona: { ic: 'pill', rotulo: () => K().assuntoTratamento },
+  diminuirEnjoo: { ic: 'gut', rotulo: () => K().assuntoSintomas },
+  porQueEnjoo: { ic: 'gut', rotulo: () => K().assuntoSintomas },
+  meusExames: { ic: 'doc', rotulo: () => K().assuntoExames },
+  meuProgresso: { ic: 'trend', rotulo: () => K().assuntoProgresso },
+  prepararConsulta: { ic: 'steth', rotulo: () => K().assuntoConsulta },
+  oQueRegistrar: { ic: 'spark', rotulo: () => K().assuntoComeco },
+};
+const assuntoDe = (pergunta: string) => {
+  const P = T.rotina.perguntas as Record<string, string>;
+  const chave = Object.keys(P).find((k) => P[k] === pergunta);
+  const a = (chave && ASSUNTOS[chave]) || { ic: 'aura', rotulo: () => K().assuntoTratamento };
+  return { ic: a.ic, rotulo: a.rotulo() };
+};
+
 /** O que cada destino sugerido vira no botão: ícone e rótulo. As rotas
     são as de TELAS_DA_CONVERSA (logic/conversa). */
 const DESTINOS: Record<string, { ic: string; rotulo: () => string }> = {
@@ -396,7 +421,7 @@ export default function Companion() {
       <View style={{ flex: 1, backgroundColor: c.bg }}>
         <Rolagem
           ref={scrollRef} style={{ flex: 1 }}
-          contentContainerStyle={{ paddingHorizontal: PAD, paddingTop: 26, paddingBottom: 24 }}
+          contentContainerStyle={{ paddingHorizontal: PAD, paddingTop: 26, paddingBottom: 24, ...(vazio ? { flexGrow: 1, justifyContent: 'flex-end' } : {}) }}
           showsVerticalScrollIndicator={false}
           onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: false })}
         >
@@ -418,7 +443,12 @@ export default function Companion() {
               na mesma dobra, em desenhos diferentes — e a de baixo era a
               mais fraca. */}
           {vazio || !aceitou ? (
-            <View style={{ alignItems: 'center', paddingTop: 8 }}>
+            /* Na conversa vazia a abertura desce para junto dos cards e do
+               campo (a rolagem encosta o conteúdo embaixo): a saudação, as
+               perguntas prontas e o lugar de escrever ficam juntos, onde o
+               polegar está, e a estrela diz com quem se fala. */
+            <View style={{ alignItems: 'center', paddingTop: 8, paddingBottom: 8 }}>
+              <View style={{ marginBottom: 18 }}><EstrelaIA size={44} /></View>
               <Txt v="display" style={{ fontSize: 26, lineHeight: 33, textAlign: 'center' }}>
                 {K().ola(S.profile.name.split(' ')[0])}
               </Txt>
@@ -443,19 +473,7 @@ export default function Companion() {
               {/* Sem o aceite, as sugestões não aparecem: o termo está na
                   folha por cima (app/aceite-ia), e uma sugestão tocada
                   atrás dela não teria para onde ir. */}
-              {!aceitou ? null : (
-              <View style={{ marginTop: 32, alignSelf: 'stretch', gap: 8 }}>
-                {sugestoes.map((s) => (
-                  <Pressable key={s} onPress={() => ask(s, 'sugerida')} style={({ pressed }) => [{ opacity: pressed ? 0.65 : 1 }]}>
-                    <Row gap={12} style={{ backgroundColor: c.bg1, borderRadius: radius.lg, paddingHorizontal: 16, paddingVertical: 15 }}>
-                      <Icon name="aura" size={15} color={c.accent} sw={1.9} />
-                      <Txt v="body" style={{ flex: 1 }}>{s}</Txt>
-                      <Icon name="chev" size={14} color={c.tx4} sw={2} />
-                    </Row>
-                  </Pressable>
-                ))}
-              </View>
-              )}
+
             </View>
           ) : null}
 
@@ -615,6 +633,43 @@ export default function Companion() {
             endereço (do Insights) espera o aceite em `pendente`. */}
         {aceitou ? (
         <View style={{ paddingHorizontal: PAD, paddingTop: 10, paddingBottom: (insets.bottom || 10) + 10, backgroundColor: c.bg }}>
+          {/* ⚠️ AS SUGESTÕES SÃO CARDS, LADO A LADO (30/09/2026). A lista
+                   de quatro linhas iguais lia como menu; o card diz o ASSUNTO
+                   antes da pergunta — apetite, sintomas, exames —, e a pessoa
+                   escolhe pelo tema antes de ler a frase. A rolagem vai até a
+                   borda da tela, e o card seguinte aparecendo cortado é o
+                   convite para arrastar.
+
+                   E MORAM EM CIMA DO CAMPO, e não embaixo da saudação: é onde
+                   o polegar já está, e a pergunta pronta fica ao lado do
+                   lugar onde se escreveria uma. Só na conversa vazia. */}
+          {vazio ? (
+                <Rolagem
+                  horizontal showsHorizontalScrollIndicator={false}
+                  style={{ marginBottom: 12, marginHorizontal: -PAD, flexGrow: 0 }}
+                  contentContainerStyle={{ paddingHorizontal: PAD, gap: 10, alignItems: 'stretch' }}
+                >
+                  {sugestoes.map((s) => {
+                    const a = assuntoDe(s);
+                    return (
+                      <Pressable key={s} onPress={() => ask(s, 'sugerida')} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1, alignSelf: 'stretch' }]}>
+                        <View style={{
+                          flex: 1, width: 200, minHeight: 116, backgroundColor: c.bg1, borderRadius: radius.lg,
+                          borderWidth: StyleSheet.hairlineWidth, borderColor: c.line, padding: 14, gap: 12,
+                        }}>
+                          <Row gap={7} style={{ alignSelf: 'flex-start', alignItems: 'center', backgroundColor: c.bg2, borderRadius: radius.pill, paddingLeft: 4, paddingRight: 10, paddingVertical: 4 }}>
+                            <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: c.accent, alignItems: 'center', justifyContent: 'center' }}>
+                              <Icon name={a.ic} size={12} color={c.accentInk} sw={2} />
+                            </View>
+                            <Txt v="micro" c={c.tx2}>{a.rotulo}</Txt>
+                          </Row>
+                          <Txt v="body" style={{ lineHeight: 22 }}>{s}</Txt>
+                        </View>
+                      </Pressable>
+                    );
+                  })}
+                </Rolagem>
+          ) : null}
           {/* ⚠️ O AVISO DO DITADO FICA ACIMA DO CAMPO, e não dentro dele.
 
               Dentro, ele empurraria o campo para baixo no meio do teclado
