@@ -3,25 +3,24 @@ import { View, Pressable, ScrollView, TextInput, KeyboardAvoidingView, Platform,
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
-import type { State } from '../logic/seed';
 import {
   acrescentarPergunta, origemDoEndereco, type OrigemDaPergunta, type PerguntaFeita,
 } from '../logic/perguntas';
+import { companionSuggestions, companionMemoria } from '../logic/derive';
 import {
-  M, curWeight, lostKg, lostPct, adesao, hungerForecast, nextInjectionDate,
-  lastInjection, siteLabel, waterMlToday, litros, companionSuggestions, companionMemoria,
-  temConsulta, clinicaConectada, startWeight, variacaoDe,
-  temCiclo, temDose, medComDose, respostaNoDia, examFirst, examLast,
-} from '../logic/derive';
-import { numeroEnxuto } from '../logic/local';
-import { now, diffDays, daysAgo, startOfDay, fmtDate, relDay, nf, kg } from '../logic/time';
+  aceitouAConversa, registrarAceiteDaConversa, conversaGuardada, guardarNaConversa,
+  recomecarConversa, conversaLigada, perguntarAoMorphi, type MotivoDaConversa,
+} from '../logic/conversa';
 import { Txt, Row, CircleBtn, RichDoc, Rolagem } from '../ui/kit';
 import { EstrelaIA } from '../ui/marca';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { useDitado, estadoDoDitado } from '../ui/useDitado';
 import { radius, font } from '../theme';
-import { pesoTxt, pesoU, pesoV, aguaTxt, aguaN } from '../logic/medidas';
+import { Botao } from '../ui/internas';
+import { T } from '../textos';
+
+const K = () => T.companion.telaConversa;
 
 /* ============================================================
    MORPHI — a tela para onde tudo aponta
@@ -53,13 +52,22 @@ import { pesoTxt, pesoU, pesoV, aguaTxt, aguaN } from '../logic/medidas';
    e não numa tela de termos. Quem confunde as duas coisas está desenhando
    outro produto.
 
-   O QUE AINDA É FALSO
+   A CONVERSA DE VERDADE (29/09/2026)
 
-   companionReply é uma cadeia de if/else sobre palavras-chave. As
-   respostas são ancoradas em dados preco — peso, adesão, ciclo, exames —
-   mas a compreensão é fingida: quem escrever "e se eu parar?" cai no
-   fallback. Nada nesta tela disfarça isso, e o "pensando" existe para dar
-   ritmo à espera, não para simular processamento que não acontece.
+   Aqui morava `companionReply`, uma cadeia de if/else sobre
+   palavras-chave EM PORTUGUÊS: quem escrevesse "e se eu parar?", ou
+   qualquer coisa em alemão, caía na resposta genérica. Agora a pergunta
+   vai ao servidor com o resumo da jornada (logic/conversa e
+   logic/resumoDaJornada), e a resposta volta no idioma da pessoa. Ver
+   docs/superpowers/specs/2026-09-29-morphi-intelligence-design.md.
+
+   ⚠️ SEM O ACEITE, NADA SAI DO APARELHO. A abertura mostra o aceite no
+   lugar das sugestões, e a pergunta feita antes dele espera (`pendente`)
+   e segue sozinha depois do "concordo".
+
+   ⚠️ O AVISO NÃO ENTRA NA CONVERSA. "Sem rede" e "limite do dia" são
+   falas da tela, e não do Morphi: guardadas, iriam para o modelo como
+   histórico na próxima pergunta.
    ============================================================ */
 
 const PAD = 24;
@@ -69,201 +77,6 @@ const PAD = 24;
    caía na peça de 853×1844. As duas foram embora com o cabeçalho do orbe,
    que é o hero do Insights e não desta tela. Quem for reconstruir aquele
    desenho encontra a conta no histórico deste arquivo. */
-
-/* ⚠️ `fonte` É A PROCEDÊNCIA DA RESPOSTA, e ela não é enfeite.
-
-   Cada resposta daqui lê dados preco da pessoa — as pesagens, os
-   check-ins, as aplicações, os exames. Até aqui isso ficava invisível: a
-   frase chegava pronta e podia tanto ter lido o histórico dela quanto ter
-   saído de um texto genérico sobre GLP-1, e quem lê não tinha como saber
-   qual das duas.
-
-   O selo embaixo diz de onde veio, e ABRE a tela onde aquele dado mora —
-   quem não acredita na frase pode ir conferir o número. É a mesma regra
-   que vale para a meta anotada da equipe e para as descobertas da Home:
-   afirmação sobre os dados de alguém anda junto com a origem.
-
-   ⚠️ E É OPCIONAL DE PROPÓSITO. A saudação e a resposta de "não entendi"
-   não leem dado nenhum — pôr um selo nelas seria inventar uma
-   procedência para um texto que não tem. */
-type Msg = {
-  who: 'me' | 'ai';
-  text: string;
-  mini?: string;
-  fonte?: { rotulo: string; to: string };
-};
-
-/* porta verbatim do protótipo — respostas heurísticas ancoradas nos dados preco */
-/* ⚠️ A DRA. HELENA ESTAVA ESCRITA À MÃO AQUI DENTRO.
-
-   Três respostas prontas citavam a médica da semente pelo nome, e uma
-   quarta montava o resumo da consulta sem perguntar se havia consulta —
-   com o estado zerado, ela respondia "pra sua  há vinte mil dias com a ".
-   Enquanto a única médica possível era a da semente, as duas coisas
-   passavam; com a ficha de quem acompanha, a primeira pessoa que anotar
-   o próprio médico ouve o companion falar de outra.
-
-   Quem acompanha sai do perfil, e some da frase quando não há ninguém —
-   um assistente que inventa um nome é pior do que um que não cita
-   nenhum. */
-function companionReply(S: State, text: string): Msg {
-  const quemAcompanha = S.profile.doctor || S.profile.clinic;
-  const t = text.toLowerCase();
-  const has = (...k: string[]) => k.some((x) => t.includes(x));
-  const med = M(S);
-  /* ⚠️ NENHUMA RESPOSTA AFIRMA O QUE O DIÁRIO NÃO DIZ (28/09/2026). As
-     chips passaram a sair do momento e do que foi preenchido, e cada uma
-     cai numa destas respostas — que liam como se todo mundo fosse a
-     Mariana da semente: "já passou dos 5% de perda" para quem perdeu 1%,
-     "seus registros já mostram o enjoo melhorando" sem registro nenhum,
-     "reparei que aos fins de semana a hidratação cai", "média recente
-     perto de 90 g/dia" e "HbA1c 6,3 → 5,6%" escritos à mão. Agora cada
-     frase sobre a pessoa sai de uma conta sobre o diário dela, e quando
-     não há o que contar a resposta diz isso. */
-  if (has('evolu', 'progress', 'como estou', 'como vou', 'peso')) {
-    const diasPesados = new Set((S.weights as any[]).map((w) => +startOfDay(new Date(w.t)))).size;
-    if (diasPesados < 2) {
-      return { who: 'ai', fonte: { rotulo: 'Suas pesagens', to: '/evolucao' },
-        text: S.weights.length
-          ? `Por enquanto tenho uma pesagem sua: <b>${pesoTxt(S, curWeight(S))}</b>. Com a próxima, em outro dia, já consigo mostrar a direção do seu peso.`
-          : `Ainda não tenho nenhuma pesagem sua. Com duas, em dias diferentes, já consigo mostrar a direção do seu peso.`,
-        mini: `Uma pesagem por semana, no mesmo horário, já basta para a linha ficar confiável.` };
-    }
-    const days = diffDays(now(), new Date(S.profile.startT));
-    const perdeu = lostKg(S) > 0;
-    return { who: 'ai', fonte: { rotulo: 'Suas pesagens', to: '/evolucao' }, text: [
-      `Nos <b>${days} dias</b> de tratamento você saiu de ${pesoTxt(S, startWeight(S))} para <b>${pesoTxt(S, curWeight(S))}</b>${perdeu ? ` — menos ${pesoTxt(S, lostKg(S))} (${nf(lostPct(S), 1)}%)` : ''}.`,
-      perdeu && lostPct(S) >= 5 ? 'Já passou dos 5% de perda, uma marca clínica que reduz riscos.' : '',
-      S.injections.length >= 2 ? `Sua adesão às aplicações está em ${adesao(S)}%.` : '',
-    ].filter(Boolean).join(' '),
-      mini: `${perdeu && days >= 14 ? `Cerca de ${pesoTxt(S, lostKg(S) / (days / 7))} por semana até aqui. ` : ''}O peso é um sinal entre vários — energia, sono e exames também contam.` };
-  }
-  if (has('consulta', 'prepar', 'médic', 'doutora')) {
-    /* ⚠️ ESTA RESPOSTA ERA UMA FRASE E UM BLOCO DE BULLETS À MÃO, com
-       "•" digitados dentro de uma string e \n no meio. Ela sempre foi um
-       documento — só não tinha como ser desenhada como um, porque o
-       balão não sabia o que fazer com uma lista.
-
-       Agora é ela quem mostra o RichDoc inteiro: manchete, lista,
-       segunda manchete. A nota de rodapé fica no `mini`, que continua
-       sendo a voz mais baixa.
-
-       ⚠️ E CADA LINHA SÓ COM O DADO DELA: "náusea leve nos dias
-       pós-aplicação, já melhorando" era escrita para todo mundo. */
-    const pesou = new Set((S.weights as any[]).map((w) => +startOfDay(new Date(w.t)))).size >= 2;
-    const ultimos = (S.checkins as any[]).filter((x) => x.t >= +daysAgo(14) && respostaNoDia(x));
-    const comEnjoo = ultimos.filter((x) => (x.nausea ?? 0) >= 3).length;
-    return { who: 'ai', fonte: { rotulo: 'Seu tratamento', to: '/resumo-medico' }, text: [
-      temConsulta(S)
-        ? `Montei um resumo para a sua ${S.consult.type.toLowerCase()} <b>${relDay(new Date(S.consult.t))}</b>${S.consult.doctor ? ` com ${S.consult.doctor}` : ''}.`
-        : `Montei um resumo do seu tratamento para levar na consulta.`,
-      '',
-      '## O que levar',
-      ...(S.weights.length ? [pesou
-        ? `- Peso: <b>${pesoTxt(S, curWeight(S))}</b> (${variacaoDe(pesoV(S, curWeight(S) - startWeight(S)), pesoU(S)).delta} / ${nf(Math.abs(lostPct(S)), 1)}%) — [ver a linha](/evolucao)`
-        : `- Peso: <b>${pesoTxt(S, curWeight(S))}</b>, uma pesagem até aqui — [ver a linha](/evolucao)`] : []),
-      `- Medicação: ${medComDose(S)}${S.injections.length >= 2 ? `, adesão ${adesao(S)}%` : ''} — [ver as aplicações](/aplicacoes)`,
-      ...(ultimos.length ? [comEnjoo
-        ? `- Sintomas: enjoo em ${comEnjoo} dos ${ultimos.length} check-ins das últimas duas semanas — [ver os registros](/sintomas)`
-        : `- Sintomas: sem enjoo nos ${ultimos.length} check-ins das últimas duas semanas — [ver os registros](/sintomas)`] : []),
-      '',
-      '## Perguntas que valem a pena',
-      '- Manter ou ajustar a dose?',
-      '- O ritmo está dentro do esperado para esta fase?',
-      '- Há exame a repetir antes da próxima consulta?',
-    ].join('\n'), mini: `Levo isso organizado, mas quem lê os seus números é ${quemAcompanha || 'quem acompanha você'}.` };
-  }
-  if (has('fome', 'saciedade', 'vontade de comer')) {
-    const hf = temCiclo(S) ? hungerForecast(S) : null;
-    return { who: 'ai', text: `A fome acompanha o nível da medicação no seu corpo. Logo após a aplicação ele está alto e a saciedade é maior; <b>perto da próxima dose ele cai</b> e a fome volta. ${hf ? `No seu caso, esse ponto mais baixo é ${hf.inDays <= 1 ? 'nestes dias' : `em ${hf.inDays} dias`}.` : ''}`, fonte: { rotulo: 'Suas aplicações', to: '/aplicacoes' }, mini: `Ajuda nesses dias: priorizar proteína, hidratar bem e não pular refeições. Se a fome estiver difícil de controlar, vale anotar para conversar ${quemAcompanha ? `com ${quemAcompanha}` : 'na consulta'} — quem ajusta dose é quem acompanha você.` };
-  }
-  if (has('náusea', 'nausea', 'enjoo', 'enjôo', 'mal estar', 'sintoma')) {
-    /* "Diminuindo" só quando os registros dizem: a segunda metade dos
-       últimos seis dias com enjoo respondido abaixo da primeira. */
-    const ult = (S.checkins as any[]).filter((x) => x.nausea != null).slice(-6);
-    const media = (xs: any[]) => xs.reduce((s, x) => s + x.nausea, 0) / xs.length;
-    const meio = Math.floor(ult.length / 2);
-    const diminuindo = ult.length >= 4 && media(ult.slice(meio)) < media(ult.slice(0, meio)) - 0.5;
-    return { who: 'ai', text: `O enjoo vem de um dos efeitos que fazem o tratamento funcionar: a medicação deixa o estômago esvaziar mais devagar, e a comida fica mais tempo ali. É comum nos primeiros dias e depois de subir a dose, e costuma <b>diminuir com o tempo</b>.${diminuindo ? ' Nos seus próprios registros, ele já vem diminuindo.' : ''}`, fonte: { rotulo: 'Seus sintomas', to: '/sintomas' }, mini: `O que costuma ajudar: refeições menores, evitar frituras e comer devagar. Se ficar forte, persistente ou vier com vômito, ${clinicaConectada(S) ? 'me avisa que eu destaco isso para a sua equipe' : 'procure quem acompanha você — isso não espera a próxima consulta'}.` };
-  }
-  /* ⚠️ AS PALAVRAS DAS OUTRAS FORMAS ENTRARAM AQUI, e a varredura de
-     "caneta" foi quem achou a falta.
-
-     Este roteador case a pergunta por palavra escrita. Quem usa frasco
-     não escreve "caneta" — escreve "frasco", "seringa",
-     "comprimido" —, e a pergunta caía fora de todas as regras e ia
-     para a resposta genérica do fim. Não era texto errado: era resposta
-     perdida. */
-  if (has('dose', 'aplica', 'aplicar', 'injeç', 'caneta', 'frasco', 'seringa', 'comprimido', 'tomar')) {
-    const li = lastInjection(S);
-    /* Sem aplicação registrada não há "próxima": a data saía do recuo de
-       `nextInjectionDate`, e a resposta marcava dia para uma dose que
-       nunca teve a primeira. Antes dela, a conversa é sobre ela. */
-    if (!li) {
-      return { who: 'ai', text: `Ainda não tenho nenhuma aplicação sua registrada. Nos primeiros dias depois da primeira dose é comum sentir <b>menos fome</b> e, às vezes, um enjoo leve — sinais de que a medicação começou a agir.`, fonte: { rotulo: 'Suas aplicações', to: '/aplicacoes' }, mini: `Quando aplicar, registre aqui: eu passo a contar o ciclo — o dia da próxima, a fase da fome e o local para alternar. Dose e medicação ficam com ${quemAcompanha || 'quem acompanha você'}.` };
-    }
-    const nd = nextInjectionDate(S);
-    return { who: 'ai', text: `Sua próxima aplicação é <b>${relDay(nd)}</b> (${fmtDate(nd)})${temDose(S) ? `, ${medComDose(S)}` : ''}. Sugiro alternar o local${li.site ? ` — da última vez foi ${siteLabel(li.site)}` : ''}.`, fonte: { rotulo: 'Suas aplicações', to: '/aplicacoes' }, mini: `Importante: eu não altero doses nem protocolos. Qualquer mudança é decisão de ${quemAcompanha || 'quem acompanha você'}. Posso te lembrar no dia e registrar a aplicação.` };
-  }
-  if (has('água', 'agua', 'hidrat')) {
-    const bebeu = waterMlToday(S);
-    const meta = aguaTxt(S, (S.profile as any).targets.waterMl);
-    return { who: 'ai', text: `${bebeu > 0 ? `Hoje você registrou <b>${aguaN(S, bebeu)} de ${meta}</b>.` : `Hoje ainda não tenho água registrada — a meta é <b>${meta}</b>.`} A água ajuda bastante com a saciedade e com o enjoo.`, fonte: { rotulo: 'Sua hidratação', to: '/agua' }, mini: `Cada copo registrado entra na conta do dia.` };
-  }
-  if (has('proteína', 'proteina')) {
-    const meta = (S.profile as any).targets.prot;
-    const dias = (S.checkins as any[]).filter((x) => (x.prot || 0) > 0);
-    const media = dias.length ? dias.reduce((s, x) => s + x.prot, 0) / dias.length : null;
-    return { who: 'ai', text: `${media == null ? 'Ainda não tenho proteína registrada.' : `Nos dias com proteína registrada, sua média é de <b>${Math.round(media)} g</b>, para uma meta de ${meta} g.`} Manter a ingestão alta durante a perda de peso <b>protege sua massa magra</b>, o que sustenta seu metabolismo.`, fonte: { rotulo: 'Sua alimentação', to: '/alimentacao' }, mini: `Boas fontes práticas: ovos, iogurte natural, frango, peixe e leguminosas.` };
-  }
-  if (has('meta', 'objetivo', 'jeans', 'roupa', 'energia', 'dormir', 'sono')) {
-    const respondeu = (S.checkins as any[]).some(respostaNoDia);
-    return { who: 'ai', text: `Suas metas vão além do peso, e é assim que deve ser. ${respondeu ? 'Sono e energia entram pelos seus check-ins, ao lado da balança.' : 'Quando você responder o check-in, sono e energia entram na conta ao lado da balança.'} Transformação é o conjunto, não só a balança.`, fonte: { rotulo: 'Suas metas', to: '/metas' }, mini: `Quer adicionar uma nova meta, além da balança? Posso te levar até lá.` };
-  }
-  if (has('exame', 'hba1c', 'colesterol', 'glicemia', 'ldl', 'hdl', 'triglic', 'vitamina', 'ferritina', 'tsh', 'insulina', 'creatinina')) {
-    /* Os marcadores viram termos que abrem a tela deles. É o que o
-       sublinhado promete na referência, e aqui ele só existe porque o
-       destino existe: /exames?m=X abre o marcador.
-
-       ⚠️ Os números eram os da semente, escritos à mão. Agora são os
-       marcadores com mais de uma medida, do primeiro valor ao último. */
-    const comHistoria = ((S.exams ?? []) as any[]).filter((e) => e.values?.length >= 2);
-    if (!comHistoria.length) {
-      return { who: 'ai', fonte: { rotulo: 'Seus exames', to: '/exames' }, text: ((S.exams ?? []) as any[]).length
-        ? 'Por enquanto tenho uma medida de cada exame. Com a próxima coleta, já consigo mostrar o que mudou.'
-        : 'Ainda não tenho exames seus. Quando você adicionar um resultado, eu mostro como cada marcador anda ao longo do tratamento.',
-        mini: `Não substituo a leitura de ${quemAcompanha || 'quem acompanha você'}.` };
-    }
-    return { who: 'ai', fonte: { rotulo: 'Seus exames', to: '/exames' }, text: [
-      '## Do primeiro ao último resultado',
-      ...comHistoria.slice(0, 5).map((e) =>
-        `- [${e.marker}](/exames?m=${e.marker}): <b>${numeroEnxuto(examFirst(e).v, 1)} → ${numeroEnxuto(examLast(e).v, 1)} ${e.unit}</b>`),
-    ].join('\n'), mini: `Toque num marcador para ver a linha dele e o que ele significa. Não substituo a leitura de ${quemAcompanha || 'quem acompanha você'}.` };
-  }
-  if (has('medicament', 'remédio', 'remedio', 'tirzep', 'semaglut', 'bula', 'como funciona')) {
-    return { who: 'ai', text: `${med.label} tem como princípio ativo a <b>${med.mol.toLowerCase()}</b>, aplicada ${med.cad === 'weekly' ? '1×/semana' : 'diariamente'}. Ela aumenta a saciedade e ajuda no controle da glicose.`, fonte: { rotulo: 'Sua medicação', to: '/protocolo' }, mini: `Efeitos comuns no começo: náusea leve e menos apetite. Dúvidas sobre dose ou troca de medicação são sempre com ${quemAcompanha || 'quem acompanha você'}.` };
-  }
-  if (has('protocolo', 'missão', 'missao', 'tarefa', 'checklist')) {
-    const p = S.protocol, done = p.tasks.filter((x: any) => x.done).length;
-    const next = p.tasks.find((x: any) => !x.done);
-    return { who: 'ai', text: `No protocolo da <b>semana ${p.week}</b> você concluiu ${done} de ${p.tasks.length} itens. ${next ? `Falta: ${next.t}.` : 'Tudo em dia.'}`, fonte: { rotulo: 'Seu protocolo', to: '/protocolo' }, mini: `Quer que eu te lembre das tarefas ao longo da semana?` };
-  }
-  /* A pergunta do começo — ver `companionSuggestions`: com pouco
-     registrado, o que ajuda é saber o que registrar. */
-  if (has('registr', 'anotar', 'começo')) {
-    return { who: 'ai', text: [
-      'No começo, três coisas já me deixam ler o seu tratamento:',
-      '',
-      '- [O check-in do dia](/checkin): energia, sono, fome e sintomas, em menos de um minuto',
-      '- [Uma pesagem por semana](/evolucao), no mesmo horário',
-      '- [Cada aplicação](/aplicacoes), com o local',
-    ].join('\n'), mini: `Com alguns dias disso, começo a mostrar o que muda de uma semana para outra.` };
-  }
-  if (has('oi', 'olá', 'ola', 'bom dia', 'boa tarde', 'obrigad', 'valeu')) {
-    return { who: 'ai', text: `Tô aqui com você. Pode me perguntar sobre sua evolução, sintomas, exames, a próxima dose ou a consulta — o que fizer sua semana mais leve.` };
-  }
-  return { who: 'ai', text: `Entendi. Posso te ajudar melhor com algo específico da sua jornada — sua evolução, um sintoma, a linha da medicação, ou preparar a consulta${quemAcompanha ? ` com ${quemAcompanha}` : ''}. Só lembrando que <b>não tomo decisões médicas</b>: para dose e protocolo, quem decide é quem acompanha você.` };
-}
 
 /** Os três pontos da espera.
 
@@ -289,8 +102,16 @@ export default function Companion() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const scrollRef = useRef<ScrollView>(null);
-  const [msgs, setMsgs] = useState<Msg[]>([]);
+  /* A conversa mora no estado (S.conversa), e não na tela: sair e voltar
+     encontra a conversa onde ela parou. Ver logic/conversa. */
+  const msgs = useMemo(() => conversaGuardada(S), [S]);
+  const aceitou = aceitouAConversa(S);
   const [pensando, setPensando] = useState(false);
+  /* O aviso da tela — sem rede, limite, sem conta. Não é fala do Morphi,
+     e por isso não entra na conversa guardada (ver o alto do arquivo). */
+  const [aviso, setAviso] = useState<MotivoDaConversa | null>(null);
+  /* A pergunta feita antes do aceite, esperando por ele. */
+  const [pendente, setPendente] = useState<{ t: string; de: OrigemDaPergunta | undefined } | null>(null);
   const [input, setInput] = useState('');
   /* O ditado escreve no mesmo campo que o teclado escreve — não há um
      segundo lugar onde a fala vira texto, e é por isso que dá para
@@ -333,23 +154,50 @@ export default function Companion() {
     }
   }, [q]);
 
-  const ask = (text: string, de: OrigemDaPergunta | undefined) => {
-    const t = text.trim(); if (!t) return;
-    setInput('');
+  const rolarParaOFim = () => setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 90);
+
+  const enviar = async (t: string, de: OrigemDaPergunta | undefined) => {
+    /* As anteriores saem do estado ANTES da pergunta entrar: é o
+       histórico, e a pergunta vai no campo dela. */
+    const anteriores = conversaGuardada(useStore.getState().S);
     /* guarda a pergunta para o Insights poder oferecer "continue de onde
        parou" — sem isso, cada visita à aba recomeça do zero */
     update((s: any) => {
       s.asked = acrescentarPergunta(s.asked || [], t, de, Date.now());
+      guardarNaConversa(s, { who: 'me', text: t, t: Date.now() });
     });
-    setMsgs((m) => [...m, { who: 'me', text: t }]);
+    setAviso(null);
     setPensando(true);
-    setTimeout(() => {
-      setPensando(false);
-      setMsgs((m) => [...m, companionReply(S, t)]);
-      setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 90);
-    }, 620);
-    setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 90);
+    rolarParaOFim();
+    const r = await perguntarAoMorphi(useStore.getState().S, t, anteriores);
+    setPensando(false);
+    if (r.ok) update((s: any) => { guardarNaConversa(s, { who: 'ai', text: r.texto, t: Date.now() }); });
+    else setAviso(r.motivo);
+    rolarParaOFim();
   };
+
+  const ask = (text: string, de: OrigemDaPergunta | undefined) => {
+    const t = text.trim(); if (!t || pensando) return;
+    setInput('');
+    if (!conversaLigada()) { setAviso('sem-servidor'); return; }
+    /* Sem o aceite, a pergunta espera: a abertura já mostra o aceite, e
+       o "concordo" manda a pergunta sozinho. */
+    if (!aceitouAConversa(useStore.getState().S)) { setPendente({ t, de }); return; }
+    void enviar(t, de);
+  };
+
+  const aceitar = () => {
+    update((s: any) => { registrarAceiteDaConversa(s); });
+    const p = pendente;
+    setPendente(null);
+    if (p) void enviar(p.t, p.de);
+  };
+
+  const textoDoAviso = (m: MotivoDaConversa) =>
+    m === 'sem-servidor' ? K().semServidor
+      : m === 'sem-conta' ? K().semConta
+        : m === 'limite' ? K().limiteDoDia
+          : K().semRede;
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, backgroundColor: c.bg }}>
@@ -405,7 +253,17 @@ export default function Companion() {
             <EstrelaIA size={21} />
             <Txt v="title">Morphi Intelligence</Txt>
           </Row>
-          <View style={{ width: 40 }} />
+          {/* Recomeçar só existe quando há o que recomeçar; sem ele, o
+              espaçador do mesmo tamanho mantém o título no centro. */}
+          {msgs.length ? (
+            <Pressable
+              onPress={() => { update((s: any) => { recomecarConversa(s); }); setAviso(null); }}
+              accessibilityLabel={K().novaConversa} hitSlop={8}
+              style={({ pressed }) => [{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.6 : 1 }]}
+            >
+              <Icon name="plus" size={20} color={c.tx2} sw={2} />
+            </Pressable>
+          ) : <View style={{ width: 40 }} />}
         </Row>
       </View>
 
@@ -441,7 +299,7 @@ export default function Companion() {
           {vazio ? (
             <View style={{ alignItems: 'center', paddingTop: 8 }}>
               <Txt v="display" style={{ fontSize: 26, lineHeight: 33, textAlign: 'center' }}>
-                Oi, {S.profile.name.split(' ')[0]}
+                {K().ola(S.profile.name.split(' ')[0])}
               </Txt>
               {/* A memória é o que separa assistente de buscador: ela prova
                   que a conversa anterior aconteceu. É a mesma frase que
@@ -458,9 +316,32 @@ export default function Companion() {
                   primeira pergunta, em vez de ficar pendurada no alto em
                   toda volta à conversa. */}
               <Txt v="micro" c={c.tx4} style={{ marginTop: 10, textAlign: 'center' }}>
-                Conheço a sua jornada inteira · não substituo a sua equipe médica
+                {K().limite}
               </Txt>
 
+              {/* ⚠️ SEM O ACEITE, ELE ENTRA NO LUGAR DAS SUGESTÕES. Uma
+                  sugestão tocada antes dele cairia no aceite de qualquer
+                  jeito; mostrá-lo de saída diz, antes da primeira
+                  pergunta, o que a conversa lê e para onde vai. */}
+              {!aceitou ? (
+                <View style={{ marginTop: 28, alignSelf: 'stretch', backgroundColor: c.bg1, borderRadius: radius.lg, padding: 18, gap: 12 }}>
+                  <Txt v="bodyMed" style={{ fontFamily: font.bodySemi }}>{K().aceiteTitulo}</Txt>
+                  {[K().aceite1, K().aceite2, K().aceite3].map((t, i) => (
+                    <Row key={i} gap={12} style={{ alignItems: 'flex-start' }}>
+                      <Icon name={['doc', 'lock', 'info'][i]} size={16} color={c.accent} sw={1.9} />
+                      <Txt v="caption" c={c.tx2} style={{ flex: 1, lineHeight: 20 }}>{t}</Txt>
+                    </Row>
+                  ))}
+                  <Pressable onPress={() => router.push('/documento?id=privacidade' as any)} hitSlop={8}
+                    style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1, alignSelf: 'flex-start' }]}>
+                    <Txt v="label" c={c.accent2}>{K().politica}</Txt>
+                  </Pressable>
+                  <View style={{ gap: 8, marginTop: 4 }}>
+                    <Botao label={K().aceitar} onPress={aceitar} />
+                    <Botao label={K().recusar} tom="fantasma" onPress={() => router.back()} />
+                  </View>
+                </View>
+              ) : (
               <View style={{ marginTop: 32, alignSelf: 'stretch', gap: 8 }}>
                 {sugestoes.map((s) => (
                   <Pressable key={s} onPress={() => ask(s, 'sugerida')} style={({ pressed }) => [{ opacity: pressed ? 0.65 : 1 }]}>
@@ -472,6 +353,7 @@ export default function Companion() {
                   </Pressable>
                 ))}
               </View>
+              )}
             </View>
           ) : null}
 
@@ -507,34 +389,16 @@ export default function Companion() {
                dois lados passou a ser o assunto em vez de ser decoração. */
             <View key={i} style={{ alignSelf: 'stretch', gap: 12 }}>
               <RichDoc text={m.text} ir={(to) => router.push(to as any)} />
-
-              {!!m.mini && (
-                /* A nota de apoio em fundo tingido, separada por espaço e
-                   não por fio: é a mesma fala continuando em voz mais
-                   baixa, não outro assunto. */
-                <View style={{ backgroundColor: c.bg1, borderRadius: radius.md, padding: 13 }}>
-                  <Txt v="caption" c={c.tx2} style={{ lineHeight: 20 }}>{m.mini}</Txt>
-                </View>
-              )}
-
-              {/* ⚠️ O SELO DA PROCEDÊNCIA, e ele é tocável. Dizer "li as
-                  suas pesagens" e não deixar a pessoa ir ver as pesagens
-                  é pedir confiança sem oferecer conferência. */}
-              {m.fonte ? (
-                <Pressable
-                  onPress={() => router.push(m.fonte!.to as any)}
-                  style={({ pressed }) => [{ alignSelf: 'flex-start', opacity: pressed ? 0.6 : 1 }]}
-                >
-                  <Row gap={7} style={{ backgroundColor: c.bg1, borderRadius: radius.pill, paddingLeft: 10, paddingRight: 12, paddingVertical: 6 }}>
-                    <Icon name="aura" size={13} color={c.accent} sw={1.9} />
-                    <Txt v="micro" c={c.tx2}>{m.fonte.rotulo}</Txt>
-                  </Row>
-                </Pressable>
-              ) : null}
             </View>
           ))}
 
           {pensando && <Pensando />}
+          {aviso ? (
+            <Row gap={10} style={{ backgroundColor: c.bg1, borderRadius: radius.md, paddingHorizontal: 14, paddingVertical: 12, alignItems: 'flex-start' }}>
+              <Icon name="info" size={15} color={c.tx3} sw={1.9} />
+              <Txt v="caption" c={c.tx2} style={{ flex: 1, lineHeight: 20 }}>{textoDoAviso(aviso)}</Txt>
+            </Row>
+          ) : null}
         </Rolagem>
 
         {/* ---- o campo ----
@@ -568,7 +432,7 @@ export default function Companion() {
                    passou a ser cortado no meio — e placeholder cortado lê
                    como defeito, não como texto longo. O novo diz as duas
                    formas de responder, e só promete a fala onde ela existe. */
-                placeholder={ouvindo ? 'Estou ouvindo…' : temDitado ? 'Escreva ou fale' : 'Pergunte sobre sua jornada'} placeholderTextColor={c.tx4}
+                placeholder={ouvindo ? K().ouvindo : temDitado ? K().escrevaOuFale : K().pergunte} placeholderTextColor={c.tx4}
                 /* ⚠️ minWidth 0 PORQUE flex:1 NÃO BASTA. Na web o <input> tem
                    largura intrínseca, e um filho flex não encolhe abaixo dela
                    sem isto — o campo empurrava o microfone para fora da
@@ -609,7 +473,7 @@ export default function Companion() {
             </Row>
             {/* o botão só acende quando há o que enviar: cheio e apagado
                 dizem, antes do toque, se o gesto vai levar a algo */}
-            <Pressable onPress={() => ask(input, 'digitada')} disabled={!input.trim()} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
+            <Pressable onPress={() => ask(input, 'digitada')} disabled={!input.trim() || pensando} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
               <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: input.trim() ? c.accent : c.bg2, alignItems: 'center', justifyContent: 'center' }}>
                 <Icon name="send" size={19} color={input.trim() ? c.accentInk : c.tx4} sw={2} />
               </View>

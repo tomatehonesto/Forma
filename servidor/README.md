@@ -14,6 +14,9 @@ servidor/
   api/analisar.ts     a leitura do prato
   api/laudo.ts        a leitura do laudo (PDF ou foto)
   api/estimar.ts      o rótulo de um prato, estimado pelo nome
+  api/conversa.ts     a conversa do Morphi Intelligence
+  conversa/           as regras da conversa e a base gerada
+  conhecimento/*.md   a base de conhecimento (resumos de bulas e estudos)
   alimentos.json      a tabela, GERADA — não edite à mão
   marcadores.ts       os 15 marcadores do laudo e as unidades de cada um
   prateleiras.ts      as 15 prateleiras da tabela de alimentos
@@ -165,3 +168,36 @@ ela morar em outro lugar, `EXPO_PUBLIC_ESTIMAR_URL` manda.
 pelo mesmo motivo dos marcadores. A sonda dos primeiros passos (seção 24)
 confere que as duas continuam iguais e que a conta de `rotulo.ts` sai no
 formato que o aplicativo aceita.
+
+## A conversa do Morphi Intelligence
+
+`api/conversa.ts` recebe a pergunta, as últimas trocas da conversa e um
+resumo dos registros da pessoa (`src/logic/resumoDaJornada`), e devolve
+a resposta no idioma do aplicativo. Passa pela mesma porta, com o tipo
+`conversa` (30 por pessoa por dia). Não guarda nada.
+
+O que o modelo sabe vem de dois lugares:
+
+- **As regras**, em `conversa/prompt.ts`: segurança clínica primeiro
+  (nunca sugerir dose; sinal de alerta leva a atendimento na primeira
+  frase), depois responder só o que foi perguntado, não afirmar o que os
+  dados não mostram, a voz e o idioma.
+- **A base de conhecimento**, em `conhecimento/*.md`: resumos NOSSOS de
+  bulas e estudos, com a referência de cada número. Para mudar, edite o
+  `.md` e rode:
+
+  ```bash
+  node servidor/conversa/gerar-base.mjs
+  ```
+
+  Isso gera `conversa/base.ts`, que é o que sobe (a Vercel empacota o que
+  a função importa; um `.md` lido do disco poderia não ir junto). A
+  sonda dos primeiros passos (seção 28) acusa quando o gerado ficou para
+  trás.
+
+⚠️ **A base é rascunho** até uma pessoa da área da saúde revisar
+(PENDENCIAS, item 40).
+
+A resposta devolve também `uso` (tokens de entrada, de cache e de saída),
+só números, para a medição de custo. O aplicativo mostra no console em
+desenvolvimento.

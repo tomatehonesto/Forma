@@ -169,4 +169,38 @@ export const companion = {
     documento: 'Resumo para consulta',
     documentoSub: 'documento com a evolução completa',
   },
+  /* ============================================================
+     A TELA DO MORPHI INTELLIGENCE (/companion)
+  
+     Os textos fixos da tela — a abertura, o campo, o aceite e os
+     avisos. As respostas vêm do servidor (logic/conversa), no idioma
+     da pessoa, e não passam por aqui.
+  
+     ⚠️ O ACEITE (aceite1 a aceite3) TEM VERSÃO, como o do laudo: mudar
+     o que ele diz pede subir VERSAO_DO_ACEITE_DA_CONVERSA, em
+     logic/conversa, para a pessoa aceitar de novo o que passou a ser
+     dito.
+  
+     ⚠️ O ACEITE É VOZ DO PRODUTO ("nós"); a conversa é voz do
+     companheiro ("eu"). Os avisos de erro são a fala dele.
+     ============================================================ */
+  telaConversa: {
+    ola: (nome: string) => `Oi, ${nome}`,
+    limite: 'Conheço a sua jornada inteira · não substituo a sua equipe médica',
+    ouvindo: 'Estou ouvindo…',
+    escrevaOuFale: 'Escreva ou fale',
+    pergunte: 'Pergunte sobre sua jornada',
+    novaConversa: 'Nova conversa',
+    aceiteTitulo: 'Antes da primeira pergunta',
+    aceite1: 'Para responder, a conversa lê os seus registros: tratamento, peso, sintomas, alimentação, água e exames. Nome completo, e-mail e o nome de quem acompanha você não vão.',
+    aceite2: 'Cada pergunta vai, com esse resumo, para o nosso serviço, no Brasil, e para a Anthropic, que escreve a resposta nos Estados Unidos. Nenhum dos dois guarda a conversa; ela fica só neste aparelho.',
+    aceite3: 'As respostas podem errar e não substituem a sua equipe médica. Dose e medicação são sempre com quem acompanha você.',
+    politica: 'Ler a Política de Privacidade',
+    aceitar: 'Concordo, quero conversar',
+    recusar: 'Agora não',
+    semServidor: 'A conversa ainda não está ligada neste aparelho.',
+    semRede: 'Não consegui responder agora — a conexão falhou. Tente de novo em instantes.',
+    semConta: 'Para conversar comigo, entre na sua conta.',
+    limiteDoDia: 'Você chegou ao limite de perguntas de hoje. Amanhã eu volto a responder.',
+  },
 };

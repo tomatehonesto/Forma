@@ -1,7 +1,8 @@
 # Morphi Intelligence de verdade: a conversa que lê a jornada
 
 **Data:** 29 de setembro de 2026
-**Estado:** desenho aprovado na conversa em 29/09/2026; especificação aguardando a revisão do dono
+**Estado:** aprovado pelo dono em 29/09/2026 ("Pode seguir")
+**Plano:** [`../plans/2026-09-29-morphi-intelligence-plano.md`](../plans/2026-09-29-morphi-intelligence-plano.md)
 
 ---
 
@@ -237,8 +238,33 @@ resposta pode sugerir dose.
 
 - A IA pedindo os dados sob demanda (ferramentas).
 - Resposta aparecendo palavra por palavra (streaming).
-- Busca em documentos (RAG).
+- Busca em documentos (RAG), quando a base passar de algumas dezenas de
+  páginas.
 - A conversa lendo as mensagens da clínica.
+
+### As fases seguintes (da conversa do dono com o ChatGPT, 29/09/2026)
+
+O dono trouxe um estudo de arquitetura feito com o ChatGPT. O que ele
+propõe como V1 e V2 (regras, base de conhecimento, contexto da pessoa)
+é esta versão. O que fica para depois:
+
+1. **Uma trava de segurança antes do modelo**, com regras fixas sobre os
+   DADOS registrados (vômito 5/5 dois dias seguidos, dor forte), que
+   decide a urgência e deixa o modelo só explicar. Sobre o texto livre
+   da pergunta, em seis idiomas, filtro por palavra é frágil; sobre o
+   registro estruturado, não.
+2. **A IA que puxa o assunto:** depois de uma subida de dose, quando o
+   peso fica parado, quando os registros param. Pede notificação e texto
+   com cuidado para não virar cobrança.
+3. **O sinal para a equipe** (profissional): "sintoma persistente depois
+   da titulação". Depende da transmissão para a equipe (item 6).
+4. **A fase do tratamento** (início, adaptação, escalonamento, platô,
+   manutenção, parada) calculada e posta no resumo.
+
+A vida real do tratamento (persistência, motivos de parar, pesagem
+semanal) entrou já nesta versão, como `conhecimento/adesao-e-vida-real.md`,
+com os números conferidos um a um; os que não foram achados na fonte
+ficaram de fora.
 
 ---
 

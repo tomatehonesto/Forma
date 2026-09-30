@@ -112,8 +112,8 @@ export const temIdentificacao = () => !!(EMPRESA.nome && EMPRESA.cnpj && EMPRESA
 
 /** Sobe quando o conteúdo mudar de forma relevante — e conversa com a
     versão do aviso de consentimento, em src/logic/consentimento.ts. */
-export const VERSAO_DOS_DOCUMENTOS = '2.0';
-export const VIGENTE_DESDE = '26 de setembro de 2026';
+export const VERSAO_DOS_DOCUMENTOS = '2.1';
+export const VIGENTE_DESDE = '29 de setembro de 2026';
 
 /* ⚠️ AS CÓPIAS DE SEGURANÇA DO BANCO: quantos dias elas guardam o que foi
    apagado. Sete é o do plano Pro do Supabase, e o projeto de produção
@@ -215,6 +215,7 @@ export const PRIVACIDADE = (): Documento => ({
         '<b>Conta, cadastro e funcionamento do aplicativo</b> — <b>execução de contrato</b> (art. 7º, V): sem esses dados o app não funciona.',
         '<b>Leitura da foto do prato</b> — <b>consentimento</b> (art. 7º, I), dado no momento em que você escolhe usar a câmera em vez do registro manual.',
         '<b>Leitura do laudo</b> — <b>consentimento específico e destacado</b> (art. 11, I), dado numa tela própria antes da primeira leitura, que diz para onde o arquivo vai e que ele não é guardado. Sem esse aceite, os exames continuam sendo anotados à mão.',
+        '<b>Conversa com o Morphi</b> — <b>consentimento específico e destacado</b> (art. 11, I), dado na própria conversa antes da primeira pergunta, que diz o que ela lê e para onde vai. Sem esse aceite, nenhuma pergunta sai do aparelho.',
         '<b>Leitura do aplicativo de saúde do celular</b> — <b>consentimento</b>, concedido e revogado nos ajustes do sistema operacional.',
       ],
       depois: [
@@ -236,6 +237,8 @@ export const PRIVACIDADE = (): Documento => ({
         '<b>O que a clínica vê, quando você se conecta</b> — todo tipo de registro (pesagens, aplicações, check-ins, refeições, medidas, exames, laudos, sinais vitais, documentos, anotações, metas pessoais e os recipientes do medicamento) e o seu perfil, com o histórico de saúde. Inclui o que você registrou antes de conectar. A clínica vê enquanto a conexão durar, e o que for registrado durante o acompanhamento fica guardado por ela como prontuário, mesmo depois de desconectar. As perguntas ao Morphi não entram.',
         '<b>A foto do prato</b>, quando você usa a leitura por foto — a imagem é reduzida no aparelho e enviada para ser interpretada. Ela <b>não é armazenada</b>: nem no registro da refeição, nem no serviço que faz a intermediação.',
         '<b>O laudo, quando você usa a leitura do laudo</b> — o PDF ou a foto do exame é enviado para ser interpretado, e volta como uma lista de resultados que você confere antes de salvar. O arquivo <b>não é armazenado</b>: nem no seu diário, nem no serviço que faz a intermediação. O que fica são só os resultados que você salvou, como qualquer exame anotado.',
+        '<b>A conversa com o Morphi, quando você pergunta</b> — a pergunta, as últimas mensagens da conversa e um resumo dos seus registros (tratamento, peso, sintomas, check-ins, alimentação, água, exercício e exames) são enviados para gerar a resposta. O resumo não leva o seu nome completo, o seu e-mail, o nome de quem acompanha você nem as suas anotações livres. Nada disso <b>é armazenado</b> no serviço que faz a intermediação; a conversa fica só no seu aparelho e não vai para a sua conta.',
+        '<b>O nome de um prato, quando você pede a estimativa</b> — só o nome digitado é enviado, e volta como uma porção estimada. Não é armazenado no serviço que faz a intermediação.',
         '<b>A sua fala, quando você usa o microfone</b> — o reconhecimento de voz é feito pelo sistema do aparelho. Pedimos que ele aconteça no próprio aparelho, mas quando o aparelho não tem o reconhecimento local do seu idioma, o sistema pode enviar o áudio aos servidores da Apple ou do Google. Isso só acontece enquanto o microfone está ligado.',
       ],
       depois: [
@@ -249,8 +252,8 @@ export const PRIVACIDADE = (): Documento => ({
         '<b>Supabase</b> (banco de dados, autenticação e armazenamento) — guarda a sua conta e o seu diário, na região de São Paulo.',
         '<b>Resend</b> (envio de e-mail) — entrega o código de acesso no seu e-mail. Recebe o endereço e o código, e mais nada do seu diário.',
         '<b>Apple</b> — quando você escolhe entrar com a Apple, ela confirma quem você é e nos passa um identificador e, se você permitir, o e-mail.',
-        '<b>Vercel</b> (infraestrutura) — hospeda as funções que intermedeiam a leitura da foto do prato e a do laudo, em servidores no Brasil. Não guarda a imagem nem o laudo, e não tem banco de dados nosso.',
-        '<b>Anthropic</b> (modelo de IA) — interpreta a foto do prato e o laudo, e devolve os itens e os resultados. Nem a imagem nem o laudo são usados para treinar modelos.',
+        '<b>Vercel</b> (infraestrutura) — hospeda as funções que intermedeiam a leitura da foto do prato e a do laudo, a estimativa pelo nome e a conversa com o Morphi, em servidores no Brasil. Não guarda a imagem, o laudo nem a conversa, e não tem banco de dados nosso.',
+        '<b>Anthropic</b> (modelo de IA) — interpreta a foto do prato e o laudo, estima um prato pelo nome e escreve as respostas da conversa com o Morphi. Nem a imagem, nem o laudo, nem a conversa são usados para treinar modelos.',
         '<b>A clínica a que você se conecta</b> — o que a seção 6 lista, enquanto a conexão durar, e o que ela guarda como prontuário depois.',
         '<b>Autoridades públicas</b>, diante de obrigação legal ou ordem judicial, e apenas o estritamente exigido.',
       ],

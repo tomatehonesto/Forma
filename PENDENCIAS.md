@@ -196,6 +196,42 @@ região `gru1` (São Paulo), 60 s de teto.
 - **O repositório é público.** O servidor não tem segredo no código —
   as chaves ficam nas variáveis da Vercel —, mas a decisão de deixar o
   código aberto é do dono.
+- **A quarta função, a conversa** (`api/conversa`, 29/09/2026), sobe no
+  mesmo projeto e com as mesmas variáveis. A migração `cota_da_conversa`
+  já está no morphi-dev e sobe para a produção com as outras.
+
+### 40. A conversa do Morphi Intelligence: revisão clínica e medição
+
+Aberto em 29/09/2026. O Morphi Intelligence passou a ser IA de verdade:
+lê um resumo dos registros da pessoa e responde com as regras de
+`servidor/conversa/prompt.ts` e a base de `servidor/conhecimento/`. Ver
+a especificação, `docs/superpowers/specs/2026-09-29-morphi-intelligence-design.md`.
+
+**Bloqueia a loja:**
+
+- **Revisão clínica da base de conhecimento** (`servidor/conhecimento/*.md`)
+  e da lista de sinais de alerta, por uma pessoa da área da saúde, junto
+  com os itens 13 e 13b. Os números foram conferidos contra as bulas da
+  FDA (revisões de 2026) e os artigos, e nove foram corrigidos; mesmo
+  assim é rascunho. Faltam as bulas da ANVISA: onde a bula brasileira
+  diferir da americana, vale a brasileira para quem está no Brasil.
+- **O aceite e a Política** (seções 4, 6 e 7, versão 2.1) entram na
+  revisão do advogado (item 2).
+
+**Antes de fechar o teto de 30 por dia:**
+
+- **Medir o custo.** Rodar umas 20 perguntas de teste com a conta do
+  dono e ler o `uso` de cada resposta (aparece no console do Metro).
+  Custa menos de US$ 1.
+
+**O catálogo de remédios ficou para trás das bulas de 2026** (achado da
+checagem): o Wegovy agora vai até 7,2 mg e tem comprimido (1,5 → 25 mg),
+e existe o Ozempic em comprimido (1,5, 4, 9 mg), que não se troca mg por
+mg com o Rybelsus. `src/logic/meds.ts` não tem nenhum desses.
+
+**Fases seguintes** (fora desta versão, registradas na especificação):
+a trava de segurança sobre os dados registrados antes do modelo, a IA
+que puxa o assunto sozinha, e o sinal para a equipe.
 
 ---
 
@@ -1208,6 +1244,11 @@ parceiro se apagam pelo DADO — sem plataforma não há `msg`, `clinic`,
 `responsavel` nem `prescriptions` —, que é o tipo certo de trava:
 `temRedeParceira()` só guarda três pontos hoje (um cartão do Cuidado e
 dois ramos de assinatura), e nenhum deles é uma destas telas.
+
+✅ **Resolvido em 29/09/2026:** a tela foi refeita com a conversa de
+verdade (item 40), e os textos fixos dela entraram no catálogo
+(`companion.telaConversa`), nos seis idiomas. O parágrafo abaixo fica
+como registro.
 
 ⚠️ **`/companion` (46 frases) FICA DE FORA DA FILA, por decisão de
 produto: a tela vai ser refeita.** Extrair agora seria escrever 46 chaves

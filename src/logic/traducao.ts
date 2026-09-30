@@ -121,6 +121,11 @@ export const DESTINO_NO_ESTADO: Record<string, Destino> = {
   vitaisHerdadosLimpos: 'aparelho',
   /* o código que espera a conta para virar vínculo (logic/conta) */
   convitePendente: 'aparelho',
+  /* ⚠️ A CONVERSA COM O MORPHI INTELLIGENCE FICA NO APARELHO (logic/conversa).
+     É texto livre sobre saúde, e subir para a nuvem seria uma finalidade
+     que nenhum texto nosso descreve. As perguntas feitas (`asked`) já
+     sobem pela escolha da pessoa; as respostas, não. */
+  conversa: 'aparelho',
 };
 
 export const DESTINO_NO_PERFIL: Record<string, Destino> = {
@@ -160,6 +165,8 @@ export const DESTINO_NO_PERFIL: Record<string, Destino> = {
   /* o aceite da leitura do laudo (logic/laudo): anda com a pessoa entre
      aparelhos, para não ser pedido de novo em cada um */
   aceiteDoLaudo: 'parte:preferencias',
+  /* o aceite da conversa (logic/conversa), pelo mesmo motivo */
+  aceiteDaConversa: 'parte:preferencias',
 
   consentimento: 'coluna',
 

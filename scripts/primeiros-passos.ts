@@ -75,6 +75,17 @@ import { rotuloDaPorcao } from '../servidor/rotulo';
 import { limpar as limparDaFoto } from '../src/logic/analise';
 import { abrirPorta } from '../servidor/cota';
 import { motivoDaPorta } from '../src/logic/portaDaIa';
+import { resumoDaJornada, TETO_DO_RESUMO } from '../src/logic/resumoDaJornada';
+import {
+  aceitouAConversa, registrarAceiteDaConversa, limparResposta, TELAS_DA_CONVERSA,
+  guardarNaConversa, conversaGuardada, TETO_DA_CONVERSA, perguntarAoMorphi,
+} from '../src/logic/conversa';
+import { TELAS } from '../servidor/conversa/prompt';
+import { BASE } from '../servidor/conversa/base';
+import { lerPedido, mensagensDe, TETOS } from '../servidor/api/conversa';
+// @ts-ignore — o gerador é .mjs, sem tipos
+import { montarBase } from '../servidor/conversa/gerar-base.mjs';
+import { DESTINO_NO_ESTADO, DESTINO_NO_PERFIL } from '../src/logic/traducao';
 import { ALIMENTOS, dicionario, buscarAlimento } from '../src/logic/alimentos';
 import { COMIDAS, UNIDADES } from '../src/logic/comidas';
 import { trocarLocal } from '../src/logic/local';
@@ -772,7 +783,98 @@ const secaoDaPorta = (async () => {
   }
 })();
 
-secaoDaPorta.then(() => {
+/* ============================================================
+   28. A CONVERSA DO MORPHI INTELLIGENCE
+   ============================================================ */
+const secaoDaConversa = secaoDaPorta.then(async () => {
+  console.log('\n28. A CONVERSA DO MORPHI INTELLIGENCE');
+
+  /* O resumo na semente: as seções, o teto, e nada de terceiros. */
+  const S = ensureDefaults(clone(semente)) as State;
+  const r = resumoDaJornada(S);
+  ok(['## Pessoa', '## Tratamento', '## Peso', '## Sintomas', '## Alimentação e água', '## Exames'].every((x) => r.includes(x)),
+    'o resumo da semente tem as seções do tratamento, do peso, dos sintomas, da comida e dos exames');
+  ok(r.length <= TETO_DO_RESUMO && r.length < TETOS.resumo, 'o resumo cabe no teto do aplicativo, e o do aplicativo no do servidor');
+  const P = S.profile as any;
+  const terceiros = [P.doctor, P.clinic, P.nutri, P.clinicInfo?.cidade, P.email, P.conta?.email, (S as any).conta?.email]
+    .filter((x) => typeof x === 'string' && x.trim().length > 2);
+  ok(terceiros.length > 0 && terceiros.every((x) => !r.includes(x)),
+    'o resumo não leva o nome da médica, da clínica nem e-mail nenhum');
+  const sobrenome = String(P.name).trim().split(/\s+/).slice(1).join(' ');
+  ok(!sobrenome || !r.includes(sobrenome), 'do nome, só o primeiro');
+  ok(!((S as any).notes ?? []).some((n: any) => typeof n?.text === 'string' && n.text.length > 12 && r.includes(n.text)),
+    'as notas livres não entram no resumo');
+
+  /* A pessoa sem registros: nenhuma seção inventada. */
+  const V = ensureDefaults(estadoVazio() as State) as State;
+  const rv = resumoDaJornada(V);
+  ok(!rv.includes('## Sintomas') && !rv.includes('## Exames') && !rv.includes('## Check-in') && rv.includes('Nenhuma pesagem registrada'),
+    'sem registros, o resumo não inventa seção de sintomas, check-in nem exames, e diz que não há pesagem');
+  ok(!/sem sintomas/i.test(rv) && !/sem sintomas/i.test(r), 'nenhum resumo diz "sem sintomas" — ausência de registro não é ausência');
+
+  /* O aceite: sem ele, nada sai do aparelho. */
+  const A = clone(V) as any;
+  ok(!aceitouAConversa(A), 'a conversa começa sem o aceite');
+  let chamou = false;
+  const fetchDeVerdade = globalThis.fetch;
+  globalThis.fetch = (async () => { chamou = true; return new Response('{}'); }) as any;
+  const semAceite = await perguntarAoMorphi(A, 'por que tenho enjoo?', []);
+  ok(!semAceite.ok && (semAceite.motivo === 'sem-aceite' || semAceite.motivo === 'sem-servidor') && !chamou,
+    'sem o aceite, a pergunta não chama o servidor');
+  globalThis.fetch = fetchDeVerdade;
+  registrarAceiteDaConversa(A);
+  ok(aceitouAConversa(A), 'o aceite fica gravado com a versão');
+  ok(DESTINO_NO_PERFIL.aceiteDaConversa === 'parte:preferencias' && DESTINO_NO_ESTADO.conversa === 'aparelho',
+    'o aceite anda com a pessoa; a conversa fica no aparelho e não sobe');
+
+  /* A conversa guardada tem teto. */
+  for (let i = 0; i < TETO_DA_CONVERSA + 7; i++) guardarNaConversa(A, { who: i % 2 ? 'ai' : 'me', text: 'm' + i, t: i });
+  const g = conversaGuardada(A);
+  ok(g.length === TETO_DA_CONVERSA && g[g.length - 1].text === 'm' + (TETO_DA_CONVERSA + 6),
+    'a conversa guardada para no teto, e as mais antigas é que saem');
+
+  /* A resposta que chega da rede: só o que a tela entende. */
+  const limpa = limparResposta('Oi **Mari**. Veja [seus sintomas](/sintomas), [um site](https://x.com) e [nada](/admin).<script>x</script>\n\n\n\nFim');
+  ok(limpa === 'Oi <b>Mari</b>. Veja [seus sintomas](/sintomas), um site e nada.x\n\nFim',
+    'a resposta limpa: negrito vira <b>, link de fora vira texto, e só as rotas da lista abrem');
+  ok(JSON.stringify([...TELAS_DA_CONVERSA].sort()) === JSON.stringify(Object.keys(TELAS).sort()),
+    'as rotas que o prompt oferece são as mesmas que o aplicativo abre');
+
+  /* O servidor: a base gerada em dia, o pedido conferido, as mensagens. */
+  ok(BASE === montarBase(), 'a base de conhecimento gerada está em dia com servidor/conhecimento (rode gerar-base.mjs)');
+  ok(lerPedido({ pergunta: 'oi', historico: [], resumo: '', idioma: 'de-DE' })?.idioma === 'de-DE'
+    && lerPedido({ pergunta: 'oi', idioma: 'xx' })?.idioma === 'pt-BR',
+    'o pedido aceita os seis idiomas, e o que não conhece cai no português');
+  ok(lerPedido({ pergunta: '' }) === null && lerPedido({ pergunta: 'x'.repeat(TETOS.pergunta + 1) }) === null
+    && lerPedido({ pergunta: 'oi', resumo: 'x'.repeat(TETOS.resumo + 1) }) === null
+    && lerPedido({ pergunta: 'oi', historico: Array(TETOS.trocas + 1).fill({ quem: 'eu', texto: 'a' }) }) === null
+    && lerPedido({ pergunta: 'oi', historico: [{ quem: 'sistema', texto: 'a' }] }) === null,
+    'o servidor recusa pergunta vazia ou longa, resumo grande, histórico longo e papel desconhecido');
+  const ms = mensagensDe([{ quem: 'morphi', texto: 'a' }, { quem: 'eu', texto: 'b' }, { quem: 'eu', texto: 'c' }, { quem: 'morphi', texto: 'd' }], 'e');
+  ok(ms.length === 3 && ms[0].role === 'user' && ms[0].content === 'b\n\nc' && ms[1].role === 'assistant' && ms[2].content === 'e',
+    'as mensagens começam pela pessoa, alternam, e juntam duas falas seguidas do mesmo lado');
+
+  /* A função inteira, com a porta fechada: não chega ao modelo. */
+  const env = { ...process.env };
+  process.env.ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || 'sk-teste';
+  process.env.VERCEL_ENV = 'production';
+  process.env.SUPABASE_URL = 'https://projeto.supabase.co';
+  process.env.SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_teste';
+  delete process.env.MORPHI_TOKEN;
+  const conversa = (await import('../servidor/api/conversa')).default;
+  const post = (corpo: unknown, auth?: string) => conversa.fetch(new Request('https://x/api/conversa', {
+    method: 'POST', headers: { 'content-type': 'application/json', ...(auth ? { authorization: auth } : {}) }, body: JSON.stringify(corpo),
+  }));
+  const malformado = await post({ pergunta: '' });
+  ok(malformado.status === 400, 'um pedido malformado é recusado antes da porta, sem gastar cota');
+  const semLogin = await post({ pergunta: 'por que tenho enjoo?', resumo: r, idioma: 'pt-BR' });
+  ok(semLogin.status === 401 && (await semLogin.json()).motivo === 'sem-conta', 'sem sessão, a conversa é "sem-conta" e não chama o modelo');
+  for (const k of ['ANTHROPIC_API_KEY', 'VERCEL_ENV', 'SUPABASE_URL', 'SUPABASE_PUBLISHABLE_KEY', 'MORPHI_TOKEN']) {
+    if (env[k] === undefined) delete process.env[k]; else process.env[k] = env[k];
+  }
+});
+
+secaoDaConversa.then(() => {
   console.log(falhas ? `\n${falhas} afirmação(ões) falharam\n` : '\ntodas as afirmações passaram\n');
   process.exit(falhas ? 1 : 0);
 });
