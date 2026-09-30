@@ -41,6 +41,7 @@ import Calendar from 'lucide-react-native/icons/calendar';
 import ClipboardList from 'lucide-react-native/icons/clipboard-list';
 import ClipboardPaste from 'lucide-react-native/icons/clipboard-paste';
 import Copy from 'lucide-react-native/icons/copy';
+import Menu from 'lucide-react-native/icons/text-align-start';
 import Camera from 'lucide-react-native/icons/camera';
 import ChartColumn from 'lucide-react-native/icons/chart-column';
 import ChartLine from 'lucide-react-native/icons/chart-line';
@@ -200,6 +201,7 @@ const MAPA: Record<string, React.ComponentType<any>> = {
   /* colar o código que chegou no e-mail (app/conta) */
   colar: ClipboardPaste,
   copiar: Copy,
+  menu: Menu,
   clock: Clock,
   steth: Stethoscope,
   send: Send,

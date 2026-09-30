@@ -198,6 +198,9 @@ O que o modelo sabe vem de dois lugares:
 ⚠️ **A base é rascunho** até uma pessoa da área da saúde revisar
 (PENDENCIAS, item 40).
 
-A resposta devolve também `uso` (tokens de entrada, de cache e de saída),
-só números, para a medição de custo. O aplicativo mostra no console em
-desenvolvimento.
+A resposta vem **em pedaços** (NDJSON, uma linha de JSON por evento:
+`texto`, `fim`, `erro`), e o aplicativo mostra o texto crescendo. O
+`fim` traz `uso` (tokens de entrada, de cache e de saída), só números,
+para a medição de custo; o aplicativo mostra no console em
+desenvolvimento. Recusas antes do modelo (pedido malformado, porta
+fechada) continuam JSON comum, com o status HTTP delas.

@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { View, Pressable, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
-import { conversas, conversaAtual, abrirConversa, apagarConversa, type Conversa } from '../logic/conversa';
+import { conversas, conversaAtual, abrirConversa, apagarConversa, recomecarConversa, type Conversa } from '../logic/conversa';
 import { now, startOfDay, fmtDate, fmtTime, DAY } from '../logic/time';
 import { Txt, Row, SheetScreen } from '../ui/kit';
 import { Botao } from '../ui/internas';
@@ -16,8 +16,10 @@ const K = () => T.companion.telaConversa;
 /* ============================================================
    AS CONVERSAS ANTERIORES DA MORPHI INTELLIGENCE
 
-   A folha que abre por cima da conversa (/companion), pelo ícone do
-   relógio. Cada conversa leva o título da primeira pergunta; tocar
+   A folha que abre por cima da conversa (/companion), pelo menu do
+   canto esquerdo — o mesmo lugar em que os apps de conversa guardam as
+   conversas e o "novo". "Nova conversa" vem primeiro, porque é o gesto
+   mais comum. Cada conversa leva o título da primeira pergunta; tocar
    reabre e continua de onde parou. Ver logic/conversa, "As conversas
    guardadas".
 
@@ -54,6 +56,17 @@ export default function ConversasMorphi() {
 
   return (
     <SheetScreen titulo={K().historicoTitulo} onClose={() => router.back()}>
+      <Pressable
+        onPress={() => { update((s: any) => { recomecarConversa(s); }); router.back(); }}
+        style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1, marginTop: 4, marginBottom: 20 }]}
+      >
+        <Row gap={12} style={{ alignItems: 'center', backgroundColor: c.bg1, borderRadius: radius.lg, paddingHorizontal: 16, paddingVertical: 14 }}>
+          <View style={{ width: 30, height: 30, borderRadius: 15, backgroundColor: c.accent, alignItems: 'center', justifyContent: 'center' }}>
+            <Icon name="plus" size={16} color={c.accentInk} sw={2.2} />
+          </View>
+          <Txt v="label" style={{ flex: 1, fontFamily: font.bodySemi }}>{K().novaConversa}</Txt>
+        </Row>
+      </Pressable>
       {!lista.length ? (
         <Txt v="body" c={c.tx2} style={{ marginTop: 8, lineHeight: 23 }}>{K().historicoVazio}</Txt>
       ) : (

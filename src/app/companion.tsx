@@ -10,7 +10,7 @@ import {
 import { companionSuggestions, companionMemoria } from '../logic/derive';
 import {
   aceitouAConversa, conversaGuardada, guardarNaConversa,
-  recomecarConversa, conversaLigada, conversas, conversaParada, perguntarAoMorphi, type MotivoDaConversa,
+  recomecarConversa, conversaLigada, conversaParada, destinosDe, semLinks, perguntarAoMorphi, type MotivoDaConversa,
 } from '../logic/conversa';
 import { Txt, Row, CircleBtn, RichDoc, Rolagem } from '../ui/kit';
 import { EstrelaIA } from '../ui/marca';
@@ -72,6 +72,19 @@ const K = () => T.companion.telaConversa;
 
 const PAD = 24;
 
+/** O que cada destino sugerido vira no botão: ícone e rótulo. As rotas
+    são as de TELAS_DA_CONVERSA (logic/conversa). */
+const DESTINOS: Record<string, { ic: string; rotulo: () => string }> = {
+  '/evolucao': { ic: 'scale', rotulo: () => K().irEvolucao },
+  '/sintomas': { ic: 'aura', rotulo: () => K().irSintomas },
+  '/aplicacoes': { ic: 'syringe', rotulo: () => K().irAplicacoes },
+  '/alimentacao': { ic: 'cutlery', rotulo: () => K().irAlimentacao },
+  '/agua': { ic: 'water', rotulo: () => K().irAgua },
+  '/exames': { ic: 'doc', rotulo: () => K().irExames },
+  '/resumo-medico': { ic: 'steth', rotulo: () => K().irResumo },
+  '/checkin': { ic: 'check', rotulo: () => K().irCheckin },
+};
+
 /** A resposta sem a marcação da tela: negrito vira texto, e o termo com
     link fica só com o termo. É o que vai para a área de transferência. */
 const textoPuro = (t: string) =>
@@ -110,7 +123,6 @@ export default function Companion() {
   /* A conversa mora no estado (S.conversa), e não na tela: sair e voltar
      encontra a conversa onde ela parou. Ver logic/conversa. */
   const msgs = useMemo(() => conversaGuardada(S), [S]);
-  const temHistorico = useMemo(() => conversas(S).length > 0, [S]);
 
   /* Voltar depois de horas abre uma conversa nova; a anterior fica no
      histórico (logic/conversa, CONVERSA_PARADA_MS). Só na entrada da
@@ -120,6 +132,9 @@ export default function Companion() {
   }, []);
   const aceitou = aceitouAConversa(S);
   const [pensando, setPensando] = useState(false);
+  /* A resposta enquanto chega: o texto parcial, que cresce a cada trecho
+     (ver servidor/api/conversa). Nulo quando não há resposta chegando. */
+  const [escrevendo, setEscrevendo] = useState<string | null>(null);
   /* O aviso da tela — sem rede, limite, sem conta. Não é fala do Morphi,
      e por isso não entra na conversa guardada (ver o alto do arquivo). */
   const [aviso, setAviso] = useState<MotivoDaConversa | null>(null);
@@ -191,15 +206,19 @@ export default function Companion() {
     setAviso(null);
     setPensando(true);
     rolarParaOFim();
-    const r = await perguntarAoMorphi(useStore.getState().S, t, anteriores);
+    const r = await perguntarAoMorphi(useStore.getState().S, t, anteriores, (parcial) => {
+      setPensando(false);
+      setEscrevendo(parcial);
+    });
     setPensando(false);
+    setEscrevendo(null);
     if (r.ok) update((s: any) => { guardarNaConversa(s, { who: 'ai', text: r.texto, t: Date.now() }); });
     else setAviso(r.motivo);
     rolarParaOFim();
   };
 
   const ask = (text: string, de: OrigemDaPergunta | undefined) => {
-    const t = text.trim(); if (!t || pensando) return;
+    const t = text.trim(); if (!t || pensando || escrevendo != null) return;
     setInput('');
     if (!conversaLigada()) { setAviso('sem-servidor'); return; }
     /* Sem o aceite, a pergunta espera: a folha do termo está aberta, e
@@ -274,8 +293,21 @@ export default function Companion() {
         <Row style={{ alignItems: 'center' }}>
           {/* Os dois lados têm a mesma largura (dois botões), para o
               título centrar na tela com ou sem os botões da direita. */}
-          <Row style={{ width: 84 }}>
-            <CircleBtn name="back" onPress={() => router.back()} />
+          {/* ⚠️ MENU À ESQUERDA, FECHAR À DIREITA (30/09/2026). As conversas
+              e o "nova conversa" moram no menu, como nos apps de conversa
+              que a pessoa já usa; o X fecha a tela. Antes eram o voltar,
+              um relógio e um "+" disputando o canto direito. Sem a
+              permissão não há conversa, e o menu não aparece. */}
+          <Row style={{ width: 44 }}>
+            {aceitou ? (
+              <Pressable
+                onPress={() => router.push('/conversas-morphi' as any)}
+                accessibilityLabel={K().menu} hitSlop={6}
+                style={({ pressed }) => [{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.6 : 1 }]}
+              >
+                <Icon name="menu" size={21} color={c.tx} sw={2} />
+              </Pressable>
+            ) : null}
           </Row>
           {/* O título centra na TELA, e não no vão que sobra: sem o
               espaçador do mesmo tamanho do botão à direita, ele ficaria
@@ -299,29 +331,8 @@ export default function Companion() {
             <EstrelaIA size={21} />
             <Txt v="title">Morphi Intelligence</Txt>
           </Row>
-          {/* O HISTÓRICO E O "+". O relógio abre as conversas anteriores
-              (app/conversas-morphi) e só aparece quando há alguma; o "+"
-              guarda a conversa aberta no histórico e começa outra — não
-              apaga mais nada. Sem a permissão, nenhum dos dois. */}
-          <Row style={{ width: 84, justifyContent: 'flex-end' }}>
-            {aceitou && temHistorico ? (
-              <Pressable
-                onPress={() => router.push('/conversas-morphi' as any)}
-                accessibilityLabel={K().historico} hitSlop={6}
-                style={({ pressed }) => [{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.6 : 1 }]}
-              >
-                <Icon name="clock" size={19} color={c.tx2} sw={1.9} />
-              </Pressable>
-            ) : null}
-            {aceitou && msgs.length ? (
-              <Pressable
-                onPress={() => { update((s: any) => { recomecarConversa(s); }); setAviso(null); }}
-                accessibilityLabel={K().novaConversa} hitSlop={6}
-                style={({ pressed }) => [{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.6 : 1 }]}
-              >
-                <Icon name="plus" size={20} color={c.tx2} sw={2} />
-              </Pressable>
-            ) : null}
+          <Row style={{ width: 44, justifyContent: 'flex-end' }}>
+            <CircleBtn name="x" onPress={() => router.back()} />
           </Row>
         </Row>
       </View>
@@ -450,7 +461,24 @@ export default function Companion() {
               {/* Parágrafos mais afastados que o padrão do RichDoc: a
                   resposta é lida no celular, de uma vez, e parágrafo
                   colado em parágrafo vira parede. */}
-              <RichDoc text={m.text} ir={(to) => router.push(to as any)} style={{ gap: 16 }} />
+              <RichDoc text={semLinks(m.text)} style={{ gap: 16 }} />
+              {/* ⚠️ O DESTINO É UM BOTÃO, E NÃO UM LINK NO MEIO DO TEXTO
+                  (30/09/2026). Sublinhado no meio da frase, ele disputava
+                  com a leitura e era fácil de não ver; embaixo, é o passo
+                  seguinte, do tamanho de um toque. O rótulo é nosso, e não
+                  o do modelo: o mesmo destino se chama sempre igual. */}
+              {destinosDe(m.text).map((rota) => (
+                <Pressable key={rota} onPress={() => router.push(rota as any)}
+                  style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.7 : 1 }]}>
+                  <Row gap={12} style={{ alignItems: 'center', backgroundColor: c.bg1, borderRadius: radius.lg, paddingHorizontal: 14, paddingVertical: 12 }}>
+                    <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: c.bg2, alignItems: 'center', justifyContent: 'center' }}>
+                      <Icon name={DESTINOS[rota]?.ic ?? 'chev'} size={16} color={c.accent} sw={1.9} />
+                    </View>
+                    <Txt v="label" style={{ flex: 1 }}>{DESTINOS[rota]?.rotulo() ?? rota}</Txt>
+                    <Icon name="chev" size={14} color={c.tx3} sw={2} />
+                  </Row>
+                </Pressable>
+              ))}
               {/* Copiar leva o texto limpo, sem a marcação da tela. */}
               <Pressable
                 onPress={() => copiar(textoPuro(m.text), i)}
@@ -466,6 +494,15 @@ export default function Companion() {
           ))}
 
           {pensando ? <View style={{ marginTop: 18 }}><Pensando /></View> : null}
+          {escrevendo != null ? (
+            <View style={{ alignSelf: 'stretch', marginTop: 18 }}>
+              <Row gap={7} style={{ alignItems: 'center', marginBottom: 10 }}>
+                <EstrelaIA size={15} />
+                <Txt v="micro" c={c.tx3}>Morphi Intelligence</Txt>
+              </Row>
+              <RichDoc text={escrevendo} style={{ gap: 16 }} />
+            </View>
+          ) : null}
           {aviso ? (
             <Row gap={10} style={{ marginTop: 18, backgroundColor: c.bg1, borderRadius: radius.md, paddingHorizontal: 14, paddingVertical: 12, alignItems: 'flex-start' }}>
               <Icon name="info" size={15} color={c.tx3} sw={1.9} />

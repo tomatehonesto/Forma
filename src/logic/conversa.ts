@@ -21,14 +21,19 @@ import { cabecalhosDaIa, motivoDaPorta, type MotivoDaPorta } from './portaDaIa';
    estado de crescer sem fim.
    ============================================================ */
 
-const URL_ANALISE = process.env.EXPO_PUBLIC_ANALISE_URL;
-
 /* Mora ao lado da leitura do prato; sem uma URL própria, é a mesma com
-   o último trecho trocado — o mesmo desenho do laudo e da estimativa. */
-const URL_CONVERSA = process.env.EXPO_PUBLIC_CONVERSA_URL
-  ?? (URL_ANALISE ? URL_ANALISE.replace(/\/analisar\/?$/, '/conversa') : undefined);
+   o último trecho trocado — o mesmo desenho do laudo e da estimativa.
 
-export const conversaLigada = () => !!URL_CONVERSA;
+   ⚠️ LIDA NA HORA, e não quando o arquivo carrega: o Expo troca
+   process.env.EXPO_PUBLIC_* pelo valor em qualquer lugar do código, e lida
+   na hora a sonda consegue provar a conversa com uma URL de mentira. */
+const urlDaConversa = () => {
+  const analise = process.env.EXPO_PUBLIC_ANALISE_URL;
+  return process.env.EXPO_PUBLIC_CONVERSA_URL
+    ?? (analise ? analise.replace(/\/analisar\/?$/, '/conversa') : undefined);
+};
+
+export const conversaLigada = () => !!urlDaConversa();
 
 /* ------------------------------------------------------------------ */
 /* O aceite                                                           */
@@ -183,6 +188,47 @@ export function limparResposta(bruto: string): string {
     .trim();
 }
 
+/** As telas que a resposta sugere, na ordem em que aparecem e sem
+    repetir — viram botões embaixo da mensagem (30/09/2026). Até duas: uma
+    resposta que manda para quatro lugares não está sugerindo nenhum. */
+export function destinosDe(texto: string): string[] {
+  const fora: string[] = [];
+  for (const m of texto.matchAll(/\[[^\]]+\]\(([^)]*)\)/g)) {
+    const r = m[1].trim();
+    if (TELAS_DA_CONVERSA.includes(r) && !fora.includes(r)) fora.push(r);
+  }
+  return fora.slice(0, 2);
+}
+
+/** O texto sem a marcação de link. O destino vai para o botão
+    (`destinosDe`), e o termo:
+    - some, quando o link é um convite sozinho — no começo de uma linha ou
+      depois do fim de uma frase, e até o fim da linha ("… no dia 28. [Ver
+      seus sintomas](/sintomas)"): ele seria o botão escrito duas vezes;
+    - fica como texto comum, quando faz parte da frase ("veja [os seus
+      sintomas](/sintomas) desta semana"). */
+export const semLinks = (texto: string) =>
+  texto
+    .replace(/(^|\n|[.!?:]\s+)\[[^\]]+\]\([^)]*\)[.!]?[ \t]*(?=\n|$)/g, (_, antes: string) => antes.trimEnd())
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+    .replace(/[ \t]+\n/g, '\n')
+    .trim();
+
+/* O trecho que ainda está chegando pode terminar no meio de uma marcação
+   — "<b", "[Ver seus" —, e ela apareceria crua por um instante. O que
+   está aberto no fim sai até o resto chegar. */
+export function parcialLimpo(bruto: string): string {
+  let t = bruto;
+  const colchete = t.lastIndexOf('[');
+  if (colchete >= 0 && !/\]\([^)]*\)/.test(t.slice(colchete))) {
+    const fecha = t.indexOf(']', colchete);
+    t = fecha < 0 ? t.slice(0, colchete) : t.slice(0, colchete) + t.slice(colchete + 1, fecha);
+  }
+  const menor = t.lastIndexOf('<');
+  if (menor >= 0 && t.indexOf('>', menor) < 0) t = t.slice(0, menor);
+  return semLinks(limparResposta(t));
+}
+
 export type MotivoDaConversa = 'sem-servidor' | 'sem-rede' | 'sem-aceite' | MotivoDaPorta;
 
 export type RespostaDaConversa =
@@ -190,12 +236,15 @@ export type RespostaDaConversa =
   | { ok: false; motivo: MotivoDaConversa };
 
 /** Pergunta ao Morphi. `anteriores` é a conversa até aqui, SEM a
-    pergunta. */
+    pergunta. `aoEscrever` recebe o texto parcial a cada trecho que chega
+    (ver servidor/api/conversa: a resposta vem em pedaços). */
 export async function perguntarAoMorphi(
   S: State,
   pergunta: string,
   anteriores: MensagemDaConversa[],
+  aoEscrever?: (parcial: string) => void,
 ): Promise<RespostaDaConversa> {
+  const URL_CONVERSA = urlDaConversa();
   if (!URL_CONVERSA) return { ok: false, motivo: 'sem-servidor' };
   if (!aceitouAConversa(S)) return { ok: false, motivo: 'sem-aceite' };
 
@@ -203,7 +252,7 @@ export async function perguntarAoMorphi(
      poucos segundos, e esperar mais do que isso é pior que dizer que a
      rede falhou. */
   const corta = new AbortController();
-  const relogio = setTimeout(() => corta.abort(), 45_000);
+  const relogio = setTimeout(() => corta.abort(), 60_000);
   try {
     const r = await fetch(URL_CONVERSA, {
       method: 'POST',
@@ -219,14 +268,52 @@ export async function perguntarAoMorphi(
         idioma: localAtual(),
       }),
     });
-    const corpo = await r.json().catch(() => null);
-    if (!corpo || corpo.ok !== true || typeof corpo.resposta !== 'string') {
+    /* Recusa antes do modelo (sessão, limite, pedido): JSON comum. */
+    if (!(r.headers.get('content-type') ?? '').includes('ndjson')) {
+      const corpo = await r.json().catch(() => null);
+      if (corpo?.ok === true && typeof corpo.resposta === 'string') {
+        const texto = limparResposta(corpo.resposta);
+        return texto ? { ok: true, texto, uso: corpo.uso } : { ok: false, motivo: 'sem-rede' };
+      }
       return { ok: false, motivo: motivoDaPorta(corpo) ?? 'sem-rede' };
     }
-    const texto = limparResposta(corpo.resposta);
-    if (!texto) return { ok: false, motivo: 'sem-rede' };
-    if (__DEV__ && corpo.uso) console.log('[conversa] uso', JSON.stringify(corpo.uso));
-    return { ok: true, texto, uso: corpo.uso };
+
+    /* Os pedaços: uma linha de JSON por evento. No iOS e no Android o
+       fetch global é o do Expo, que lê o corpo aos poucos; sem corpo
+       legível aos poucos, lê tudo de uma vez e o texto só não cresce. */
+    let bruto = '';
+    let uso: Record<string, number> | undefined;
+    let falhou = false;
+    const evento = (l: string) => {
+      if (!l.trim()) return;
+      let e: any;
+      try { e = JSON.parse(l); } catch { return; }
+      if (e?.t === 'texto' && typeof e.v === 'string') {
+        bruto += e.v;
+        aoEscrever?.(parcialLimpo(bruto));
+      } else if (e?.t === 'fim') uso = e.uso;
+      else if (e?.t === 'erro') falhou = true;
+    };
+    const leitor = (r.body as any)?.getReader?.();
+    if (leitor) {
+      const dec = new TextDecoder();
+      let resto = '';
+      for (;;) {
+        const { value, done } = await leitor.read();
+        if (done) break;
+        resto += dec.decode(value, { stream: true });
+        const linhas = resto.split('\n');
+        resto = linhas.pop() ?? '';
+        linhas.forEach(evento);
+      }
+      evento(resto);
+    } else {
+      (await r.text()).split('\n').forEach(evento);
+    }
+    const texto = limparResposta(bruto);
+    if (falhou || !texto) return { ok: false, motivo: 'sem-rede' };
+    if (typeof __DEV__ !== 'undefined' && __DEV__ && uso) console.log('[conversa] uso', JSON.stringify(uso));
+    return { ok: true, texto, uso };
   } catch {
     return { ok: false, motivo: 'sem-rede' };
   } finally {

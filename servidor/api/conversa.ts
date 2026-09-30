@@ -111,47 +111,77 @@ async function handler(req: Request): Promise<Response> {
   const porta = await abrirPorta(req, 'conversa');
   if (!porta.ok) return falhou(porta.motivo, porta.status);
 
-  try {
-    const r = await cliente.messages.create({
-      model: 'claude-opus-5',
-      max_tokens: 2000,
-      system: [
-        { type: 'text', text: INSTRUCOES, cache_control: { type: 'ephemeral' } },
-        { type: 'text', text: blocoDaPessoa(IDIOMAS[pedido.idioma], pedido.resumo) },
-      ],
-      messages: mensagensDe(pedido.historico, pedido.pergunta),
-      /* Conversa, e não raciocínio longo: a pessoa está com a tela
-         aberta esperando. Sobe se a medição de qualidade pedir. */
-      output_config: { effort: 'low' },
-    });
+  /* ⚠️ A RESPOSTA VAI EM PEDAÇOS (30/09/2026). Antes ela chegava inteira,
+     depois de quatro ou cinco segundos de "pensando"; agora cada trecho
+     que o modelo escreve sai na hora, e o aplicativo mostra o texto
+     crescendo. Um efeito de digitação sobre a resposta pronta somaria
+     espera à espera — este é o de verdade.
 
-    const resposta = r.content
-      .filter((b): b is Anthropic.TextBlock => b.type === 'text')
-      .map((b) => b.text)
-      .join('\n')
-      .trim();
-    if (!resposta) return falhou('sem-rede');
+     O formato é uma linha de JSON por evento (NDJSON):
+       {"t":"texto","v":"..."}   um trecho
+       {"t":"fim","uso":{...}}   acabou, com os tokens (só números)
+       {"t":"erro","motivo":"sem-rede"}
+     Os erros de ANTES do modelo (pedido malformado, porta fechada)
+     continuam como JSON comum, com o status HTTP deles: o aplicativo
+     distingue pelo content-type. */
+  const cod = new TextEncoder();
+  const linha = (o: unknown) => cod.encode(`${JSON.stringify(o)}\n`);
+  const pedidoOk = pedido;
+  const corpo = new ReadableStream<Uint8Array>({
+    async start(ctl) {
+      let escreveu = false;
+      try {
+        const fluxo = cliente.messages.stream({
+          model: 'claude-opus-5',
+          max_tokens: 2000,
+          system: [
+            { type: 'text', text: INSTRUCOES, cache_control: { type: 'ephemeral' } },
+            { type: 'text', text: blocoDaPessoa(IDIOMAS[pedidoOk.idioma], pedidoOk.resumo) },
+          ],
+          messages: mensagensDe(pedidoOk.historico, pedidoOk.pergunta),
+          /* Conversa, e não raciocínio longo: a pessoa está com a tela
+             aberta esperando. Sobe se a medição de qualidade pedir. */
+          output_config: { effort: 'low' },
+        });
+        fluxo.on('text', (trecho) => {
+          if (!trecho) return;
+          escreveu = true;
+          ctl.enqueue(linha({ t: 'texto', v: trecho }));
+        });
+        const final = await fluxo.finalMessage();
+        if (!escreveu) {
+          ctl.enqueue(linha({ t: 'erro', motivo: 'sem-rede' }));
+        } else {
+          const u = final.usage;
+          ctl.enqueue(linha({
+            t: 'fim',
+            uso: {
+              entrada: u.input_tokens,
+              cacheLida: u.cache_read_input_tokens ?? 0,
+              cacheEscrita: u.cache_creation_input_tokens ?? 0,
+              saida: u.output_tokens,
+            },
+          }));
+        }
+      } catch (err) {
+        if (err instanceof Anthropic.APIError) console.error('modelo', err.status, err.message);
+        else console.error('inesperado', (err as Error)?.name);
+        ctl.enqueue(linha({ t: 'erro', motivo: 'sem-rede' }));
+      } finally {
+        ctl.close();
+      }
+    },
+  });
 
-    /* Só números: é o que a medição de custo lê (ver a especificação). */
-    const u = r.usage;
-    return responder({
-      ok: true,
-      resposta,
-      uso: {
-        entrada: u.input_tokens,
-        cacheLida: u.cache_read_input_tokens ?? 0,
-        cacheEscrita: u.cache_creation_input_tokens ?? 0,
-        saida: u.output_tokens,
-      },
-    });
-  } catch (err) {
-    if (err instanceof Anthropic.APIError) {
-      console.error('modelo', err.status, err.message);
-      return falhou('sem-rede');
-    }
-    console.error('inesperado', (err as Error)?.name);
-    return falhou('sem-rede');
-  }
+  return new Response(corpo, {
+    status: 200,
+    headers: {
+      ...CABECALHOS,
+      'content-type': 'application/x-ndjson; charset=utf-8',
+      'cache-control': 'no-cache, no-transform',
+      'x-accel-buffering': 'no',
+    },
+  });
 }
 
 export default { fetch: handler };

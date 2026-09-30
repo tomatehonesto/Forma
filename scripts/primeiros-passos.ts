@@ -80,7 +80,7 @@ import {
   aceitouAConversa, registrarAceiteDaConversa, limparResposta, TELAS_DA_CONVERSA,
   guardarNaConversa, conversaGuardada, TETO_DA_CONVERSA, perguntarAoMorphi,
   conversas, conversaAtual, recomecarConversa, abrirConversa, apagarConversa, conversaParada,
-  TETO_DE_CONVERSAS, CONVERSA_PARADA_MS,
+  TETO_DE_CONVERSAS, CONVERSA_PARADA_MS, destinosDe, semLinks, parcialLimpo,
 } from '../src/logic/conversa';
 import { TELAS } from '../servidor/conversa/prompt';
 import { BASE } from '../servidor/conversa/base';
@@ -864,6 +864,39 @@ const secaoDaConversa = secaoDaPorta.then(async () => {
     'a resposta limpa: negrito vira <b>, link de fora vira texto, e só as rotas da lista abrem');
   ok(JSON.stringify([...TELAS_DA_CONVERSA].sort()) === JSON.stringify(Object.keys(TELAS).sort()),
     'as rotas que o prompt oferece são as mesmas que o aplicativo abre');
+
+  /* O link vira botão: o destino sai do texto, e o texto fica com o termo. */
+  const comLinks = 'Veja [seus sintomas](/sintomas), [de novo](/sintomas), [a água](/agua), [os exames](/exames) e [nada](/admin).';
+  ok(JSON.stringify(destinosDe(comLinks)) === '["/sintomas","/agua"]' && semLinks(comLinks) === 'Veja seus sintomas, de novo, a água, os exames e nada.',
+    'os destinos saem sem repetir e só da lista, até dois; no meio da frase, o texto fica com o termo');
+  ok(semLinks('Voltou para 1/5 no dia 28. [Ver seus sintomas](/sintomas)') === 'Voltou para 1/5 no dia 28.'
+    && semLinks('Beba mais água.\n[Ver a água](/agua)\n\nFim') === 'Beba mais água.\n\nFim',
+    'o link que é um convite sozinho, no fim da frase ou numa linha, sai do texto: o botão já é ele');
+  ok(parcialLimpo('O enjoo <b>diminui') === 'O enjoo <b>diminui' && parcialLimpo('Veja [seus sin') === 'Veja' && parcialLimpo('forte <') === 'forte',
+    'o texto que ainda está chegando não mostra marcação aberta pela metade');
+
+  /* A resposta em pedaços, como o servidor manda. */
+  {
+    const B: any = clone(V);
+    registrarAceiteDaConversa(B);
+    const linhas = ['{"t":"texto","v":"O enjoo "}', '{"t":"texto","v":"**passa**. [Ver](/sin"}', '{"t":"texto","v":"tomas)"}', '{"t":"fim","uso":{"entrada":10,"cacheLida":5,"cacheEscrita":0,"saida":3}}'];
+    const fetchReal = globalThis.fetch;
+    const envOrig = process.env.EXPO_PUBLIC_ANALISE_URL;
+    process.env.EXPO_PUBLIC_ANALISE_URL = 'https://servidor.teste/api/analisar';
+    globalThis.fetch = (async () => new Response(new ReadableStream({
+      start(ctl) { const e = new TextEncoder(); for (const l of linhas) ctl.enqueue(e.encode(l + '\n')); ctl.close(); },
+    }), { headers: { 'content-type': 'application/x-ndjson' } })) as any;
+    const parciais: string[] = [];
+    const rs = await perguntarAoMorphi(B, 'enjoo?', [], (p) => parciais.push(p));
+    globalThis.fetch = fetchReal;
+    if (rs.ok || rs.motivo !== 'sem-servidor') {
+      ok(rs.ok && rs.texto === 'O enjoo <b>passa</b>. [Ver](/sintomas)' && parciais.length === 3 && parciais[0] === 'O enjoo' && (rs as any).uso?.saida === 3,
+        'a resposta em pedaços cresce na tela a cada trecho, e no fim guarda o texto inteiro, com o link para virar botão');
+    } else {
+      console.log('  (a sonda roda sem EXPO_PUBLIC_ANALISE_URL; a leitura em pedaços não se prova aqui)');
+    }
+    if (envOrig === undefined) delete process.env.EXPO_PUBLIC_ANALISE_URL; else process.env.EXPO_PUBLIC_ANALISE_URL = envOrig;
+  }
 
   /* O servidor: a base gerada em dia, o pedido conferido, as mensagens. */
   ok(BASE === montarBase(), 'a base de conhecimento gerada está em dia com servidor/conhecimento (rode gerar-base.mjs)');

@@ -65,7 +65,7 @@ AS REGRAS, EM ORDEM DE PRIORIDADE
 O FORMATO
 
 - Texto simples. Para destacar um número ou uma ideia central, use <b>assim</b>, no máximo duas vezes por resposta. Listas com "- " no começo da linha. Sem títulos, sem tabelas, sem markdown de negrito com asteriscos.
-- Pode oferecer UM link para a tela onde o dado mora, no formato [texto](/rota), só com estas rotas:
+- Pode oferecer UM link para a tela onde o dado mora, no formato [texto](/rota), só com estas rotas. O aplicativo tira o link da frase e mostra um botão para a tela embaixo da resposta; por isso a frase precisa fazer sentido sem ele, e o link vai no fim, quando ajudar:
 ${Object.entries(TELAS).map(([r, o]) => `  ${r} — ${o}`).join('\n')}
 
 OS DOCUMENTOS (a sua base de conhecimento clínico; cite o estudo ou a bula pelo nome quando usar um número deles)
