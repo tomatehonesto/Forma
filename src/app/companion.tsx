@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { View, Pressable, ScrollView, TextInput, KeyboardAvoidingView, Platform, StyleSheet, useWindowDimensions } from 'react-native';
+import { View, Pressable, ScrollView, TextInput, KeyboardAvoidingView, Platform, StyleSheet, Share, useWindowDimensions } from 'react-native';
 import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import * as Clipboard from 'expo-clipboard';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -182,13 +182,38 @@ export default function Companion() {
     }
   }, [q]);
 
-  /* Qual mensagem acabou de ser copiada: o botão diz "Copiado" por dois
-     segundos, e volta. */
-  const [copiada, setCopiada] = useState<number | null>(null);
+  /* O retorno de uma ação: ícone sem rótulo precisa dizer, em palavras,
+     o que acabou de acontecer — "Copiado", "Guardada para a consulta" —,
+     por dois segundos, ao lado dos ícones. */
+  const [feito, setFeito] = useState<{ i: number; texto: string } | null>(null);
+  const avisar = (i: number, texto: string) => {
+    setFeito({ i, texto });
+    setTimeout(() => setFeito((x) => (x?.i === i && x.texto === texto ? null : x)), 2000);
+  };
   const copiar = async (texto: string, i: number) => {
     await Clipboard.setStringAsync(texto).catch(() => {});
-    setCopiada(i);
-    setTimeout(() => setCopiada((x) => (x === i ? null : x)), 2000);
+    avisar(i, K().copiado);
+  };
+  /* Compartilhar abre a folha do sistema (WhatsApp, e-mail…). Onde ela não
+     existe — o navegador, às vezes —, copia. */
+  const compartilhar = async (texto: string, i: number) => {
+    try { await Share.share({ message: texto }); } catch { await copiar(texto, i); }
+  };
+  /* ⚠️ LEVAR PARA A CONSULTA GUARDA A PERGUNTA, E NÃO A RESPOSTA. A pauta
+     da consulta (S.notes) é o que a pessoa quer perguntar ao médico; e as
+     notas sobem para a conta e a clínica conectada as vê. A resposta da
+     Morphi Intelligence continua só no aparelho, como o resto da
+     conversa. */
+  const perguntaDe = (i: number) => {
+    for (let k = i - 1; k >= 0; k--) if (msgs[k].who === 'me') return msgs[k].text.trim();
+    return '';
+  };
+  const naPauta = (p: string) => !!p && ((S as any).notes ?? []).some((n: any) => !n.done && n.text === p);
+  const levarParaConsulta = (i: number) => {
+    const p = perguntaDe(i);
+    if (!p) return;
+    if (!naPauta(p)) update((s: any) => { s.notes = [{ t: Date.now(), text: p, done: false }, ...(s.notes || [])]; });
+    avisar(i, K().naPauta);
   };
 
   const rolarParaOFim = () => setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 90);
@@ -479,17 +504,34 @@ export default function Companion() {
                   </Row>
                 </Pressable>
               ))}
-              {/* Copiar leva o texto limpo, sem a marcação da tela. */}
-              <Pressable
-                onPress={() => copiar(textoPuro(m.text), i)}
-                hitSlop={6}
-                style={({ pressed }) => [{ alignSelf: 'flex-start', marginTop: 14, opacity: pressed ? 0.6 : 1 }]}
-              >
-                <Row gap={6} style={{ alignItems: 'center', backgroundColor: c.bg1, borderRadius: radius.pill, paddingHorizontal: 11, paddingVertical: 6 }}>
-                  <Icon name={copiada === i ? 'check' : 'copiar'} size={13} color={c.tx3} sw={2} />
-                  <Txt v="micro" c={c.tx2}>{copiada === i ? K().copiado : K().copiar}</Txt>
-                </Row>
-              </Pressable>
+              {/* ⚠️ AS AÇÕES SÃO ÍCONES, E O RETORNO É TEXTO (30/09/2026).
+                  Copiar e compartilhar têm desenho que todo mundo
+                  reconhece; "levar para a consulta" não tem, e por isso o
+                  toque responde em palavras ao lado ("Guardada para a
+                  consulta"). Cada ícone tem rótulo para o leitor de tela.
+                  Copiar e compartilhar levam o texto limpo, sem marcação. */}
+              <Row gap={4} style={{ alignItems: 'center', marginTop: 12, marginLeft: -8 }}>
+                {[
+                  { ic: 'copiar', rotulo: K().copiar, fazer: () => copiar(textoPuro(m.text), i) },
+                  { ic: 'compartilhar', rotulo: K().compartilhar, fazer: () => compartilhar(textoPuro(m.text), i) },
+                  ...(perguntaDe(i) ? [{
+                    ic: naPauta(perguntaDe(i)) ? 'check' : 'steth', rotulo: K().levarConsulta, fazer: () => levarParaConsulta(i),
+                  }] : []),
+                ].map((a) => (
+                  <Pressable
+                    key={a.rotulo} onPress={a.fazer} accessibilityRole="button" accessibilityLabel={a.rotulo} hitSlop={4}
+                    style={({ pressed }) => [{ width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: pressed ? c.bg1 : 'transparent' }]}
+                  >
+                    <Icon name={a.ic} size={17} color={c.tx3} sw={1.9} />
+                  </Pressable>
+                ))}
+                {feito?.i === i ? (
+                  <Row gap={5} style={{ alignItems: 'center', marginLeft: 4 }}>
+                    <Icon name="check" size={13} color={c.accent} sw={2.2} />
+                    <Txt v="micro" c={c.tx2}>{feito.texto}</Txt>
+                  </Row>
+                ) : null}
+              </Row>
             </View>
           ))}
 
