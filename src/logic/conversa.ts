@@ -46,27 +46,115 @@ export const registrarAceiteDaConversa = (s: any) => {
 };
 
 /* ------------------------------------------------------------------ */
-/* A conversa guardada                                                */
+/* As conversas guardadas                                             */
 /* ------------------------------------------------------------------ */
 
-export type MensagemDaConversa = { who: 'me' | 'ai'; text: string; t: number };
+/* ⚠️ CONVERSAS SEPARADAS, E NÃO UM FIO INFINITO (30/09/2026). A memória
+   da Morphi Intelligence é o resumo da jornada, que vai em toda pergunta;
+   a conversa é só o assunto. Num fio só, a pergunta sobre enjoo levava
+   junto as trocas sobre um exame de semanas atrás — contexto misturado e
+   pergunta mais cara —, e achar uma resposta antiga era rolar sem fim.
 
-/** Quantas mensagens ficam guardadas. As mais antigas saem primeiro. */
+   Cada conversa tem o título da primeira pergunta. O "+" guarda a atual
+   e começa outra; o histórico reabre qualquer uma. Tudo no aparelho, com
+   teto de conversas e de mensagens por conversa. */
+
+export type MensagemDaConversa = { who: 'me' | 'ai'; text: string; t: number };
+export type Conversa = { id: string; titulo: string; criada: number; atualizada: number; msgs: MensagemDaConversa[] };
+
+/** Quantas mensagens cada conversa guarda. As mais antigas saem primeiro. */
 export const TETO_DA_CONVERSA = 60;
+/** Quantas conversas ficam guardadas. Sai a que foi mexida há mais tempo. */
+export const TETO_DE_CONVERSAS = 30;
 /** Quantas mensagens anteriores vão junto com a pergunta (dez trocas). */
 export const TROCAS_ENVIADAS = 20;
+/** Depois disto sem mexer, a próxima visita abre uma conversa nova, e a
+    anterior fica no histórico. */
+export const CONVERSA_PARADA_MS = 6 * 60 * 60 * 1000;
 
-export const conversaGuardada = (S: any): MensagemDaConversa[] =>
-  (Array.isArray(S?.conversa?.msgs) ? S.conversa.msgs : [])
-    .filter((m: any) => m && (m.who === 'me' || m.who === 'ai') && typeof m.text === 'string');
+const valida = (m: any): m is MensagemDaConversa =>
+  m && (m.who === 'me' || m.who === 'ai') && typeof m.text === 'string';
 
-export const guardarNaConversa = (s: any, m: MensagemDaConversa) => {
-  const msgs = [...conversaGuardada(s), m];
-  s.conversa = { msgs: msgs.slice(-TETO_DA_CONVERSA) };
+const tituloDe = (msgs: MensagemDaConversa[]) => {
+  const p = msgs.find((m) => m.who === 'me')?.text.trim() ?? '';
+  return p.length > 80 ? `${p.slice(0, 79).trimEnd()}…` : p;
 };
 
-export const recomecarConversa = (s: any) => {
-  s.conversa = { msgs: [] };
+const novoId = () => `c${Date.now().toString(36)}${Math.floor(Math.random() * 1e8).toString(36)}`;
+
+/* O estado das conversas, lido com cuidado. O desenho anterior guardava
+   `{ msgs }`, uma conversa só: ela vira a primeira da lista, aberta. */
+type Guardadas = { atual: string | null; lista: Conversa[] };
+function lerConversas(S: any): Guardadas {
+  const c = S?.conversa;
+  if (c && Array.isArray(c.msgs)) {
+    const msgs = c.msgs.filter(valida);
+    if (!msgs.length) return { atual: null, lista: [] };
+    const t = msgs[msgs.length - 1].t || Date.now();
+    const id = 'c-antiga';
+    return { atual: id, lista: [{ id, titulo: tituloDe(msgs), criada: msgs[0].t || t, atualizada: t, msgs }] };
+  }
+  const lista: Conversa[] = (Array.isArray(c?.lista) ? c.lista : [])
+    .filter((x: any) => x && typeof x.id === 'string' && Array.isArray(x.msgs))
+    .map((x: any) => ({ ...x, msgs: x.msgs.filter(valida) }));
+  const atual = typeof c?.atual === 'string' && lista.some((x) => x.id === c.atual) ? c.atual : null;
+  return { atual, lista };
+}
+
+/** Todas as conversas, da mexida mais recente para a mais antiga. */
+export const conversas = (S: any): Conversa[] =>
+  [...lerConversas(S).lista].sort((x, y) => y.atualizada - x.atualizada);
+
+/** A conversa aberta, se houver. */
+export const conversaAtual = (S: any): Conversa | null => {
+  const g = lerConversas(S);
+  return g.lista.find((x) => x.id === g.atual) ?? null;
+};
+
+/** As mensagens da conversa aberta. */
+export const conversaGuardada = (S: any): MensagemDaConversa[] => conversaAtual(S)?.msgs ?? [];
+
+/** Acrescenta à conversa aberta; sem conversa aberta, abre uma nova com
+    esta mensagem. */
+export function guardarNaConversa(s: any, m: MensagemDaConversa) {
+  const g = lerConversas(s);
+  let c = g.lista.find((x) => x.id === g.atual);
+  if (!c) {
+    c = { id: novoId(), titulo: '', criada: m.t, atualizada: m.t, msgs: [] };
+    g.lista.push(c);
+    g.atual = c.id;
+  }
+  c.msgs = [...c.msgs, m].slice(-TETO_DA_CONVERSA);
+  c.atualizada = m.t;
+  if (!c.titulo) c.titulo = tituloDe(c.msgs);
+  const lista = [...g.lista].sort((x, y) => y.atualizada - x.atualizada).slice(0, TETO_DE_CONVERSAS);
+  s.conversa = { atual: lista.some((x) => x.id === g.atual) ? g.atual : null, lista };
+}
+
+/** O "+": a conversa aberta vai para o histórico, e a próxima pergunta
+    começa outra. */
+export function recomecarConversa(s: any) {
+  const g = lerConversas(s);
+  s.conversa = { atual: null, lista: g.lista };
+}
+
+/** Reabre uma conversa do histórico. */
+export function abrirConversa(s: any, id: string) {
+  const g = lerConversas(s);
+  s.conversa = { atual: g.lista.some((x) => x.id === id) ? id : g.atual, lista: g.lista };
+}
+
+/** Apaga uma conversa do aparelho. */
+export function apagarConversa(s: any, id: string) {
+  const g = lerConversas(s);
+  s.conversa = { atual: g.atual === id ? null : g.atual, lista: g.lista.filter((x) => x.id !== id) };
+}
+
+/** A conversa aberta ficou parada tempo demais: a visita de agora começa
+    outra (ver CONVERSA_PARADA_MS). */
+export const conversaParada = (S: any, agora: number) => {
+  const c = conversaAtual(S);
+  return !!c && agora - c.atualizada > CONVERSA_PARADA_MS;
 };
 
 /* ------------------------------------------------------------------ */

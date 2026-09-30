@@ -10,7 +10,7 @@ import {
 import { companionSuggestions, companionMemoria } from '../logic/derive';
 import {
   aceitouAConversa, conversaGuardada, guardarNaConversa,
-  recomecarConversa, conversaLigada, perguntarAoMorphi, type MotivoDaConversa,
+  recomecarConversa, conversaLigada, conversas, conversaParada, perguntarAoMorphi, type MotivoDaConversa,
 } from '../logic/conversa';
 import { Txt, Row, CircleBtn, RichDoc, Rolagem } from '../ui/kit';
 import { EstrelaIA } from '../ui/marca';
@@ -110,6 +110,14 @@ export default function Companion() {
   /* A conversa mora no estado (S.conversa), e não na tela: sair e voltar
      encontra a conversa onde ela parou. Ver logic/conversa. */
   const msgs = useMemo(() => conversaGuardada(S), [S]);
+  const temHistorico = useMemo(() => conversas(S).length > 0, [S]);
+
+  /* Voltar depois de horas abre uma conversa nova; a anterior fica no
+     histórico (logic/conversa, CONVERSA_PARADA_MS). Só na entrada da
+     tela: no meio de uma conversa, o relógio não a corta. */
+  useEffect(() => {
+    if (conversaParada(useStore.getState().S, Date.now())) update((s: any) => { recomecarConversa(s); });
+  }, []);
   const aceitou = aceitouAConversa(S);
   const [pensando, setPensando] = useState(false);
   /* O aviso da tela — sem rede, limite, sem conta. Não é fala do Morphi,
@@ -264,7 +272,11 @@ export default function Companion() {
         borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: c.line,
       }}>
         <Row style={{ alignItems: 'center' }}>
-          <CircleBtn name="back" onPress={() => router.back()} />
+          {/* Os dois lados têm a mesma largura (dois botões), para o
+              título centrar na tela com ou sem os botões da direita. */}
+          <Row style={{ width: 84 }}>
+            <CircleBtn name="back" onPress={() => router.back()} />
+          </Row>
           {/* O título centra na TELA, e não no vão que sobra: sem o
               espaçador do mesmo tamanho do botão à direita, ele ficaria
               deslocado 44 px para a esquerda e o olho lê como desalinho.
@@ -287,17 +299,30 @@ export default function Companion() {
             <EstrelaIA size={21} />
             <Txt v="title">Morphi Intelligence</Txt>
           </Row>
-          {/* Recomeçar só existe quando há o que recomeçar; sem ele, o
-              espaçador do mesmo tamanho mantém o título no centro. */}
-          {msgs.length && aceitou ? (
-            <Pressable
-              onPress={() => { update((s: any) => { recomecarConversa(s); }); setAviso(null); }}
-              accessibilityLabel={K().novaConversa} hitSlop={8}
-              style={({ pressed }) => [{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.6 : 1 }]}
-            >
-              <Icon name="plus" size={20} color={c.tx2} sw={2} />
-            </Pressable>
-          ) : <View style={{ width: 40 }} />}
+          {/* O HISTÓRICO E O "+". O relógio abre as conversas anteriores
+              (app/conversas-morphi) e só aparece quando há alguma; o "+"
+              guarda a conversa aberta no histórico e começa outra — não
+              apaga mais nada. Sem a permissão, nenhum dos dois. */}
+          <Row style={{ width: 84, justifyContent: 'flex-end' }}>
+            {aceitou && temHistorico ? (
+              <Pressable
+                onPress={() => router.push('/conversas-morphi' as any)}
+                accessibilityLabel={K().historico} hitSlop={6}
+                style={({ pressed }) => [{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.6 : 1 }]}
+              >
+                <Icon name="clock" size={19} color={c.tx2} sw={1.9} />
+              </Pressable>
+            ) : null}
+            {aceitou && msgs.length ? (
+              <Pressable
+                onPress={() => { update((s: any) => { recomecarConversa(s); }); setAviso(null); }}
+                accessibilityLabel={K().novaConversa} hitSlop={6}
+                style={({ pressed }) => [{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.6 : 1 }]}
+              >
+                <Icon name="plus" size={20} color={c.tx2} sw={2} />
+              </Pressable>
+            ) : null}
+          </Row>
         </Row>
       </View>
 

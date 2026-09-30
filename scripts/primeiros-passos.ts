@@ -79,6 +79,8 @@ import { resumoDaJornada, TETO_DO_RESUMO } from '../src/logic/resumoDaJornada';
 import {
   aceitouAConversa, registrarAceiteDaConversa, limparResposta, TELAS_DA_CONVERSA,
   guardarNaConversa, conversaGuardada, TETO_DA_CONVERSA, perguntarAoMorphi,
+  conversas, conversaAtual, recomecarConversa, abrirConversa, apagarConversa, conversaParada,
+  TETO_DE_CONVERSAS, CONVERSA_PARADA_MS,
 } from '../src/logic/conversa';
 import { TELAS } from '../servidor/conversa/prompt';
 import { BASE } from '../servidor/conversa/base';
@@ -832,6 +834,29 @@ const secaoDaConversa = secaoDaPorta.then(async () => {
   const g = conversaGuardada(A);
   ok(g.length === TETO_DA_CONVERSA && g[g.length - 1].text === 'm' + (TETO_DA_CONVERSA + 6),
     'a conversa guardada para no teto, e as mais antigas é que saem');
+
+  /* O histórico: conversas separadas, e o "+" não apaga nada. */
+  const H: any = { conversa: { msgs: [{ who: 'me', text: 'Pergunta antiga', t: 1000 }, { who: 'ai', text: 'Resposta', t: 1001 }] } };
+  ok(conversaGuardada(H).length === 2 && conversas(H).length === 1 && conversaAtual(H)?.titulo === 'Pergunta antiga',
+    'a conversa guardada no desenho antigo vira a primeira do histórico, aberta, com o título da pergunta');
+  recomecarConversa(H);
+  ok(conversaGuardada(H).length === 0 && conversas(H).length === 1, 'o "+" guarda a conversa no histórico, em vez de apagá-la');
+  guardarNaConversa(H, { who: 'me', text: 'Por que tenho enjoo?', t: 2000 });
+  ok(conversas(H).length === 2 && conversas(H)[0].titulo === 'Por que tenho enjoo?' && conversaGuardada(H).length === 1,
+    'a pergunta seguinte abre outra conversa, que vai para o alto do histórico');
+  const antiga = conversas(H)[1].id;
+  abrirConversa(H, antiga);
+  ok(conversaAtual(H)?.id === antiga && conversaGuardada(H)[0].text === 'Pergunta antiga', 'reabrir uma conversa continua de onde ela parou');
+  apagarConversa(H, antiga);
+  ok(conversas(H).length === 1 && conversaAtual(H) === null, 'apagar tira a conversa do aparelho, e a aberta deixa de estar aberta');
+  const M: any = {};
+  for (let i = 0; i < TETO_DE_CONVERSAS + 4; i++) { recomecarConversa(M); guardarNaConversa(M, { who: 'me', text: 'p' + i, t: 10_000 + i }); }
+  ok(conversas(M).length === TETO_DE_CONVERSAS && conversas(M)[TETO_DE_CONVERSAS - 1].titulo === 'p4',
+    'o histórico para no teto, e saem as conversas mexidas há mais tempo');
+  const Pa: any = {};
+  guardarNaConversa(Pa, { who: 'me', text: 'oi', t: 50_000 });
+  ok(!conversaParada(Pa, 50_000 + CONVERSA_PARADA_MS - 1) && conversaParada(Pa, 50_000 + CONVERSA_PARADA_MS + 1),
+    'a conversa parada por horas é que dá lugar a uma nova na volta');
 
   /* A resposta que chega da rede: só o que a tela entende. */
   const limpa = limparResposta('Oi **Mari**. Veja [seus sintomas](/sintomas), [um site](https://x.com) e [nada](/admin).<script>x</script>\n\n\n\nFim');
