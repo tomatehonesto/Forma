@@ -499,6 +499,11 @@ export default function Insights() {
             ============================================================ */}
         {/* Sem margem no topo: o paddingTop da folha já é o respiro, e a
             medida vive num lugar só. */}
+        {/* ⚠️ A MARGEM DE CIMA SÓ EXISTE SE HOUVER SEÇÃO ANTES (30/09/2026).
+            Cada seção abria com 40 de respiro, contando com outra acima;
+            sem "O que mais percebi" (pouco registro), a primeira que
+            sobrava somava os 40 ao paddingTop da folha, e o topo branco
+            ficava com um vão. O paddingTop é o respiro da primeira. */}
         {outras.length > 0 && (
           <View>
             <SectionHead title={K().oQueMaisPercebi} />
@@ -595,7 +600,7 @@ export default function Insights() {
             em cima de uma frase que admite não ter nenhuma. Sem leitura, ele
             não aparece; o convite para o check-in já mora nas ações. */}
         {!eq.vazia && (
-        <View style={{ backgroundColor: c.altMid, borderRadius: radius.lg, marginTop: 40, overflow: 'hidden' }}>
+        <View style={{ backgroundColor: c.altMid, borderRadius: radius.lg, marginTop: outras.length > 0 ? 40 : 0, overflow: 'hidden' }}>
           <Malha id="insightsEquilibrio" forca={1} escura />
           <View style={{ padding: 24 }}>
           <Row gap={9}>
@@ -656,7 +661,7 @@ export default function Insights() {
             tem o mesmo peso, ninguém priorizou nada.
             ============================================================ */}
         {acoes.length > 0 && (
-          <View style={{ marginTop: 40 }}>
+          <View style={{ marginTop: outras.length > 0 || !eq.vazia ? 40 : 0 }}>
             <SectionHead title={K().proximasAcoes} />
             <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>{K().proximasAcoesNota}</Txt>
 
@@ -710,7 +715,7 @@ export default function Insights() {
              A lista usa o mesmo ListRow com fio da área médica da Home: são
              o mesmo tipo de coisa, três atalhos para documentos, e repetir o
              padrão poupa a pessoa de aprender dois. */}
-        <View style={{ marginTop: 40 }}>
+        <View style={{ marginTop: outras.length > 0 || !eq.vazia || acoes.length > 0 ? 40 : 0 }}>
           <SectionHead title={K().resumos} />
           <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>{K().resumosNota}</Txt>
 
