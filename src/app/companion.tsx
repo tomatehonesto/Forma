@@ -477,8 +477,8 @@ export default function Companion() {
                saudação e a memória vêm logo abaixo dela. As perguntas
                prontas moram lá embaixo, em cima do campo. */
             <View style={{ alignItems: 'center', paddingTop: teclado ? 0 : 16 }}>
-              {/* O orbe (ui/orbe): a marca da Morphi Intelligence em pontos,
-                  mudando de forma devagar — estrela, M, cruz, círculo. */}
+              {/* O orbe (ui/orbe): uma esfera de pontos que gira e se deforma
+                  devagar, nos tons do app. */}
               <View style={{ marginBottom: teclado ? 2 : 6 }}><Orbe tamanho={teclado ? 84 : 160} claro={!isDark} azul={c.accent} fundo={c.panelTo} ciano={c.teal} lima={c.lime} roxo={c.purple} rosa={c.rose} /></View>
               <Txt v="display" style={{ fontSize: 26, lineHeight: 33, textAlign: 'center' }}>
                 {K().ola(S.profile.name.split(' ')[0])}
