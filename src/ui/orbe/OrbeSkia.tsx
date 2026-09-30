@@ -14,8 +14,9 @@ import { distanciaComSinal, codificar } from './distancia';
    A presença da Morphi Intelligence no alto da conversa vazia: uma
    esfera coberta de pontos, como meio-tom, que gira devagar e se deforma
    como um tecido. Num ciclo de 16 segundos, depois de uns 9 de esfera
-   livre, ela SE TRANSFORMA na marca — alternando o M da Morphi e a
-   estrela da Morphi Intelligence —, fica uns 3 s na forma e volta.
+   livre, ela SE TRANSFORMA na marca — alternando o M da Morphi e o
+   cacho de estrelas da Morphi Intelligence —, fica uns 3 s na forma e
+   volta.
 
    ⚠️ A HISTÓRIA, PARA NINGUÉM REFAZER O CAMINHO (30/09/2026). Passou por
    esfera 2D, bolha, vidro com tinta (2D e 3D), estrela 2D e com relevo,
@@ -40,12 +41,15 @@ import { distanciaComSinal, codificar } from './distancia';
 
    COMO É FEITA: raymarching; a peça é o desenho com espessura. O M é o
    caminho oficial (ui/marcaCaminhos), transformado em distância até a
-   borda (ui/orbe/distancia) numa textura; a estrela é a faísca do logo
-   (ui/marca), calculada no shader.
+   borda (ui/orbe/distancia) numa textura; o cacho é o do logo (ui/marca,
+   a faísca grande e as duas pequenas), calculado no shader, com a
+   espessura de cada faísca proporcional ao tamanho.
 
    AS CORES: a cor que age e a do alcançado mudam com a aparência (ver
    comPaleta em src/theme); o ciano é o terceiro tom, entre as duas. No
-   claro, verde-água e lima escurecida junto do ciano.
+   claro, verde-água e lima escurecida junto do ciano. Na forma, o
+   degradê corre pela própria peça, de ponta a ponta — pela tela, a peça
+   (no meio) pegava só o tom do meio, e a lima ficava na pontinha.
 
    ⚠️ COM "REDUZIR MOVIMENTO" LIGADO NO APARELHO, ELA PARA, COMO ESFERA.
 
@@ -120,20 +124,41 @@ float estrela(float2 p) {
   return (length(p) * sign(p.x) - 0.11) * 0.95;
 }
 
+// Uma faísca com centro e tamanho (raio da ponta).
+float faisca(float2 xy, float2 c, float r) { return estrela((xy - c) * (0.95 / r)) * (r / 0.95); }
+
+// Uma faísca em 3D: a espessura acompanha o tamanho — com a mesma
+// espessura, as pequenas viravam blocos quando giravam.
+float faisca3(float3 p, float2 c, float r) {
+  float2 w = float2(faisca(p.xy, c, r), abs(p.z) - 0.19 * r);
+  return min(max(w.x, w.y), 0.0) + length(max(w, 0.0)) - 0.05 * r;
+}
+
+// O cacho da Morphi Intelligence, como no logo (ui/marca, CACHO): a
+// estrela grande embaixo à esquerda e as duas pequenas subindo para a
+// direita — as posições e os tamanhos são os do logo, centrados e um
+// pouco menores, para caber no quadro mesmo girando.
+float cacho(float3 p) {
+  float k = 0.84;
+  float d = faisca3(p, k * float2(-0.33, -0.26), k * 0.92);
+  d = min(d, faisca3(p, k * float2(0.845, 0.82), k * 0.35));
+  d = min(d, faisca3(p, k * float2(1.02, -0.33), k * 0.225));
+  return d;
+}
+
 // A distância até a borda do desenho, no plano: o M vem da textura (a
-// distância com sinal, 0,5 na borda); a estrela é calculada aqui.
-float plano(float2 xy, float qual) {
-  if (qual > 0.5) { return estrela(xy); }
+// distância com sinal, 0,5 na borda).
+float plano(float2 xy) {
   float2 m = float2(xy.x / MUNDO * 0.5 + 0.5, 0.5 - xy.y / MUNDO * 0.5) * tamMascara;
   float v = campos.eval(m).r;
   return (0.5 - v) * 2.0 * 20.0 * (2.0 * MUNDO / tamMascara.x);
 }
 
 // A forma do desenho em 3D: o contorno com espessura, cantos redondos.
+// O cacho monta a espessura de cada faísca.
 float peca(float3 p, float qual) {
-  float esp = qual < 0.5 ? 0.2 : 0.17;
-  float d2 = plano(p.xy, qual);
-  float2 w = float2(d2, abs(p.z) - esp);
+  if (qual > 0.5) { return cacho(p); }
+  float2 w = float2(plano(p.xy), abs(p.z) - 0.2);
   return min(max(w.x, w.y), 0.0) + length(max(w, 0.0)) - 0.05;
 }
 
@@ -241,7 +266,11 @@ half4 main(float2 pos) {
 
   // A cor: a cor que age, o ciano e o alcançado, em faixas diagonais que
   // correm devagar — três tons, e dois deles mudam com a aparência.
-  float v = clamp(dot(uv, normalize(float2(0.45, 1.0))) * 0.5 + 0.5 + 0.12 * sin(t * 0.35 + uv.x * 1.8), 0.0, 1.0);
+  float vTela = clamp(dot(uv, normalize(float2(0.45, 1.0))) * 0.5 + 0.5 + 0.12 * sin(t * 0.35 + uv.x * 1.8), 0.0, 1.0);
+  // na forma, o degradê corre pela própria peça, de ponta a ponta — pela
+  // tela, a peça (que fica no meio) pegava só o tom do meio
+  float vPeca = clamp(dot(pp.xy, normalize(float2(0.6, 1.0))) * 0.55 + 0.5 + 0.1 * sin(t * 0.5 + pp.x * 1.5), 0.0, 1.0);
+  float v = mix(vTela, vPeca, vz.y);
   float3 cor;
   float alfa;
   if (claro < 0.5) {
@@ -296,7 +325,7 @@ function texturaDoM(): SkImage | null {
   const m = campo((cv, p) => {
     const pth = Skia.Path.MakeFromSVGString(D_SIMBOLO);
     if (!pth) return;
-    const s = (M * 0.74) / 533;
+    const s = (M * 0.9) / 533;
     cv.save(); cv.translate(M / 2 - 266.5 * s, M / 2 - 111 * s); cv.scale(s, s); cv.drawPath(pth, p); cv.restore();
   });
   if (!m) return null;
