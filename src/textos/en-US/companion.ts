@@ -159,5 +159,6 @@ export const companion = {
     semRede: 'I couldn’t answer just now — the connection failed. Try again in a moment.',
     semConta: 'To talk with me, sign in to your account.',
     limiteDoDia: 'You’ve reached today’s question limit. I’ll be back to answer tomorrow.',
+    restam: (n: number): string => (n === 1 ? '1 question left today' : `${n} questions left today`),
   },
 };

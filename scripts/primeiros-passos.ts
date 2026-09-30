@@ -80,7 +80,7 @@ import {
   aceitouAConversa, registrarAceiteDaConversa, limparResposta, TELAS_DA_CONVERSA,
   guardarNaConversa, conversaGuardada, TETO_DA_CONVERSA, perguntarAoMorphi,
   conversas, conversaAtual, recomecarConversa, abrirConversa, apagarConversa, conversaParada,
-  TETO_DE_CONVERSAS, CONVERSA_PARADA_MS, destinosDe, semLinks, parcialLimpo,
+  TETO_DE_CONVERSAS, CONVERSA_PARADA_MS, destinosDe, semLinks, parcialLimpo, perguntasRestantes,
 } from '../src/logic/conversa';
 import { TELAS } from '../servidor/conversa/prompt';
 import { BASE } from '../servidor/conversa/base';
@@ -759,6 +759,7 @@ const secaoDaPorta = (async () => {
 
   responde(200, { ok: true, limite: 20, restam: 19 });
   const aberta = await abrirPorta(req('Bearer jwt.da.sessao'), 'estimativa');
+  ok(aberta.ok && (aberta as any).restam === 19, 'a porta aberta diz quantas chamadas ainda cabem hoje');
   ok(aberta.ok && pedido!.url === 'https://projeto.supabase.co/rest/v1/rpc/consumir_cota_da_ia'
     && pedido!.headers.authorization === 'Bearer jwt.da.sessao' && pedido!.headers.apikey === 'sb_publishable_teste'
     && pedido!.body.tipo === 'estimativa',
@@ -879,7 +880,7 @@ const secaoDaConversa = secaoDaPorta.then(async () => {
   {
     const B: any = clone(V);
     registrarAceiteDaConversa(B);
-    const linhas = ['{"t":"texto","v":"O enjoo "}', '{"t":"texto","v":"**passa**. [Ver](/sin"}', '{"t":"texto","v":"tomas)"}', '{"t":"fim","uso":{"entrada":10,"cacheLida":5,"cacheEscrita":0,"saida":3}}'];
+    const linhas = ['{"t":"texto","v":"O enjoo "}', '{"t":"texto","v":"**passa**. [Ver](/sin"}', '{"t":"texto","v":"tomas)"}', '{"t":"fim","restam":4,"uso":{"entrada":10,"cacheLida":5,"cacheEscrita":0,"saida":3}}'];
     const fetchReal = globalThis.fetch;
     const envOrig = process.env.EXPO_PUBLIC_ANALISE_URL;
     process.env.EXPO_PUBLIC_ANALISE_URL = 'https://servidor.teste/api/analisar';
@@ -890,7 +891,7 @@ const secaoDaConversa = secaoDaPorta.then(async () => {
     const rs = await perguntarAoMorphi(B, 'enjoo?', [], (p) => parciais.push(p));
     globalThis.fetch = fetchReal;
     if (rs.ok || rs.motivo !== 'sem-servidor') {
-      ok(rs.ok && rs.texto === 'O enjoo <b>passa</b>. [Ver](/sintomas)' && parciais.length === 3 && parciais[0] === 'O enjoo' && (rs as any).uso?.saida === 3,
+      ok(rs.ok && rs.texto === 'O enjoo <b>passa</b>. [Ver](/sintomas)' && parciais.length === 3 && parciais[0] === 'O enjoo' && (rs as any).uso?.saida === 3 && (rs as any).restam === 4 && perguntasRestantes() === 4,
         'a resposta em pedaços cresce na tela a cada trecho, e no fim guarda o texto inteiro, com o link para virar botão');
     } else {
       console.log('  (a sonda roda sem EXPO_PUBLIC_ANALISE_URL; a leitura em pedaços não se prova aqui)');

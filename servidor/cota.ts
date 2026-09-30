@@ -22,7 +22,9 @@
 export type Tipo = 'foto' | 'laudo' | 'estimativa' | 'conversa';
 
 export type Porta =
-  | { ok: true }
+  /** `restam`: quantas chamadas deste tipo ainda cabem hoje, depois desta.
+      Ausente quando a porta deixa passar sem o Supabase (desenvolvimento). */
+  | { ok: true; restam?: number }
   | { ok: false; motivo: 'sem-conta' | 'limite' | 'sem-rede'; status: number };
 
 export async function abrirPorta(req: Request, tipo: Tipo): Promise<Porta> {
@@ -55,12 +57,12 @@ export async function abrirPorta(req: Request, tipo: Tipo): Promise<Porta> {
      quem não tem sessão ou tem sessão anônima. Para quem está do outro
      lado, é o mesmo: entrar de novo na conta. */
   if (r.status === 401 || r.status === 403) return { ok: false, motivo: 'sem-conta', status: 401 };
-  const corpo = await r.json().catch(() => null) as { ok?: boolean; code?: string } | null;
+  const corpo = await r.json().catch(() => null) as { ok?: boolean; code?: string; restam?: number } | null;
   if (corpo?.code === '42501') return { ok: false, motivo: 'sem-conta', status: 401 };
   if (!r.ok || !corpo) {
     console.error('porta: resposta inesperada', r.status, corpo);
     return { ok: false, motivo: 'sem-rede', status: 503 };
   }
   if (corpo.ok !== true) return { ok: false, motivo: 'limite', status: 429 };
-  return { ok: true };
+  return typeof corpo.restam === 'number' ? { ok: true, restam: corpo.restam } : { ok: true };
 }

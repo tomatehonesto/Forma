@@ -10,7 +10,8 @@ import {
 import { companionSuggestions, companionMemoria } from '../logic/derive';
 import {
   aceitouAConversa, conversaGuardada, guardarNaConversa,
-  recomecarConversa, conversaLigada, conversaParada, destinosDe, semLinks, conversaAtual, perguntarAoMorphi, type MotivoDaConversa,
+  recomecarConversa, conversaLigada, conversaParada, destinosDe, semLinks, conversaAtual,
+  perguntasRestantes, AVISAR_QUANDO_RESTAREM, perguntarAoMorphi, type MotivoDaConversa,
 } from '../logic/conversa';
 import { Txt, Row, CircleBtn, RichDoc, Rolagem } from '../ui/kit';
 import { EstrelaIA } from '../ui/marca';
@@ -19,7 +20,8 @@ import { GavetaDeConversas } from '../ui/gavetaDeConversas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { useDitado, estadoDoDitado } from '../ui/useDitado';
-import { radius, font } from '../theme';
+import { radius, font, alfa } from '../theme';
+import { LinearGradient } from 'expo-linear-gradient';
 import { T } from '../textos';
 
 const K = () => T.companion.telaConversa;
@@ -173,6 +175,8 @@ export default function Companion() {
   /* A resposta enquanto chega: o texto parcial, que cresce a cada trecho
      (ver servidor/api/conversa). Nulo quando não há resposta chegando. */
   const [escrevendo, setEscrevendo] = useState<string | null>(null);
+  /* Quantas perguntas restam hoje, se o servidor já disse (logic/conversa). */
+  const [restam, setRestam] = useState<number | null>(() => perguntasRestantes());
   /* O aviso da tela — sem rede, limite, sem conta. Não é fala do Morphi,
      e por isso não entra na conversa guardada (ver o alto do arquivo). */
   const [aviso, setAviso] = useState<MotivoDaConversa | null>(null);
@@ -287,6 +291,7 @@ export default function Companion() {
     });
     setPensando(false);
     setEscrevendo(null);
+    if (r.ok && r.restam != null) setRestam(r.restam);
     if (r.ok) update((s: any) => { guardarNaConversa(s, { who: 'ai', text: r.texto, t: Date.now() }); });
     else setAviso(r.motivo);
     rolarParaOFim();
@@ -338,6 +343,20 @@ export default function Companion() {
   return (
     <GavetaDeConversas aberta={gaveta} onFechar={() => setGaveta(false)}>
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, backgroundColor: c.bg }}>
+      {/* ⚠️ UM TOQUE DA COR, SÓ NA CONVERSA VAZIA (30/09/2026). O
+          Insights já é a tela do degradê forte; aqui é um véu da cor de
+          destaque atrás da estrela e da saudação, que liga as duas telas
+          sem repetir uma na outra — e sai quando a conversa começa,
+          porque conversa é leitura. Mora na raiz, e não na área da
+          conversa, para começar no topo da tela, atrás do cabeçalho. */}
+      {vazio ? (
+        <LinearGradient
+          colors={[alfa(c.accent, 0.28), alfa(c.accent, 0.08), alfa(c.accent, 0)]}
+          locations={[0, 0.55, 1]}
+          style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 460 }}
+          pointerEvents="none"
+        />
+      ) : null}
       {/* ---- o cabeçalho ----
 
           ⚠️⚠️ A ESFERA E O "PODE PERGUNTAR" SAÍRAM DAQUI, e eram a coisa
@@ -364,7 +383,7 @@ export default function Companion() {
           pergunta, em vez de ficar pendurado em toda volta. */}
       <View style={{
         paddingTop: insets.top + 8, paddingHorizontal: PAD, paddingBottom: 12,
-        borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: c.line,
+        borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: vazio ? 'transparent' : c.line,
       }}>
         <Row style={{ alignItems: 'center' }}>
           {/* Os dois lados têm a mesma largura (dois botões), para o
@@ -418,7 +437,7 @@ export default function Companion() {
           cabeçalho escuro: eles existiam para a folha clara subir por cima
           da imagem. Sem imagem embaixo, um canto arredondado no meio de
           duas superfícies da mesma cor é um detalhe que não separa nada. */}
-      <View style={{ flex: 1, backgroundColor: c.bg }}>
+      <View style={{ flex: 1, backgroundColor: vazio ? 'transparent' : c.bg }}>
         <Rolagem
           ref={scrollRef} style={{ flex: 1 }}
           contentContainerStyle={{ paddingHorizontal: PAD, paddingTop: 26, paddingBottom: 24 }}
@@ -672,6 +691,13 @@ export default function Companion() {
                     );
                   })}
                 </Rolagem>
+          ) : null}
+          {/* ⚠️ O QUE RESTA DO DIA SÓ APARECE QUANDO É POUCO (30/09/2026).
+              Um contador sempre à vista faria a pessoa economizar pergunta
+              num aplicativo de saúde; o aviso perto do fim evita que ela
+              descubra o limite no meio de uma dúvida. */}
+          {restam != null && restam > 0 && restam <= AVISAR_QUANDO_RESTAREM ? (
+            <Txt v="micro" c={c.tx3} style={{ textAlign: 'center', marginBottom: 8 }}>{K().restam(restam)}</Txt>
           ) : null}
           {/* ⚠️ O AVISO DO DITADO FICA ACIMA DO CAMPO, e não dentro dele.
 

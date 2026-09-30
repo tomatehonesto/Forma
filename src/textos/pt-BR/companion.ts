@@ -244,5 +244,6 @@ export const companion = {
     semRede: 'Não consegui responder agora — a conexão falhou. Tente de novo em instantes.',
     semConta: 'Para conversar comigo, entre na sua conta.',
     limiteDoDia: 'Você chegou ao limite de perguntas de hoje. Amanhã eu volto a responder.',
+    restam: (n: number): string => (n === 1 ? 'Resta 1 pergunta hoje' : `Restam ${n} perguntas hoje`),
   },
 };

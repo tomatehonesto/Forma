@@ -166,5 +166,6 @@ export const companion = {
     semRede: 'No pude responder ahora — la conexión falló. Inténtalo de nuevo en un momento.',
     semConta: 'Para conversar conmigo, entra en tu cuenta.',
     limiteDoDia: 'Llegaste al límite de preguntas de hoy. Mañana vuelvo a responder.',
+    restam: (n: number): string => (n === 1 ? 'Queda 1 pregunta hoy' : `Quedan ${n} preguntas hoy`),
   },
 };

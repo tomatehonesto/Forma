@@ -110,6 +110,7 @@ async function handler(req: Request): Promise<Response> {
 
   const porta = await abrirPorta(req, 'conversa');
   if (!porta.ok) return falhou(porta.motivo, porta.status);
+  const restam = porta.restam;
 
   /* ⚠️ A RESPOSTA VAI EM PEDAÇOS (30/09/2026). Antes ela chegava inteira,
      depois de quatro ou cinco segundos de "pensando"; agora cada trecho
@@ -155,6 +156,9 @@ async function handler(req: Request): Promise<Response> {
           const u = final.usage;
           ctl.enqueue(linha({
             t: 'fim',
+            /* Quantas perguntas ainda cabem hoje: o aplicativo avisa quando
+               faltam poucas, em vez de a pessoa descobrir no limite. */
+            ...(typeof restam === 'number' ? { restam } : {}),
             uso: {
               entrada: u.input_tokens,
               cacheLida: u.cache_read_input_tokens ?? 0,

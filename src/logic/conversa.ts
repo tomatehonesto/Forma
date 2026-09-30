@@ -229,10 +229,28 @@ export function parcialLimpo(bruto: string): string {
   return semLinks(limparResposta(t));
 }
 
+/* ------------------------------------------------------------------ */
+/* O que resta da cota do dia                                         */
+/* ------------------------------------------------------------------ */
+
+/* ⚠️ SÓ EM MEMÓRIA, e só do dia (UTC, o mesmo dia da cota no banco). O
+   servidor diz quanto resta no fim de cada resposta; fechar o aplicativo
+   esquece, e a próxima pergunta diz de novo. Não vale guardar: o número
+   só serve para avisar quando falta pouco. */
+const diaUtc = () => new Date().toISOString().slice(0, 10);
+let cotaDeHoje: { restam: number; dia: string } | null = null;
+
+/** Quantas perguntas ainda cabem hoje, se o servidor já disse. */
+export const perguntasRestantes = (): number | null =>
+  cotaDeHoje && cotaDeHoje.dia === diaUtc() ? cotaDeHoje.restam : null;
+
+/** Abaixo disto, a tela avisa quanto resta. */
+export const AVISAR_QUANDO_RESTAREM = 5;
+
 export type MotivoDaConversa = 'sem-servidor' | 'sem-rede' | 'sem-aceite' | MotivoDaPorta;
 
 export type RespostaDaConversa =
-  | { ok: true; texto: string; uso?: Record<string, number> }
+  | { ok: true; texto: string; uso?: Record<string, number>; restam?: number }
   | { ok: false; motivo: MotivoDaConversa };
 
 /** Pergunta ao Morphi. `anteriores` é a conversa até aqui, SEM a
@@ -283,6 +301,7 @@ export async function perguntarAoMorphi(
        legível aos poucos, lê tudo de uma vez e o texto só não cresce. */
     let bruto = '';
     let uso: Record<string, number> | undefined;
+    let restam: number | undefined;
     let falhou = false;
     const evento = (l: string) => {
       if (!l.trim()) return;
@@ -291,7 +310,10 @@ export async function perguntarAoMorphi(
       if (e?.t === 'texto' && typeof e.v === 'string') {
         bruto += e.v;
         aoEscrever?.(parcialLimpo(bruto));
-      } else if (e?.t === 'fim') uso = e.uso;
+      } else if (e?.t === 'fim') {
+        uso = e.uso;
+        if (typeof e.restam === 'number') restam = e.restam;
+      }
       else if (e?.t === 'erro') falhou = true;
     };
     const leitor = (r.body as any)?.getReader?.();
@@ -313,7 +335,8 @@ export async function perguntarAoMorphi(
     const texto = limparResposta(bruto);
     if (falhou || !texto) return { ok: false, motivo: 'sem-rede' };
     if (typeof __DEV__ !== 'undefined' && __DEV__ && uso) console.log('[conversa] uso', JSON.stringify(uso));
-    return { ok: true, texto, uso };
+    if (restam != null) cotaDeHoje = { restam, dia: diaUtc() };
+    return { ok: true, texto, uso, restam };
   } catch {
     return { ok: false, motivo: 'sem-rede' };
   } finally {
