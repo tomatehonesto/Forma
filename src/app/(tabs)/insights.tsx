@@ -66,6 +66,12 @@ const K = () => T.companion.telaInsights;
    toa. Fora de foco, o lugar fica reservado, do mesmo tamanho. */
 const MARCA_ALTURA = 136;
 const ORBE_TAMANHO = 124;
+/* ⚠️ A SOMBRA ATRÁS DA ESFERA (30/09/2026). A aurora tem regiões claras
+   perto do topo, e os pontos da esfera são finos: sem nada entre os dois,
+   ela se perdia no fundo. Uma mancha escura e larga, na cor do véu, que
+   some antes da borda — escurece o fundo sem desenhar um disco. É daqui e
+   não do shader: na conversa o fundo já é liso e não precisa. */
+const SOMBRA_TAMANHO = 250;
 
 /* As duas medidas da junção entre o hero e a folha.
 
@@ -291,6 +297,20 @@ export default function Insights() {
               opacity: pressed ? 0.7 : 1,
             }]}
           >
+            <Svg
+              width={SOMBRA_TAMANHO} height={SOMBRA_TAMANHO} pointerEvents="none"
+              style={{ position: 'absolute', left: '50%', top: '50%', marginLeft: -SOMBRA_TAMANHO / 2, marginTop: -SOMBRA_TAMANHO / 2 }}
+            >
+              <Defs>
+                <RadialGradient id="sombraDoOrbe" cx="50%" cy="50%" r="50%">
+                  <Stop offset="0" stopColor={c.veu} stopOpacity={0.7} />
+                  <Stop offset="0.42" stopColor={c.veu} stopOpacity={0.5} />
+                  <Stop offset="0.72" stopColor={c.veu} stopOpacity={0.18} />
+                  <Stop offset="1" stopColor={c.veu} stopOpacity={0} />
+                </RadialGradient>
+              </Defs>
+              <Rect width={SOMBRA_TAMANHO} height={SOMBRA_TAMANHO} fill="url(#sombraDoOrbe)" />
+            </Svg>
             {focada ? (
               <Orbe tamanho={ORBE_TAMANHO} claro={false} acao={orbe.accent} acao2={orbe.accent2} alcancado={orbe.lime} ciano={orbe.teal} />
             ) : <View style={{ width: ORBE_TAMANHO, height: ORBE_TAMANHO }} />}
