@@ -4,43 +4,46 @@ import { Canvas, Fill, Shader, Skia, useClock } from '@shopify/react-native-skia
 import { useDerivedValue } from 'react-native-reanimated';
 
 /* ============================================================
-   O ORBE DA MORPHI INTELLIGENCE — a estrela da marca, viva
+   O ORBE DA MORPHI INTELLIGENCE — a marca, viva e com volume
 
    A presença da Morphi Intelligence no alto da conversa vazia.
 
    ⚠️ A HISTÓRIA, PARA NINGUÉM REFAZER O CAMINHO (30/09/2026). Passou por
-   uma esfera de pontos, uma bolha iridescente, um vidro com tinta em 2D e
-   uma cena 3D de vidro com tinta (raymarching). A 3D ficou bonita, mas
-   não "ornava" com a tela: era um objeto de fora. A escolha do dono foi
-   a MARCA — a estrela de quatro pontas que já assina a Morphi
-   Intelligence no cabeçalho, no Insights e em cada resposta —, mudando
-   de forma como na referência que ele trouxe. O shader 3D está no
-   histórico deste arquivo, se um dia servir.
+   uma esfera de pontos, uma bolha iridescente, um vidro com tinta em 2D,
+   uma cena 3D de vidro com tinta (bonita, mas "não ornava" — era um
+   objeto de fora) e uma estrela 2D pontuda demais, que não era a do logo
+   e ficava feia no tema claro. Esta é a MARCA:
 
-   O que se vê:
-   - a estrela respira, gira devagar e se transforma num ciclo de 16
-     segundos: estrela, círculo, quadrado de cantos redondos, círculo, e
-     de volta à estrela — com pausa na estrela, que é a marca;
-   - o corpo é o degradê da marca (azul embaixo, lima em cima), com roxo
-     passando e o miolo aceso; a borda tem uma luz que corre pelos tons
-     do app (ciano, lima, rosa, roxo);
-   - um halo baixo em volta, que não escorre pelas pontas;
-   - as duas faíscas pequenas do cacho da marca aparecem ao lado enquanto
-     ela é estrela, e somem quando ela vira círculo.
+   - a estrela é a faísca do logo (ui/marca): pontas na vertical e na
+     horizontal, lados retos, pontas redondas — conferida sobre o
+     contorno do logo, e não no olho;
+   - ela se transforma num ciclo de 20 segundos, com pausa em cada forma:
+     estrela, CRUZ DE SAÚDE, círculo, quadrado redondo, e de volta; as
+     formas são distâncias até a borda (SDF), e por isso a transformação
+     sai lisa;
+   - tem RELEVO: a forma é um volume macio, com luz do alto à esquerda,
+     brilho especular e sombra própria — um ícone, e não um adesivo;
+   - as duas faíscas pequenas do cacho do logo aparecem ao lado enquanto
+     ela é estrela.
 
-   A forma é uma superelipse: com expoente menor que 1 os lados afundam
-   e ela é a estrela; com 2, círculo; com 4, quadrado redondo. É 2D e
-   leve: roda em resolução cheia sem pesar.
+   ⚠️ UMA VARIAÇÃO POR TEMA, e não a mesma com outra cor de fundo:
+   - ESCURO: ela acende — miolo claro, luz de borda nos tons do app, halo
+     em volta; degradê da marca, do azul à lima;
+   - CLARO: sem halo (brilho em fundo claro vira mancha), cores densas do
+     azul ao ciano com a lima só na ponta (azul com lima misturados dão um
+     verde sujo), e uma sombra suave embaixo, que é o que dá corpo.
 
    ⚠️ COM "REDUZIR MOVIMENTO" LIGADO NO APARELHO, ELA PARA NA ESTRELA.
 
    Para conferir sem abrir o aplicativo: o shader compila e desenha no
-   CanvasKit do Node, a mesma engine do Skia.
+   CanvasKit do Node, a mesma engine do Skia — foi assim que cada versão
+   foi vista, nos dois temas, antes de subir.
    ============================================================ */
 
 const FONTE = `
 uniform float2 res;
 uniform float t;
+uniform float claro;
 uniform float3 azul;
 uniform float3 fundo;
 uniform float3 ciano;
@@ -48,12 +51,54 @@ uniform float3 lima;
 uniform float3 roxo;
 uniform float3 rosa;
 
-// A forma: uma superelipse. Com expoente menor que 1 os lados afundam e ela
-// vira a estrela de quatro pontas da marca; com 2 é círculo; com 4, um
-// quadrado de cantos redondos. Devolve 1 na borda.
-float forma(float2 p, float n) {
-  float2 a = abs(p) + 0.0001;
-  return pow(pow(a.x, n) + pow(a.y, n), 1.0 / n);
+// ---------- as formas, como distância até a borda ----------
+
+// A estrela do logo (a faísca de ui/marca): quatro pontas, lados retos,
+// pontas redondas. Ponta em 1.0.
+float estrela(float2 p) {
+  float an = 3.1415927 / 4.0;
+  float en = 3.1415927 / 3.0;
+  float2 acs = float2(cos(an), sin(an));
+  float2 ecs = float2(cos(en), sin(en));
+  float bn = mod(atan(p.x, p.y), 2.0 * an) - an;
+  p = length(p) * float2(cos(bn), abs(sin(bn)));
+  float r = 0.89;
+  p -= r * acs;
+  p += ecs * clamp(-dot(p, ecs), 0.0, r * acs.y / ecs.y);
+  return length(p) * sign(p.x) - 0.11;
+}
+
+float caixa(float2 p, float2 b, float r) {
+  float2 q = abs(p) - b + r;
+  return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - r;
+}
+
+// A cruz de saúde, de braços redondos.
+float cruz(float2 p) {
+  return min(caixa(p, float2(0.8, 0.27), 0.14), caixa(p, float2(0.27, 0.8), 0.14));
+}
+
+float circulo(float2 p) { return length(p) - 0.74; }
+float quadrado(float2 p) { return caixa(p, float2(0.64, 0.64), 0.26); }
+
+// O ciclo, de 20 segundos, com pausa em cada forma: estrela, cruz,
+// círculo, quadrado redondo, e de volta à estrela.
+float4 pesos(float t) {
+  float c = fract(t / 20.0);
+  float a = smoothstep(0.14, 0.24, c);   // estrela -> cruz
+  float b = smoothstep(0.38, 0.48, c);   // cruz -> círculo
+  float d = smoothstep(0.62, 0.72, c);   // círculo -> quadrado
+  float e = smoothstep(0.86, 0.96, c);   // quadrado -> estrela
+  return float4(a, b, d, e);
+}
+
+float forma(float2 p, float4 w) {
+  float s = estrela(p);
+  s = mix(s, cruz(p), w.x);
+  s = mix(s, circulo(p), w.y);
+  s = mix(s, quadrado(p), w.z);
+  s = mix(s, estrela(p), w.w);
+  return s;
 }
 
 float2 girar(float2 p, float a) {
@@ -61,74 +106,84 @@ float2 girar(float2 p, float a) {
   return float2(c * p.x - s * p.y, s * p.x + c * p.y);
 }
 
-// A borda de luz: os tons do app em ciclo.
-float3 tons(float h) {
-  h = fract(h) * 4.0;
-  float i = floor(h);
-  float f = smoothstep(0.0, 1.0, fract(h));
-  float3 a = ciano; float3 b = lima;
-  if (i >= 1.0) { a = lima; b = rosa; }
-  if (i >= 2.0) { a = rosa; b = roxo; }
-  if (i >= 3.0) { a = roxo; b = ciano; }
-  return mix(a, b, f);
-}
-
 half4 main(float2 pos) {
   float px = 2.0 / min(res.x, res.y);
   float2 uv = (pos - res * 0.5) * px;
   uv.y = -uv.y;
 
-  // O ciclo, de 16 segundos: estrela, círculo, quadrado redondo, círculo,
-  // estrela — com pausas na estrela, que é a marca.
-  float c = fract(t / 16.0);
-  float n = 0.58;
-  n += 1.42 * smoothstep(0.1, 0.3, c);
-  n += 2.2 * smoothstep(0.35, 0.5, c);
-  n -= 2.2 * smoothstep(0.55, 0.7, c);
-  n -= 1.42 * smoothstep(0.75, 0.92, c);
-  float estrela = 1.0 - smoothstep(0.7, 1.3, n);
+  float4 w = pesos(t);
+  float ehEstrela = 1.0 - smoothstep(0.0, 0.25, w.x) + smoothstep(0.75, 1.0, w.w);
+  ehEstrela = clamp(ehEstrela, 0.0, 1.0);
 
-  // Respira e gira devagar.
-  float R = 0.5 * (1.0 + 0.035 * sin(t * 1.3)) * mix(1.0, 0.88, smoothstep(1.0, 3.0, n));
-  float2 p = girar(uv, 0.18 * sin(t * 0.35) + t * 0.05) / R;
-  float f = forma(p, n);
-  float d = (f - 1.0) * R * mix(0.55, 1.0, smoothstep(0.58, 2.0, n));
+  // Escala da forma grande, respiração e um balanço leve.
+  float S = 0.5 * (1.0 + 0.03 * sin(t * 1.2));
+  float giro = 0.12 * sin(t * 0.33);
+  float2 p = girar(uv, giro) / S;
+  float d = forma(p, w) * S;
 
-  float ang = atan(uv.y, uv.x);
+  // A normal do relevo: a forma como um volume macio, alto no meio.
+  float e = 0.004;
+  float dx = forma(girar(uv + float2(e, 0.0), giro) / S, w) * S - forma(girar(uv - float2(e, 0.0), giro) / S, w) * S;
+  float dy = forma(girar(uv + float2(0.0, e), giro) / S, w) * S - forma(girar(uv - float2(0.0, e), giro) / S, w) * S;
+  float2 grad = float2(dx, dy) / (2.0 * e);
+  float ALT = 0.085;
+  float s = clamp(-d / ALT, 0.0, 1.0);
+  float incl = 2.0 * (1.0 - s) / ALT * 0.05;
+  float3 n = normalize(float3(grad * incl, 1.0));
 
-  // O corpo: o degradê da marca, do azul (embaixo, à esquerda) para a
-  // lima (em cima, à direita), com roxo passando e o miolo aceso.
-  float g = clamp(dot(uv / R, normalize(float2(1.0, 1.0))) * 0.45 + 0.5 + 0.12 * sin(t * 0.4), 0.0, 1.0);
-  float3 corpo = mix(azul, lima, smoothstep(0.35, 1.0, g));
-  corpo = mix(corpo, roxo, smoothstep(0.35, 0.0, g) * 0.6);
-  corpo = mix(corpo, float3(1.0), pow(clamp(1.0 - f, 0.0, 1.0), 2.2) * 0.55);
-  // A borda de luz, com a cor correndo em volta.
-  float aro = smoothstep(0.72, 0.99, f);
-  corpo = mix(corpo, tons(ang / 6.2831853 + t * 0.06), aro * 0.55);
+  float3 L = normalize(float3(-0.5, 0.6, 0.65));
+  float dif = clamp(dot(n, L), 0.0, 1.0);
+  float esp = pow(clamp(dot(reflect(-L, n), float3(0.0, 0.0, 1.0)), 0.0, 1.0), 28.0);
+
+  // A cor: o degradê da marca (azul embaixo à esquerda, lima em cima à
+  // direita), com roxo passando e girando devagar.
+  float g = clamp(dot(uv / 0.6, normalize(float2(1.0, 1.0))) * 0.42 + 0.5 + 0.1 * sin(t * 0.4), 0.0, 1.0);
+  float3 base = mix(azul, lima, smoothstep(0.38, 0.95, g));
+  base = mix(base, roxo, smoothstep(0.4, 0.0, g) * 0.55);
+  base = mix(base, ciano, smoothstep(0.55, 0.7, g) * smoothstep(0.85, 0.7, g) * 0.35);
+
   float dentro = smoothstep(px, -px, d);
+  float3 corpo;
+  float3 cor;
+  float alfa;
+  if (claro < 0.5) {
+    // ESCURO: a forma acende — miolo claro, luz de borda, halo em volta.
+    corpo = base * (0.6 + 0.65 * dif) + float3(1.0) * esp * 0.75;
+    corpo = mix(corpo, float3(1.0), pow(s, 3.0) * 0.18);
+    float aro = smoothstep(0.35, 0.0, s) * dentro;
+    corpo += mix(ciano, rosa, 0.5 + 0.5 * sin(atan(uv.y, uv.x) + t * 0.5)) * aro * 0.35;
+    float halo = exp(-max(d, 0.0) * 9.0) * 0.42 * (1.0 - dentro) * smoothstep(1.0, 0.4, length(uv));
+    float3 corHalo = mix(azul, roxo, 0.5 + 0.5 * sin(atan(uv.y, uv.x) * 1.0 + t * 0.4));
+    cor = corpo * dentro + corHalo * halo;
+    alfa = clamp(dentro + halo, 0.0, 1.0);
+  } else {
+    // CLARO: sem halo — brilho em fundo claro vira mancha. Cores mais
+    // densas, e uma sombra suave embaixo, que é o que dá corpo no claro.
+    // no claro o degradê passa do azul pelo ciano, e a lima fica só como
+    // a luz da ponta: azul com lima, misturados, dão um verde sujo
+    float3 baseC = mix(azul, ciano, smoothstep(0.35, 0.95, g) * 0.85);
+    baseC = mix(baseC, roxo, smoothstep(0.4, 0.0, g) * 0.35);
+    baseC = mix(baseC, lima, smoothstep(0.88, 1.0, g) * 0.55);
+    corpo = baseC * (0.68 + 0.42 * dif) + float3(1.0) * esp * 0.9;
+    corpo = mix(corpo, float3(1.0), pow(s, 2.0) * 0.1);
+    corpo = mix(corpo, baseC * 0.7, smoothstep(0.3, 0.0, s) * 0.3);
+    float ds = forma(girar(uv - float2(0.0, -0.07), giro) / S, w) * S;
+    float sombra = exp(-max(ds, 0.0) * 11.0) * 0.28 * (1.0 - dentro) * smoothstep(1.0, 0.3, length(uv));
+    cor = corpo * dentro + fundo * 0.5 * sombra;
+    alfa = clamp(dentro + sombra, 0.0, 1.0);
+  }
 
-  // O brilho em volta.
-  float fora = max(d, 0.0);
-  // o halo fica em volta da forma, e não escorre pelas pontas da estrela
-  float brilho = exp(-fora * 7.5) * 0.5 * (1.0 - dentro) * smoothstep(0.95, 0.35, length(uv));
-  float3 corBrilho = mix(azul, roxo, 0.5 + 0.5 * sin(ang + t * 0.4));
-
-  // As duas faíscas pequenas do cacho, só enquanto é estrela.
-  float faisca = 0.0;
-  float3 corFaisca = lima;
-  float2 f1 = (uv - float2(0.66, 0.6)) / (0.19 * (1.0 + 0.1 * sin(t * 1.7)));
-  float2 f2 = (uv - float2(0.8, -0.02)) / (0.12 * (1.0 + 0.1 * sin(t * 2.1 + 1.0)));
-  float s1 = smoothstep(px * 6.0, -px * 6.0, forma(f1, 0.58) - 1.0);
-  float s2 = smoothstep(px * 8.0, -px * 8.0, forma(f2, 0.58) - 1.0);
-  faisca = max(s1 * 0.9, s2 * 0.75) * estrela;
-  // o mesmo degradê da marca nas faíscas, e um brilho baixo em volta delas
-  corFaisca = mix(mix(azul, lima, 0.75), float3(1.0), 0.2);
-  corFaisca = mix(corFaisca, mix(azul, lima, 0.4), s2 * (1.0 - s1));
-  float halo = (exp(-length(f1 * 0.19) * 14.0) * 0.35 + exp(-length(f2 * 0.12) * 18.0) * 0.25) * estrela;
-  brilho += halo * (1.0 - dentro) * (1.0 - faisca);
-
-  float3 cor = corBrilho * brilho + corpo * dentro + corFaisca * faisca * (1.0 - dentro);
-  float alfa = clamp(brilho + dentro + faisca * (1.0 - dentro), 0.0, 1.0);
+  // As duas faíscas pequenas do cacho da marca, enquanto é estrela.
+  float2 q1 = (uv - float2(0.64, 0.58)) / 0.19;
+  float2 q2 = (uv - float2(0.74, -0.04)) / 0.12;
+  float f1 = smoothstep(px, -px, estrela(q1) * 0.19) * 0.95;
+  float f2 = smoothstep(px, -px, estrela(q2) * 0.12) * 0.82;
+  float fa = max(f1, f2) * ehEstrela * (1.0 - dentro);
+  // no claro as faíscas vão no azul e no ciano: a lima em fundo claro
+  // lê como oliva
+  float3 corF = claro < 0.5 ? mix(azul, lima, mix(0.75, 0.5, f2 / 0.82)) : mix(azul, ciano, mix(0.35, 0.8, f2 / 0.82));
+  cor = cor * (1.0 - fa) + corF * fa;
+  alfa = clamp(alfa + fa * (1.0 - alfa), 0.0, 1.0);
   return half4(cor, alfa);
 }
 `;
@@ -147,10 +202,12 @@ const rgb = (hex: string): [number, number, number] => {
     paleta que a pessoa escolheu. Todas em hexadecimal. */
 export type PropsDoOrbe = {
   tamanho: number;
+  /** O tema claro tem a própria variação — ver o alto do arquivo. */
+  claro: boolean;
   azul: string; fundo: string; ciano: string; lima: string; roxo: string; rosa: string;
 };
 
-export default function OrbeSkia({ tamanho, azul, fundo, ciano, lima, roxo, rosa }: PropsDoOrbe) {
+export default function OrbeSkia({ tamanho, claro, azul, fundo, ciano, lima, roxo, rosa }: PropsDoOrbe) {
   const efeito = useMemo(() => Skia.RuntimeEffect.Make(FONTE), []);
   const relogio = useClock();
   const [parado, setParado] = useState(false);
@@ -168,8 +225,9 @@ export default function OrbeSkia({ tamanho, azul, fundo, ciano, lima, roxo, rosa
   const uniforms = useDerivedValue(() => ({
     res: [Math.round(tamanho * ESCALA), Math.round(tamanho * ESCALA)],
     t: parado ? 0.5 : relogio.value / 1000,
+    claro: claro ? 1 : 0,
     ...cores,
-  }), [tamanho, parado, cores]);
+  }), [tamanho, parado, cores, claro]);
 
   if (!efeito) return null;
   const menor = Math.round(tamanho * ESCALA);

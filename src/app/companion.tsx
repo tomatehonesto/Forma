@@ -146,7 +146,7 @@ function Pensando() {
 export default function Companion() {
   const S = useStore((s) => s.S);
   const update = useStore((s) => s.update);
-  const { c } = useTheme();
+  const { c, isDark } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const scrollRef = useRef<ScrollView>(null);
@@ -469,7 +469,7 @@ export default function Companion() {
             <View style={{ alignItems: 'center', paddingTop: 16 }}>
               {/* A estrela viva (ui/orbe): a marca da Morphi Intelligence na
                   conversa vazia, respirando e mudando de forma devagar. */}
-              <View style={{ marginBottom: 6 }}><Orbe tamanho={150} azul={c.accent} fundo={c.panelTo} ciano={c.teal} lima={c.lime} roxo={c.purple} rosa={c.rose} /></View>
+              <View style={{ marginBottom: 6 }}><Orbe tamanho={160} claro={!isDark} azul={c.accent} fundo={c.panelTo} ciano={c.teal} lima={c.lime} roxo={c.purple} rosa={c.rose} /></View>
               <Txt v="display" style={{ fontSize: 26, lineHeight: 33, textAlign: 'center' }}>
                 {K().ola(S.profile.name.split(' ')[0])}
               </Txt>
