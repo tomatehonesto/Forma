@@ -255,7 +255,7 @@ export default function Companion() {
           </Row>
           {/* Recomeçar só existe quando há o que recomeçar; sem ele, o
               espaçador do mesmo tamanho mantém o título no centro. */}
-          {msgs.length ? (
+          {msgs.length && aceitou ? (
             <Pressable
               onPress={() => { update((s: any) => { recomecarConversa(s); }); setAviso(null); }}
               accessibilityLabel={K().novaConversa} hitSlop={8}
@@ -296,7 +296,7 @@ export default function Companion() {
               alto, ter as duas era mostrar o mesmo personagem duas vezes
               na mesma dobra, em desenhos diferentes — e a de baixo era a
               mais fraca. */}
-          {vazio ? (
+          {vazio || !aceitou ? (
             <View style={{ alignItems: 'center', paddingTop: 8 }}>
               <Txt v="display" style={{ fontSize: 26, lineHeight: 33, textAlign: 'center' }}>
                 {K().ola(S.profile.name.split(' ')[0])}
@@ -325,7 +325,8 @@ export default function Companion() {
                   pergunta, o que a conversa lê e para onde vai. */}
               {!aceitou ? (
                 <View style={{ marginTop: 28, alignSelf: 'stretch', backgroundColor: c.bg1, borderRadius: radius.lg, padding: 18, gap: 12 }}>
-                  <Txt v="bodyMed" style={{ fontFamily: font.bodySemi }}>{K().aceiteTitulo}</Txt>
+                  <Txt v="micro" c={c.accent} style={{ letterSpacing: 0.6, textTransform: 'uppercase' }}>{K().aceiteRotulo}</Txt>
+                  <Txt v="bodyMed" style={{ fontFamily: font.bodySemi, marginTop: -6 }}>{K().aceiteTitulo}</Txt>
                   {[K().aceite1, K().aceite2, K().aceite3].map((t, i) => (
                     <Row key={i} gap={12} style={{ alignItems: 'flex-start' }}>
                       <Icon name={['doc', 'lock', 'info'][i]} size={16} color={c.accent} sw={1.9} />
@@ -339,6 +340,7 @@ export default function Companion() {
                   <View style={{ gap: 8, marginTop: 4 }}>
                     <Botao label={K().aceitar} onPress={aceitar} />
                     <Botao label={K().recusar} tom="fantasma" onPress={() => router.back()} />
+                    <Txt v="micro" c={c.tx4} style={{ textAlign: 'center', marginTop: 2 }}>{K().aceiteRodape}</Txt>
                   </View>
                 </View>
               ) : (
@@ -407,7 +409,13 @@ export default function Companion() {
             perguntas da abertura num carrossel cortado na borda, e ficavam
             na tela durante a conversa inteira oferecendo recomeçar quando
             a pessoa já está no meio de um assunto. O convite pertence ao
-            começo; depois dele, o que se quer é escrever. */}
+            começo; depois dele, o que se quer é escrever.
+
+            ⚠️ E SEM O ACEITE NÃO HÁ CAMPO. O aceite é o termo de uso da
+            IA: recusado, a conversa fica desligada, e um campo aberto
+            prometeria uma resposta que não vem. A pergunta que chega pelo
+            endereço (do Insights) espera o aceite em `pendente`. */}
+        {aceitou ? (
         <View style={{ paddingHorizontal: PAD, paddingTop: 10, paddingBottom: (insets.bottom || 10) + 10, backgroundColor: c.bg }}>
           {/* ⚠️ O AVISO DO DITADO FICA ACIMA DO CAMPO, e não dentro dele.
 
@@ -480,6 +488,7 @@ export default function Companion() {
             </Pressable>
           </Row>
         </View>
+        ) : <View style={{ height: insets.bottom || 10 }} />}
       </View>
     </KeyboardAvoidingView>
   );
