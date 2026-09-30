@@ -88,6 +88,7 @@ import { lerPedido, mensagensDe, TETOS } from '../servidor/api/conversa';
 // @ts-ignore — o gerador é .mjs, sem tipos
 import { montarBase } from '../servidor/conversa/gerar-base.mjs';
 import { DESTINO_NO_ESTADO, DESTINO_NO_PERFIL } from '../src/logic/traducao';
+import { distanciaComSinal, codificar, ALCANCE } from '../src/ui/orbe/distancia';
 import { ALIMENTOS, dicionario, buscarAlimento } from '../src/logic/alimentos';
 import { COMIDAS, UNIDADES } from '../src/logic/comidas';
 import { trocarLocal } from '../src/logic/local';
@@ -897,6 +898,18 @@ const secaoDaConversa = secaoDaPorta.then(async () => {
       console.log('  (a sonda roda sem EXPO_PUBLIC_ANALISE_URL; a leitura em pedaços não se prova aqui)');
     }
     if (envOrig === undefined) delete process.env.EXPO_PUBLIC_ANALISE_URL; else process.env.EXPO_PUBLIC_ANALISE_URL = envOrig;
+  }
+
+  /* O orbe: a distância até a borda de um desenho, que faz a esfera virar
+     o M, a seringa e o copo. Um quadrado de 10 px no meio de 32. */
+  {
+    const L = 32; const q = new Uint8Array(L * L);
+    for (let y = 11; y < 21; y++) for (let x = 11; x < 21; x++) q[y * L + x] = 1;
+    const sd = distanciaComSinal(q, L, L);
+    ok(sd[16 * L + 16] < -4 && sd[16 * L + 16] > -6 && sd[16 * L + 2] > 8 && sd[16 * L + 2] < 10 && Math.abs(sd[16 * L + 11]) <= 1,
+      'a distância do orbe é negativa dentro do desenho, positiva fora, e perto de zero na borda');
+    ok(codificar(0) === 128 && codificar(-ALCANCE) === 255 && codificar(ALCANCE) === 0 && codificar(99) === 0,
+      'a distância vira um byte com a borda no meio, e para no alcance');
   }
 
   /* O servidor: a base gerada em dia, o pedido conferido, as mensagens. */

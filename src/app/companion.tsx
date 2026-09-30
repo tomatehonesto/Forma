@@ -478,10 +478,10 @@ export default function Companion() {
                prontas moram lá embaixo, em cima do campo. */
             <View style={{ alignItems: 'center', paddingTop: teclado ? 0 : 16 }}>
               {/* O orbe (ui/orbe): uma esfera de pontos que gira e se deforma
-                  devagar, nas cores da aparência escolhida, e a cada 5 s
-                  forma um desenho — o M, a seringa, o copo, a anilha. */}
-              <View style={{ marginBottom: teclado ? 2 : 6 }}><Orbe tamanho={teclado ? 84 : 160} claro={!isDark} acao={c.accent} acao2={c.accent2} alcancado={c.lime} /></View>
-              <Txt v="display" style={{ fontSize: 26, lineHeight: 33, textAlign: 'center' }}>
+                  devagar, e a cada 8 s vira um objeto — o M, a seringa, o
+                  copo, a anilha. */}
+              <View style={{ marginBottom: teclado ? 2 : 6 }}><Orbe tamanho={teclado ? 84 : 160} claro={!isDark} acao={c.accent} acao2={c.accent2} alcancado={c.lime} ciano={c.teal} /></View>
+              <Txt v="display" style={{ fontSize: 26, lineHeight: 33, textAlign: 'center', fontFamily: font.bold }}>
                 {K().ola(S.profile.name.split(' ')[0])}
               </Txt>
               {/* A memória é o que separa assistente de buscador: ela prova
