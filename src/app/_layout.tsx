@@ -498,6 +498,9 @@ export default function RootLayout() {
               dela: numa folha o teclado empurra em vez de cobrir, e
               fechar devolve a pessoa onde ela estava. */
            'codigo', 'unidades',
+           /* O termo de uso da IA abre por cima da conversa do Morphi
+              Intelligence, que fica visível atrás (ver app/aceite-ia). */
+           'aceite-ia',
            /* Os filtros da vitrine da rede: a folha abre por cima da lista
               e fechar devolve a pessoa a ela, já filtrada. */
            'rede-filtros',

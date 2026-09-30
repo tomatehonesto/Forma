@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { View, Pressable, ScrollView, TextInput, KeyboardAvoidingView, Platform, StyleSheet, useWindowDimensions } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
 import {
@@ -8,7 +8,7 @@ import {
 } from '../logic/perguntas';
 import { companionSuggestions, companionMemoria } from '../logic/derive';
 import {
-  aceitouAConversa, registrarAceiteDaConversa, conversaGuardada, guardarNaConversa,
+  aceitouAConversa, conversaGuardada, guardarNaConversa,
   recomecarConversa, conversaLigada, perguntarAoMorphi, type MotivoDaConversa,
 } from '../logic/conversa';
 import { Txt, Row, CircleBtn, RichDoc, Rolagem } from '../ui/kit';
@@ -17,7 +17,6 @@ import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { useDitado, estadoDoDitado } from '../ui/useDitado';
 import { radius, font } from '../theme';
-import { Botao } from '../ui/internas';
 import { T } from '../textos';
 
 const K = () => T.companion.telaConversa;
@@ -180,18 +179,38 @@ export default function Companion() {
     const t = text.trim(); if (!t || pensando) return;
     setInput('');
     if (!conversaLigada()) { setAviso('sem-servidor'); return; }
-    /* Sem o aceite, a pergunta espera: a abertura já mostra o aceite, e
-       o "concordo" manda a pergunta sozinho. */
+    /* Sem o aceite, a pergunta espera: a folha do termo está aberta, e
+       o aceite manda a pergunta sozinho. */
     if (!aceitouAConversa(useStore.getState().S)) { setPendente({ t, de }); return; }
     void enviar(t, de);
   };
 
-  const aceitar = () => {
-    update((s: any) => { registrarAceiteDaConversa(s); });
+  /* ⚠️ O TERMO É UMA FOLHA POR CIMA DA CONVERSA (app/aceite-ia), e esta
+     tela é quem decide o que a volta dela quer dizer. Na primeira vez
+     em foco sem o aceite, abre a folha; ao voltar ao foco AINDA sem o
+     aceite, a folha foi fechada sem aceitar — pelo "Agora não", pelo X,
+     pela sombra ou pelo voltar do Android — e a conversa fecha junto.
+     Recusar é não usar a IA. */
+  const pediuAceite = useRef(false);
+  useFocusEffect(React.useCallback(() => {
+    if (aceitouAConversa(useStore.getState().S)) return;
+    if (!pediuAceite.current) {
+      pediuAceite.current = true;
+      /* O atraso deixa a entrada da tela terminar: aberta no meio dela,
+         a folha sobe junto com a animação da conversa. */
+      const t = setTimeout(() => router.push('/aceite-ia' as any), 320);
+      return () => clearTimeout(t);
+    }
+    router.back();
+  }, []));
+
+  /* A pergunta que esperava o aceite segue sozinha quando ele chega. */
+  useEffect(() => {
+    if (!aceitou || !pendente) return;
     const p = pendente;
     setPendente(null);
-    if (p) void enviar(p.t, p.de);
-  };
+    void enviar(p.t, p.de);
+  }, [aceitou]);
 
   const textoDoAviso = (m: MotivoDaConversa) =>
     m === 'sem-servidor' ? K().semServidor
@@ -319,31 +338,10 @@ export default function Companion() {
                 {K().limite}
               </Txt>
 
-              {/* ⚠️ SEM O ACEITE, ELE ENTRA NO LUGAR DAS SUGESTÕES. Uma
-                  sugestão tocada antes dele cairia no aceite de qualquer
-                  jeito; mostrá-lo de saída diz, antes da primeira
-                  pergunta, o que a conversa lê e para onde vai. */}
-              {!aceitou ? (
-                <View style={{ marginTop: 28, alignSelf: 'stretch', backgroundColor: c.bg1, borderRadius: radius.lg, padding: 18, gap: 12 }}>
-                  <Txt v="micro" c={c.accent} style={{ letterSpacing: 0.6, textTransform: 'uppercase' }}>{K().aceiteRotulo}</Txt>
-                  <Txt v="bodyMed" style={{ fontFamily: font.bodySemi, marginTop: -6 }}>{K().aceiteTitulo}</Txt>
-                  {[K().aceite1, K().aceite2, K().aceite3].map((t, i) => (
-                    <Row key={i} gap={12} style={{ alignItems: 'flex-start' }}>
-                      <Icon name={['doc', 'lock', 'info'][i]} size={16} color={c.accent} sw={1.9} />
-                      <Txt v="caption" c={c.tx2} style={{ flex: 1, lineHeight: 20 }}>{t}</Txt>
-                    </Row>
-                  ))}
-                  <Pressable onPress={() => router.push('/documento?id=privacidade' as any)} hitSlop={8}
-                    style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1, alignSelf: 'flex-start' }]}>
-                    <Txt v="label" c={c.accent2}>{K().politica}</Txt>
-                  </Pressable>
-                  <View style={{ gap: 8, marginTop: 4 }}>
-                    <Botao label={K().aceitar} onPress={aceitar} />
-                    <Botao label={K().recusar} tom="fantasma" onPress={() => router.back()} />
-                    <Txt v="micro" c={c.tx4} style={{ textAlign: 'center', marginTop: 2 }}>{K().aceiteRodape}</Txt>
-                  </View>
-                </View>
-              ) : (
+              {/* Sem o aceite, as sugestões não aparecem: o termo está na
+                  folha por cima (app/aceite-ia), e uma sugestão tocada
+                  atrás dela não teria para onde ir. */}
+              {!aceitou ? null : (
               <View style={{ marginTop: 32, alignSelf: 'stretch', gap: 8 }}>
                 {sugestoes.map((s) => (
                   <Pressable key={s} onPress={() => ask(s, 'sugerida')} style={({ pressed }) => [{ opacity: pressed ? 0.65 : 1 }]}>
