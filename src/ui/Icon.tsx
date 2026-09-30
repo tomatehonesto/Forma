@@ -42,6 +42,7 @@ import ClipboardList from 'lucide-react-native/icons/clipboard-list';
 import ClipboardPaste from 'lucide-react-native/icons/clipboard-paste';
 import Copy from 'lucide-react-native/icons/copy';
 import Share from 'lucide-react-native/icons/share';
+import ArrowUpRight from 'lucide-react-native/icons/arrow-up-right';
 import Menu from 'lucide-react-native/icons/text-align-start';
 import Camera from 'lucide-react-native/icons/camera';
 import ChartColumn from 'lucide-react-native/icons/chart-column';
@@ -203,6 +204,7 @@ const MAPA: Record<string, React.ComponentType<any>> = {
   colar: ClipboardPaste,
   copiar: Copy,
   compartilhar: Share,
+  abrir: ArrowUpRight,
   menu: Menu,
   clock: Clock,
   steth: Stethoscope,

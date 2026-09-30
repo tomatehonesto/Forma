@@ -186,7 +186,6 @@ export const companion = {
      ============================================================ */
   telaConversa: {
     ola: (nome: string) => `Oi, ${nome}`,
-    limite: 'Conheço a sua jornada inteira · não substituo a sua equipe médica',
     ouvindo: 'Estou ouvindo…',
     escrevaOuFale: 'Escreva ou fale',
     pergunte: 'Pergunte sobre sua jornada',

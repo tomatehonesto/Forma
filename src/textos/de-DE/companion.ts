@@ -110,7 +110,6 @@ export const companion = {
   },
   telaConversa: {
     ola: (nome: string) => `Hallo, ${nome}`,
-    limite: 'Ich kenne deinen ganzen Weg · ich ersetze dein Behandlungsteam nicht',
     ouvindo: 'Ich höre zu…',
     escrevaOuFale: 'Schreib oder sprich',
     pergunte: 'Frag zu deinem Weg',

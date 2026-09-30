@@ -108,7 +108,6 @@ export const companion = {
   },
   telaConversa: {
     ola: (nome: string) => `Hola, ${nome}`,
-    limite: 'Conozco todo tu recorrido · no reemplazo a tu equipo médico',
     ouvindo: 'Te escucho…',
     escrevaOuFale: 'Escribe o habla',
     pergunte: 'Pregunta sobre tu recorrido',

@@ -421,7 +421,7 @@ export default function Companion() {
       <View style={{ flex: 1, backgroundColor: c.bg }}>
         <Rolagem
           ref={scrollRef} style={{ flex: 1 }}
-          contentContainerStyle={{ paddingHorizontal: PAD, paddingTop: 26, paddingBottom: 24, ...(vazio ? { flexGrow: 1, justifyContent: 'flex-end' } : {}) }}
+          contentContainerStyle={{ paddingHorizontal: PAD, paddingTop: 26, paddingBottom: 24 }}
           showsVerticalScrollIndicator={false}
           onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: false })}
         >
@@ -443,12 +443,11 @@ export default function Companion() {
               na mesma dobra, em desenhos diferentes — e a de baixo era a
               mais fraca. */}
           {vazio || !aceitou ? (
-            /* Na conversa vazia a abertura desce para junto dos cards e do
-               campo (a rolagem encosta o conteúdo embaixo): a saudação, as
-               perguntas prontas e o lugar de escrever ficam juntos, onde o
-               polegar está, e a estrela diz com quem se fala. */
-            <View style={{ alignItems: 'center', paddingTop: 8, paddingBottom: 8 }}>
-              <View style={{ marginBottom: 18 }}><EstrelaIA size={44} /></View>
+            /* A abertura fica no alto: a estrela diz com quem se fala, e a
+               saudação e a memória vêm logo abaixo dela. As perguntas
+               prontas moram lá embaixo, em cima do campo. */
+            <View style={{ alignItems: 'center', paddingTop: 16 }}>
+              <View style={{ marginBottom: 16 }}><EstrelaIA size={40} /></View>
               <Txt v="display" style={{ fontSize: 26, lineHeight: 33, textAlign: 'center' }}>
                 {K().ola(S.profile.name.split(' ')[0])}
               </Txt>
@@ -458,17 +457,14 @@ export default function Companion() {
               <Txt v="caption" c={c.tx3} style={{ marginTop: 8, textAlign: 'center', lineHeight: 21, maxWidth: 300 }}>
                 {memoria}
               </Txt>
-              {/* ⚠️ O LIMITE MORAVA NO CABEÇALHO, embaixo do "Pode
-                  perguntar", e veio junto quando aquele bloco saiu.
-
-                  Ele não podia simplesmente sumir: é a frase que diz o
-                  que esta tela NÃO é, num aplicativo de saúde. Aqui ela
-                  fica melhor do que ficava — é lida uma vez, antes da
-                  primeira pergunta, em vez de ficar pendurada no alto em
-                  toda volta à conversa. */}
-              <Txt v="micro" c={c.tx4} style={{ marginTop: 10, textAlign: 'center' }}>
-                {K().limite}
-              </Txt>
+              {/* ⚠️ A LINHA DO LIMITE SAIU (30/09/2026) — "conheço a sua
+                  jornada inteira · não substituo a sua equipe médica". O
+                  limite continua dito onde pesa: no termo que a pessoa
+                  aceita antes da primeira pergunta ("os limites"), e nas
+                  respostas, quando a pergunta chega perto de dose e de
+                  diagnóstico (servidor/conversa/prompt, regra 1). Repetido
+                  na abertura de toda conversa, virava rodapé que ninguém
+                  lê. */}
 
               {/* Sem o aceite, as sugestões não aparecem: o termo está na
                   folha por cima (app/aceite-ia), e uma sugestão tocada
@@ -578,14 +574,14 @@ export default function Companion() {
                     próprio estado — "Anotado para a consulta", na cor de
                     feito —, e não um ícone mais um aviso ao lado. */}
                 {perguntaDe(i) ? (naPauta(perguntaDe(i)) ? (
-                  <Row gap={6} style={{ alignItems: 'center', marginLeft: 6, backgroundColor: c.okBg, borderRadius: radius.pill, paddingHorizontal: 11, paddingVertical: 7 }}>
+                  <Row gap={6} style={{ alignItems: 'center', marginLeft: 8, paddingVertical: 7 }}>
                     <Icon name="check" size={13} color={c.ok} sw={2.2} />
                     <Txt v="micro" c={c.ok} style={{ fontFamily: font.bodySemi }}>{K().naPauta}</Txt>
                   </Row>
                 ) : (
                   <Pressable onPress={() => levarParaConsulta(i)} accessibilityRole="button" accessibilityLabel={K().levarConsulta}
                     style={({ pressed }) => [{ marginLeft: 6, opacity: pressed ? 0.7 : 1 }]}>
-                    <Row gap={6} style={{ alignItems: 'center', backgroundColor: c.bg1, borderRadius: radius.pill, paddingHorizontal: 11, paddingVertical: 7 }}>
+                    <Row gap={6} style={{ alignItems: 'center', paddingHorizontal: 4, paddingVertical: 7 }}>
                       <Icon name="steth" size={14} color={c.accent} sw={1.9} />
                       <Txt v="micro" c={c.accent} style={{ fontFamily: font.bodySemi }}>{K().levarCurto}</Txt>
                     </Row>
@@ -653,17 +649,24 @@ export default function Companion() {
                     const a = assuntoDe(s);
                     return (
                       <Pressable key={s} onPress={() => ask(s, 'sugerida')} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1, alignSelf: 'stretch' }]}>
-                        <View style={{
-                          flex: 1, width: 200, minHeight: 116, backgroundColor: c.bg1, borderRadius: radius.lg,
-                          borderWidth: StyleSheet.hairlineWidth, borderColor: c.line, padding: 14, gap: 12,
-                        }}>
-                          <Row gap={7} style={{ alignSelf: 'flex-start', alignItems: 'center', backgroundColor: c.bg2, borderRadius: radius.pill, paddingLeft: 4, paddingRight: 10, paddingVertical: 4 }}>
-                            <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: c.accent, alignItems: 'center', justifyContent: 'center' }}>
-                              <Icon name={a.ic} size={12} color={c.accentInk} sw={2} />
-                            </View>
-                            <Txt v="micro" c={c.tx2}>{a.rotulo}</Txt>
-                          </Row>
-                          <Txt v="body" style={{ lineHeight: 22 }}>{s}</Txt>
+                      {/* O CARD: o assunto numa linha discreta no alto (ícone e
+                          nome, sem fundo), a pergunta com peso no meio, e a
+                          seta no canto de baixo, que diz "toque". A altura é
+                          a do mais alto da fileira, e a seta desce sempre
+                          para o mesmo lugar. */}
+                      <View style={{
+                        flex: 1, width: 196, minHeight: 132, backgroundColor: c.bg1, borderRadius: 22,
+                        paddingHorizontal: 16, paddingTop: 14, paddingBottom: 12,
+                      }}>
+                        <Row gap={6} style={{ alignItems: 'center' }}>
+                          <Icon name={a.ic} size={13} color={c.accent} sw={2} />
+                          <Txt v="micro" c={c.accent} style={{ letterSpacing: 0.5, textTransform: 'uppercase', fontFamily: font.bodySemi }}>{a.rotulo}</Txt>
+                        </Row>
+                        <Txt v="bodyMed" style={{ marginTop: 10, lineHeight: 22, fontFamily: font.bodySemi }}>{s}</Txt>
+                        <View style={{ flex: 1, minHeight: 10 }} />
+                        <View style={{ alignSelf: 'flex-end', width: 28, height: 28, borderRadius: 14, backgroundColor: c.bg2, alignItems: 'center', justifyContent: 'center' }}>
+                          <Icon name="abrir" size={14} color={c.tx2} sw={2.2} />
+                        </View>
                         </View>
                       </Pressable>
                     );
