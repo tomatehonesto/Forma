@@ -40,6 +40,7 @@ import CakeSlice from 'lucide-react-native/icons/cake-slice';
 import Calendar from 'lucide-react-native/icons/calendar';
 import ClipboardList from 'lucide-react-native/icons/clipboard-list';
 import ClipboardPaste from 'lucide-react-native/icons/clipboard-paste';
+import Copy from 'lucide-react-native/icons/copy';
 import Camera from 'lucide-react-native/icons/camera';
 import ChartColumn from 'lucide-react-native/icons/chart-column';
 import ChartLine from 'lucide-react-native/icons/chart-line';
@@ -198,6 +199,7 @@ const MAPA: Record<string, React.ComponentType<any>> = {
   plano: ClipboardList,
   /* colar o código que chegou no e-mail (app/conta) */
   colar: ClipboardPaste,
+  copiar: Copy,
   clock: Clock,
   steth: Stethoscope,
   send: Send,

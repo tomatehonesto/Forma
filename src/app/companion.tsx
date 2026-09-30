@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { View, Pressable, ScrollView, TextInput, KeyboardAvoidingView, Platform, StyleSheet, useWindowDimensions } from 'react-native';
 import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
+import * as Clipboard from 'expo-clipboard';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
 import {
@@ -70,6 +71,11 @@ const K = () => T.companion.telaConversa;
    ============================================================ */
 
 const PAD = 24;
+
+/** A resposta sem a marcação da tela: negrito vira texto, e o termo com
+    link fica só com o termo. É o que vai para a área de transferência. */
+const textoPuro = (t: string) =>
+  t.replace(/<\/?b>/g, '').replace(/\[([^\]]+)\]\([^)]*\)/g, '$1');
 
 /* ⚠️ MORAVAM AQUI a sobreposição de 36 px e a fração 0,504 — a altura que
    a folha clara subia por cima da imagem escura, e onde a base da esfera
@@ -152,6 +158,15 @@ export default function Companion() {
       setTimeout(() => ask(texto, de), 380);
     }
   }, [q]);
+
+  /* Qual mensagem acabou de ser copiada: o botão diz "Copiado" por dois
+     segundos, e volta. */
+  const [copiada, setCopiada] = useState<number | null>(null);
+  const copiar = async (texto: string, i: number) => {
+    await Clipboard.setStringAsync(texto).catch(() => {});
+    setCopiada(i);
+    setTimeout(() => setCopiada((x) => (x === i ? null : x)), 2000);
+  };
 
   const rolarParaOFim = () => setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 90);
 
@@ -294,7 +309,7 @@ export default function Companion() {
       <View style={{ flex: 1, backgroundColor: c.bg }}>
         <Rolagem
           ref={scrollRef} style={{ flex: 1 }}
-          contentContainerStyle={{ paddingHorizontal: PAD, paddingTop: 26, paddingBottom: 16, gap: 12 }}
+          contentContainerStyle={{ paddingHorizontal: PAD, paddingTop: 26, paddingBottom: 24 }}
           showsVerticalScrollIndicator={false}
           onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: false })}
         >
@@ -357,10 +372,22 @@ export default function Companion() {
             </View>
           ) : null}
 
+          {/* ⚠️ O RESPIRO É DA MENSAGEM, E NÃO DA ROLAGEM (30/09/2026). Um gap
+              de 12 igual para tudo colava a pergunta na resposta anterior
+              e a resposta na pergunta dela, e o fio lia como um bloco só.
+              Agora cada troca começa longe da anterior (32) e a resposta
+              fica perto da pergunta que a puxou (18): o olho separa as
+              trocas antes de ler. */}
           {msgs.map((m, i) => m.who === 'me' ? (
-            <View key={i} style={{ alignSelf: 'flex-end', maxWidth: '84%', backgroundColor: c.accent, borderRadius: radius.lg, borderBottomRightRadius: 6, paddingHorizontal: 16, paddingVertical: 12 }}>
-              <Txt v="bodyMed" c={c.accentInk} style={{ lineHeight: 21 }}>{m.text}</Txt>
-            </View>
+            <Pressable
+              key={i}
+              onLongPress={() => copiar(m.text, i)}
+              style={{ alignSelf: 'flex-end', maxWidth: '84%', marginTop: i === 0 ? 0 : 32 }}
+            >
+              <View style={{ backgroundColor: c.accent, borderRadius: radius.lg, borderBottomRightRadius: 6, paddingHorizontal: 16, paddingVertical: 12 }}>
+                <Txt v="bodyMed" c={c.accentInk} style={{ lineHeight: 22 }}>{m.text}</Txt>
+              </View>
+            </Pressable>
           ) : (
             /* ⚠️⚠️ A RESPOSTA PERDEU O BALÃO, e esta é a mudança que separa
                esta tela da conversa com a equipe.
@@ -387,14 +414,35 @@ export default function Companion() {
                A pergunta DELA continua em balão, e isso não é descuido:
                ela é uma fala, curta, de uma pessoa. O contraste entre os
                dois lados passou a ser o assunto em vez de ser decoração. */
-            <View key={i} style={{ alignSelf: 'stretch', gap: 12 }}>
-              <RichDoc text={m.text} ir={(to) => router.push(to as any)} />
+            <View key={i} style={{ alignSelf: 'stretch', marginTop: i === 0 ? 0 : 18 }}>
+              {/* A marca antes da resposta diz quem fala sem balão e sem
+                  avatar repetido: uma linha pequena, e o texto começa
+                  abaixo dela. */}
+              <Row gap={7} style={{ alignItems: 'center', marginBottom: 10 }}>
+                <EstrelaIA size={15} />
+                <Txt v="micro" c={c.tx3}>Morphi Intelligence</Txt>
+              </Row>
+              {/* Parágrafos mais afastados que o padrão do RichDoc: a
+                  resposta é lida no celular, de uma vez, e parágrafo
+                  colado em parágrafo vira parede. */}
+              <RichDoc text={m.text} ir={(to) => router.push(to as any)} style={{ gap: 16 }} />
+              {/* Copiar leva o texto limpo, sem a marcação da tela. */}
+              <Pressable
+                onPress={() => copiar(textoPuro(m.text), i)}
+                hitSlop={6}
+                style={({ pressed }) => [{ alignSelf: 'flex-start', marginTop: 14, opacity: pressed ? 0.6 : 1 }]}
+              >
+                <Row gap={6} style={{ alignItems: 'center', backgroundColor: c.bg1, borderRadius: radius.pill, paddingHorizontal: 11, paddingVertical: 6 }}>
+                  <Icon name={copiada === i ? 'check' : 'copiar'} size={13} color={c.tx3} sw={2} />
+                  <Txt v="micro" c={c.tx2}>{copiada === i ? K().copiado : K().copiar}</Txt>
+                </Row>
+              </Pressable>
             </View>
           ))}
 
-          {pensando && <Pensando />}
+          {pensando ? <View style={{ marginTop: 18 }}><Pensando /></View> : null}
           {aviso ? (
-            <Row gap={10} style={{ backgroundColor: c.bg1, borderRadius: radius.md, paddingHorizontal: 14, paddingVertical: 12, alignItems: 'flex-start' }}>
+            <Row gap={10} style={{ marginTop: 18, backgroundColor: c.bg1, borderRadius: radius.md, paddingHorizontal: 14, paddingVertical: 12, alignItems: 'flex-start' }}>
               <Icon name="info" size={15} color={c.tx3} sw={1.9} />
               <Txt v="caption" c={c.tx2} style={{ flex: 1, lineHeight: 20 }}>{textoDoAviso(aviso)}</Txt>
             </Row>

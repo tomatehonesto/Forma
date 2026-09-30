@@ -117,6 +117,8 @@ export const companion = {
     escrevaOuFale: 'Écrivez ou parlez',
     pergunte: 'Posez une question sur votre parcours',
     novaConversa: 'Nouvelle conversation',
+    copiar: 'Copier',
+    copiado: 'Copié',
     aceiteTitulo: 'Avant de commencer',
     aceitePergunta: 'Autoriser Morphi Intelligence à consulter vos données de santé pour vous aider ?',
     termosTitulo: 'Conditions d’utilisation',
