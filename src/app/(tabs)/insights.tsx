@@ -293,7 +293,7 @@ export default function Insights() {
               respostas do outro lado. Ver o comentário da constante lá em
               cima para a história do orbe que morava aqui. */}
           <Pressable
-            onPress={go('/companion')}
+            onPress={go('/companion?nova=1')}
             style={({ pressed }) => [{
               height: MARCA_ALTURA, alignItems: 'center', justifyContent: 'center',
               opacity: pressed ? 0.7 : 1,

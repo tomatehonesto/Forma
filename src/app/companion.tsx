@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { View, Pressable, ScrollView, TextInput, KeyboardAvoidingView, Platform, StyleSheet, Share, useWindowDimensions } from 'react-native';
+import { View, Pressable, ScrollView, TextInput, KeyboardAvoidingView, Keyboard, Platform, StyleSheet, Share, useWindowDimensions } from 'react-native';
 import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import * as Clipboard from 'expo-clipboard';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -10,10 +10,11 @@ import {
 import { companionSuggestions, companionMemoria } from '../logic/derive';
 import {
   aceitouAConversa, conversaGuardada, guardarNaConversa,
-  recomecarConversa, conversaLigada, conversaParada, destinosDe, semLinks, perguntarAoMorphi, type MotivoDaConversa,
+  recomecarConversa, conversaLigada, conversaParada, destinosDe, semLinks, conversaAtual, perguntarAoMorphi, type MotivoDaConversa,
 } from '../logic/conversa';
 import { Txt, Row, CircleBtn, RichDoc, Rolagem } from '../ui/kit';
 import { EstrelaIA } from '../ui/marca';
+import { startOfDay, fmtDate, fmtTime, DAY } from '../logic/time';
 import { GavetaDeConversas } from '../ui/gavetaDeConversas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
@@ -128,8 +129,17 @@ export default function Companion() {
   /* Voltar depois de horas abre uma conversa nova; a anterior fica no
      histórico (logic/conversa, CONVERSA_PARADA_MS). Só na entrada da
      tela: no meio de uma conversa, o relógio não a corta. */
+  /* ⚠️ E QUEM CHEGA DE OUTRA TELA COM UMA INTENÇÃO NOVA COMEÇA LIMPO
+     (30/09/2026): uma pergunta tocada (?q), o campo do Insights
+     (?escrever) ou a estrela do Insights (?nova). Cair no meio da última
+     conversa misturava o assunto novo com o velho; ela continua no menu. */
+  const { q: qEntrada, escrever: escEntrada, nova: novaEntrada } = useLocalSearchParams<{ q?: string; escrever?: string; nova?: string }>();
   useEffect(() => {
-    if (conversaParada(useStore.getState().S, Date.now())) update((s: any) => { recomecarConversa(s); });
+    const S0 = useStore.getState().S;
+    const intencaoNova = !!qEntrada || escEntrada === '1' || novaEntrada === '1';
+    if (conversaParada(S0, Date.now()) || (intencaoNova && (conversaAtual(S0)?.msgs.length ?? 0) > 0)) {
+      update((s: any) => { recomecarConversa(s); });
+    }
   }, []);
   const aceitou = aceitouAConversa(S);
   const [pensando, setPensando] = useState(false);
@@ -216,8 +226,20 @@ export default function Companion() {
     const p = perguntaDe(i);
     if (!p) return;
     if (!naPauta(p)) update((s: any) => { s.notes = [{ t: Date.now(), text: p, done: false }, ...(s.notes || [])]; });
-    avisar(i, K().naPauta);
   };
+
+  /* ⚠️ A CONVERSA TEM DATA E HORA (30/09/2026). Uma conversa reaberta
+     dias depois não dizia de quando era cada resposta — e "seu enjoo
+     subiu esta semana" lido na semana seguinte é outra frase. O dia
+     aparece quando muda, como separador; a hora vai em cada mensagem,
+     pequena. */
+  const diaDe = (t: number) => +startOfDay(t);
+  const novoDia = (i: number) => i === 0 || diaDe(msgs[i].t) !== diaDe(msgs[i - 1].t);
+  const rotuloDoDia = (t: number) => {
+    const hoje = diaDe(Date.now());
+    return diaDe(t) === hoje ? K().dataHoje : diaDe(t) === hoje - DAY ? K().dataOntem : fmtDate(t);
+  };
+  const hora = (t: number) => (t ? fmtTime(new Date(t)) : '');
 
   const rolarParaOFim = () => setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 90);
 
@@ -289,6 +311,7 @@ export default function Companion() {
           : K().semRede;
 
   return (
+    <GavetaDeConversas aberta={gaveta} onFechar={() => setGaveta(false)}>
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, backgroundColor: c.bg }}>
       {/* ---- o cabeçalho ----
 
@@ -329,7 +352,7 @@ export default function Companion() {
           <Row style={{ width: 44 }}>
             {aceitou ? (
               <Pressable
-                onPress={() => setGaveta(true)}
+                onPress={() => { Keyboard.dismiss(); setGaveta(true); }}
                 accessibilityLabel={K().menu} hitSlop={6}
                 style={({ pressed }) => [{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.6 : 1 }]}
               >
@@ -442,16 +465,21 @@ export default function Companion() {
               Agora cada troca começa longe da anterior (32) e a resposta
               fica perto da pergunta que a puxou (18): o olho separa as
               trocas antes de ler. */}
-          {msgs.map((m, i) => m.who === 'me' ? (
-            <Pressable
-              key={i}
-              onLongPress={() => copiar(m.text, i)}
-              style={{ alignSelf: 'flex-end', maxWidth: '84%', marginTop: i === 0 ? 0 : 32 }}
-            >
-              <View style={{ backgroundColor: c.accent, borderRadius: radius.lg, borderBottomRightRadius: 6, paddingHorizontal: 16, paddingVertical: 12 }}>
-                <Txt v="bodyMed" c={c.accentInk} style={{ lineHeight: 22 }}>{m.text}</Txt>
-              </View>
-            </Pressable>
+          {msgs.map((m, i) => (<React.Fragment key={`${m.t}-${i}`}>
+            {novoDia(i) ? (
+              <Txt v="micro" c={c.tx4} style={{ alignSelf: 'center', marginTop: i === 0 ? 0 : 32, marginBottom: 14, letterSpacing: 0.4 }}>
+                {rotuloDoDia(m.t)}
+              </Txt>
+            ) : null}
+            {m.who === 'me' ? (
+            <View style={{ alignSelf: 'flex-end', maxWidth: '84%', marginTop: novoDia(i) ? 0 : 32, alignItems: 'flex-end' }}>
+              <Pressable onLongPress={() => copiar(m.text, i)}>
+                <View style={{ backgroundColor: c.accent, borderRadius: radius.lg, borderBottomRightRadius: 6, paddingHorizontal: 16, paddingVertical: 12 }}>
+                  <Txt v="bodyMed" c={c.accentInk} style={{ lineHeight: 22 }}>{m.text}</Txt>
+                </View>
+              </Pressable>
+              <Txt v="micro" c={c.tx4} style={{ marginTop: 5, marginRight: 4 }}>{hora(m.t)}</Txt>
+            </View>
           ) : (
             /* ⚠️⚠️ A RESPOSTA PERDEU O BALÃO, e esta é a mudança que separa
                esta tela da conversa com a equipe.
@@ -478,13 +506,14 @@ export default function Companion() {
                A pergunta DELA continua em balão, e isso não é descuido:
                ela é uma fala, curta, de uma pessoa. O contraste entre os
                dois lados passou a ser o assunto em vez de ser decoração. */
-            <View key={i} style={{ alignSelf: 'stretch', marginTop: i === 0 ? 0 : 18 }}>
+            <View style={{ alignSelf: 'stretch', marginTop: novoDia(i) ? 0 : 18 }}>
               {/* A marca antes da resposta diz quem fala sem balão e sem
                   avatar repetido: uma linha pequena, e o texto começa
                   abaixo dela. */}
               <Row gap={7} style={{ alignItems: 'center', marginBottom: 10 }}>
                 <EstrelaIA size={15} />
                 <Txt v="micro" c={c.tx3}>Morphi Intelligence</Txt>
+                {m.t ? <Txt v="micro" c={c.tx4}>{`· ${hora(m.t)}`}</Txt> : null}
               </Row>
               {/* Parágrafos mais afastados que o padrão do RichDoc: a
                   resposta é lida no celular, de uma vez, e parágrafo
@@ -517,9 +546,6 @@ export default function Companion() {
                 {[
                   { ic: 'copiar', rotulo: K().copiar, fazer: () => copiar(textoPuro(m.text), i) },
                   { ic: 'compartilhar', rotulo: K().compartilhar, fazer: () => compartilhar(textoPuro(m.text), i) },
-                  ...(perguntaDe(i) ? [{
-                    ic: naPauta(perguntaDe(i)) ? 'check' : 'steth', rotulo: K().levarConsulta, fazer: () => levarParaConsulta(i),
-                  }] : []),
                 ].map((a) => (
                   <Pressable
                     key={a.rotulo} onPress={a.fazer} accessibilityRole="button" accessibilityLabel={a.rotulo} hitSlop={4}
@@ -528,15 +554,34 @@ export default function Companion() {
                     <Icon name={a.ic} size={17} color={c.tx3} sw={1.9} />
                   </Pressable>
                 ))}
+                {/* ⚠️ LEVAR PARA A CONSULTA TEM TEXTO SEMPRE, ao contrário dos
+                    dois ícones: não há desenho que todo mundo leia como
+                    "guardar para o médico". Depois do toque, ele vira o
+                    próprio estado — "Anotado para a consulta", na cor de
+                    feito —, e não um ícone mais um aviso ao lado. */}
+                {perguntaDe(i) ? (naPauta(perguntaDe(i)) ? (
+                  <Row gap={6} style={{ alignItems: 'center', marginLeft: 6, backgroundColor: c.okBg, borderRadius: radius.pill, paddingHorizontal: 11, paddingVertical: 7 }}>
+                    <Icon name="check" size={13} color={c.ok} sw={2.2} />
+                    <Txt v="micro" c={c.ok} style={{ fontFamily: font.bodySemi }}>{K().naPauta}</Txt>
+                  </Row>
+                ) : (
+                  <Pressable onPress={() => levarParaConsulta(i)} accessibilityRole="button" accessibilityLabel={K().levarConsulta}
+                    style={({ pressed }) => [{ marginLeft: 6, opacity: pressed ? 0.7 : 1 }]}>
+                    <Row gap={6} style={{ alignItems: 'center', backgroundColor: c.bg1, borderRadius: radius.pill, paddingHorizontal: 11, paddingVertical: 7 }}>
+                      <Icon name="steth" size={14} color={c.accent} sw={1.9} />
+                      <Txt v="micro" c={c.accent} style={{ fontFamily: font.bodySemi }}>{K().levarCurto}</Txt>
+                    </Row>
+                  </Pressable>
+                )) : null}
                 {feito?.i === i ? (
-                  <Row gap={5} style={{ alignItems: 'center', marginLeft: 4 }}>
+                  <Row gap={5} style={{ alignItems: 'center', marginLeft: 8 }}>
                     <Icon name="check" size={13} color={c.accent} sw={2.2} />
                     <Txt v="micro" c={c.tx2}>{feito.texto}</Txt>
                   </Row>
                 ) : null}
               </Row>
             </View>
-          ))}
+          )}</React.Fragment>))}
 
           {pensando ? <View style={{ marginTop: 18 }}><Pensando /></View> : null}
           {escrevendo != null ? (
@@ -643,7 +688,7 @@ export default function Companion() {
         </View>
         ) : <View style={{ height: insets.bottom || 10 }} />}
       </View>
-      <GavetaDeConversas aberta={gaveta} onFechar={() => setGaveta(false)} />
     </KeyboardAvoidingView>
+    </GavetaDeConversas>
   );
 }
