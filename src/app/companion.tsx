@@ -173,6 +173,16 @@ export default function Companion() {
   const [pensando, setPensando] = useState(false);
   /* A gaveta das conversas (ui/gavetaDeConversas), pelo menu. */
   const [gaveta, setGaveta] = useState(false);
+  /* ⚠️ COM O TECLADO ABERTO, A ABERTURA ENCOLHE (30/09/2026). O teclado e
+     os cards de pergunta tomam a metade de baixo, e a saudação, com o
+     orbe do tamanho cheio, sumia para cima da rolagem. Com o teclado, o
+     orbe fica pequeno e a saudação sobe — e ela continua à vista. */
+  const [teclado, setTeclado] = useState(false);
+  useEffect(() => {
+    const sobe = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', () => setTeclado(true));
+    const desce = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide', () => setTeclado(false));
+    return () => { sobe.remove(); desce.remove(); };
+  }, []);
   /* A resposta enquanto chega: o texto parcial, que cresce a cada trecho
      (ver servidor/api/conversa). Nulo quando não há resposta chegando. */
   const [escrevendo, setEscrevendo] = useState<string | null>(null);
@@ -466,10 +476,10 @@ export default function Companion() {
             /* A abertura fica no alto: a estrela diz com quem se fala, e a
                saudação e a memória vêm logo abaixo dela. As perguntas
                prontas moram lá embaixo, em cima do campo. */
-            <View style={{ alignItems: 'center', paddingTop: 16 }}>
-              {/* A estrela viva (ui/orbe): a marca da Morphi Intelligence na
-                  conversa vazia, respirando e mudando de forma devagar. */}
-              <View style={{ marginBottom: 6 }}><Orbe tamanho={160} claro={!isDark} azul={c.accent} fundo={c.panelTo} ciano={c.teal} lima={c.lime} roxo={c.purple} rosa={c.rose} /></View>
+            <View style={{ alignItems: 'center', paddingTop: teclado ? 0 : 16 }}>
+              {/* O orbe (ui/orbe): a marca da Morphi Intelligence em pontos,
+                  mudando de forma devagar — estrela, M, cruz, círculo. */}
+              <View style={{ marginBottom: teclado ? 2 : 6 }}><Orbe tamanho={teclado ? 84 : 160} claro={!isDark} azul={c.accent} fundo={c.panelTo} ciano={c.teal} lima={c.lime} roxo={c.purple} rosa={c.rose} /></View>
               <Txt v="display" style={{ fontSize: 26, lineHeight: 33, textAlign: 'center' }}>
                 {K().ola(S.profile.name.split(' ')[0])}
               </Txt>

@@ -117,7 +117,7 @@ export function CoracaoDeSaude({ tamanho = 40, de = 'ios' }: { tamanho?: number;
    ============================================================ */
 
 /** A faísca do Lucide (sparkle), fechada — por isso aceita preenchimento. */
-const D_FAISCA = 'M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z';
+export const D_FAISCA = 'M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z';
 
 /* ⚠️ O CACHO É UMA FAÍSCA SÓ, TRÊS VEZES. Desenhar três estrelas
    diferentes daria três desenhos para manter alinhados; a mesma peça
