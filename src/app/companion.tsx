@@ -14,6 +14,7 @@ import {
 } from '../logic/conversa';
 import { Txt, Row, CircleBtn, RichDoc, Rolagem } from '../ui/kit';
 import { EstrelaIA } from '../ui/marca';
+import { GavetaDeConversas } from '../ui/gavetaDeConversas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { useDitado, estadoDoDitado } from '../ui/useDitado';
@@ -132,6 +133,8 @@ export default function Companion() {
   }, []);
   const aceitou = aceitouAConversa(S);
   const [pensando, setPensando] = useState(false);
+  /* A gaveta das conversas (ui/gavetaDeConversas), pelo menu. */
+  const [gaveta, setGaveta] = useState(false);
   /* A resposta enquanto chega: o texto parcial, que cresce a cada trecho
      (ver servidor/api/conversa). Nulo quando não há resposta chegando. */
   const [escrevendo, setEscrevendo] = useState<string | null>(null);
@@ -326,7 +329,7 @@ export default function Companion() {
           <Row style={{ width: 44 }}>
             {aceitou ? (
               <Pressable
-                onPress={() => router.push('/conversas-morphi' as any)}
+                onPress={() => setGaveta(true)}
                 accessibilityLabel={K().menu} hitSlop={6}
                 style={({ pressed }) => [{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.6 : 1 }]}
               >
@@ -640,6 +643,7 @@ export default function Companion() {
         </View>
         ) : <View style={{ height: insets.bottom || 10 }} />}
       </View>
+      <GavetaDeConversas aberta={gaveta} onFechar={() => setGaveta(false)} />
     </KeyboardAvoidingView>
   );
 }

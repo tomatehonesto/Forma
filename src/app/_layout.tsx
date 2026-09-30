@@ -500,7 +500,7 @@ export default function RootLayout() {
            'codigo', 'unidades',
            /* O termo de uso da IA abre por cima da conversa do Morphi
               Intelligence, que fica visível atrás (ver app/aceite-ia). */
-           'aceite-ia', 'conversas-morphi',
+           'aceite-ia',
            /* Os filtros da vitrine da rede: a folha abre por cima da lista
               e fechar devolve a pessoa a ela, já filtrada. */
            'rede-filtros',
