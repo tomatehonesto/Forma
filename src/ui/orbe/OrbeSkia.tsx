@@ -4,37 +4,38 @@ import { Canvas, Fill, Shader, Skia, useClock } from '@shopify/react-native-skia
 import { useDerivedValue } from 'react-native-reanimated';
 
 /* ============================================================
-   O ORBE DA MORPHI INTELLIGENCE — uma gota de vidro 3D com tinta dentro
+   O ORBE DA MORPHI INTELLIGENCE — a estrela da marca, viva
 
-   A presença da Morphi Intelligence no alto da conversa vazia. Passou
-   por uma esfera de pontos, por uma bolha iridescente e por um vidro
-   desenhado em 2D; o dono achou todas falsas perto da referência (um
-   vidro líquido com tinta laranja dentro, que muda de transparência e de
-   cor conforme se move). Esta é uma CENA 3D, calculada a cada quadro
-   (raymarching):
+   A presença da Morphi Intelligence no alto da conversa vazia.
 
-   - a forma é um corpo 3D que se deforma e gira devagar, com dobras;
-   - o vidro reflete um "estúdio" de luzes em volta — uma caixa de luz
-     branca, faixas verticais que viram os veios cromados, e luzes nos
-     tons do app que giram devagar: é por isso que as cores e o brilho
-     correm pela superfície quando ela se move;
-   - Fresnel: de frente o vidro deixa ver o fundo, nas bordas ele
-     reflete — a transparência muda com a forma, e a gota funciona nos
-     temas escuro e claro;
-   - a luz entra no vidro (refração) e atravessa a tinta, que é um volume:
-     nuvens azuis que se fundem e gotinhas soltas, na frente e atrás.
+   ⚠️ A HISTÓRIA, PARA NINGUÉM REFAZER O CAMINHO (30/09/2026). Passou por
+   uma esfera de pontos, uma bolha iridescente, um vidro com tinta em 2D e
+   uma cena 3D de vidro com tinta (raymarching). A 3D ficou bonita, mas
+   não "ornava" com a tela: era um objeto de fora. A escolha do dono foi
+   a MARCA — a estrela de quatro pontas que já assina a Morphi
+   Intelligence no cabeçalho, no Insights e em cada resposta —, mudando
+   de forma como na referência que ele trouxe. O shader 3D está no
+   histórico deste arquivo, se um dia servir.
 
-   ⚠️ DESENHADO EM RESOLUÇÃO MENOR E AMPLIADO (ESCALA). A cena é pesada
-   para cada pixel de uma tela de alta densidade, a cada quadro; o vidro
-   é macio, e a ampliação não aparece. Corta o custo para cerca de um
-   terço, que é bateria e aparelho simples.
+   O que se vê:
+   - a estrela respira, gira devagar e se transforma num ciclo de 16
+     segundos: estrela, círculo, quadrado de cantos redondos, círculo, e
+     de volta à estrela — com pausa na estrela, que é a marca;
+   - o corpo é o degradê da marca (azul embaixo, lima em cima), com roxo
+     passando e o miolo aceso; a borda tem uma luz que corre pelos tons
+     do app (ciano, lima, rosa, roxo);
+   - um halo baixo em volta, que não escorre pelas pontas;
+   - as duas faíscas pequenas do cacho da marca aparecem ao lado enquanto
+     ela é estrela, e somem quando ela vira círculo.
 
-   ⚠️ COM "REDUZIR MOVIMENTO" LIGADO NO APARELHO, A GOTA PARA num quadro
-   bonito, em vez de se mover.
+   A forma é uma superelipse: com expoente menor que 1 os lados afundam
+   e ela é a estrela; com 2, círculo; com 4, quadrado redondo. É 2D e
+   leve: roda em resolução cheia sem pesar.
+
+   ⚠️ COM "REDUZIR MOVIMENTO" LIGADO NO APARELHO, ELA PARA NA ESTRELA.
 
    Para conferir sem abrir o aplicativo: o shader compila e desenha no
-   CanvasKit do Node, a mesma engine do Skia — foi assim que os quadros
-   foram vistos e ajustados.
+   CanvasKit do Node, a mesma engine do Skia.
    ============================================================ */
 
 const FONTE = `
@@ -47,139 +48,94 @@ uniform float3 lima;
 uniform float3 roxo;
 uniform float3 rosa;
 
-float3 girar(float3 p, float a, float b) {
-  float ca = cos(a); float sa = sin(a);
-  p = float3(ca * p.x + sa * p.z, p.y, -sa * p.x + ca * p.z);
-  float cb = cos(b); float sb = sin(b);
-  return float3(p.x, cb * p.y - sb * p.z, sb * p.y + cb * p.z);
+// A forma: uma superelipse. Com expoente menor que 1 os lados afundam e ela
+// vira a estrela de quatro pontas da marca; com 2 é círculo; com 4, um
+// quadrado de cantos redondos. Devolve 1 na borda.
+float forma(float2 p, float n) {
+  float2 a = abs(p) + 0.0001;
+  return pow(pow(a.x, n) + pow(a.y, n), 1.0 / n);
 }
 
-// A forma: uma esfera empurrada por ondas lentas em três direções — as
-// dobras do vidro líquido.
-float mapa(float3 p) {
-  float3 q = girar(p, t * 0.23, 0.35 * sin(t * 0.17));
-  float d = length(q) - 1.0;
-  d += 0.11 * sin(q.x * 1.9 + t * 0.9) * sin(q.y * 2.1 - t * 0.7) * sin(q.z * 1.7 + t * 0.8);
-  d += 0.08 * sin(q.x * 3.7 + q.y * 2.3 + t * 1.2) * sin(q.z * 3.1 - t * 1.05);
-  d += 0.04 * sin(q.y * 6.1 + t * 1.6) * sin(q.x * 5.3 - q.z * 4.1 + t * 0.7);
-  return d * 0.75;
+float2 girar(float2 p, float a) {
+  float c = cos(a); float s = sin(a);
+  return float2(c * p.x - s * p.y, s * p.x + c * p.y);
 }
 
-float3 normal(float3 p) {
-  float e = 0.003;
-  return normalize(
-    float3(1, -1, -1) * mapa(p + float3(1, -1, -1) * e) +
-    float3(-1, -1, 1) * mapa(p + float3(-1, -1, 1) * e) +
-    float3(-1, 1, -1) * mapa(p + float3(-1, 1, -1) * e) +
-    float3(1, 1, 1) * mapa(p + float3(1, 1, 1) * e));
-}
-
-// O estúdio que o vidro reflete: escuro embaixo, claro em cima, uma caixa
-// de luz branca grande no alto à esquerda e duas coloridas que giram
-// devagar — são elas que fazem as cores correrem pela superfície.
-float3 estudio(float3 r) {
-  float3 c = mix(float3(0.03, 0.035, 0.05), float3(0.55, 0.58, 0.66), smoothstep(-0.4, 0.9, r.y));
-  // a caixa de luz grande, no alto à esquerda
-  c += float3(1.0) * smoothstep(0.72, 0.86, dot(r, normalize(float3(-0.55, 0.75, 0.35)))) * 2.2;
-  // a luz de preenchimento, de frente: é o que o miolo do vidro reflete
-  c += float3(0.85, 0.9, 1.0) * smoothstep(0.8, 0.97, dot(r, normalize(float3(-0.25, 0.3, 1.0)))) * 0.9;
-  // faixas de luz verticais em volta: viram os veios cromados das dobras
-  float ang = atan(r.z, r.x);
-  float faixas = pow(0.5 + 0.5 * sin(ang * 5.0 + r.y * 2.0 + t * 0.25), 9.0) * smoothstep(-0.5, 0.3, r.y);
-  c += float3(0.95, 0.97, 1.0) * faixas * 1.9;
-  // as luzes coloridas que giram devagar: as cores que correm pela superfície
-  float a = t * 0.2;
-  float3 l2 = normalize(float3(cos(a), -0.1, sin(a)));
-  float3 l3 = normalize(float3(-sin(a * 1.3), 0.2, cos(a * 1.3)));
-  c += mix(ciano, azul, 0.25) * smoothstep(0.62, 0.9, dot(r, l2)) * 1.4;
-  c += mix(rosa, roxo, 0.45) * smoothstep(0.68, 0.92, dot(r, l3)) * 1.1;
-  c += lima * smoothstep(0.9, 0.99, dot(r, normalize(float3(0.8, 0.25, -0.5)))) * 0.8;
-  return c;
-}
-
-// A tinta: bolhas que andam dentro do vidro e se fundem.
-float tinta(float3 p) {
-  float3 q = girar(p, -t * 0.15, 0.0);
-  float s = 0.0;
-  for (int i = 0; i < 9; i++) {
-    float fi = float(i);
-    float3 c = 0.55 * float3(sin(t * (0.31 + 0.07 * fi) + fi * 1.9),
-                             sin(t * (0.27 + 0.05 * fi) + fi * 2.7),
-                             cos(t * (0.23 + 0.06 * fi) + fi * 1.3));
-    float r = 0.19 + 0.09 * sin(fi * 3.3);
-    float3 dd = q - c;
-    s += r * r / max(dot(dd, dd), 0.0001);
-  }
-  // e gotinhas pequenas, soltas, que andam mais depressa
-  float g = 0.0;
-  for (int j = 0; j < 5; j++) {
-    float fj = float(j);
-    float3 c = 0.62 * float3(sin(t * (0.5 + 0.09 * fj) + fj * 4.1), cos(t * (0.44 + 0.07 * fj) + fj * 2.2), sin(t * (0.38 + 0.1 * fj) + fj));
-    float3 dd = q - c;
-    g += 0.0036 / max(dot(dd, dd), 0.0001);
-  }
-  return max(smoothstep(0.75, 1.4, s), smoothstep(0.8, 1.2, g));
+// A borda de luz: os tons do app em ciclo.
+float3 tons(float h) {
+  h = fract(h) * 4.0;
+  float i = floor(h);
+  float f = smoothstep(0.0, 1.0, fract(h));
+  float3 a = ciano; float3 b = lima;
+  if (i >= 1.0) { a = lima; b = rosa; }
+  if (i >= 2.0) { a = rosa; b = roxo; }
+  if (i >= 3.0) { a = roxo; b = ciano; }
+  return mix(a, b, f);
 }
 
 half4 main(float2 pos) {
-  float2 uv = (pos - res * 0.5) / (min(res.x, res.y) * 0.5);
+  float px = 2.0 / min(res.x, res.y);
+  float2 uv = (pos - res * 0.5) * px;
   uv.y = -uv.y;
-  float3 ro = float3(0.0, 0.0, 3.4);
-  float3 rd = normalize(float3(uv * 1.08, -2.4));
 
-  // Procura a superfície.
-  float dist = 0.0;
-  bool bateu = false;
-  for (int i = 0; i < 56; i++) {
-    float3 p = ro + rd * dist;
-    float h = mapa(p);
-    if (h < 0.0015) { bateu = true; break; }
-    dist += h;
-    if (dist > 6.0) { break; }
-  }
-  if (!bateu) { return half4(0.0); }
+  // O ciclo, de 16 segundos: estrela, círculo, quadrado redondo, círculo,
+  // estrela — com pausas na estrela, que é a marca.
+  float c = fract(t / 16.0);
+  float n = 0.58;
+  n += 1.42 * smoothstep(0.1, 0.3, c);
+  n += 2.2 * smoothstep(0.35, 0.5, c);
+  n -= 2.2 * smoothstep(0.55, 0.7, c);
+  n -= 1.42 * smoothstep(0.75, 0.92, c);
+  float estrela = 1.0 - smoothstep(0.7, 1.3, n);
 
-  float3 p = ro + rd * dist;
-  float3 n = normal(p);
-  float cosi = clamp(dot(-rd, n), 0.0, 1.0);
-  float F = 0.1 + 0.9 * pow(1.0 - cosi, 2.6);
+  // Respira e gira devagar.
+  float R = 0.5 * (1.0 + 0.035 * sin(t * 1.3)) * mix(1.0, 0.88, smoothstep(1.0, 3.0, n));
+  float2 p = girar(uv, 0.18 * sin(t * 0.35) + t * 0.05) / R;
+  float f = forma(p, n);
+  float d = (f - 1.0) * R * mix(0.55, 1.0, smoothstep(0.58, 2.0, n));
 
-  // O reflexo.
-  float3 refl = estudio(reflect(rd, n));
+  float ang = atan(uv.y, uv.x);
 
-  // A refração: o raio entra no vidro e atravessa a tinta.
-  float3 rt = refract(rd, n, 1.0 / 1.4);
-  float3 acum = float3(0.0);
-  float opac = 0.0;
-  float3 q = p + rt * 0.02;
-  for (int k = 0; k < 18; k++) {
-    q += rt * 0.1;
-    if (mapa(q) > 0.0) { break; }
-    float dn = tinta(q);
-    // a tinta clareia onde recebe a luz de cima
-    float luz = 0.55 + 0.45 * clamp(q.y * 0.8 + 0.5, 0.0, 1.0);
-    float3 ct = azul * (1.0 + 0.9 * luz);
-    ct = mix(ct, ciano, smoothstep(0.3, 0.9, q.x * 0.6 + 0.5 * sin(t * 0.3)) * 0.4);
-    ct = mix(ct, roxo, smoothstep(0.4, 0.9, -q.y * 0.7 + 0.3) * 0.3);
-    float a = dn * 0.42 * (1.0 - opac);
-    acum += ct * luz * a;
-    opac += a;
-  }
+  // O corpo: o degradê da marca, do azul (embaixo, à esquerda) para a
+  // lima (em cima, à direita), com roxo passando e o miolo aceso.
+  float g = clamp(dot(uv / R, normalize(float2(1.0, 1.0))) * 0.45 + 0.5 + 0.12 * sin(t * 0.4), 0.0, 1.0);
+  float3 corpo = mix(azul, lima, smoothstep(0.35, 1.0, g));
+  corpo = mix(corpo, roxo, smoothstep(0.35, 0.0, g) * 0.6);
+  corpo = mix(corpo, float3(1.0), pow(clamp(1.0 - f, 0.0, 1.0), 2.2) * 0.55);
+  // A borda de luz, com a cor correndo em volta.
+  float aro = smoothstep(0.72, 0.99, f);
+  corpo = mix(corpo, tons(ang / 6.2831853 + t * 0.06), aro * 0.55);
+  float dentro = smoothstep(px, -px, d);
 
-  // O vidro quase não tinge; a luz que passa leva um pouco do estúdio.
-  float3 passa = estudio(rt) * 0.3;
-  float3 cor = refl * F + (acum + passa * (1.0 - opac)) * (1.0 - F);
-  float alfa = clamp(F * (0.35 + 0.65 * clamp(dot(refl, float3(0.33)), 0.0, 1.0)) + opac * (1.0 - F) + 0.14 * (1.0 - F) * (1.0 - opac), 0.0, 1.0);
-  // brilho especular forte
-  float esp = pow(clamp(dot(reflect(rd, n), normalize(float3(-0.55, 0.75, 0.35))), 0.0, 1.0), 80.0);
-  cor += float3(1.0) * esp * 1.2;
-  alfa = clamp(max(alfa, esp), 0.0, 1.0);
-  return half4(cor * alfa / max(alfa, 0.001) * alfa, alfa);
+  // O brilho em volta.
+  float fora = max(d, 0.0);
+  // o halo fica em volta da forma, e não escorre pelas pontas da estrela
+  float brilho = exp(-fora * 7.5) * 0.5 * (1.0 - dentro) * smoothstep(0.95, 0.35, length(uv));
+  float3 corBrilho = mix(azul, roxo, 0.5 + 0.5 * sin(ang + t * 0.4));
+
+  // As duas faíscas pequenas do cacho, só enquanto é estrela.
+  float faisca = 0.0;
+  float3 corFaisca = lima;
+  float2 f1 = (uv - float2(0.66, 0.6)) / (0.19 * (1.0 + 0.1 * sin(t * 1.7)));
+  float2 f2 = (uv - float2(0.8, -0.02)) / (0.12 * (1.0 + 0.1 * sin(t * 2.1 + 1.0)));
+  float s1 = smoothstep(px * 6.0, -px * 6.0, forma(f1, 0.58) - 1.0);
+  float s2 = smoothstep(px * 8.0, -px * 8.0, forma(f2, 0.58) - 1.0);
+  faisca = max(s1 * 0.9, s2 * 0.75) * estrela;
+  // o mesmo degradê da marca nas faíscas, e um brilho baixo em volta delas
+  corFaisca = mix(mix(azul, lima, 0.75), float3(1.0), 0.2);
+  corFaisca = mix(corFaisca, mix(azul, lima, 0.4), s2 * (1.0 - s1));
+  float halo = (exp(-length(f1 * 0.19) * 14.0) * 0.35 + exp(-length(f2 * 0.12) * 18.0) * 0.25) * estrela;
+  brilho += halo * (1.0 - dentro) * (1.0 - faisca);
+
+  float3 cor = corBrilho * brilho + corpo * dentro + corFaisca * faisca * (1.0 - dentro);
+  float alfa = clamp(brilho + dentro + faisca * (1.0 - dentro), 0.0, 1.0);
+  return half4(cor, alfa);
 }
 `;
 
-/** A fração da resolução em que a cena é calculada — ver o alto do arquivo. */
-const ESCALA = 0.6;
+/** A fração da resolução em que o desenho é calculado. A estrela é leve e
+    vai inteira; a gota 3D, que pesava, ia a 0,6. */
+const ESCALA = 1;
 
 const rgb = (hex: string): [number, number, number] => {
   const h = hex.replace('#', '');
@@ -211,7 +167,7 @@ export default function OrbeSkia({ tamanho, azul, fundo, ciano, lima, roxo, rosa
   }), [azul, fundo, ciano, lima, roxo, rosa]);
   const uniforms = useDerivedValue(() => ({
     res: [Math.round(tamanho * ESCALA), Math.round(tamanho * ESCALA)],
-    t: parado ? 6.0 : relogio.value / 1000,
+    t: parado ? 0.5 : relogio.value / 1000,
     ...cores,
   }), [tamanho, parado, cores]);
 

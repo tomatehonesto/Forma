@@ -467,8 +467,8 @@ export default function Companion() {
                saudação e a memória vêm logo abaixo dela. As perguntas
                prontas moram lá embaixo, em cima do campo. */
             <View style={{ alignItems: 'center', paddingTop: 16 }}>
-              {/* A gota (ui/orbe): a presença da Morphi Intelligence na conversa
-                  vazia, nos tons do app, respirando devagar. */}
+              {/* A estrela viva (ui/orbe): a marca da Morphi Intelligence na
+                  conversa vazia, respirando e mudando de forma devagar. */}
               <View style={{ marginBottom: 6 }}><Orbe tamanho={150} azul={c.accent} fundo={c.panelTo} ciano={c.teal} lima={c.lime} roxo={c.purple} rosa={c.rose} /></View>
               <Txt v="display" style={{ fontSize: 26, lineHeight: 33, textAlign: 'center' }}>
                 {K().ola(S.profile.name.split(' ')[0])}
