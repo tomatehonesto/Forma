@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { View, Pressable, ScrollView, TextInput, KeyboardAvoidingView, Keyboard, Platform, StyleSheet, Share, useWindowDimensions } from 'react-native';
+import { View, Pressable, ScrollView, TextInput, KeyboardAvoidingView, Keyboard, Platform, StyleSheet, Share, Animated, Easing, useWindowDimensions } from 'react-native';
 import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import * as Clipboard from 'expo-clipboard';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -177,10 +177,22 @@ export default function Companion() {
      os cards de pergunta tomam a metade de baixo, e a saudação, com o
      orbe do tamanho cheio, sumia para cima da rolagem. Com o teclado, o
      orbe fica pequeno e a saudação sobe — e ela continua à vista. */
-  const [teclado, setTeclado] = useState(false);
+  /* ⚠️ E ENCOLHE COM MOVIMENTO, no tempo do próprio teclado (30/09/2026).
+     Trocar o tamanho de uma vez dava um pulo; agora um valor animado leva
+     a altura do lugar e a escala do orbe juntas, com a duração e a curva
+     que o sistema dá para o teclado (no Android, que não dá, 250 ms). */
+  const encolhe = useRef(new Animated.Value(0)).current;
   useEffect(() => {
-    const sobe = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', () => setTeclado(true));
-    const desce = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide', () => setTeclado(false));
+    const anima = (para: number) => (e?: { duration?: number }) => {
+      Animated.timing(encolhe, {
+        toValue: para,
+        duration: e?.duration || 250,
+        easing: Easing.bezier(0.17, 0.59, 0.4, 0.77),
+        useNativeDriver: false,
+      }).start();
+    };
+    const sobe = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', anima(1));
+    const desce = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide', anima(0));
     return () => { sobe.remove(); desce.remove(); };
   }, []);
   /* A resposta enquanto chega: o texto parcial, que cresce a cada trecho
@@ -476,11 +488,20 @@ export default function Companion() {
             /* A abertura fica no alto: a estrela diz com quem se fala, e a
                saudação e a memória vêm logo abaixo dela. As perguntas
                prontas moram lá embaixo, em cima do campo. */
-            <View style={{ alignItems: 'center', paddingTop: teclado ? 0 : 16 }}>
+            <Animated.View style={{ alignItems: 'center', paddingTop: encolhe.interpolate({ inputRange: [0, 1], outputRange: [16, 0] }) }}>
               {/* O orbe (ui/orbe): uma esfera de pontos que gira e se deforma
                   devagar, e a cada 8 s vira um objeto — o M, a seringa, o
                   copo, a anilha. */}
-              <View style={{ marginBottom: teclado ? 2 : 6 }}><Orbe tamanho={teclado ? 84 : 160} claro={!isDark} acao={c.accent} acao2={c.accent2} alcancado={c.lime} ciano={c.teal} /></View>
+              {/* o lugar encolhe de 160 para 84, e o orbe, desenhado sempre
+                  em 160, encolhe junto pela escala — sem redesenhar */}
+              <Animated.View style={{
+                width: 160, alignItems: 'center', justifyContent: 'center', overflow: 'visible',
+                height: encolhe.interpolate({ inputRange: [0, 1], outputRange: [166, 86] }),
+              }}>
+                <Animated.View style={{ transform: [{ scale: encolhe.interpolate({ inputRange: [0, 1], outputRange: [1, 84 / 160] }) }] }}>
+                  <Orbe tamanho={160} claro={!isDark} acao={c.accent} acao2={c.accent2} alcancado={c.lime} ciano={c.teal} />
+                </Animated.View>
+              </Animated.View>
               <Txt v="display" style={{ fontSize: 26, lineHeight: 33, textAlign: 'center', fontFamily: font.bold }}>
                 {K().ola(S.profile.name.split(' ')[0])}
               </Txt>
@@ -503,7 +524,7 @@ export default function Companion() {
                   folha por cima (app/aceite-ia), e uma sugestão tocada
                   atrás dela não teria para onde ir. */}
 
-            </View>
+            </Animated.View>
           ) : null}
 
           {/* ⚠️ O RESPIRO É DA MENSAGEM, E NÃO DA ROLAGEM (30/09/2026). Um gap

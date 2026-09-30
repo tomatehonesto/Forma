@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { AccessibilityInfo } from 'react-native';
 import {
-  AlphaType, Canvas, ColorType, Fill, ImageShader, PaintStyle, Shader, Skia, StrokeCap, StrokeJoin, useClock,
+  AlphaType, Canvas, ColorType, Fill, ImageShader, Shader, Skia, useClock,
   type SkCanvas, type SkImage, type SkPaint,
 } from '@shopify/react-native-skia';
 import { useDerivedValue } from 'react-native-reanimated';
@@ -9,43 +9,48 @@ import { D_SIMBOLO } from '../marcaCaminhos';
 import { distanciaComSinal, codificar } from './distancia';
 
 /* ============================================================
-   O ORBE DA MORPHI INTELLIGENCE — a esfera de pontos que vira coisas
+   O ORBE DA MORPHI INTELLIGENCE — a esfera de pontos que vira a marca
 
    A presença da Morphi Intelligence no alto da conversa vazia: uma
    esfera coberta de pontos, como meio-tom, que gira devagar e se deforma
-   como um tecido. A cada 8 segundos ela SE TRANSFORMA num objeto — o M da
-   Morphi, uma seringa, um copo d'água, uma anilha —, fica de frente por
-   uns segundos, e volta a ser esfera.
+   como um tecido. Num ciclo de 16 segundos, depois de uns 9 de esfera
+   livre, ela SE TRANSFORMA na marca — alternando o M da Morphi e a
+   estrela da Morphi Intelligence —, fica uns 3 s na forma e volta.
 
    ⚠️ A HISTÓRIA, PARA NINGUÉM REFAZER O CAMINHO (30/09/2026). Passou por
-   esfera de pontos em 2D, bolha iridescente, vidro com tinta (2D e 3D),
-   estrela 2D, estrela com relevo, a marca em pontos, a esfera de pontos,
-   e a esfera com o desenho aceso DENTRO dela. O dono queria que a forma
-   virasse os itens — é esta.
+   esfera 2D, bolha, vidro com tinta (2D e 3D), estrela 2D e com relevo,
+   marca em pontos, esfera de pontos com desenho dentro, e esfera que
+   virava M, seringa, copo e anilha. O dono ficou com a marca só: o M e a
+   estrela — seringa e copo liam como ícones de outro app.
 
-   COMO É FEITA:
-   - a esfera é 3D (raymarching), com ondas largas e dobras de tecido;
-   - cada objeto é o desenho com espessura, como uma peça recortada: o M
-     é o caminho oficial (ui/marcaCaminhos), a seringa e o copo são os
-     ícones do app (Lucide); a anilha é um disco com furo, feito aqui;
-   - para uma forma derreter na outra, o shader usa a distância até a
-     borda de cada desenho (ui/orbe/distancia), calculada uma vez, quando
-     o orbe aparece, e guardada numa textura, um desenho por canal;
-   - na forma, a peça para de girar e fica de frente, para ler; os pontos
-     se alinham numa grade reta; o copo acende a água, e a anilha, a borda
-     e o miolo.
+   A TRANSFORMAÇÃO, que era só "encolher para a forma":
+   - a curva é suave nas duas pontas (smootherstep);
+   - no meio do caminho a superfície se agita e encolhe um pouco, como
+     esforço;
+   - a peça chega GIRANDO rápido e desacelera até ficar de frente, e vai
+     embora girando de novo — o giro dá a sensação de aceleração e
+     esconde a mistura das formas;
+   - parada, ela balança num ângulo largo, para mostrar que tem volume.
+
+   ⚠️ UMA GRADE DE PONTOS SÓ, NA TRANSFORMAÇÃO. Duas grades misturadas (a
+   da esfera e uma reta na peça) faziam ondas (moiré). A grade é a da
+   esfera, num referencial que passa da rotação da esfera para a da peça;
+   só no fim da chegada, com a peça plana e quase parada, ela vira reta —
+   na face plana, a grade da esfera faria olho-de-peixe.
+
+   COMO É FEITA: raymarching; a peça é o desenho com espessura. O M é o
+   caminho oficial (ui/marcaCaminhos), transformado em distância até a
+   borda (ui/orbe/distancia) numa textura; a estrela é a faísca do logo
+   (ui/marca), calculada no shader.
 
    AS CORES: a cor que age e a do alcançado mudam com a aparência (ver
-   comPaleta em src/theme); o ciano entra como o terceiro tom, entre os
-   dois, para não ficar monótono. No escuro: azul, ciano e lima, e os
-   pontos acesos clareiam. No claro: o azul fundo, um verde-água e um
-   lima escurecido junto do ciano — a lima pura vira oliva no branco.
+   comPaleta em src/theme); o ciano é o terceiro tom, entre as duas. No
+   claro, verde-água e lima escurecida junto do ciano.
 
    ⚠️ COM "REDUZIR MOVIMENTO" LIGADO NO APARELHO, ELA PARA, COMO ESFERA.
 
    Para conferir sem abrir o aplicativo: o shader e a textura saem iguais
-   no CanvasKit do Node, a mesma engine do Skia — foi assim que cada
-   versão foi vista, nos dois temas.
+   no CanvasKit do Node, a mesma engine do Skia.
    ============================================================ */
 
 const FONTE = `
@@ -68,56 +73,91 @@ float3 girar(float3 p, float a, float b) {
   return float3(p.x, cb * p.y - sb * p.z, sb * p.y + cb * p.z);
 }
 
-// A linha do tempo: a cada 8 s um desenho — 2,5 s de esfera, a forma
-// chegando, 3 s de forma, a forma indo. Devolve (qual, quanto).
+// A linha do tempo: um ciclo de 16 s — 9 s de esfera livre, a forma
+// chegando (1,6 s), 3,2 s de forma, a forma indo (1,6 s). Alterna entre o
+// M da Morphi e a estrela da Morphi Intelligence.
+const float CICLO = 16.0;
+float suave(float x) { x = clamp(x, 0.0, 1.0); return x * x * x * (x * (x * 6.0 - 15.0) + 10.0); }
+float chegada(float f) { return clamp((f - 9.0) / 1.6, 0.0, 1.0); }
+float saida(float f) { return clamp((f - 13.8) / 1.6, 0.0, 1.0); }
+
+// (qual, quanto): qual 0 é o M, 1 a estrela; quanto vai de 0 (esfera) a 1.
 float2 vez(float t) {
-  float ciclo = t / 8.0;
-  float qual = mod(floor(ciclo), 4.0);
-  float f = fract(ciclo) * 8.0;
-  float w = smoothstep(2.5, 3.8, f) * (1.0 - smoothstep(6.8, 8.0, f));
-  return float2(qual, w);
+  float qual = mod(floor(t / CICLO), 2.0);
+  float f = mod(t, CICLO);
+  return float2(qual, suave(chegada(f)) * (1.0 - suave(saida(f))));
 }
 
-// A distância até a borda do desenho, no plano: a textura guarda a
-// distância com sinal (0,5 na borda), um desenho por canal.
+// A agitação da transformação: no meio do caminho a superfície se agita e
+// encolhe um pouco — é o "esforço" de virar outra coisa.
+float agito(float w) { return 4.0 * w * (1.0 - w); }
+
+// O giro da peça: ela chega girando rápido e desacelera até ficar de
+// frente; parada, balança o bastante para mostrar que tem volume; e vai
+// embora girando de novo.
+float giroDaPeca(float t) {
+  float f = mod(t, CICLO);
+  float c = chegada(f);
+  float s = saida(f);
+  float entra = 6.2831853 * pow(1.0 - c, 2.2);
+  float sai = 6.2831853 * pow(s, 2.2);
+  return entra + sai + 0.45 * sin(t * 0.9);
+}
+
+// A estrela da Morphi Intelligence: a faísca do logo (ui/marca) — quatro
+// pontas, lados retos, pontas redondas.
+float estrela(float2 p) {
+  p /= 0.95;
+  float an = 3.1415927 / 4.0;
+  float en = 3.1415927 / 3.0;
+  float2 acs = float2(cos(an), sin(an));
+  float2 ecs = float2(cos(en), sin(en));
+  float bn = mod(atan(p.x, p.y), 2.0 * an) - an;
+  p = length(p) * float2(cos(bn), abs(sin(bn)));
+  float r = 0.89;
+  p -= r * acs;
+  p += ecs * clamp(-dot(p, ecs), 0.0, r * acs.y / ecs.y);
+  return (length(p) * sign(p.x) - 0.11) * 0.95;
+}
+
+// A distância até a borda do desenho, no plano: o M vem da textura (a
+// distância com sinal, 0,5 na borda); a estrela é calculada aqui.
 float plano(float2 xy, float qual) {
-  if (qual > 2.5) {
-    // a anilha: um disco com o furo
-    float r = length(xy);
-    return max(r - 0.74, 0.17 - r);
-  }
+  if (qual > 0.5) { return estrela(xy); }
   float2 m = float2(xy.x / MUNDO * 0.5 + 0.5, 0.5 - xy.y / MUNDO * 0.5) * tamMascara;
-  float4 c = campos.eval(m);
-  float v = qual < 0.5 ? c.r : (qual < 1.5 ? c.g : c.b);
+  float v = campos.eval(m).r;
   return (0.5 - v) * 2.0 * 20.0 * (2.0 * MUNDO / tamMascara.x);
 }
 
 // A forma do desenho em 3D: o contorno com espessura, cantos redondos.
 float peca(float3 p, float qual) {
-  float esp = qual < 0.5 ? 0.2 : (qual < 1.5 ? 0.13 : (qual < 2.5 ? 0.18 : 0.15));
+  float esp = qual < 0.5 ? 0.2 : 0.17;
   float d2 = plano(p.xy, qual);
   float2 w = float2(d2, abs(p.z) - esp);
   return min(max(w.x, w.y), 0.0) + length(max(w, 0.0)) - 0.05;
 }
 
-float esfera(float3 q) {
-  float d = length(q) - 1.0;
-  d += 0.07 * sin(q.x * 2.1 + t * 0.7) * sin(q.y * 1.8 - t * 0.5) * sin(q.z * 2.3 + t * 0.6);
+float esfera(float3 q, float ag) {
+  float d = length(q) - (1.0 - 0.08 * ag);
+  float k = 1.0 + 1.6 * ag;
+  d += 0.07 * k * sin(q.x * 2.1 + t * 0.7) * sin(q.y * 1.8 - t * 0.5) * sin(q.z * 2.3 + t * 0.6);
   float onda1 = q.y * 2.4 + 1.3 * sin(q.x * 1.7 + t * 0.5) + t * 0.6;
   float onda2 = q.x * 2.2 - q.z * 1.1 + 1.1 * sin(q.y * 1.9 - t * 0.4) - t * 0.5;
-  d -= 0.085 * pow(abs(sin(onda1)), 4.0);
-  d -= 0.07 * pow(abs(sin(onda2)), 4.0);
+  d -= 0.085 * k * pow(abs(sin(onda1)), 4.0);
+  d -= 0.07 * k * pow(abs(sin(onda2)), 4.0);
   return d;
 }
 
-// A esfera gira; a peça fica de frente, com um balanço leve.
 float3 giroEsfera(float3 p) { return girar(p, t * 0.18, 0.3 * sin(t * 0.13)); }
-float3 giroPeca(float3 p) { return girar(p, 0.28 * sin(t * 0.6), 0.12 * sin(t * 0.45)); }
+float3 giroPeca(float3 p) { return girar(p, giroDaPeca(t), 0.12 * sin(t * 0.45)); }
 
 float mapa(float3 p, float2 vz) {
-  float de = esfera(giroEsfera(p));
+  float ag = agito(vz.y);
+  float de = esfera(giroEsfera(p), ag);
   if (vz.y <= 0.001) { return de * 0.5; }
-  float dp = peca(giroPeca(p), vz.x);
+  float3 pp = giroPeca(p);
+  // a peça também treme no meio do caminho
+  float dp = peca(pp, vz.x) + 0.04 * ag * sin(pp.x * 6.0 + t * 3.0) * sin(pp.y * 5.0 - t * 2.5);
   return mix(de, dp, vz.y) * 0.5;
 }
 
@@ -158,23 +198,29 @@ half4 main(float2 pos) {
   // Os pontos: na esfera, a grade de latitude e longitude; na peça, uma
   // grade reta no plano da frente — é o que faz o desenho ler limpo. No
   // meio da transformação, uma se funde na outra.
+  // UMA GRADE SÓ, num referencial que passa da rotação da esfera para a
+  // da peça junto com a forma. Duas grades misturadas (a da esfera e uma
+  // reta na peça) faziam ondas (moiré) no meio da transformação.
   float N = 105.0;
   float3 q = giroEsfera(p);
+  float3 pp = giroPeca(p);
+  float3 g = girar(p, mix(t * 0.18, giroDaPeca(t), vz.y), mix(0.3 * sin(t * 0.13), 0.12 * sin(t * 0.45), vz.y));
   float3 dir = normalize(q);
-  float lat = asin(clamp(dir.y, -1.0, 1.0));
+  float3 dg = normalize(g);
+  float lat = asin(clamp(dg.y, -1.0, 1.0));
   float fila = floor((lat / 3.1415927 + 0.5) * N);
   float latC = (fila + 0.5) / N * 3.1415927 - 1.5707963;
   float cols = max(1.0, floor(2.0 * N * cos(latC)));
-  float lon = atan(dir.z, dir.x) / 6.2831853 + 0.5;
-  float dEsf = length(float2(fract(lon * cols) - 0.5, fract((lat / 3.1415927 + 0.5) * N) - 0.5));
-  float3 pp = giroPeca(p);
+  float lon = atan(dg.z, dg.x) / 6.2831853 + 0.5;
+  float dd = length(float2(fract(lon * cols) - 0.5, fract((lat / 3.1415927 + 0.5) * N) - 0.5));
+  // Com a peça já formada e de frente, a grade vira reta no plano dela —
+  // na face plana, a grade da esfera faria olho-de-peixe. A troca é só no
+  // fim da chegada, quando a peça já está plana e quase parada.
   float passo = 3.1415927 / N;
-  float2 gp = pp.xy / passo;
-  // nas laterais da peça a grade corre em z, para não virar risco
   float lado = smoothstep(0.55, 0.85, abs(n.z));
-  float2 gl = float2(pp.x + pp.y, pp.z) / passo;
-  float dPlano = length(fract(mix(gl, gp, lado)) - 0.5);
-  float dd = mix(dEsf, dPlano, smoothstep(0.35, 0.65, vz.y));
+  float2 gPlano = mix(float2(pp.x + pp.y, pp.z), pp.xy, lado) / passo;
+  float dPlano = length(fract(gPlano) - 0.5);
+  float kReta = smoothstep(0.86, 0.98, vz.y);
 
   // A luz: borda e cristas na esfera; na peça, a face acesa por inteiro e
   // os cantos mais ainda.
@@ -188,12 +234,10 @@ half4 main(float2 pos) {
   // detalhes de luz de cada peça: a água do copo e a borda e o miolo da
   // anilha acendem mais
   float extra = 0.0;
-  if (vz.x > 1.5 && vz.x < 2.5) { extra = smoothstep(0.02, -0.04, pp.y + 0.05 + 0.03 * sin(pp.x * 9.0 + t * 2.0)) * 0.35; }
-  if (vz.x > 2.5) { float rr = length(pp.xy); extra = (smoothstep(0.07, 0.02, abs(rr - 0.66)) + smoothstep(0.05, 0.015, abs(rr - 0.25))) * 0.4; }
   I = mix(I, clamp(0.5 + 0.45 * borda + 0.2 * luz + extra, 0.0, 1.0), smoothstep(0.4, 0.9, vz.y));
 
   float raio = mix(claro < 0.5 ? 0.12 : 0.2, 0.44, I);
-  float ponto = smoothstep(raio + 0.12, raio - 0.12, dd);
+  float ponto = mix(smoothstep(raio + 0.12, raio - 0.12, dd), smoothstep(raio + 0.12, raio - 0.12, dPlano), kReta);
 
   // A cor: a cor que age, o ciano e o alcançado, em faixas diagonais que
   // correm devagar — três tons, e dois deles mudam com a aparência.
@@ -224,12 +268,8 @@ half4 main(float2 pos) {
 }
 `;
 
-/** O lado da textura dos desenhos, em pixels. */
+/** O lado da textura do M, em pixels. */
 const M = 128;
-
-/* Os ícones do app (Lucide, viewBox 24, em traço). */
-const SERINGA = ['m18 2 4 4', 'm17 7 3-3', 'M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.5 0-3.4L15 5', 'm9 11 4 4', 'm5 19-3 3', 'm14 4 6 6'];
-const COPO = 'M5.116 4.104A1 1 0 0 1 6.11 3h11.78a1 1 0 0 1 .994 1.105L17.19 20.21A2 2 0 0 1 15.2 22H8.8a2 2 0 0 1-2-1.79z';
 
 /* Um desenho numa máscara (1 dentro, 0 fora), e a distância até a borda. */
 function campo(desenha: (cv: SkCanvas, p: SkPaint) => void): Float32Array | null {
@@ -251,32 +291,18 @@ function campo(desenha: (cv: SkCanvas, p: SkPaint) => void): Float32Array | null
   return distanciaComSinal(dentro, M, M);
 }
 
-function texturaDosCampos(): SkImage | null {
-  const s24 = (M * 0.62) / 24;
-  const s24s = (M * 0.72) / 24;
+/* A textura do M: a distância até a borda, no canal vermelho. */
+function texturaDoM(): SkImage | null {
   const m = campo((cv, p) => {
     const pth = Skia.Path.MakeFromSVGString(D_SIMBOLO);
     if (!pth) return;
     const s = (M * 0.74) / 533;
     cv.save(); cv.translate(M / 2 - 266.5 * s, M / 2 - 111 * s); cv.scale(s, s); cv.drawPath(pth, p); cv.restore();
   });
-  const seringa = campo((cv, p) => {
-    p.setStyle(PaintStyle.Stroke); p.setStrokeWidth(2.2); p.setStrokeCap(StrokeCap.Round); p.setStrokeJoin(StrokeJoin.Round);
-    cv.save(); cv.translate(M / 2 - 12 * s24s, M / 2 - 12 * s24s); cv.scale(s24s, s24s);
-    for (const d of SERINGA) { const pth = Skia.Path.MakeFromSVGString(d); if (pth) cv.drawPath(pth, p); }
-    cv.restore();
-  });
-  const copo = campo((cv, p) => {
-    const pth = Skia.Path.MakeFromSVGString(COPO);
-    if (!pth) return;
-    cv.save(); cv.translate(M / 2 - 12 * s24, M / 2 - 12 * s24); cv.scale(s24, s24); cv.drawPath(pth, p); cv.restore();
-  });
-  if (!m || !seringa || !copo) return null;
+  if (!m) return null;
   const bytes = new Uint8Array(M * M * 4);
   for (let i = 0; i < M * M; i++) {
     bytes[i * 4] = codificar(m[i]);
-    bytes[i * 4 + 1] = codificar(seringa[i]);
-    bytes[i * 4 + 2] = codificar(copo[i]);
     bytes[i * 4 + 3] = 255;
   }
   return Skia.Image.MakeImage(
@@ -305,7 +331,7 @@ export type PropsDoOrbe = {
 
 export default function OrbeSkia({ tamanho, claro, acao, acao2, alcancado, ciano }: PropsDoOrbe) {
   const efeito = useMemo(() => Skia.RuntimeEffect.Make(FONTE), []);
-  const textura = useMemo(() => texturaDosCampos(), []);
+  const textura = useMemo(() => texturaDoM(), []);
   const relogio = useClock();
   const [parado, setParado] = useState(false);
 
