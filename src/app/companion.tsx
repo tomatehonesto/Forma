@@ -17,6 +17,7 @@ import { Txt, Row, CircleBtn, RichDoc, Rolagem } from '../ui/kit';
 import { EstrelaIA } from '../ui/marca';
 import { startOfDay, fmtDate, fmtTime, DAY } from '../logic/time';
 import { GavetaDeConversas } from '../ui/gavetaDeConversas';
+import { Orbe } from '../ui/orbe';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { useDitado, estadoDoDitado } from '../ui/useDitado';
@@ -466,7 +467,9 @@ export default function Companion() {
                saudação e a memória vêm logo abaixo dela. As perguntas
                prontas moram lá embaixo, em cima do campo. */
             <View style={{ alignItems: 'center', paddingTop: 16 }}>
-              <View style={{ marginBottom: 16 }}><EstrelaIA size={40} /></View>
+              {/* O orbe (ui/orbe): a presença da Morphi Intelligence na conversa
+                  vazia, nas cores do app, girando devagar. */}
+              <View style={{ marginBottom: 6 }}><Orbe tamanho={150} miolo={c.accent} crista={c.lime} brilho={c.accent2} /></View>
               <Txt v="display" style={{ fontSize: 26, lineHeight: 33, textAlign: 'center' }}>
                 {K().ola(S.profile.name.split(' ')[0])}
               </Txt>
@@ -647,7 +650,7 @@ export default function Companion() {
             prometeria uma resposta que não vem. A pergunta que chega pelo
             endereço (do Insights) espera o aceite em `pendente`. */}
         {aceitou ? (
-        <View style={{ paddingHorizontal: PAD, paddingTop: 10, paddingBottom: (insets.bottom || 10) + 10, backgroundColor: c.bg }}>
+        <View style={{ paddingHorizontal: PAD, paddingTop: 10, paddingBottom: (insets.bottom || 10) + 10, backgroundColor: vazio ? 'transparent' : c.bg }}>
           {/* ⚠️ AS SUGESTÕES SÃO CARDS, LADO A LADO (30/09/2026). A lista
                    de quatro linhas iguais lia como menu; o card diz o ASSUNTO
                    antes da pergunta — apetite, sintomas, exames —, e a pessoa
@@ -681,7 +684,7 @@ export default function Companion() {
                           <Icon name={a.ic} size={13} color={c.accent} sw={2} />
                           <Txt v="micro" c={c.accent} style={{ letterSpacing: 0.5, textTransform: 'uppercase', fontFamily: font.bodySemi }}>{a.rotulo}</Txt>
                         </Row>
-                        <Txt v="bodyMed" style={{ marginTop: 10, lineHeight: 22, fontFamily: font.bodySemi }}>{s}</Txt>
+                        <Txt v="body" style={{ marginTop: 10, lineHeight: 22 }}>{s}</Txt>
                         <View style={{ flex: 1, minHeight: 10 }} />
                         <View style={{ alignSelf: 'flex-end', width: 28, height: 28, borderRadius: 14, backgroundColor: c.bg2, alignItems: 'center', justifyContent: 'center' }}>
                           <Icon name="abrir" size={14} color={c.tx2} sw={2.2} />
