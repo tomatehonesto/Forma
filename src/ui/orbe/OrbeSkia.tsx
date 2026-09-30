@@ -11,12 +11,16 @@ import { useDerivedValue } from 'react-native-reanimated';
    combinasse mais com o aplicativo (30/09/2026): virou uma GOTA, que é o
    vidro dos cards do Insights, a água, o remédio — e que respira.
 
-   O que se vê:
-   - a borda ondula devagar, e a gota muda de forma sem perder o corpo;
-   - a borda é iridescente, como bolha de sabão, passando pelos tons que
-     o aplicativo já usa: azul, ciano, lima, rosa e roxo;
-   - o miolo é fundo, com uma tinta azul que se move por dentro;
-   - dois reflexos de luz no alto, e um brilho baixo em volta.
+   A primeira gota tinha o miolo escuro e opaco, e no tema claro ficava
+   uma mancha. Agora é como a referência do dono: um VIDRO TRANSPARENTE
+   com TINTA dentro.
+   - o vidro quase não tem cor: aparece na borda, cromado, com as dobras
+     da superfície e dois reflexos de luz; o fundo da tela passa por ele;
+   - dentro, gotas de tinta andam, se juntam e se separam (metaballs),
+     com uma nuvem de tinta que passeia — no azul do app, com toques de
+     ciano e lima;
+   - a refração: o que está dentro aparece deslocado pelas dobras;
+   - um contorno fino segura a gota no tema claro.
 
    ⚠️ É UM SHADER. Cada pixel se calcula na placa de vídeo, a cada
    quadro; o mesmo efeito em camadas animadas travaria o JavaScript.
@@ -66,19 +70,26 @@ float fbm(float3 p) {
   return v;
 }
 
-// A iridescência: os tons do aplicativo em ciclo — azul, ciano, lima,
-// rosa, roxo, e de volta ao azul.
-float3 iris(float h) {
-  h = fract(h) * 5.0;
-  float i = floor(h);
-  float f = smoothstep(0.0, 1.0, fract(h));
-  float3 a = azul;
-  float3 b = ciano;
-  if (i >= 1.0) { a = ciano; b = lima; }
-  if (i >= 2.0) { a = lima; b = rosa; }
-  if (i >= 3.0) { a = rosa; b = roxo; }
-  if (i >= 4.0) { a = roxo; b = azul; }
-  return mix(a, b, f);
+// A tinta: gotas que andam por dentro, se juntam e se separam (metaballs),
+// mais uma nuvem de tinta que passeia. Devolve a densidade e qual tom.
+float2 tinta(float2 p, float t) {
+  float campo = 0.0;
+  float tom = 0.0;
+  for (int i = 0; i < 18; i++) {
+    float fi = float(i);
+    float a1 = 0.35 + 0.25 * fract(sin(fi * 12.99) * 437.5);
+    float a2 = 0.3 + 0.25 * fract(sin(fi * 78.23) * 921.3);
+    float ph = fi * 1.7;
+    float2 c = float2(sin(t * a1 + ph), cos(t * a2 + ph * 1.3)) * (0.15 + 0.42 * fract(sin(fi * 3.1) * 91.7));
+    float r = 0.035 + 0.085 * fract(sin(fi * 5.7) * 311.1);
+    float2 dd = p - c;
+    float cont = r * r / max(dot(dd, dd), 0.0001);
+    campo += cont;
+    tom += cont * fract(fi * 0.37);
+  }
+  float nuvem = fbm(float3(p * 2.2 + float2(sin(t * 0.21), cos(t * 0.17)) * 0.6, t * 0.15));
+  campo += smoothstep(0.44, 0.7, nuvem) * 1.4;
+  return float2(campo, tom / max(campo, 0.0001));
 }
 
 half4 main(float2 pos) {
@@ -86,53 +97,53 @@ half4 main(float2 pos) {
   float ang = atan(uv.y, uv.x);
   float d = length(uv);
 
-  // A forma: um círculo que respira e se deforma devagar.
-  float3 pa = float3(cos(ang) * 1.2, sin(ang) * 1.2, t * 0.22);
-  float R = 0.7 + 0.1 * (fbm(pa) - 0.45) + 0.015 * sin(t * 0.8);
+  // A forma: um vidro que respira e se deforma devagar.
+  float3 pa = float3(cos(ang) * 1.3, sin(ang) * 1.3, t * 0.2);
+  float R = 0.74 + 0.12 * (fbm(pa) - 0.45);
   float rr = d / R;
+  if (rr >= 1.0) { return half4(0.0); }
 
-  // Fora da gota: só o brilho baixo em volta, nos mesmos tons da borda.
-  if (rr >= 1.0) {
-    float g = exp(-(rr - 1.0) * 6.0);
-    float3 cg = iris(ang / 6.2831853 + t * 0.03);
-    float ag = g * 0.4;
-    return half4(cg * ag, ag);
-  }
-
-  // A superfície: a normal de uma esfera, sacudida por um ruído lento —
-  // é o que dá o ar de líquido.
+  // A superfície de vidro, com as dobras.
   float z = sqrt(1.0 - rr * rr);
   float3 n = normalize(float3(uv / R, z));
-  float3 np = n * 1.7 + float3(0.0, 0.0, t * 0.18);
-  n = normalize(n + 0.45 * float3(fbm(np) - 0.5, fbm(np + 4.7) - 0.5, 0.0));
+  float3 np = n * 1.6 + float3(0.0, 0.0, t * 0.16);
+  n = normalize(n + 0.55 * float3(fbm(np) - 0.5, fbm(np + 4.7) - 0.5, 0.0));
+  float fres = pow(1.0 - clamp(n.z, 0.0, 1.0), 1.8);
 
-  float fres = pow(1.0 - clamp(n.z, 0.0, 1.0), 1.5);
+  // A tinta vista através do vidro: a refração desloca o que está dentro.
+  float2 dentro = uv / R - n.xy * 0.22;
+  float2 tt = tinta(dentro, t * 0.8);
+  float dens = smoothstep(0.85, 1.2, tt.x) * smoothstep(1.0, 0.82, rr);
+  // O volume: a gota de tinta é funda na borda e clara no meio, com um
+  // ponto de luz onde ela é mais densa.
+  float3 corTinta = mix(fundo, azul, 0.45);
+  corTinta = mix(corTinta, azul, smoothstep(1.05, 2.0, tt.x));
+  corTinta = mix(corTinta, ciano, smoothstep(0.62, 0.9, tt.y) * 0.45);
+  corTinta = mix(corTinta, lima, smoothstep(0.93, 0.99, tt.y) * 0.22);
+  corTinta = mix(corTinta, float3(1.0), smoothstep(3.0, 6.5, tt.x) * 0.3);
 
-  // O miolo: vidro escuro, com uma tinta azul que passeia por dentro e
-  // redemoinhos nos tons do aplicativo, como tinta na água.
-  float tinta = fbm(float3(uv * 1.7 + float2(sin(t * 0.13), cos(t * 0.11)), t * 0.12));
-  float veio = fbm(float3(uv * 2.6 + float2(cos(t * 0.09), sin(t * 0.1)) * 1.3, t * 0.16 + 7.0));
-  float3 corpo = fundo * 0.55;
-  corpo = mix(corpo, azul, smoothstep(0.42, 0.8, tinta) * 0.6);
-  corpo = mix(corpo, iris(veio * 1.6 + t * 0.02), smoothstep(0.58, 0.82, veio) * 0.55);
+  // O vidro: quase sem cor no miolo; cromado e reflexos na borda.
+  float veio = sin(fres * 14.0 + fbm(n * 3.0 + float3(t * 0.1)) * 6.0);
+  float3 prata = mix(float3(0.78, 0.82, 0.92), float3(1.0), 0.5 + 0.5 * veio);
+  prata = mix(prata, roxo, 0.18 * (0.5 - 0.5 * veio));
+  float aVidro = 0.05 + 0.92 * smoothstep(0.1, 0.8, fres) * (0.5 + 0.5 * veio);
 
-  // A borda iridescente: o tom muda ao redor da gota e com o tempo, e a
-  // faixa entra bem na superfície, como numa bolha.
-  float h = fres * 0.9 + ang / 6.2831853 + 0.4 * fbm(n * 2.2 + float3(t * 0.08)) + t * 0.03;
-  float3 borda = iris(h) * (0.55 + 0.8 * fres);
-  float3 cor = mix(corpo, borda, smoothstep(0.02, 0.6, fres));
+  // O contorno fino, que segura a gota no tema claro sem pesar no escuro.
+  float aro = smoothstep(0.9, 1.0, rr) * smoothstep(1.0, 0.975, rr);
+  float3 corVidro = mix(prata, fundo, aro * 0.6);
+  aVidro = max(aVidro, aro * 0.55);
 
-  // Os reflexos de luz: um maior no alto à esquerda, um menor embaixo.
-  float3 luz = normalize(float3(-0.45, -0.6, 0.66));
-  float esp = pow(max(dot(n, luz), 0.0), 42.0);
-  float3 luz2 = normalize(float3(0.55, 0.5, 0.67));
-  float esp2 = pow(max(dot(n, luz2), 0.0), 70.0) * 0.4;
-  cor += float3(1.0) * (esp * 0.8 + esp2);
+  // Os reflexos de luz.
+  float esp = pow(max(dot(n, normalize(float3(-0.45, -0.6, 0.66))), 0.0), 36.0);
+  float esp2 = pow(max(dot(n, normalize(float3(0.55, 0.5, 0.67))), 0.0), 64.0) * 0.5;
 
-  // Vidro: o miolo deixa passar um pouco do fundo; a borda, não.
-  float alfa = mix(0.7, 1.0, smoothstep(0.0, 0.5, fres)) * smoothstep(1.0, 0.975, rr);
-  alfa = max(alfa, (esp * 0.8 + esp2) * smoothstep(1.0, 0.975, rr));
-  return half4(cor * alfa, alfa);
+  // A tinta por baixo, o vidro por cima.
+  float3 cor = corTinta * dens * (1.0 - aVidro) + corVidro * aVidro;
+  float alfa = dens * (1.0 - aVidro) + aVidro;
+  cor += float3(1.0) * (esp * 0.9 + esp2);
+  alfa = max(alfa, esp * 0.9 + esp2);
+  float borda = smoothstep(1.0, 0.975, rr);
+  return half4(cor * borda, clamp(alfa, 0.0, 1.0) * borda);
 }
 `;
 
