@@ -271,10 +271,16 @@ export default function Insights() {
               Sem difusão, o argumento cai: o que sobra de imagem abaixo do
               card são 32 px de faixa, e ali escuro é bom — é o que faz a
               borda clara da folha aparecer contra alguma coisa em vez de
-              contra mais claridade. */}
+              contra mais claridade.
+
+              ⚠️ E AGORA PESA NO TOPO (30/09/2026). Com a esfera lá em
+              cima, o dono quis o alto quase sem aurora — escuro, para a
+              esfera ser a única luz — e os desenhos da imagem só da metade
+              para baixo, atrás do campo e do card. O véu começa quase
+              opaco e abre por volta de 60% da altura. */}
           <LinearGradient
-            colors={[alfa(c.veu, 0.26), alfa(c.veu, 0.3), alfa(c.veu, 0.62)]}
-            locations={[0, 0.45, 1]}
+            colors={[alfa(c.veu, 0.94), alfa(c.veu, 0.86), alfa(c.veu, 0.3), alfa(c.veu, 0.45)]}
+            locations={[0, 0.28, 0.62, 1]}
             style={StyleSheet.absoluteFill}
             pointerEvents="none"
           />
