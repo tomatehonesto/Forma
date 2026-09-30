@@ -1,9 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import { View, Pressable, ScrollView, StyleSheet, useWindowDimensions } from 'react-native';
 import { useAurora } from '../../ui/aurora';
-import { useRouter } from 'expo-router';
+import { useRouter, useIsFocused } from 'expo-router';
 import { Image } from 'expo-image';
-import { EstrelaIA } from '../../ui/marca';
+import { Orbe } from '../../ui/orbe';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
@@ -22,7 +22,7 @@ import { useTheme } from '../../ui/useTheme';
 import { useLarguraApp } from '../../ui/useLarguraApp';
 import { useLightStatusBar } from '../../ui/useLightStatusBar';
 import Svg, { Defs, Ellipse, Path, RadialGradient, Rect, LinearGradient as SvgGrad, Stop } from 'react-native-svg';
-import { radius, font, shadowCard, alfa, type Palette, RESPIRO_ABAS } from '../../theme';
+import { radius, font, shadowCard, alfa, type Palette, RESPIRO_ABAS, comPaleta, dark } from '../../theme';
 import { pesoV, pesoU } from '../../logic/medidas';
 import { T } from '../../textos';
 
@@ -47,35 +47,25 @@ const PAD = 24;
    de módulo congela o idioma no import. */
 const K = () => T.companion.telaInsights;
 
-/* ⚠️⚠️ O ORBE SAIU, E A ESTRELA DA IA ENTROU NO LUGAR.
+/* ⚠️⚠️ A ESFERA VOLTOU, E É A MESMA DA CONVERSA (30/09/2026).
 
-   Ele teve uma vida longa aqui: desenhado em SVG (cor calculada não tem o
-   grão de uma peça renderizada, e numa forma cuja matéria É luz isso é o
-   assunto inteiro), depois PNG recortado por luminância (onde o halo
-   quase acaba, o dither vira franja), e por fim embutido na própria
-   imagem do hero — mesma peça, mesma luz, nenhuma borda para dar errado.
+   Aqui já morou um orbe (SVG, depois PNG, depois pintado na própria
+   aurora), que saiu para a estrela da IA entrar: duas marcas para a mesma
+   coisa eram uma marca a menos. A esfera de pontos não repete esse erro —
+   ela é a presença da Morphi Intelligence no alto da conversa, e a cada
+   ciclo SE TRANSFORMA no M e no cacho de estrelas. A estrela continua
+   sendo a marca; a esfera é o personagem que vira ela. Aqui e na
+   conversa, o mesmo desenho (ui/orbe).
 
-   O que mudou não foi a execução, foi o papel. A estrela virou a marca da
-   IA no aplicativo inteiro: ela assina as descobertas da Home, assina o
-   cabeçalho do chat, e é ela que a pessoa aprende a associar a "isto vem
-   da análise dos seus dados". Duas marcas para a mesma coisa é uma marca
-   a menos — quem via o orbe aqui e a estrela lá não tinha como saber que
-   eram o mesmo personagem.
+   ⚠️ SEMPRE NO MODO ESCURO, E COM AS CORES DO ESCURO. O topo desta tela é
+   aurora com véu, escuro nos dois temas; os pontos do modo claro (tinta
+   sobre papel) somem nele. A paleta escolhida vale igual.
 
-   ⚠️ E A IMAGEM DE FUNDO TROCOU JUNTO. `aurora.insights` tem o orbe
-   DESENHADO nela; `aurora.hero` é a mesma aurora sem ele — é a peça que a
-   Home usa. Deixar a insights e desenhar a estrela por cima poria os dois
-   na mesma dobra, que é exatamente o problema que este commit resolve.
-
-   Sobra em código a altura que a marca ocupa, para o texto começar abaixo
-   dela e o toque cair em cima. Era 240 para um orbe de 136; a estrela é
-   um símbolo, não um corpo, e pede menos espaço em volta. */
-const MARCA_ALTURA = 116;
-/* ⚠️ CRESCEU QUANDO A ESTRELA VIROU CACHO. A faísca principal ocupa 0,78
-   da caixa agora, para as pequenas caberem em volta — então o mesmo
-   `size` de antes desenhava uma estrela 22% menor. O número aqui compensa
-   isso: a presença na tela é a mesma, com as pequenas de brinde. */
-const MARCA_TAMANHO = 78;
+   ⚠️ SÓ DESENHA COM A ABA EM FOCO. As abas ficam montadas; o orbe é um
+   shader que roda a cada quadro, e fora da vista seria bateria gasta à
+   toa. Fora de foco, o lugar fica reservado, do mesmo tamanho. */
+const MARCA_ALTURA = 136;
+const ORBE_TAMANHO = 124;
 
 /* As duas medidas da junção entre o hero e a folha.
 
@@ -138,6 +128,8 @@ export default function Insights() {
   const aurora = useAurora();
   const S = useStore((s) => s.S);
   const { c } = useTheme();
+  const orbe = useMemo(() => comPaleta(dark, (S as any).paleta, true), [(S as any).paleta]);
+  const focada = useIsFocused();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const width = useLarguraApp();
@@ -284,14 +276,14 @@ export default function Insights() {
           {/* A Dissolucao era desenhada aqui. Foi embora inteira — o azul
               não precisa mais acabar, porque a folha o cobre. */}
 
-          {/* A ESTRELA É A MARCA DA IA AQUI, e substitui a linha de nome,
+          {/* A ESFERA É A PRESENÇA DA IA AQUI, e substitui a linha de nome,
               contagem e link que já ocupou este topo: três elementos de
               interface para dizer o que uma presença diz sozinha.
 
               Tocá-la abre a conversa inteira — o caminho continua onde
               estava, e agora quem o abre é o mesmo símbolo que assina as
-              respostas do outro lado. Ver o comentário da constante lá em
-              cima para a história do orbe que morava aqui. */}
+              respostas do outro lado — a esfera vira essa estrela a cada
+              ciclo. Ver o comentário da constante lá em cima. */}
           <Pressable
             onPress={go('/companion?nova=1')}
             style={({ pressed }) => [{
@@ -299,7 +291,9 @@ export default function Insights() {
               opacity: pressed ? 0.7 : 1,
             }]}
           >
-            <EstrelaIA size={MARCA_TAMANHO} />
+            {focada ? (
+              <Orbe tamanho={ORBE_TAMANHO} claro={false} acao={orbe.accent} acao2={orbe.accent2} alcancado={orbe.lime} ciano={orbe.teal} />
+            ) : <View style={{ width: ORBE_TAMANHO, height: ORBE_TAMANHO }} />}
           </Pressable>
 
           {/* a pergunta solta na cor, centrada, sem moldura */}
