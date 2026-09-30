@@ -467,9 +467,9 @@ export default function Companion() {
                saudação e a memória vêm logo abaixo dela. As perguntas
                prontas moram lá embaixo, em cima do campo. */
             <View style={{ alignItems: 'center', paddingTop: 16 }}>
-              {/* O orbe (ui/orbe): a presença da Morphi Intelligence na conversa
-                  vazia, nas cores do app, girando devagar. */}
-              <View style={{ marginBottom: 6 }}><Orbe tamanho={150} miolo={c.accent} crista={c.lime} brilho={c.accent2} /></View>
+              {/* A gota (ui/orbe): a presença da Morphi Intelligence na conversa
+                  vazia, nos tons do app, respirando devagar. */}
+              <View style={{ marginBottom: 6 }}><Orbe tamanho={150} azul={c.accent} fundo={c.panelTo} ciano={c.teal} lima={c.lime} roxo={c.purple} rosa={c.rose} /></View>
               <Txt v="display" style={{ fontSize: 26, lineHeight: 33, textAlign: 'center' }}>
                 {K().ola(S.profile.name.split(' ')[0])}
               </Txt>
