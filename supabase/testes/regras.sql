@@ -625,6 +625,16 @@ begin
     'e a recusa não soma: a contagem para no teto');
   perform pg_temp.igual(pg_temp.valor(u_a::text, $$public.consumir_cota_da_ia('laudo')->>'ok'$$), 'true',
     'o teto da foto não tranca o laudo');
+  -- A conversa do Morphi Intelligence: o quarto tipo, com teto próprio.
+  perform pg_temp.igual(pg_temp.valor(u_a::text, $$public.consumir_cota_da_ia('conversa')->>'restam'$$), '29',
+    'a primeira pergunta do dia de A deixa vinte e nove');
+  for i in 1..29 loop
+    perform pg_temp.valor(u_a::text, $$public.consumir_cota_da_ia('conversa')$$);
+  end loop;
+  perform pg_temp.igual(pg_temp.valor(u_a::text, $$public.consumir_cota_da_ia('conversa')->>'ok'$$), 'false',
+    'passadas trinta perguntas no dia, a conversa é recusada');
+  perform pg_temp.igual((select vezes::text from private.uso_da_ia where user_id = u_a and tipo = 'conversa'), '30',
+    'e a contagem da conversa para em trinta');
   perform pg_temp.que(pg_temp.valor('anon', $$public.consumir_cota_da_ia('foto')$$) like 'erro:%',
     'sem login, a cota não abre');
   perform pg_temp.que(pg_temp.valor(u_a::text, $$public.consumir_cota_da_ia('video')$$) like 'erro:%',
