@@ -211,15 +211,22 @@ a especificação, `docs/superpowers/specs/2026-09-29-morphi-intelligence-design
 
 - **Revisão clínica da base de conhecimento** (`servidor/conhecimento/*.md`)
   e da lista de sinais de alerta, por uma pessoa da área da saúde, junto
-  com os itens 13 e 13b. Os números foram conferidos contra as bulas da
-  FDA (revisões de 2026) e os artigos, e nove foram corrigidos; mesmo
-  assim é rascunho. Faltam as bulas da ANVISA: onde a bula brasileira
-  diferir da americana, vale a brasileira para quem está no Brasil.
-  Em 30/09 entraram dois documentos novos, também rascunho:
-  `medidas-sem-remedio.md` (o que fazer em casa por sintoma, com a
-  hipoglicemia) e `armazenamento-e-viagem.md` (prazos fora da geladeira,
-  das bulas FDA). Lacuna achada: a base não diz o que a bula de Wegovy
-  orienta ao DESCOBRIR uma gravidez (só a gravidez planejada).
+  com os itens 13 e 13b. Ainda não há profissional: a sugestão é o médico
+  da primeira clínica parceira, ou um farmacêutico clínico para a parte
+  de bula. A base continua rascunho.
+  ✅ **Conferida contra as bulas FDA, EMA e ANVISA em 01/10/2026**
+  (`docs/revisao-clinica/2026-10-01-auditoria-da-base.md`, com os quatro
+  relatórios), e corrigida pela regra decidida pelo dono: a IA é um
+  consultor global, vale a fonte mais cautelosa, e o país só entra em
+  fato local (caneta, nome comercial, telefone). Saíram erros de verdade
+  (gravidez com tirzepatida, hipoglicemia leve mandada ao pronto
+  atendimento, prazos fora da geladeira do produto americano) e entraram
+  lacunas de segurança (gravidez com semaglutida, amamentação, perda
+  súbita de visão, obstrução intestinal, dose a mais, quem limita
+  líquido). Os pontos que os relatórios deixaram ao revisor estão neles.
+- **A tabela de números de ajuda por país** (`servidor/ajuda.ts`): só
+  entra número conferido em fonte oficial; país sem número faz a IA
+  dizer "o serviço de emergência do seu país".
 - **O aceite e a Política** (seções 4, 6 e 7, versão 2.1) entram na
   revisão do advogado (item 2).
 
@@ -237,6 +244,10 @@ a especificação, `docs/superpowers/specs/2026-09-29-morphi-intelligence-design
 - **Uma rodada completa da conversa na versão final.** A versão no ar
   (Sonnet 5.5, prompt v8) só rodou nos recortes difíceis; os 77 casos
   rodaram pela última vez com o Opus 5. ~US$ 3; vira a nova linha de base.
+  ⚠️ Depois de 01/10 é obrigatória antes de subir: a base cresceu cerca de
+  50% (49 mil caracteres), as regras de urgência mudaram (o terceiro
+  destino, "agir agora e avisar") e o país entrou no pedido. O dono pediu
+  para não rodar ainda.
 - **Testar no celular, com conta:** a voz e o humor da conversa, e o card
   "Sua semana" numa segunda (no navegador não há sessão).
 
