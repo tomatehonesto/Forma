@@ -36,8 +36,9 @@ quando a base não sustenta.
 
 **O código descobre; a IA escreve.**
 
-1. **No aparelho**, um motor novo testa todos os pares comportamento ×
-   resultado com uma régua contra coincidência. O número que sai é sempre
+1. **No aparelho**, um motor novo com detectores para cada área da
+   jornada — hábitos, ritmo do peso, exames, exercício, sintomas, medidas,
+   constância — e uma régua contra coincidência. O número que sai é sempre
    uma conta, nunca uma impressão.
 2. **No servidor**, o Sonnet 5.5 recebe o resumo da semana e a descoberta
    já calculada, e escreve a leitura na voz da Morphi Intelligence. Ele
@@ -62,9 +63,32 @@ Decisões do dono (01/10/2026):
 
 ## As peças
 
-### 1. O motor de pares: `src/logic/pares.ts` (novo)
+### 1. O motor de descobertas: `src/logic/descobertasDaSemana/` (novo)
 
-**Os comportamentos** (do dia d):
+⚠️ **NÃO É SÓ REGISTRO CONTRA SINTOMA** (o dono, 01/10/2026: "pode ser
+coisas de ritmo de perda de peso, de melhora de exames, de exercícios, de
+tudo"). O motor é um conjunto de **detectores**, um por área da jornada.
+Cada um é uma função `(S, semana) => Candidata[]`, e acrescentar uma área
+depois é escrever mais um detector — nada no resto muda.
+
+Toda candidata tem a mesma forma:
+`{ area, tipo, nivel: 'forte' | 'comeco' | 'retrato', forca: 0..1, dados }`,
+em que `dados` são os números que a leitura vai usar como vieram.
+
+**Os detectores da primeira versão:**
+
+| área | o que procura | exemplo do que vira |
+|---|---|---|
+| `habitos` | pares hábito × como a pessoa se sente, dia a dia (abaixo) | "Nos dias em que você tomou café da manhã, sua fome foi bem menor." |
+| `ritmo` | o ritmo do peso das últimas semanas contra o das anteriores; antes e depois de cada subida de dose; marcos (10% do peso inicial, metade do caminho até a meta); "no ritmo das últimas 4 semanas, chegaria à meta em…" | "Desde que você foi para 5 mg, o seu ritmo de perda dobrou." |
+| `exames` | um marcador que melhorou entre dois laudos, ou entrou na faixa de referência do laudo | "Seu LDL caiu de 142 para 118 mg/dL entre junho e setembro." |
+| `exercicio` | frequência subindo ou caindo; sequência de semanas treinando; treino × energia e sono (pelo detector de hábitos) | "Você treinou em 6 das últimas 6 semanas — a sua melhor sequência." |
+| `sintomas` | um sintoma ao longo do tempo: caindo desde a subida de dose, a semana mais leve, a janela que encurtou | "O enjoo caiu pela metade desde a sua 3ª semana em 0,5 mg." |
+| `pesoSemanal` | hábitos × perda de peso da semana, semana a semana (semanas com mais proteína ou mais treino) | "Nas semanas em que você treinou 3 vezes ou mais, a perda foi maior." |
+| `medidas` | cintura (ou outra medida) caindo mais rápido que o peso, quando há medidas registradas | "Sua cintura caiu 6% enquanto o peso caiu 4%." |
+| `constancia` | aplicações sem falha; a melhor semana de água ou proteína desde quando; o dia mais forte da semana | "Foi a sua melhor semana de água desde agosto." |
+
+**O detector de hábitos, em detalhe.** Os comportamentos (do dia d):
 
 | id | como se lê | cuidado |
 |---|---|---|
@@ -76,52 +100,57 @@ Decisões do dono (01/10/2026):
 | `jantarTarde` | a última refeição do dia depois das 21h | o mesmo corte de `cafe` |
 | `posAplicacao` | d é o dia seguinte ou o segundo dia depois de uma aplicação | só com aplicações registradas |
 
-**Os resultados** (do dia d e do dia d+1): fome, energia, humor e enjoo,
-na régua de 1 a 5 da tela (`paraTela`, `grauDoSintoma`).
+Os resultados (do dia d e do dia d+1): fome, energia, humor e enjoo, na
+régua de 1 a 5 da tela (`paraTela`, `grauDoSintoma`). Fora o que é óbvio
+ou circular: `posAplicacao` × enjoo já é a "janela do enjoo" de hoje;
+`proteinaNaMeta` × fome do mesmo dia é quase a mesma coisa medida duas
+vezes.
 
-**A régua** (uma descoberta só existe se passar em tudo):
+**A régua, para tudo o que é comparação** (hábitos, peso semanal,
+exercício × energia): é o que separa o padrão da coincidência.
 
-- janela: as últimas 6 semanas;
-- pelo menos **4 dias de cada lado** (com e sem o comportamento);
-- diferença das médias de pelo menos **1 ponto** na régua de 1 a 5;
-- **a mesma direção nas duas metades da janela** (as 3 semanas mais
-  antigas e as 3 mais recentes, cada metade com pelo menos 2 dias de cada
-  lado): o padrão tem de se repetir, e não só aparecer uma vez;
-- fora o que é óbvio ou circular: `posAplicacao` × enjoo já é a "janela do
-  enjoo" de hoje; `proteinaNaMeta` × fome do mesmo dia é quase a mesma
-  coisa medida duas vezes.
+- **Padrão forte:** pelo menos 4 dias de cada lado nas últimas 6 semanas;
+  diferença de pelo menos 1 ponto na régua de 1 a 5; e **a mesma direção
+  nas duas metades da janela** (cada metade com pelo menos 2 dias de cada
+  lado) — o padrão tem de se repetir. No peso semanal: pelo menos 8
+  semanas, 3 de cada lado, e diferença de pelo menos 0,3 kg por semana.
+- **Começo de padrão:** pelo menos 3 dias de cada lado e 0,5 ponto de
+  diferença, sem exigir a repetição. No peso semanal, não existe: o peso
+  oscila demais para um começo de padrão dizer alguma coisa.
+
+**Os detectores de tendência** (ritmo, exames, sintomas, medidas,
+constância) não comparam grupos: leem uma série. A régua deles é de
+tamanho e de ruído: ritmo só com pelo menos 4 pesagens em cada trecho
+comparado, e a diferença maior que a oscilação normal da pessoa (o
+desvio das pesagens dela); exame só com dois laudos do mesmo marcador;
+medidas só com duas medições separadas por pelo menos 3 semanas. O que
+passa é **padrão forte** quando a mudança é clara e **retrato** quando é
+um fato (um marco, uma sequência, a melhor semana).
 
 **Os três níveis.** Toda pessoa com o mínimo de registro (peça 2) recebe
 uma descoberta por semana; o que muda é o quanto ela afirma:
 
-1. **Padrão forte** — passou na régua inteira acima. A leitura afirma o
-   padrão: "Nos dias em que você tomou café da manhã, sua fome foi bem
-   menor. Talvez ele seja um aliado."
-2. **Começo de padrão** — o par com mais força entre os que não passaram,
-   com pelo menos 3 dias de cada lado e 0,5 ponto de diferença, sem exigir
-   a repetição nas duas metades. A leitura diz que ainda é cedo, e o teste
-   da semana vira confirmar o padrão: "Ainda é cedo para afirmar, mas nos
+1. **Padrão forte** — passou na régua inteira. A leitura afirma o padrão:
+   "Nos dias em que você tomou café da manhã, sua fome foi bem menor.
+   Talvez ele seja um aliado."
+2. **Começo de padrão** — a leitura diz que ainda é cedo, e o teste da
+   semana vira confirmar o padrão: "Ainda é cedo para afirmar, mas nos
    dias com café da manhã sua fome pareceu menor. Que tal observar isso
    esta semana?"
-3. **Retrato** — quando nenhum par chega nem a começo de padrão: um fato
-   verdadeiro da jornada que a pessoa provavelmente não percebeu, calculado
-   no aparelho. A melhor semana de água ou de proteína desde quando; o dia
-   da semana mais forte em proteína, água ou treino; a sequência de
-   aplicações sem falha; a semana com menos enjoo desde a subida de dose.
-   Sem nenhum desses, o mais recente que mudou (a variação do peso no mês).
+3. **Retrato** — um fato verdadeiro da jornada que a pessoa provavelmente
+   não percebeu. Sempre existe algum para quem registra o mínimo: no
+   último caso, a variação do peso no mês.
 
-O nível vai junto da descoberta para o servidor, e as regras da leitura
-(peça 3) dizem como falar de cada um.
+**A escolha da semana:** primeiro o nível (forte, depois começo, depois
+retrato), dentro dele a força, e **as áreas se alternam** — a área da
+semana passada perde a vez se houver outra no mesmo nível. Uma descoberta
+já mostrada não volta por 3 semanas, com a mesma memória do cartão de
+hoje. Quem registra muito alimenta os detectores de hábitos; quem só se
+pesa e aplica ainda recebe ritmo, exames e constância.
 
-**A ordem:** dentro do nível, pela força (a diferença, ponderada pela
-menor amostra), e só a primeira vai para a leitura. As outras ficam para as semanas seguintes,
-com a mesma memória do cartão de hoje (uma descoberta já mostrada não
-volta por 3 semanas).
-
-**A frase da descoberta é dado, não texto:**
-`{ nivel: 'forte' | 'comeco', comportamento, resultado, defasagem: 0 | 1, mediaCom, mediaSem, diasCom, diasSem, direcao }`
-ou `{ nivel: 'retrato', tipo, valores }`.
-Quem escreve é a IA (peça 3), e a mensagem sem rede usa o catálogo.
+O nível e a área vão junto da descoberta para o servidor, e as regras da
+leitura (peça 3) dizem como falar de cada um. Quem escreve a frase é a IA;
+a mensagem sem rede usa o catálogo.
 
 O motor substitui, com o tempo, os cruzamentos fixos de `patterns` que ele
 cobre; nesta versão eles convivem, e o cartão da Home de todo dia continua
@@ -214,7 +243,13 @@ por semana**, ~US$ 0,09 por mês. Semana com pouco registro não custa nada.
    - um padrão plantado (café da manhã baixa a fome em 1,5 ponto, em 6
      semanas): a régua tem de achá-lo, com a direção certa;
    - dias sem refeições registradas não contam como "sem café";
-   - os pares óbvios ficam de fora.
+   - os pares óbvios ficam de fora;
+   - cada detector de tendência com casos próprios: o ritmo que dobrou
+     depois da subida de dose é achado, e uma oscilação dentro do desvio
+     normal da pessoa não é; o LDL que caiu entre dois laudos é achado, e
+     um marcador com um laudo só não gera nada; e assim por diante;
+   - as áreas se alternam: com descobertas em duas áreas no mesmo nível,
+     duas semanas seguidas não repetem a área.
 2. **O resumo da semana:** as seções, o teto, nada de terceiros, e a semana
    com pouco registro sem chamada ao servidor.
 3. **A leitura, numa bateria pequena** (`scripts/avaliacao`, fluxo novo
@@ -235,8 +270,6 @@ por semana**, ~US$ 0,09 por mês. Semana com pouco registro não custa nada.
 - Notificação na segunda de manhã (pede agendador e permissão).
 - A leitura gerada no servidor para quem não abre o app.
 - Substituir os cruzamentos fixos de `patterns` pelo motor de pares.
-- Descobertas com o peso como resultado (a semana é curta demais para o
-  peso responder a um comportamento).
 
 ---
 
