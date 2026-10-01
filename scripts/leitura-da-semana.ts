@@ -38,8 +38,9 @@ const ok = (certo: boolean, o: string, detalhe = '') => {
 
 import { diario, diaAntes, agora, de } from './leitura-da-semana-gerador';
 
-const COMPARACOES = new Set(['par', 'pesoPorHabito']);
-const fortesDeComparacao = (cs: Candidata[]) => cs.filter((c) => c.nivel === 'forte' && COMPARACOES.has(c.tipo));
+/* ⚠️ TODO PADRÃO FORTE CONTA, e não só os pares: o detector de exercício
+   já deixou passar o acaso de um diário sorteado (01/10/2026). */
+const fortesDeComparacao = (cs: Candidata[]) => cs.filter((c) => c.nivel === 'forte');
 
 comRelogioFixo(() => {
   /* ---------------- 1. o alarme falso ---------------- */

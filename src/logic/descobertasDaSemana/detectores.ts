@@ -239,7 +239,13 @@ export function exercicio({ S, ate }: Contexto): Candidata[] {
   const comRegistro = (xs: typeof sem) => xs.reduce((a, s) => a + s.registros, 0) >= 8;
   if (comRegistro(ult) && comRegistro(ant)) {
     const mu = media(ult.map((s) => s.treinos)), ma = media(ant.map((s) => s.treinos));
-    if (Math.abs(mu - ma) >= 1) {
+    /* ⚠️ COM A RÉGUA DE CLAREZA, como os pares. Treinos sorteados mudam 1
+       por semana entre dois blocos de 4 semanas em ~1 a cada 4 pessoas: só
+       a diferença deixava passar o acaso. Agora ela tem de ser grande
+       contra a variação das semanas da própria pessoa. */
+    const v = (xs: number[], m: number) => xs.reduce((a, x) => a + (x - m) ** 2, 0) / Math.max(1, xs.length - 1);
+    const ep = Math.sqrt(Math.max(v(ult.map((s) => s.treinos), mu), 0.25) / 4 + Math.max(v(ant.map((s) => s.treinos), ma), 0.25) / 4);
+    if (Math.abs(mu - ma) >= 1.5 && Math.abs(mu - ma) / ep >= 3) {
       fora.push({
         area: 'exercicio', tipo: 'frequenciaDeTreino', chave: `exercicio:frequencia:${mu > ma ? 'subiu' : 'caiu'}`,
         nivel: 'forte', forca: Math.min(1, Math.abs(mu - ma) / 2),
