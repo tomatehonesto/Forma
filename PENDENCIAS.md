@@ -215,14 +215,29 @@ a especificação, `docs/superpowers/specs/2026-09-29-morphi-intelligence-design
   FDA (revisões de 2026) e os artigos, e nove foram corrigidos; mesmo
   assim é rascunho. Faltam as bulas da ANVISA: onde a bula brasileira
   diferir da americana, vale a brasileira para quem está no Brasil.
+  Em 30/09 entraram dois documentos novos, também rascunho:
+  `medidas-sem-remedio.md` (o que fazer em casa por sintoma, com a
+  hipoglicemia) e `armazenamento-e-viagem.md` (prazos fora da geladeira,
+  das bulas FDA). Lacuna achada: a base não diz o que a bula de Wegovy
+  orienta ao DESCOBRIR uma gravidez (só a gravidez planejada).
 - **O aceite e a Política** (seções 4, 6 e 7, versão 2.1) entram na
   revisão do advogado (item 2).
 
 **Antes de fechar o teto de 30 por dia:**
 
-- **Medir o custo.** Rodar umas 20 perguntas de teste com a conta do
-  dono e ler o `uso` de cada resposta (aparece no console do Metro).
-  Custa menos de US$ 1.
+- ~~**Medir o custo.**~~ Medido na avaliação (30/09): cerca de
+  **US$ 0,03 por pergunta** no Opus 5 com o cache aquecido (mediana,
+  sem o juiz). No teto de 30 por dia, até ~US$ 0,85 por pessoa por dia.
+  A primeira pergunta depois de 5 minutos parada paga a gravação do
+  cache (uns 16 mil tokens, ~US$ 0,10).
+
+**A avaliação da conversa** (`scripts/avaliacao/`, notas em
+`.claude/hillclimb/conversa/`): 77 casos com 17 pacientes fictícios e um
+juiz Sonnet 5.5. Toda mudança no prompt, na base ou no modelo passa por
+ela antes de subir; cada rodada custa uns US$ 3,50. Como rodar está no
+cabeçalho de `scripts/avaliacao/rodar.ts`. Falta calibrar o juiz na nota
+de "fatos" com as notas do dono (ele reprova conhecimento geral que não
+está na base).
 
 **O catálogo de remédios ficou para trás das bulas de 2026** (achado da
 checagem): o Wegovy agora vai até 7,2 mg e tem comprimido (1,5 → 25 mg),
