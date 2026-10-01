@@ -139,6 +139,11 @@ virada, trocar `SUPABASE_URL` e `SUPABASE_PUBLISHABLE_KEY` da Vercel
 pelas do projeto de produção e pôr as duas `EXPO_PUBLIC_ANALISE_*` nas
 variáveis da build do EAS. O crédito da Anthropic é pré-pago (US$ 5 no
 começo): quando acaba, a IA para e o app cai no caminho manual.
+⚠️ **01/10/2026: a API recusa por saldo com US$ 19,59 no painel** (org
+"Sello", fatura WSTIYNSR-0004 paga e liberada, auto-reload ligado). Chamado
+no suporte humano da Anthropic: conversa 215476192937466, resposta por
+e-mail. Até lá a IA não responde, no teste e na Vercel. A IA do Morphi
+está cobrada na organização do Sello: na virada, uma organização própria.
 
 
 Aberto em 29/09/2026. **Sem ele, as três funções de IA não existem na
