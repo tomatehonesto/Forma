@@ -39,7 +39,10 @@ const cliente = new Anthropic();
 /** O pedido ao modelo, num lugar só: o handler e a avaliação
     (scripts/avaliacao/recursos.ts). `idioma` é a chave ('pt-BR'…);
     `modelo` só muda na avaliação. */
-export function parametrosDaEstimativa(p: { nome: string; idioma: string }, modelo = 'claude-opus-5') {
+/* ⚠️ O SONNET 5.5, E NÃO O OPUS 5 (01/10/2026). Nos 20 pratos do
+   catálogo (scripts/avaliacao/recursos.ts), erro médio de 16% nas
+   calorias por 100 g, e os 3 textos que não são comida reconhecidos. */
+export function parametrosDaEstimativa(p: { nome: string; idioma: string }, modelo = 'claude-sonnet-5-5') {
   return {
     model: modelo,
     max_tokens: 2000,

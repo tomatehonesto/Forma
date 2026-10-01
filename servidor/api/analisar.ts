@@ -40,7 +40,12 @@ const cliente = new Anthropic();
 /** O pedido ao modelo, num lugar só: o handler e a avaliação
     (scripts/avaliacao/recursos.ts) chamam esta função, e por isso a
     avaliação mede o que vai para a pessoa. `modelo` só muda na avaliação. */
-export function parametrosDaFoto(p: { imagem: string; tipo: TipoOk; idioma: string }, modelo = 'claude-opus-5') {
+/* ⚠️ O SONNET 5.5, E NÃO O OPUS 5 (01/10/2026). Nas 30 fotos do Nutrition5k
+   (scripts/avaliacao/recursos.ts) os dois empataram: erro mediano de
+   calorias de 34% (Opus) e 42% (Sonnet), com o Sonnet melhor em 17 dos
+   30 pratos, e proteína igual. O que erra é a contagem de porção, e não
+   o modelo. O Sonnet custa menos da metade por foto. */
+export function parametrosDaFoto(p: { imagem: string; tipo: TipoOk; idioma: string }, modelo = 'claude-sonnet-5-5') {
   return {
     model: modelo,
     max_tokens: 4000,

@@ -31,7 +31,11 @@ const cliente = new Anthropic();
 
 /** O pedido ao modelo, num lugar só: o handler e a avaliação
     (scripts/avaliacao/recursos.ts). `modelo` só muda na avaliação. */
-export function parametrosDoLaudo(p: { arquivo: string; tipo: string }, modelo = 'claude-opus-5') {
+/* ⚠️ O SONNET 5.5, E NÃO O OPUS 5 (01/10/2026). Nos 10 laudos de teste
+   (scripts/avaliacao/recursos.ts: PDF e foto, Brasil, EUA, França e
+   Alemanha, faixas por sexo, resultado anterior, uma receita) ele leu
+   100% dos resultados certos, todas as datas e nada inventado. */
+export function parametrosDoLaudo(p: { arquivo: string; tipo: string }, modelo = 'claude-sonnet-5-5') {
   const bloco = p.tipo === 'application/pdf'
     ? { type: 'document' as const, source: { type: 'base64' as const, media_type: 'application/pdf' as const, data: p.arquivo } }
     : { type: 'image' as const, source: { type: 'base64' as const, media_type: p.tipo as 'image/jpeg' | 'image/png' | 'image/webp', data: p.arquivo } };
