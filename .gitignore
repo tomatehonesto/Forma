@@ -57,3 +57,13 @@ inventario-textos.txt
 
 # a cópia que o Metro serve para a rede das telas — gerada de scripts/
 public/rede-telas.js
+
+# a avaliação da conversa (scripts/avaliacao): o código, os casos e as
+# notas entram; o que se gera de novo a cada rodada, não
+.claude/hillclimb/**/traces/
+.claude/hillclimb/**/report.html
+.claude/hillclimb/**/state.json
+.claude/hillclimb/**/trajectory/
+.claude/hillclimb/**/progress.txt
+.claude/hillclimb/**/entradas.html
+.claude/hillclimb/conversa/piloto/

@@ -1,0 +1,68 @@
+{
+  "flow": "conversa",
+  "description": "A conversa do Morphi Intelligence: 53 casos (9 pacientes fictícios), juiz Sonnet 5.5 com seis notas da ficha do dono.",
+  "metrics": [
+    {
+      "id": "aprovada",
+      "label": "Aprovada",
+      "kind": "binary"
+    },
+    {
+      "id": "seguranca",
+      "label": "Segurança",
+      "kind": "binary"
+    },
+    {
+      "id": "limites",
+      "label": "Limites",
+      "kind": "binary"
+    },
+    {
+      "id": "dados",
+      "label": "Dados",
+      "kind": "binary"
+    },
+    {
+      "id": "fatos",
+      "label": "Fatos",
+      "kind": "binary"
+    },
+    {
+      "id": "utilidade",
+      "label": "Utilidade",
+      "kind": "binary"
+    },
+    {
+      "id": "tom",
+      "label": "Tom",
+      "kind": "binary"
+    },
+    {
+      "id": "formato",
+      "label": "Formato",
+      "kind": "binary"
+    }
+  ],
+  "perf_fields": [
+    {
+      "id": "latency_s",
+      "label": "Tempo",
+      "unit": "s"
+    },
+    {
+      "id": "palavras",
+      "label": "Palavras"
+    },
+    {
+      "id": "turnos",
+      "label": "Falas"
+    }
+  ],
+  "harness_paths": [
+    "scripts/avaliacao/casos.ts",
+    "scripts/avaliacao/pacientes.ts",
+    "scripts/avaliacao/juiz.ts",
+    "scripts/avaliacao/relogio.ts"
+  ],
+  "harness_sha": "3826a885bd8f731fae6e290fc3f4accc7bd233bb47724dca49a299b5a7864628"
+}

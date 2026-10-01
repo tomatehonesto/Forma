@@ -78,6 +78,24 @@ export function lerPedido(corpo: any): { pergunta: string; historico: Troca[]; r
   return { pergunta, historico, resumo, idioma };
 }
 
+/** O pedido ao modelo, montado num lugar só: o handler e a avaliação
+    (scripts/avaliacao) chamam esta função, e por isso a avaliação mede a
+    mesma coisa que vai para a pessoa — modelo, regras, resumo e histórico. */
+export function parametrosDaConversa(pedido: NonNullable<ReturnType<typeof lerPedido>>): Anthropic.MessageStreamParams {
+  return {
+    model: 'claude-opus-5',
+    max_tokens: 2000,
+    system: [
+      { type: 'text', text: INSTRUCOES, cache_control: { type: 'ephemeral' } },
+      { type: 'text', text: blocoDaPessoa(IDIOMAS[pedido.idioma], pedido.resumo) },
+    ],
+    messages: mensagensDe(pedido.historico, pedido.pergunta),
+    /* Conversa, e não raciocínio longo: a pessoa está com a tela
+       aberta esperando. Sobe se a medição de qualidade pedir. */
+    output_config: { effort: 'low' },
+  };
+}
+
 const CABECALHOS = {
   'content-type': 'application/json; charset=utf-8',
   'access-control-allow-origin': '*',
@@ -132,18 +150,7 @@ async function handler(req: Request): Promise<Response> {
     async start(ctl) {
       let escreveu = false;
       try {
-        const fluxo = cliente.messages.stream({
-          model: 'claude-opus-5',
-          max_tokens: 2000,
-          system: [
-            { type: 'text', text: INSTRUCOES, cache_control: { type: 'ephemeral' } },
-            { type: 'text', text: blocoDaPessoa(IDIOMAS[pedidoOk.idioma], pedidoOk.resumo) },
-          ],
-          messages: mensagensDe(pedidoOk.historico, pedidoOk.pergunta),
-          /* Conversa, e não raciocínio longo: a pessoa está com a tela
-             aberta esperando. Sobe se a medição de qualidade pedir. */
-          output_config: { effort: 'low' },
-        });
+        const fluxo = cliente.messages.stream(parametrosDaConversa(pedidoOk));
         fluxo.on('text', (trecho) => {
           if (!trecho) return;
           escreveu = true;
