@@ -651,6 +651,14 @@ begin
   where user_id = u_b and tipo = 'conversa' and vezes = 99;
   perform pg_temp.igual(pg_temp.valor(u_b::text, $$public.consumir_cota_da_ia('conversa')->>'ok'$$), 'true',
     'as perguntas de 30 dias atrás já não contam');
+  -- A leitura da semana: o quinto tipo, 2 por dia (20261001123426_cota_da_leitura).
+  perform pg_temp.igual(pg_temp.valor(u_a::text, $$public.consumir_cota_da_ia('leitura')->>'restam'$$), '1',
+    'a primeira leitura do dia de A deixa uma');
+  perform pg_temp.valor(u_a::text, $$public.consumir_cota_da_ia('leitura')$$);
+  perform pg_temp.igual(pg_temp.valor(u_a::text, $$public.consumir_cota_da_ia('leitura')->>'ok'$$), 'false',
+    'a terceira leitura no mesmo dia é recusada');
+  perform pg_temp.igual(pg_temp.valor(u_a::text, $$public.consumir_cota_da_ia('conversa')->>'periodo'$$), 'dia',
+    'e o teto da leitura não mexe no da conversa');
   perform pg_temp.que(pg_temp.valor('anon', $$public.consumir_cota_da_ia('foto')$$) like 'erro:%',
     'sem login, a cota não abre');
   perform pg_temp.que(pg_temp.valor(u_a::text, $$public.consumir_cota_da_ia('video')$$) like 'erro:%',

@@ -19,7 +19,7 @@
    deixar passar ali seria o token compartilhado de volta.
    ============================================================ */
 
-export type Tipo = 'foto' | 'laudo' | 'estimativa' | 'conversa';
+export type Tipo = 'foto' | 'laudo' | 'estimativa' | 'conversa' | 'leitura';
 
 export type Porta =
   /** `restam`: quantas chamadas deste tipo ainda cabem hoje, depois desta.

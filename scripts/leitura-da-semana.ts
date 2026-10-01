@@ -153,5 +153,35 @@ comRelogioFixo(() => {
   ok(/^\d{4}-\d{2}-\d{2}$/.test(String(c.dados.dataAntes)) && c.dados.diaDaSemana === 'quarta-feira', 'a descoberta vai ao servidor com as datas e o dia da semana escritos');
 });
 
-console.log(falhas ? `\n${falhas} afirmação(ões) falharam` : '\ntodas as afirmações passaram');
-process.exit(falhas ? 1 : 0);
+/* ---------------- 6. o servidor ---------------- */
+(async () => {
+  console.log('\n6. O SERVIDOR DA LEITURA');
+  const env = { ...process.env };
+  process.env.ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || 'sk-teste';
+  process.env.VERCEL_ENV = 'production';
+  process.env.SUPABASE_URL = 'https://projeto.supabase.co';
+  process.env.SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_teste';
+  delete process.env.MORPHI_TOKEN;
+  const { lerPedidoDaLeitura, TETOS_DA_LEITURA, default: leitura } = await import('../servidor/api/leitura');
+  const d = { nivel: 'forte', area: 'habitos', tipo: 'par', dados: { comportamento: 'cafe', resultado: 'fome', mediaCom: 1.8, mediaSem: 3.2 } };
+  ok(lerPedidoDaLeitura({ resumo: 'r', descoberta: d, idioma: 'de-DE' })?.idioma === 'de-DE'
+    && lerPedidoDaLeitura({ resumo: 'r', descoberta: d, idioma: 'xx' })?.idioma === 'pt-BR',
+    'o idioma vem do pedido, e um desconhecido cai no português');
+  ok(lerPedidoDaLeitura({ resumo: '', descoberta: d }) === null
+    && lerPedidoDaLeitura({ resumo: 'x'.repeat(TETOS_DA_LEITURA.resumo + 1), descoberta: d }) === null
+    && lerPedidoDaLeitura({ resumo: 'r', descoberta: { ...d, nivel: 'certeza' } }) === null
+    && lerPedidoDaLeitura({ resumo: 'r', descoberta: { ...d, dados: { x: { aninhado: 1 } } } }) === null
+    && lerPedidoDaLeitura({ resumo: 'r' }) === null,
+    'pedido sem resumo, grande demais, com nível inventado, com dado aninhado ou sem descoberta é recusado');
+  const post = (corpo: unknown) => leitura.fetch(new Request('https://x/api/leitura', {
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(corpo),
+  }));
+  ok((await post({ resumo: '' })).status === 400, 'um pedido malformado é recusado antes da porta, sem gastar cota');
+  const semLogin = await post({ resumo: 'a semana', descoberta: d, idioma: 'pt-BR' });
+  ok(semLogin.status === 401 && (await semLogin.json()).motivo === 'sem-conta', 'sem sessão, a leitura é "sem-conta" e não chama o modelo');
+  for (const k of ['ANTHROPIC_API_KEY', 'VERCEL_ENV', 'SUPABASE_URL', 'SUPABASE_PUBLISHABLE_KEY', 'MORPHI_TOKEN']) {
+    if (env[k] === undefined) delete process.env[k]; else process.env[k] = env[k];
+  }
+  console.log(falhas ? `\n${falhas} afirmação(ões) falharam` : '\ntodas as afirmações passaram');
+  process.exit(falhas ? 1 : 0);
+})();
