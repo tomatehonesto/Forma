@@ -1,9 +1,21 @@
--- A leitura da semana sem teto: mil por dia.
+-- ============================================================
+-- OS TETOS DO DIA, MENORES (01/10/2026)
+--
+-- Pedido do dono: os tetos eram folgados demais. Ninguém fotografa
+-- vinte pratos num dia, e cada chamada é custo. Passam a:
+--   foto 20 -> 10 · estimativa (e o "descrever melhor") 40 -> 20 ·
+--   laudo 10 -> 5. A conversa (10 por dia e 100 em 30) e a leitura da
+--   semana (2) ficam como estavam.
+--
+-- A função é reescrita inteira, como nas migrações anteriores, só com
+-- os três números trocados. As permissões ficam como estavam.
+-- ============================================================
+
 create or replace function private.consumir_cota_da_ia(p_tipo text)
 returns jsonb
 language plpgsql volatile security definer
 set search_path = ''
-as $m$
+as $$
 declare
   v_uid uuid := auth.uid();
   v_hoje date := (now() at time zone 'utc')::date;
@@ -27,7 +39,7 @@ begin
     when 'estimativa' then 20
     when 'laudo' then 5
     when 'conversa' then 10
-    when 'leitura' then 1000
+    when 'leitura' then 2
   end;
   if v_limite is null then
     raise exception 'tipo desconhecido: %', p_tipo using errcode = '22023';
@@ -61,4 +73,4 @@ begin
   end if;
   return jsonb_build_object('ok', true, 'limite', v_limite, 'restam', v_restam);
 end;
-$m$;
+$$;

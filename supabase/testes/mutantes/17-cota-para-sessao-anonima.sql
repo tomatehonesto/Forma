@@ -6,7 +6,7 @@ set search_path = ''
 as $m$
 declare
   v_uid uuid := auth.uid();
-  v_limite integer := case p_tipo when 'foto' then 20 when 'estimativa' then 40 when 'laudo' then 10 when 'conversa' then 30 end;
+  v_limite integer := case p_tipo when 'foto' then 10 when 'estimativa' then 20 when 'laudo' then 5 when 'conversa' then 10 when 'leitura' then 2 end;
   v_vezes integer;
 begin
   if v_uid is null then

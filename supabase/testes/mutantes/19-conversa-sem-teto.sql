@@ -19,9 +19,9 @@ begin
   end if;
 
   v_limite := case p_tipo
-    when 'foto' then 20
-    when 'estimativa' then 40
-    when 'laudo' then 10
+    when 'foto' then 10
+    when 'estimativa' then 20
+    when 'laudo' then 5
     when 'conversa' then 1000
   end;
   if v_limite is null then

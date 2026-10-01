@@ -15,6 +15,6 @@ begin
   values (v_uid, (now() at time zone 'utc')::date, p_tipo, 1)
   on conflict (user_id, dia, tipo) do update set vezes = u.vezes + 1
   returning vezes into v_vezes;
-  return jsonb_build_object('ok', true, 'limite', 20, 'restam', 20 - v_vezes);
+  return jsonb_build_object('ok', true, 'limite', 10, 'restam', 10 - v_vezes);
 end;
 $m$;

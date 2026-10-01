@@ -188,7 +188,7 @@ região `gru1` (São Paulo), 60 s de teto.
   confere a sessão do Supabase e o teto do dia antes de chamar o modelo
   (`servidor/cota.ts` e a migração `cota_da_ia`, que já está no
   morphi-dev e sobe para a produção com as outras). Tetos por pessoa e
-  por dia: 20 fotos, 40 estimativas, 10 laudos. A trava das regras
+  por dia: 10 fotos, 20 estimativas (com o "descrever melhor"), 5 laudos — reduzidos em 01/10/2026 a pedido do dono (20261001183433_cota_menor); eram 20, 40 e 10. A trava das regras
   (`scripts/regras.mjs`) prova a cota, com três mutantes.
 - **Os tetos são palpite meu,** pensados para quem registra tudo com
   folga. Depois do lançamento, olhar o uso de verdade (a tabela

@@ -612,16 +612,16 @@ begin
   -- ============================================================
   -- A COTA DA IA
   -- ============================================================
-  perform pg_temp.igual(pg_temp.valor(u_a::text, $$public.consumir_cota_da_ia('foto')->>'restam'$$), '19',
-    'a primeira foto do dia de A deixa dezenove');
-  perform pg_temp.igual(pg_temp.valor(u_b::text, $$public.consumir_cota_da_ia('foto')->>'restam'$$), '19',
+  perform pg_temp.igual(pg_temp.valor(u_a::text, $$public.consumir_cota_da_ia('foto')->>'restam'$$), '9',
+    'a primeira foto do dia de A deixa nove');
+  perform pg_temp.igual(pg_temp.valor(u_b::text, $$public.consumir_cota_da_ia('foto')->>'restam'$$), '9',
     'a cota de B é dela, e não anda com a de A');
-  for i in 1..19 loop
+  for i in 1..9 loop
     perform pg_temp.valor(u_a::text, $$public.consumir_cota_da_ia('foto')$$);
   end loop;
   perform pg_temp.igual(pg_temp.valor(u_a::text, $$public.consumir_cota_da_ia('foto')->>'ok'$$), 'false',
     'passado o teto do dia, a foto é recusada');
-  perform pg_temp.igual((select vezes::text from private.uso_da_ia where user_id = u_a and tipo = 'foto'), '20',
+  perform pg_temp.igual((select vezes::text from private.uso_da_ia where user_id = u_a and tipo = 'foto'), '10',
     'e a recusa não soma: a contagem para no teto');
   perform pg_temp.igual(pg_temp.valor(u_a::text, $$public.consumir_cota_da_ia('laudo')->>'ok'$$), 'true',
     'o teto da foto não tranca o laudo');
