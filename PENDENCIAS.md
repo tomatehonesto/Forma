@@ -231,8 +231,14 @@ a especificação, `docs/superpowers/specs/2026-09-29-morphi-intelligence-design
   **Sonnet 5.5** (~US$ 0,015 por pergunta, e melhor na avaliação), o
   teto a **10 por dia e 100 em 30 dias** (20261001012518), e o cache das
   regras a 1 hora. Pior caso: ~US$ 1,50 por pessoa a cada 30 dias.
-- **O teto de 30 dias só está no morphi-dev.** Subir a migração para a
-  produção junto com as outras, na virada.
+- **O teto de 30 dias e a cota da leitura só estão no morphi-dev**
+  (20261001012518, 20261001123426). Subir para a produção junto com as
+  outras, na virada.
+- **Uma rodada completa da conversa na versão final.** A versão no ar
+  (Sonnet 5.5, prompt v8) só rodou nos recortes difíceis; os 77 casos
+  rodaram pela última vez com o Opus 5. ~US$ 3; vira a nova linha de base.
+- **Testar no celular, com conta:** a voz e o humor da conversa, e o card
+  "Sua semana" numa segunda (no navegador não há sessão).
 
 **A avaliação da conversa** (`scripts/avaliacao/`, notas em
 `.claude/hillclimb/conversa/`): 77 casos com 17 pacientes fictícios e um
@@ -246,6 +252,20 @@ está na base).
 checagem): o Wegovy agora vai até 7,2 mg e tem comprimido (1,5 → 25 mg),
 e existe o Ozempic em comprimido (1,5, 4, 9 mg), que não se troca mg por
 mg com o Rybelsus. `src/logic/meds.ts` não tem nenhum desses.
+
+**A leitura da semana** (01/10/2026, especificação
+`docs/superpowers/specs/2026-10-01-leitura-da-semana-design.md`): o motor de
+descobertas no aparelho (sonda `scripts/leitura-da-semana.ts`), o servidor
+`/api/leitura`, o card na Home e o aceite próprio; bateria
+`scripts/avaliacao/leitura.ts`, 12/12. A Política 2.3 e o aceite dela vão
+para o advogado (item 2). Ainda sem tela de preferências: o "agora não" e
+o "desligar" valem 4 semanas e o card pergunta de novo.
+
+**Falhas conhecidas da conversa, sem bloquear:** inventa "o corpo está
+respondendo" na dose de início; para quem diz ser médico, ainda recita o
+esquema de doses; a piada sai truncada quando o assunto é uma frase longa;
+esquece a fibra no intestino preso. E o juiz só foi calibrado com o dono
+em seis casos.
 
 **Fases seguintes** (fora desta versão, registradas na especificação):
 a trava de segurança sobre os dados registrados antes do modelo, a IA
