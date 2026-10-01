@@ -35,12 +35,12 @@ export async function cabecalhosDaIa(): Promise<Record<string, string>> {
   return h;
 }
 
-/** Os dois motivos que a porta do servidor pode dar, além dos de cada
-    leitura. */
-export type MotivoDaPorta = 'sem-conta' | 'limite';
+/** Os motivos que a porta do servidor pode dar, além dos de cada
+    leitura. 'limite-do-mes' é o teto de 30 dias, que só a conversa tem. */
+export type MotivoDaPorta = 'sem-conta' | 'limite' | 'limite-do-mes';
 
 /** O motivo da porta numa resposta de falha, se for um deles. */
 export const motivoDaPorta = (corpo: unknown): MotivoDaPorta | null => {
   const m = (corpo as { motivo?: unknown } | null)?.motivo;
-  return m === 'sem-conta' || m === 'limite' ? m : null;
+  return m === 'sem-conta' || m === 'limite' || m === 'limite-do-mes' ? m : null;
 };

@@ -768,6 +768,9 @@ const secaoDaPorta = (async () => {
   responde(200, { ok: false, limite: 20, restam: 0 });
   const cheia = await abrirPorta(req('Bearer jwt.da.sessao'), 'foto');
   ok(!cheia.ok && cheia.motivo === 'limite' && cheia.status === 429, 'passado o teto do dia, é "limite"');
+  responde(200, { ok: false, limite: 100, restam: 0, periodo: '30-dias' });
+  const cheia30 = await abrirPorta(req('Bearer jwt.da.sessao'), 'conversa');
+  ok(!cheia30.ok && cheia30.motivo === 'limite-do-mes' && cheia30.status === 429, 'passado o teto de 30 dias da conversa, é "limite-do-mes"');
   responde(401, { message: 'JWT expired' });
   const vencida = await abrirPorta(req('Bearer jwt.vencido'), 'laudo');
   ok(!vencida.ok && vencida.motivo === 'sem-conta', 'um JWT recusado pelo Supabase é "sem-conta"');
@@ -778,8 +781,9 @@ const secaoDaPorta = (async () => {
   const quebrou = await abrirPorta(req('Bearer jwt.da.sessao'), 'foto');
   ok(!quebrou.ok && quebrou.motivo === 'sem-rede', 'um erro do Supabase fecha a porta, e não a abre');
 
-  ok(motivoDaPorta({ ok: false, motivo: 'limite' }) === 'limite' && motivoDaPorta({ ok: false, motivo: 'sem-rede' }) === null,
-    'o aplicativo reconhece os dois motivos da porta, e só eles');
+  ok(motivoDaPorta({ ok: false, motivo: 'limite' }) === 'limite' && motivoDaPorta({ ok: false, motivo: 'limite-do-mes' }) === 'limite-do-mes'
+    && motivoDaPorta({ ok: false, motivo: 'sem-rede' }) === null,
+    'o aplicativo reconhece os três motivos da porta, e só eles');
 
   globalThis.fetch = fetchDeVerdade;
   for (const k of ['SUPABASE_URL', 'SUPABASE_PUBLISHABLE_KEY', 'VERCEL_ENV']) {

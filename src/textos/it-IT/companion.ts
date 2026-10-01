@@ -205,6 +205,7 @@ export const companion = {
     semRede: 'Non sono riuscito a rispondere — la connessione non è andata. Riprova tra un attimo.',
     semConta: 'Per parlare con me, accedi al tuo account.',
     limiteDoDia: 'Hai raggiunto il limite di domande di oggi. Domani torno a rispondere.',
+    limiteDoMes: 'Hai raggiunto il limite di 100 domande in 30 giorni. Tornano a poco a poco, man mano che i giorni più vecchi escono dal conteggio.',
     restam: (n: number): string => (n === 1 ? 'Ti resta 1 domanda oggi' : `Ti restano ${n} domande oggi`),
   },
 };

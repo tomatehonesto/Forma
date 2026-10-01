@@ -170,6 +170,7 @@ export const companion = {
     semRede: 'Je n’ai pas pu répondre — la connexion a échoué. Réessayez dans un instant.',
     semConta: 'Pour discuter avec moi, connectez-vous à votre compte.',
     limiteDoDia: 'Vous avez atteint la limite de questions pour aujourd’hui. Je répondrai de nouveau demain.',
+    limiteDoMes: 'Vous avez atteint la limite de 100 questions sur 30 jours. Elles reviennent peu à peu, à mesure que les jours les plus anciens sortent du compte.',
     restam: (n: number): string => (n === 1 ? 'Il reste 1 question aujourd’hui' : `Il reste ${n} questions aujourd’hui`),
   },
 };

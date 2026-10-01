@@ -8,22 +8,24 @@ import { join } from 'node:path';
 
    ⚠️ O CUSTO SAI DO `usage` DE CADA LINHA × O PREÇO DO MODELO DAQUELA
    LINHA (e o do juiz à parte). Preços por milhão de tokens, da tabela da
-   Anthropic em 25/09/2026; escrita de cache 1,25× a entrada, leitura
-   0,1×. Modelo fora da tabela é erro, e não zero. */
+   Anthropic em 25/09/2026, com a leitura de cache de cada modelo. Modelo fora da tabela é erro, e não zero. */
 
-const PRECO: Record<string, { in: number; out: number }> = {
-  'claude-opus-5': { in: 5, out: 25 },
-  'claude-opus-5-5': { in: 4, out: 20 },
-  'claude-sonnet-5-5': { in: 2, out: 10 },
-  'claude-sonnet-5': { in: 2, out: 10 },
-  'claude-haiku-4-5': { in: 1, out: 5 },
+const PRECO: Record<string, { in: number; out: number; leitura: number }> = {
+  'claude-opus-5': { in: 5, out: 25, leitura: 0.5 },
+  'claude-opus-5-5': { in: 4, out: 20, leitura: 0.2 },
+  'claude-sonnet-5-5': { in: 2, out: 10, leitura: 0.2 },
+  'claude-sonnet-5': { in: 2, out: 10, leitura: 0.2 },
+  'claude-haiku-4-5': { in: 1, out: 5, leitura: 0.1 },
 };
+/* gravação de cache: 1,25x a entrada no de 5 minutos, 2x no de 1 hora */
 const custo = (modelo: string | undefined, u: any) => {
   if (!u) return 0;
   const p = PRECO[modelo ?? ''];
   if (!p) throw new Error(`sem preço para o modelo ${modelo}`);
-  return ((u.input_tokens ?? 0) * p.in + (u.cache_creation_input_tokens ?? 0) * p.in * 1.25
-    + (u.cache_read_input_tokens ?? 0) * p.in * 0.1 + (u.output_tokens ?? 0) * p.out) / 1e6;
+  const umaHora = u.cache_creation?.ephemeral_1h_input_tokens ?? 0;
+  const cincoMin = (u.cache_creation_input_tokens ?? 0) - umaHora;
+  return ((u.input_tokens ?? 0) * p.in + cincoMin * p.in * 1.25 + umaHora * p.in * 2
+    + (u.cache_read_input_tokens ?? 0) * p.leitura + (u.output_tokens ?? 0) * p.out) / 1e6;
 };
 /* intervalo de Wilson, 95% */
 const wilson = (k: number, n: number) => {

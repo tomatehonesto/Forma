@@ -168,6 +168,7 @@ export const companion = {
     semRede: 'Ich konnte gerade nicht antworten — die Verbindung ist fehlgeschlagen. Versuch es gleich noch einmal.',
     semConta: 'Um mit mir zu sprechen, melde dich in deinem Konto an.',
     limiteDoDia: 'Du hast das heutige Fragenlimit erreicht. Morgen antworte ich wieder.',
+    limiteDoMes: 'Du hast das Limit von 100 Fragen in 30 Tagen erreicht. Sie kommen nach und nach zurück, sobald die ältesten Tage aus der Zählung fallen.',
     restam: (n: number): string => (n === 1 ? 'Heute noch 1 Frage' : `Heute noch ${n} Fragen`),
   },
 };

@@ -625,16 +625,32 @@ begin
     'e a recusa não soma: a contagem para no teto');
   perform pg_temp.igual(pg_temp.valor(u_a::text, $$public.consumir_cota_da_ia('laudo')->>'ok'$$), 'true',
     'o teto da foto não tranca o laudo');
-  -- A conversa do Morphi Intelligence: o quarto tipo, com teto próprio.
-  perform pg_temp.igual(pg_temp.valor(u_a::text, $$public.consumir_cota_da_ia('conversa')->>'restam'$$), '29',
-    'a primeira pergunta do dia de A deixa vinte e nove');
-  for i in 1..29 loop
+  -- A conversa do Morphi Intelligence: o quarto tipo, com teto próprio —
+  -- 10 por dia e 100 nos últimos 30 dias (20261001012518_teto_da_conversa).
+  perform pg_temp.igual(pg_temp.valor(u_a::text, $$public.consumir_cota_da_ia('conversa')->>'restam'$$), '9',
+    'a primeira pergunta do dia de A deixa nove');
+  for i in 1..9 loop
     perform pg_temp.valor(u_a::text, $$public.consumir_cota_da_ia('conversa')$$);
   end loop;
-  perform pg_temp.igual(pg_temp.valor(u_a::text, $$public.consumir_cota_da_ia('conversa')->>'ok'$$), 'false',
-    'passadas trinta perguntas no dia, a conversa é recusada');
-  perform pg_temp.igual((select vezes::text from private.uso_da_ia where user_id = u_a and tipo = 'conversa'), '30',
-    'e a contagem da conversa para em trinta');
+  perform pg_temp.igual(pg_temp.valor(u_a::text, $$public.consumir_cota_da_ia('conversa')->>'periodo'$$), 'dia',
+    'passadas dez perguntas no dia, a conversa é recusada pelo teto do dia');
+  perform pg_temp.igual((select vezes::text from private.uso_da_ia where user_id = u_a and tipo = 'conversa'), '10',
+    'e a contagem da conversa para em dez');
+  -- O teto de 30 dias: B fez 99 perguntas ontem (escritas direto, como se
+  -- fossem de dias seguidos), então cabe só mais uma.
+  insert into private.uso_da_ia (user_id, dia, tipo, vezes)
+  values (u_b, (now() at time zone 'utc')::date - 1, 'conversa', 99);
+  perform pg_temp.igual(pg_temp.valor(u_b::text, $$public.consumir_cota_da_ia('conversa')->>'restam'$$), '0',
+    'com 99 nos últimos 30 dias, a centésima passa e avisa que não resta nenhuma');
+  perform pg_temp.igual(pg_temp.valor(u_b::text, $$public.consumir_cota_da_ia('conversa')->>'periodo'$$), '30-dias',
+    'a centésima primeira nos 30 dias é recusada pelo teto de 30 dias, mesmo sobrando no dia');
+  perform pg_temp.igual((select vezes::text from private.uso_da_ia where user_id = u_b and tipo = 'conversa' and dia = (now() at time zone 'utc')::date), '1',
+    'e a recusa de 30 dias não soma no dia');
+  -- O que ficou para trás da janela não conta.
+  update private.uso_da_ia set dia = (now() at time zone 'utc')::date - 30
+  where user_id = u_b and tipo = 'conversa' and vezes = 99;
+  perform pg_temp.igual(pg_temp.valor(u_b::text, $$public.consumir_cota_da_ia('conversa')->>'ok'$$), 'true',
+    'as perguntas de 30 dias atrás já não contam');
   perform pg_temp.que(pg_temp.valor('anon', $$public.consumir_cota_da_ia('foto')$$) like 'erro:%',
     'sem login, a cota não abre');
   perform pg_temp.que(pg_temp.valor(u_a::text, $$public.consumir_cota_da_ia('video')$$) like 'erro:%',

@@ -68,6 +68,30 @@ export const ESQUEMA_DO_JUIZ = {
 
 export type Veredito = Record<Nota, { motivo: string; passou: boolean }>;
 
+/** O juiz padrão. Era o Sonnet 5.5 até 30/09/2026; passou ao Opus 5.5
+    quando o Sonnet virou candidato a responder — um modelo não julga a
+    si mesmo. Cada linha de results.jsonl guarda o `judge_model`. */
+export const JUIZ_PADRAO = 'claude-opus-5-5';
+
+/** Uma chamada ao juiz. Falha de juiz (recusa, corte, JSON quebrado) é
+    erro de infraestrutura, e não nota zero. */
+export async function chamarJuiz(cliente: any, modelo: string, base: string, mensagem: string) {
+  const r: any = await cliente.messages.create({
+    model: modelo,
+    max_tokens: 8000,
+    system: [{ type: 'text', text: JUIZ_SISTEMA + base, cache_control: { type: 'ephemeral' } }],
+    messages: [{ role: 'user', content: mensagem }],
+    output_config: { effort: 'medium', format: { type: 'json_schema', schema: ESQUEMA_DO_JUIZ } },
+  });
+  const falha = (m: string) => Object.assign(new Error(m), { failure_class: 'grader', judge_model: r.model, judge_usage: r.usage });
+  if (r.stop_reason === 'refusal' || r.stop_reason === 'max_tokens') throw falha(`o juiz parou: ${r.stop_reason}`);
+  if (r.model !== modelo) throw falha(`juiz servido ${r.model} ≠ pedido ${modelo}`);
+  const texto = r.content.filter((b: any) => b.type === 'text').map((b: any) => b.text).join('');
+  let veredito: Veredito;
+  try { veredito = JSON.parse(texto); } catch { throw falha('o juiz não devolveu JSON'); }
+  return { veredito, judge_model: r.model as string, judge_usage: r.usage };
+}
+
 const esc = (s: string) => s.replace(/</g, '‹').replace(/>/g, '›');
 
 /** A mensagem do caso para o juiz. */

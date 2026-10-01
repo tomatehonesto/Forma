@@ -86,7 +86,13 @@ export function parametrosDaConversa(pedido: NonNullable<ReturnType<typeof lerPe
     model: 'claude-opus-5',
     max_tokens: 2000,
     system: [
-      { type: 'text', text: INSTRUCOES, cache_control: { type: 'ephemeral' } },
+      /* ⚠️ CACHE DE 1 HORA, e não os 5 minutos padrão (30/09/2026). As regras
+         e a base são ~16 mil tokens, iguais para todo mundo; com poucos
+         usuários, quase toda pergunta chegava com o cache frio e pagava a
+         gravação (3 a 4 vezes a pergunta). Gravar por 1 hora custa 2x a
+         entrada, mas uma pergunta por hora, de qualquer pessoa, já mantém
+         o cache quente para todas. */
+      { type: 'text', text: INSTRUCOES, cache_control: { type: 'ephemeral', ttl: '1h' } },
       { type: 'text', text: blocoDaPessoa(IDIOMAS[pedido.idioma], pedido.resumo) },
     ],
     messages: mensagensDe(pedido.historico, pedido.pergunta),
@@ -106,7 +112,7 @@ const CABECALHOS = {
 const responder = (corpo: unknown, status = 200) =>
   new Response(JSON.stringify(corpo), { status, headers: CABECALHOS });
 
-const falhou = (motivo: 'sem-rede' | 'nao-reconheci' | 'sem-conta' | 'limite', status = 200) =>
+const falhou = (motivo: 'sem-rede' | 'nao-reconheci' | 'sem-conta' | 'limite' | 'limite-do-mes', status = 200) =>
   responder({ ok: false, motivo }, status);
 
 async function handler(req: Request): Promise<Response> {

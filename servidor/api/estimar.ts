@@ -96,7 +96,7 @@ const CABECALHOS = {
 const responder = (corpo: unknown, status = 200) =>
   new Response(JSON.stringify(corpo), { status, headers: CABECALHOS });
 
-const falhou = (motivo: 'sem-rede' | 'nao-reconheci' | 'sem-conta' | 'limite', status = 200) =>
+const falhou = (motivo: 'sem-rede' | 'nao-reconheci' | 'sem-conta' | 'limite' | 'limite-do-mes', status = 200) =>
   responder({ ok: false, motivo }, status);
 
 async function handler(req: Request): Promise<Response> {

@@ -74,6 +74,8 @@ export const RECADO = (): Record<Motivo, string> => ({
   'nao-reconheci': T.aviso.fotoNaoReconheci,
   'sem-conta': T.comum.ia.semConta,
   limite: T.comum.ia.limite,
+  /* o teto de 30 dias é só da conversa; aqui não chega, mas o tipo é o da porta */
+  'limite-do-mes': T.comum.ia.limite,
 });
 
 /* Quantidade que veio de fora: inteiro, pelo menos 1, no máximo 20.

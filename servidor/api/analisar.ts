@@ -133,7 +133,7 @@ const responder = (corpo: unknown, status = 200) =>
 /* Os motivos são os mesmos que o aplicativo já sabe mostrar. Qualquer
    falha vira um recado que aponta para a lista manual — errar calado
    deixaria a pessoa esperando por uma refeição que nunca entra. */
-const falhou = (motivo: 'sem-rede' | 'nao-reconheci' | 'sem-conta' | 'limite', status = 200) =>
+const falhou = (motivo: 'sem-rede' | 'nao-reconheci' | 'sem-conta' | 'limite' | 'limite-do-mes', status = 200) =>
   responder({ ok: false, motivo }, status);
 
 async function handler(req: Request): Promise<Response> {

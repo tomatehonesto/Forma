@@ -1,4 +1,3 @@
-import { createHash } from 'node:crypto';
 import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { join, relative, resolve } from 'node:path';
@@ -8,7 +7,8 @@ import { resumoDaJornada } from '../../src/logic/resumoDaJornada';
 import { limparResposta, TELAS_DA_CONVERSA } from '../../src/logic/conversa';
 import { PACIENTES } from './pacientes';
 import { CASOS, type Caso } from './casos';
-import { NOTAS, JUIZ_SISTEMA, ESQUEMA_DO_JUIZ, pedidoAoJuiz, type Veredito } from './juiz';
+import { NOTAS, JUIZ_PADRAO, chamarJuiz, pedidoAoJuiz } from './juiz';
+import { conferirArcabouco } from './arcabouco';
 
 /* ============================================================
    A AVALIAÇÃO DA CONVERSA DO MORPHI INTELLIGENCE
@@ -39,21 +39,21 @@ import { NOTAS, JUIZ_SISTEMA, ESQUEMA_DO_JUIZ, pedidoAoJuiz, type Veredito } fro
    ============================================================ */
 
 const FLUXO = '.claude/hillclimb/conversa';
-const JUIZ = 'claude-sonnet-5-5';
 
 if (existsSync('.env')) process.loadEnvFile('.env');
 const doServidor = createRequire(resolve('servidor/package.json'));
 const Anthropic = doServidor('@anthropic-ai/sdk').default;
 
-type Args = { variant: string; model?: string; reps: number; concurrency: number; timeoutS: number; casos?: string[]; approveHarness: boolean; soAprovar?: boolean };
+type Args = { variant: string; model?: string; juiz: string; reps: number; concurrency: number; timeoutS: number; casos?: string[]; approveHarness: boolean; soAprovar?: boolean };
 
 function lerArgs(argv: string[]): Args {
-  const a: Args = { variant: 'baseline', reps: 1, concurrency: 4, timeoutS: 300, approveHarness: false };
+  const a: Args = { variant: 'baseline', juiz: JUIZ_PADRAO, reps: 1, concurrency: 4, timeoutS: 300, approveHarness: false };
   const val = (i: number) => { if (argv[i] === undefined) { console.error(`falta o valor de ${argv[i - 1]}`); process.exit(2); } return argv[i]; };
   for (let i = 0; i < argv.length; i++) {
     const k = argv[i];
     if (k === '--variant') a.variant = val(++i);
     else if (k === '--model') a.model = val(++i);
+    else if (k === '--juiz') a.juiz = val(++i);
     else if (k === '--reps') a.reps = +val(++i);
     else if (k === '--concurrency') a.concurrency = +val(++i);
     else if (k === '--timeout-s') a.timeoutS = +val(++i);
@@ -65,31 +65,6 @@ function lerArgs(argv: string[]): Args {
   if (!/^(baseline|v[1-9]\d*)$/.test(a.variant)) { console.error(`--variant tem de ser 'baseline' ou 'v<N>'`); process.exit(2); }
   if (!Number.isInteger(a.reps) || a.reps < 1 || !Number.isInteger(a.concurrency) || a.concurrency < 1) process.exit(2);
   return a;
-}
-
-/* A trava do arcabouço: o hash deste arquivo e dos listados em
-   _state.json.harness_paths. Mudou, não roda até alguém aprovar com
-   --approve-harness — que é decisão de pessoa, não do assistente. */
-function conferirArcabouco(caminho: string, st: any, aprovar: boolean) {
-  const proprio = resolve(process.argv[1]);
-  const lista = Array.isArray(st.harness_paths) ? st.harness_paths.map(String) : [];
-  const caminhos = [...new Set([proprio, ...lista.map((p: string) => resolve(p))])].sort();
-  const h = createHash('sha256');
-  for (const p of caminhos) {
-    h.update(relative(process.cwd(), p)).update('\0').update(readFileSync(p)).update('\0');
-  }
-  const sha = h.digest('hex');
-  if (st.harness_sha === sha) return;
-  if (aprovar) {
-    st.harness_sha = sha;
-    writeFileSync(caminho, JSON.stringify(st, null, 2) + '\n');
-    console.error(`arcabouço aprovado: ${sha.slice(0, 12)} sobre ${caminhos.length} arquivo(s)`);
-    return;
-  }
-  console.error(st.harness_sha == null
-    ? `nenhum arcabouço aprovado em ${caminho} (agora ${sha.slice(0, 12)}). Revise e rode uma vez com --approve-harness.`
-    : `o arcabouço mudou desde a última aprovação (${String(st.harness_sha).slice(0, 12)} → ${sha.slice(0, 12)}). Revise e rode com --approve-harness.`);
-  process.exit(2);
 }
 
 async function comEspera<T>(fn: () => Promise<T>, tentativas: { n: number }, prazo: number, max = 5): Promise<T> {
@@ -198,6 +173,9 @@ async function main() {
       if (!pedido) throw Object.assign(new Error('o servidor recusaria este pedido (lerPedido)'), { failure_class: 'harness' });
       const params = parametrosDaConversa(pedido);
       if (args.model) params.model = args.model;
+      /* O Haiku 4.5 não aceita `effort` (400): sem ele, roda no padrão. */
+      if (params.model.startsWith('claude-haiku')) delete (params as any).output_config;
+      if (params.model === args.juiz) throw Object.assign(new Error('o modelo que responde não pode ser o juiz'), { failure_class: 'harness' });
       modeloPedido = params.model;
       const final: any = await comEspera(async () => {
         const t0 = Date.now();
@@ -223,26 +201,15 @@ async function main() {
 
   async function julgar(c: Caso, run: Awaited<ReturnType<typeof rodarCaso>>, tent: { n: number }, prazo: number) {
     const conversa = run.historico.slice(0, -1).map((h) => ({ quem: h.quem === 'eu' ? 'pessoa' as const : 'morphi' as const, texto: h.texto }));
-    const r: any = await comEspera(() => cliente.messages.create({
-      model: JUIZ,
-      max_tokens: 8000,
-      system: [{ type: 'text', text: JUIZ_SISTEMA + BASE, cache_control: { type: 'ephemeral' } }],
-      messages: [{ role: 'user', content: pedidoAoJuiz(c, resumoDe.get(c.id)!, conversa, run.bruto) }],
-      output_config: { effort: 'medium', format: { type: 'json_schema', schema: ESQUEMA_DO_JUIZ } },
-    } as any), tent, prazo);
-    if (r.stop_reason === 'refusal' || r.stop_reason === 'max_tokens') {
-      throw Object.assign(new Error(`o juiz parou: ${r.stop_reason}`), { failure_class: 'grader', judge_model: r.model, judge_usage: r.usage });
-    }
-    const texto = r.content.filter((b: any) => b.type === 'text').map((b: any) => b.text).join('');
-    let v: Veredito;
-    try { v = JSON.parse(texto); } catch { throw Object.assign(new Error('o juiz não devolveu JSON'), { failure_class: 'grader', judge_model: r.model, judge_usage: r.usage }); }
+    const { veredito: v, judge_model, judge_usage } = await comEspera(
+      () => chamarJuiz(cliente, args.juiz, BASE, pedidoAoJuiz(c, resumoDe.get(c.id)!, conversa, run.bruto)), tent, prazo);
     const f = formatoOk(run.bruto);
     const grade: Record<string, number> = { aprovada: NOTAS.every((n) => v[n].passou) ? 1 : 0 };
     const explanation: Record<string, string> = {};
     for (const n of NOTAS) { grade[n] = v[n].passou ? 1 : 0; explanation[n] = v[n].motivo; }
     grade.formato = f.ok ? 1 : 0;
     explanation.formato = f.motivo;
-    return { grade, explanation, judge_model: r.model, judge_usage: r.usage };
+    return { grade, explanation, judge_model, judge_usage };
   }
 
   const tarefas: { c: Caso; rep: number }[] = [];
@@ -278,7 +245,7 @@ async function main() {
           palavras: run.bruto.trim().split(/\s+/).filter(Boolean).length,
           turnos: c.turnos.length,
           grade: g?.grade ?? {}, explanation: g?.explanation,
-          meta: { por_fala: run.porFala, ...(tApp.n ? { retries: tApp.n } : {}), ...(tJuiz.n ? { judge_retries: tJuiz.n } : {}) },
+          meta: { resposta_bruta: run.bruto, por_fala: run.porFala, ...(tApp.n ? { retries: tApp.n } : {}), ...(tJuiz.n ? { judge_retries: tJuiz.n } : {}) },
         };
         appendFileSync(caminhoResultados, JSON.stringify(linha) + '\n');
         gravou = true;

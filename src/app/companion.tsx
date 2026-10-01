@@ -361,6 +361,7 @@ export default function Companion() {
     m === 'sem-servidor' ? K().semServidor
       : m === 'sem-conta' ? K().semConta
         : m === 'limite' ? K().limiteDoDia
+          : m === 'limite-do-mes' ? K().limiteDoMes
           : K().semRede;
 
   return (

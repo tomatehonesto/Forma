@@ -99,7 +99,7 @@ const CABECALHOS = {
 const responder = (corpo: unknown, status = 200) =>
   new Response(JSON.stringify(corpo), { status, headers: CABECALHOS });
 
-const falhou = (motivo: 'sem-rede' | 'nao-reconheci' | 'grande' | 'sem-conta' | 'limite', status = 200) =>
+const falhou = (motivo: 'sem-rede' | 'nao-reconheci' | 'grande' | 'sem-conta' | 'limite' | 'limite-do-mes', status = 200) =>
   responder({ ok: false, motivo }, status);
 
 const DATA = /^\d{4}-\d{2}-\d{2}$/;

@@ -25,7 +25,7 @@ export type Porta =
   /** `restam`: quantas chamadas deste tipo ainda cabem hoje, depois desta.
       Ausente quando a porta deixa passar sem o Supabase (desenvolvimento). */
   | { ok: true; restam?: number }
-  | { ok: false; motivo: 'sem-conta' | 'limite' | 'sem-rede'; status: number };
+  | { ok: false; motivo: 'sem-conta' | 'limite' | 'limite-do-mes' | 'sem-rede'; status: number };
 
 export async function abrirPorta(req: Request, tipo: Tipo): Promise<Porta> {
   const url = process.env.SUPABASE_URL;
@@ -57,12 +57,14 @@ export async function abrirPorta(req: Request, tipo: Tipo): Promise<Porta> {
      quem não tem sessão ou tem sessão anônima. Para quem está do outro
      lado, é o mesmo: entrar de novo na conta. */
   if (r.status === 401 || r.status === 403) return { ok: false, motivo: 'sem-conta', status: 401 };
-  const corpo = await r.json().catch(() => null) as { ok?: boolean; code?: string; restam?: number } | null;
+  const corpo = await r.json().catch(() => null) as { ok?: boolean; code?: string; restam?: number; periodo?: string } | null;
   if (corpo?.code === '42501') return { ok: false, motivo: 'sem-conta', status: 401 };
   if (!r.ok || !corpo) {
     console.error('porta: resposta inesperada', r.status, corpo);
     return { ok: false, motivo: 'sem-rede', status: 503 };
   }
-  if (corpo.ok !== true) return { ok: false, motivo: 'limite', status: 429 };
+  /* Qual teto barrou: o do dia ("amanhã eu volto") ou o de 30 dias, que
+     só a conversa tem (20261001012518_teto_da_conversa). */
+  if (corpo.ok !== true) return { ok: false, motivo: corpo.periodo === '30-dias' ? 'limite-do-mes' : 'limite', status: 429 };
   return typeof corpo.restam === 'number' ? { ok: true, restam: corpo.restam } : { ok: true };
 }

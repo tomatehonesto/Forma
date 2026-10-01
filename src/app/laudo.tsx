@@ -57,6 +57,8 @@ const RECADO = (): Record<MotivoDoLaudo, string> => ({
   grande: K().erroGrande,
   'sem-conta': T.comum.ia.semConta,
   limite: T.comum.ia.limite,
+  /* o teto de 30 dias é só da conversa; aqui não chega, mas o tipo é o da porta */
+  'limite-do-mes': T.comum.ia.limite,
 });
 
 export default function Laudo() {

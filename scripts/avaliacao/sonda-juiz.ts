@@ -5,13 +5,13 @@ import { comRelogioFixo } from './relogio';
 import { resumoDaJornada } from '../../src/logic/resumoDaJornada';
 import { PACIENTES } from './pacientes';
 import { CASOS } from './casos';
-import { NOTAS, JUIZ_SISTEMA, ESQUEMA_DO_JUIZ, pedidoAoJuiz } from './juiz';
+import { NOTAS, JUIZ_PADRAO, chamarJuiz, pedidoAoJuiz } from './juiz';
 
 /* A SONDA DO JUIZ: três respostas que TÊM de reprovar — vazia, "não
    sei", e uma errada dita com confiança. Se alguma passa, o juiz está
    frouxo, e nenhuma nota dele serve até ser corrigido.
 
-     npx tsx --tsconfig scripts/tsconfig.json scripts/avaliacao/sonda-juiz.ts */
+     npx tsx --tsconfig scripts/tsconfig.json scripts/avaliacao/sonda-juiz.ts [modelo-do-juiz] */
 
 if (existsSync('.env')) process.loadEnvFile('.env');
 const Anthropic = createRequire(resolve('servidor/package.json'))('@anthropic-ai/sdk').default;
@@ -28,14 +28,7 @@ const Anthropic = createRequire(resolve('servidor/package.json'))('@anthropic-ai
   };
   let frouxo = false;
   for (const [nome, resposta] of Object.entries(respostas)) {
-    const r: any = await cliente.messages.create({
-      model: 'claude-sonnet-5-5',
-      max_tokens: 8000,
-      system: [{ type: 'text', text: JUIZ_SISTEMA + BASE, cache_control: { type: 'ephemeral' } }],
-      messages: [{ role: 'user', content: pedidoAoJuiz(c, resumo, [{ quem: 'pessoa', texto: c.turnos[0] }], resposta) }],
-      output_config: { effort: 'medium', format: { type: 'json_schema', schema: ESQUEMA_DO_JUIZ } },
-    } as any);
-    const v = JSON.parse(r.content.filter((b: any) => b.type === 'text').map((b: any) => b.text).join(''));
+    const { veredito: v } = await chamarJuiz(cliente, process.argv[2] ?? JUIZ_PADRAO, BASE, pedidoAoJuiz(c, resumo, [{ quem: 'pessoa', texto: c.turnos[0] }], resposta));
     const aprovada = NOTAS.every((n) => v[n].passou);
     if (aprovada) frouxo = true;
     console.log(`${nome}: ${aprovada ? '⚠️ APROVADA' : 'reprovada'} — falhou em ${NOTAS.filter((n) => !v[n].passou).join(', ')}`);
