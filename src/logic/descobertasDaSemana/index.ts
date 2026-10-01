@@ -1,13 +1,13 @@
 import type { State } from '../seed';
-import { now, DAY } from '../time';
-import { diasDaJanela, semanaLida } from './dias';
+import { now } from '../time';
+import { diasDaJanela, semanaLida, noCalendario } from './dias';
 import {
   habitos, ritmo, exames, exercicio, sintomas, pesoSemanal, medidas, constancia,
   type Candidata, type Contexto, type Area,
 } from './detectores';
 
 export type { Candidata, Area, Nivel } from './detectores';
-export { semanaLida } from './dias';
+export { semanaLida, noCalendario } from './dias';
 
 /* ============================================================
    AS DESCOBERTAS DA SEMANA — o motor da leitura de segunda
@@ -52,12 +52,12 @@ export const SEMANAS_SEM_REPETIR = 3;
     semanas, trocando de área quando a da semana passada se repetiria e
     há outra no mesmo nível. */
 export function escolherDaSemana(candidatas: Candidata[], historico: Lembranca[], semana: number): Candidata | null {
-  const recentes = historico.filter((h) => h.semana < semana && h.semana >= semana - SEMANAS_SEM_REPETIR * 7 * DAY);
+  const recentes = historico.filter((h) => h.semana < semana && h.semana >= noCalendario(semana, -SEMANAS_SEM_REPETIR * 7));
   const vistas = new Set(recentes.map((h) => h.chave));
   const livres = candidatas.filter((c) => !vistas.has(c.chave)).sort(ordenar);
   if (!livres.length) return null;
   /* a alternância é só contra a semana imediatamente anterior */
-  const passada = historico.find((h) => h.semana === semana - 7 * DAY);
+  const passada = historico.find((h) => h.semana === noCalendario(semana, -7));
   const primeira = livres[0];
   if (passada && primeira.area === passada.area) {
     const outra = livres.find((c) => c.nivel === primeira.nivel && c.area !== passada.area);

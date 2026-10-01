@@ -95,16 +95,14 @@ export const companion = {
     proximasAcoes: 'Nächste Schritte',
     proximasAcoesNota: 'In der Reihenfolge, in der sie anstehen. Vorschläge für den Alltag — über Dosis und Medikament entscheidet, wer dich begleitet.',
 
-    resumos: 'Übersichten erstellen',
-    resumosNota: 'Deine Daten geordnet, um sie jemandem mitzubringen.',
+    resumos: 'Übersichten',
+    resumosNota: 'Aus deinen Einträgen erstellt, zum Lesen und zum Mitnehmen zum Termin.',
     disponivelDepois: 'verfügbar nach deinen ersten Einträgen',
 
-    resumoDaSemana: 'Übersicht der Woche',
-    resumoDaSemanaSub: (semana: number, checkins: number, peso: string | null) =>
-      `Woche ${semana} · ${checkins} ${checkins === 1 ? 'Check-in' : 'Check-ins'}${peso ? `, ${peso}` : ''}`,
-    preparoDaConsulta: 'Vorbereitung auf den Termin',
-    preparoDaConsultaSub: 'Gewicht, Therapietreue, Symptome und Fragen',
-    preparoSemEquipe: 'bereit zum Teilen',
+    resumoDaSemana: 'Wochenrückblick',
+    resumoDaSemanaPronto: (periodo: string): string => `fertig · ${periodo}`,
+    resumoDaSemanaToda: 'jeden Montag ein Blick auf deine Woche',
+    resumoDaSemanaDesligado: 'ausgeschaltet',
     documento: 'Übersicht für den Termin',
     documentoSub: 'ein Dokument mit dem ganzen Verlauf',
   },

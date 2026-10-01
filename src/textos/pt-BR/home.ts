@@ -153,10 +153,10 @@ export const home = {
     proteina: 'Proteína',
     exercicioMetrica: 'Exercício',
     pesoMetrica: 'Peso',
-    litrosPorDia: (quanto: string) => `${quanto} L/dia`,
+    /* o volume já vem escrito na unidade da pessoa (aguaTxt): "1,6 L", "54 fl oz" */
+    aguaPorDia: (quanto: string) => `${quanto}/dia`,
     gramasPorDia: (quanto: number) => `${quanto} g/dia`,
     minutos: (quanto: number) => `${quanto} min`,
-    deltaLitros: (quanto: string) => `${quanto} L`,
     deltaGramas: (quanto: string) => `${quanto} g`,
     deltaMinutos: (quanto: string) => `${quanto} min`,
   },
@@ -321,6 +321,7 @@ export const home = {
     semana: (numero: number) => `Semana ${numero}`,
     doseAjustada: 'dose ajustada',
     semRegistrosNaSemana: 'Sem registros nesta semana.',
+    verDetalhes: 'Ver detalhes',
     nadaNesteTipo: 'Nada registrado neste tipo ainda',
 
     /* A meta pessoal não tem porcentagem: tem estado. E meta não se

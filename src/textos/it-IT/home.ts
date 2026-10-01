@@ -152,10 +152,10 @@ export const home = {
     proteina: 'Proteine',
     exercicioMetrica: 'Movimento',
     pesoMetrica: 'Peso',
-    litrosPorDia: (quanto: string) => `${quanto} L/giorno`,
+    /* o volume já vem escrito na unidade da pessoa (aguaTxt): "1,6 L", "54 fl oz" */
+    aguaPorDia: (quanto: string) => `${quanto}/giorno`,
     gramasPorDia: (quanto: number) => `${quanto} g/giorno`,
     minutos: (quanto: number) => `${quanto} min`,
-    deltaLitros: (quanto: string) => `${quanto} L`,
     deltaGramas: (quanto: string) => `${quanto} g`,
     deltaMinutos: (quanto: string) => `${quanto} min`,
   },
@@ -291,6 +291,7 @@ export const home = {
     semana: (numero: number) => `Settimana ${numero}`,
     doseAjustada: 'dose modificata',
     semRegistrosNaSemana: 'Nessuna registrazione in questa settimana.',
+    verDetalhes: 'Vedi dettagli',
     nadaNesteTipo: 'Ancora niente registrato in questo tipo',
 
     /* L'obiettivo personale non ha una percentuale: ha uno stato. Era

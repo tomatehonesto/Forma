@@ -165,6 +165,17 @@ export const aguaN = (S: ComPerfil, ml: number) => (imp(S)
      resto do que sabe qual é o separador. */
   : numeroEnxuto(ml / 1000, 2));
 export const aguaTxt = (S: ComPerfil, ml: number) => `${aguaN(S, ml)} ${aguaU(S)}`;
+/** Uma MÉDIA de água no passo em que ela é escrita — 0,1 L no métrico, a
+    onça inteira no imperial —, de volta em mL, que é o que aguaTxt recebe.
+
+    ⚠️ UM ARREDONDAMENTO SÓ. Levar a média a 100 mL e depois converter
+    para onças arredondava duas vezes: as onças andavam de 3,4 em 3,4 e
+    erravam até 2 (achado da revisão de 01/10/2026). E a variação entre
+    duas médias sai da diferença destes valores, e não das médias cruas:
+    é o que garante que ela bate com os dois números na tela. */
+export const aguaNoPasso = (S: ComPerfil, ml: number) => (imp(S)
+  ? aguaMl(S, Math.round(aguaV(S, ml)))
+  : Math.round(ml / 100) * 100);
 
 /* ------------------------------------------------------------------ *
  * AS RÉGUAS

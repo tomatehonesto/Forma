@@ -17,7 +17,7 @@ import { BEBIDA_PADRAO, bebidaDe, type Bebida } from './bebidas';
 import { faixaDe } from './escalas';
 import { ENERGIA, FOME, HUMOR, SINTOMA, SINTOMAS_LIDOS, SONO, grauDoSintoma, paraTela } from './escalas';
 import type { State } from './seed';
-import { pesoTxt, pesoProsaTxt, compTxt, pesoU, pesoV, pesoN, aguaTxt, aguaU, aguaN, pesoProsa, compU, compV, compN } from './medidas';
+import { pesoTxt, pesoProsaTxt, compTxt, pesoU, pesoV, pesoN, aguaTxt, aguaU, aguaN, aguaNoPasso, pesoProsa, compU, compV, compN } from './medidas';
 
 /* A META DE ÁGUA SAI DO PERFIL, como a de proteína e a de exercício.
 
@@ -3115,6 +3115,17 @@ export function timelineEvents(S: State): TLEvent[] {
 /** Um destaque numérico do ciclo — valor + como ele se moveu. */
 export type WeekMetric = { ic: string; label: string; valor: string; delta: string | null; good: boolean };
 
+/** Uma variação JÁ ARREDONDADA, como a tela a escreve: com sinal, e o zero
+    sem sinal — "−0 L" e "+0 g" afirmavam uma mudança que o próprio número
+    nega (a mesma regra do peso, "zero não tem sinal"). */
+export const comSinal = (d: number, escreve: (n: number) => string) =>
+  (d === 0 ? escreve(0) : `${d > 0 ? '+' : '−'}${escreve(Math.abs(d))}`);
+
+/** Um marco que é, na verdade, um acontecimento da linha do tempo — a
+    consulta e o exame. Os destaques de uma semana mostram o acontecimento
+    (com a cor e a linha de baixo dele), e o marco junto o repetia. */
+export const marcoQueEhEvento = (m: Milestone) => m.to === '/consultas' || m.to === '/exames';
+
 export type JourneyWeek = {
   semana: number; t: number; dose: string; site: string;
   eventos: TLEvent[]; deltaPeso: string | null;
@@ -3213,22 +3224,28 @@ export function timelineWeeks(S: State): JourneyWeek[] {
       ic: 'scale', label: W.pesoMetrica, valor: deltaPeso, delta: null, good: deltaPeso.startsWith('−'),
     });
     if (at) {
-      const sinal = (agora: number, antes: number, casas: number) =>
-        `${agora >= antes ? '+' : '−'}${nf(Math.abs(agora - antes), casas)}`;
+      /* ⚠️ NA UNIDADE DA PESSOA, e era litro para todo mundo: o texto
+         tinha o "L" escrito, e quem usa onças lia litros só aqui. Cada
+         média vai ao passo em que é escrita (aguaNoPasso), e a variação
+         sai da diferença dos valores escritos — com o zero sem sinal. */
+      const agua = aguaNoPasso(S, at.agua * 1000);
+      const dAgua = ant?.agua == null ? null : agua - aguaNoPasso(S, ant.agua * 1000);
       metricas.push({
-        ic: 'water', label: W.hidratacao, valor: W.litrosPorDia(nf(at.agua, 1)),
-        delta: ant?.agua == null ? null : W.deltaLitros(sinal(at.agua, ant.agua, 1)),
-        good: !ant || at.agua >= ant.agua,
+        ic: 'water', label: W.hidratacao, valor: W.aguaPorDia(aguaTxt(S, agua)),
+        delta: dAgua == null ? null : comSinal(dAgua, (v) => aguaTxt(S, v)),
+        good: dAgua == null || dAgua >= 0,
       });
+      const dProt = ant ? Math.round(at.prot) - Math.round(ant.prot) : null;
       metricas.push({
         ic: 'leaf', label: W.proteina, valor: W.gramasPorDia(Math.round(at.prot)),
-        delta: ant ? W.deltaGramas(`${at.prot >= ant.prot ? '+' : '−'}${Math.round(Math.abs(at.prot - ant.prot))}`) : null,
-        good: !ant || at.prot >= ant.prot,
+        delta: dProt == null ? null : W.deltaGramas(comSinal(dProt, String)),
+        good: dProt == null || dProt >= 0,
       });
+      const dExerc = ant ? at.exerc - ant.exerc : null;
       metricas.push({
         ic: 'dumbbell', label: W.exercicioMetrica, valor: W.minutos(at.exerc),
-        delta: ant ? W.deltaMinutos(`${at.exerc >= ant.exerc ? '+' : '−'}${Math.abs(at.exerc - ant.exerc)}`) : null,
-        good: !ant || at.exerc >= ant.exerc,
+        delta: dExerc == null ? null : W.deltaMinutos(comSinal(dExerc, String)),
+        good: dExerc == null || dExerc >= 0,
       });
     }
 

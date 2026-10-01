@@ -129,10 +129,10 @@ export const home = {
     proteina: 'Protéines',
     exercicioMetrica: 'Exercice',
     pesoMetrica: 'Poids',
-    litrosPorDia: (quanto: string) => `${quanto} L/jour`,
+    /* o volume já vem escrito na unidade da pessoa (aguaTxt): "1,6 L", "54 fl oz" */
+    aguaPorDia: (quanto: string) => `${quanto}/jour`,
     gramasPorDia: (quanto: number) => `${quanto} g/jour`,
     minutos: (quanto: number) => `${quanto} min`,
-    deltaLitros: (quanto: string) => `${quanto} L`,
     deltaGramas: (quanto: string) => `${quanto} g`,
     deltaMinutos: (quanto: string) => `${quanto} min`,
   },
@@ -242,6 +242,7 @@ export const home = {
     semana: (numero: number) => `Semaine ${numero}`,
     doseAjustada: 'dose ajustée',
     semRegistrosNaSemana: 'Rien de noté cette semaine.',
+    verDetalhes: 'Voir le détail',
     nadaNesteTipo: 'Rien de noté dans ce type pour l’instant',
 
     /* ⚠️ « ATTEINT » ET « EN COURS », AU MASCULIN INVARIABLE : l'étiquette

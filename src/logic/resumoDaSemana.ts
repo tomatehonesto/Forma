@@ -1,10 +1,11 @@
 import type { State } from './seed';
-import { M, temDose, doseDoPerfil, adesao, aguaDoDia, sintomasEm, clinicaConectada, temAcompanhamento } from './derive';
+import { M, temDose, doseDoPerfil, adesao, aguaDoDia, sintomasEm, clinicaConectada, temAcompanhamento, milestones, timelineEvents, comSinal, marcoQueEhEvento, type WeekMetric } from './derive';
 import { paraTela } from './escalas';
-import { pesoTxt, aguaTxt, sistemaDe } from './medidas';
+import { pesoTxt, aguaTxt, aguaNoPasso, sistemaDe } from './medidas';
 import { localAtual } from './local';
 import { DAY, startOfDay, now } from './time';
-import { semanaLida, type Candidata } from './descobertasDaSemana';
+import { semanaLida, noCalendario, type Candidata } from './descobertasDaSemana';
+import { T } from '../textos';
 
 /* ============================================================
    O RESUMO DA SEMANA — o que a leitura de segunda LÊ
@@ -57,7 +58,7 @@ export function resumoDaSemana(S: State, agora: Date = now()): string {
 
   secoes.push(secao('Pessoa', [
     P.name ? `Primeiro nome: ${String(P.name).trim().split(/\s+/)[0]}` : null,
-    `Semana lida: ${data(de)} a ${data(ate - DAY)} (segunda a domingo)`,
+    `Semana lida: ${data(de)} a ${data(noCalendario(ate, -1))} (segunda a domingo)`,
     P.startT ? `Semana do tratamento: ${Math.floor((ate - P.startT) / (7 * DAY)) + 1}` : null,
     `Unidades: ${sistemaDe(S) === 'imperial' ? 'imperiais (lb, fl oz)' : 'métricas (kg, mL)'}`,
     `Idioma do aplicativo: ${localAtual()}`,
@@ -75,12 +76,19 @@ export function resumoDaSemana(S: State, agora: Date = now()): string {
   ]));
 
   const todosPesos = (((S as any).weights ?? []) as any[]).filter((w) => w.t < ate).sort((a, b) => a.t - b.t);
-  const antes = todosPesos.filter((w) => w.t < de).pop();
   const fim = pesos[pesos.length - 1];
+  /* ⚠️ A MESMA BASE DO CARTÃO DA TELA (numerosDaSemana): a pesagem de antes
+     só conta se estiver a até 14 dias da última da semana; senão, a
+     primeira da semana. Com bases diferentes, a IA escrevia uma variação
+     e o cartão logo acima mostrava outra (achado da revisão de
+     01/10/2026). */
+  const ultimaAntes = todosPesos.filter((w) => w.t < de).pop();
+  const antes = ultimaAntes && fim && fim.t - ultimaAntes.t <= 14 * DAY ? ultimaAntes : null;
+  const base = antes ?? (pesos.length >= 2 ? pesos[0] : null);
   secoes.push(secao('Peso', pesos.length ? [
     antes ? `Antes da semana: ${pesoTxt(S, antes.kg)} (${data(antes.t)})` : null,
     `No fim da semana: ${pesoTxt(S, fim.kg)} (${data(fim.t)})`,
-    antes ? `Variação na semana: ${fim.kg <= antes.kg ? '-' : '+'}${pesoTxt(S, Math.abs(fim.kg - antes.kg))}` : null,
+    base ? `Variação na semana: ${fim.kg <= base.kg ? '-' : '+'}${pesoTxt(S, Math.abs(fim.kg - base.kg))}` : null,
     P.startWeight ? `Desde o início: ${fim.kg <= P.startWeight ? '-' : '+'}${pesoTxt(S, Math.abs(P.startWeight - fim.kg))}` : null,
     P.goalWeight ? `Meta: ${pesoTxt(S, P.goalWeight)}` : null,
   ] : ['Nenhuma pesagem na semana']));
@@ -101,7 +109,7 @@ export function resumoDaSemana(S: State, agora: Date = now()): string {
 
   const alvo = P.targets ?? {};
   const prots = checkins.map((c) => c.prot).filter((v): v is number => typeof v === 'number' && v > 0);
-  const aguas = Array.from({ length: 7 }, (_, k) => aguaDoDia(S, +startOfDay(de + k * DAY))).filter((v) => v > 0);
+  const aguas = Array.from({ length: 7 }, (_, k) => aguaDoDia(S, noCalendario(de, k))).filter((v) => v > 0);
   const refeicoes = (((S as any).meals ?? []) as any[]).filter((m) => m.t >= de && m.t < ate).length;
   secoes.push(secao('Alimentação e água', [
     prots.length ? `Proteína média em ${prots.length} dia(s) com registro: ${Math.round(media(prots))} g${alvo.prot ? ` (meta ${alvo.prot} g)` : ''}` : null,
@@ -122,6 +130,139 @@ export function resumoDaSemana(S: State, agora: Date = now()): string {
 
   const texto = secoes.filter(Boolean).join('\n\n');
   return texto.length > TETO_DO_RESUMO_DA_SEMANA ? `${texto.slice(0, TETO_DO_RESUMO_DA_SEMANA)}\n(resumo cortado no teto)` : texto;
+}
+
+/** Os números de uma semana (de segunda 00h a domingo), para a tela do
+    resumo (app/leitura): calculados aqui, e não pela IA, e por isso
+    aparecem antes de o texto chegar. O peso é a variação contra a última
+    pesagem antes da semana (ou a primeira dela); sem duas pesagens, nulo. */
+export function numerosDaSemana(S: State, semana: number) {
+  /* ⚠️ A SEMANA PELO CALENDÁRIO (ver noCalendario, em
+     descobertasDaSemana/dias). E a segunda é refeita a partir da chave:
+     leituras guardadas antes dessa correção, numa semana de horário de
+     verão, têm a chave às 23h do domingo ou à 01h da segunda — meio dia
+     depois cai sempre na segunda certa. */
+  const de = +startOfDay(semana + 12 * 3600e3);
+  const ate = noCalendario(de, 7);
+  const dentro = (t: number) => t >= de && t < ate;
+  const P: any = S.profile;
+  const todos = (((S as any).weights ?? []) as any[]).filter((w) => w.t < ate).sort((a, b) => a.t - b.t);
+  const pesos = todos.filter((w) => dentro(w.t));
+  const fim = pesos[pesos.length - 1];
+  /* ⚠️ A PESAGEM DE ANTES SÓ SERVE DE BASE SE ESTIVER PERTO — até 14
+     dias da última da semana, a mesma régua do detector pesoSemanal.
+     Mais velha que isso, a variação seria de meses, e o cartão a
+     mostraria como se fosse da semana (achado da revisão de 01/10/2026). */
+  const ultimaAntes = todos.filter((w) => w.t < de).pop();
+  const antes = ultimaAntes && fim && fim.t - ultimaAntes.t <= 14 * DAY ? ultimaAntes : null;
+  const base = antes ?? (pesos.length >= 2 ? pesos[0] : null);
+  const checkins = (((S as any).checkins ?? []) as any[]).filter((c) => dentro(c.t));
+  const prots = checkins.map((c) => c.prot).filter((v): v is number => typeof v === 'number' && v > 0);
+  const aguas = Array.from({ length: 7 }, (_, k) => aguaDoDia(S, noCalendario(de, k))).filter((v) => v > 0);
+  /* Os sete dias, de segunda a domingo, também pelo calendário. */
+  const dias = Array.from({ length: 7 }, (_, k) => {
+    const ini = noCalendario(de, k);
+    const fimDoDia = noCalendario(de, k + 1);
+    const noDia = (t: number) => t >= ini && t < fimDoDia;
+    const doDia = checkins.filter((c) => noDia(c.t));
+    return {
+      t: ini,
+      checkin: doDia.some(respondido),
+      treino: doDia.some((c) => (c.exerc ?? 0) > 0),
+      pesagem: pesos.some((w) => noDia(w.t)),
+    };
+  });
+  return {
+    dias,
+    deltaKg: base && fim && base !== fim ? fim.kg - base.kg : null as number | null,
+    diasComCheckin: checkins.filter(respondido).length,
+    treinos: checkins.filter((c) => (c.exerc ?? 0) > 0).length,
+    minutosDeExercicio: checkins.reduce((a, c) => a + (c.exerc ?? 0), 0),
+    proteinaMedia: prots.length ? media(prots) : null,
+    metaProteina: (P.targets?.prot as number) || null,
+    aguaMedia: aguas.length ? media(aguas) : null,
+    metaAgua: (P.targets?.waterMl as number) || null,
+  };
+}
+
+/** OS NÚMEROS DA SEMANA NO FORMATO DO ACORDEÃO DA JORNADA (01/10/2026,
+    pedido do dono): peso, hidratação, proteína e exercício, cada um
+    contra a semana anterior, com os mesmos rótulos (T.home.semana) e o
+    mesmo desenho (ui/semanaEmNumeros).
+
+    ⚠️ AS CONTAS SÃO AS DESTE ARQUIVO, e não as do acordeão: a semana
+    aqui é de segunda a domingo e a de lá é de uma aplicação à outra, e a
+    água daqui soma a da comida (aguaDoDia, a mesma da tela de água). O
+    que as duas telas dividem é a pergunta e a forma.
+
+    E SÓ O QUE HOUVE: sem pesagem para comparar, o peso não entra; sem
+    registro de água ou de proteína, a linha não entra; o exercício entra
+    com qualquer check-in, porque "0 min" num dia respondido é resposta. */
+export function metricasDaSemana(S: State, semana: number): WeekMetric[] {
+  const W = T.home.semana;
+  const n = numerosDaSemana(S, semana);
+  const a = numerosDaSemana(S, noCalendario(+startOfDay(semana + 12 * 3600e3), -7));
+  const out: WeekMetric[] = [];
+  if (n.deltaKg != null) {
+    /* Zero não tem sinal, como no acordeão: "−0,0 kg" afirmaria uma queda. */
+    const valor = Math.abs(n.deltaKg) < 0.05 ? pesoTxt(S, 0) : `${n.deltaKg < 0 ? '−' : '+'}${pesoTxt(S, Math.abs(n.deltaKg))}`;
+    out.push({ ic: 'scale', label: W.pesoMetrica, valor, delta: null, good: valor.startsWith('−') });
+  }
+  /* Cada variação sai dos valores como são escritos, com o zero sem sinal
+     (comSinal e aguaNoPasso, as mesmas regras do acordeão). */
+  if (n.aguaMedia != null) {
+    const agua = aguaNoPasso(S, n.aguaMedia);
+    const d = a.aguaMedia == null ? null : agua - aguaNoPasso(S, a.aguaMedia);
+    out.push({
+      ic: 'water', label: W.hidratacao, valor: W.aguaPorDia(aguaTxt(S, agua)),
+      delta: d == null ? null : comSinal(d, (v) => aguaTxt(S, v)),
+      good: d == null || d >= 0,
+    });
+  }
+  if (n.proteinaMedia != null) {
+    const d = a.proteinaMedia == null ? null : Math.round(n.proteinaMedia) - Math.round(a.proteinaMedia);
+    out.push({
+      ic: 'leaf', label: W.proteina, valor: W.gramasPorDia(Math.round(n.proteinaMedia)),
+      delta: d == null ? null : W.deltaGramas(comSinal(d, String)),
+      good: d == null || d >= 0,
+    });
+  }
+  if (n.diasComCheckin || n.minutosDeExercicio) {
+    const antes = a.diasComCheckin || a.minutosDeExercicio ? a.minutosDeExercicio : null;
+    const d = antes == null ? null : n.minutosDeExercicio - antes;
+    out.push({
+      ic: 'dumbbell', label: W.exercicioMetrica, valor: W.minutos(n.minutosDeExercicio),
+      delta: d == null ? null : W.deltaMinutos(comSinal(d, String)),
+      good: d == null || d >= 0,
+    });
+  }
+  return out;
+}
+
+/** O QUE MARCOU A SEMANA, como no acordeão: as conquistas e os
+    acontecimentos que não são rotina. Aqui entra também a aplicação —
+    no acordeão ela é o cabeçalho de cada semana, e numa semana de
+    segunda a domingo ela é um acontecimento como outro qualquer. A cor
+    vem como nome de token; quem desenha resolve. */
+export function destaquesDaSemana(S: State, semana: number): { k: string; ic: string; cor: string; titulo: string; sub: string }[] {
+  const de = +startOfDay(semana + 12 * 3600e3);
+  const ate = noCalendario(de, 7);
+  const dentro = (t: number) => t >= de && t < ate;
+  /* ⚠️ SEM REPETIR (achado da revisão de 01/10/2026): a consulta e o exame
+     são marco e acontecimento ao mesmo tempo, e apareciam duas vezes — fica
+     o acontecimento. E no dia em que a dose mudou, o marco "dose ajustada"
+     já conta a aplicação; a linha da aplicação sai. */
+  const marcos = milestones(S).filter((m) => dentro(m.t) && !marcoQueEhEvento(m));
+  const diasDeDoseNova = new Set(marcos.filter((m) => m.to === '/aplicacoes').map((m) => +startOfDay(m.t)));
+  const itens = [
+    ...marcos.map((m) => ({ t: m.t, k: `m-${m.t}-${m.title}`, ic: m.ic, cor: 'lime', titulo: m.title, sub: m.sub })),
+    ...timelineEvents(S)
+      .filter((e) => dentro(e.day) && (e.kind === 'consulta' || e.kind === 'exame' || (e.kind === 'aplicacao' && !diasDeDoseNova.has(e.day))))
+      .map((e) => ({ t: e.day, k: e.key, ic: e.ic, cor: e.color, titulo: e.title, sub: e.sub })),
+  ];
+  /* Em ordem de data, os dois tipos juntos: eram os marcos do mais novo
+     ao mais velho e os acontecimentos ao contrário, no mesmo cartão. */
+  return itens.sort((x, y) => x.t - y.t || x.titulo.localeCompare(y.titulo)).map(({ t, ...resto }) => resto);
 }
 
 /* A descoberta como vai ao servidor: os números como vieram, as datas

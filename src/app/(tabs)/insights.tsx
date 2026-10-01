@@ -9,10 +9,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
 import {
   patterns, recommendations, recoBucket, companionSuggestions, recentQuestions,
-  balanceRead, balanceSeries, companionMemoria, temAcompanhamento, journeySummary, respostaNoDia,
-  variacaoDe,
+  balanceRead, balanceSeries, companionMemoria, respostaNoDia,
 } from '../../logic/derive';
-import { daysAgo, nf } from '../../logic/time';
+import { nf, fmtPeriodo, now } from '../../logic/time';
+import { leituraDaSemana, leituraLigada, aceitouALeitura } from '../../logic/leitura';
+import { semanaLida, noCalendario } from '../../logic/descobertasDaSemana';
 import { enderecoDoCompanheiro, type OrigemNoEndereco } from '../../logic/perguntas';
 import { Txt, Row, SectionHead, ListRow, Rolagem } from '../../ui/kit';
 import { Barras } from '../../ui/charts';
@@ -23,7 +24,6 @@ import { useLarguraApp } from '../../ui/useLarguraApp';
 import { useLightStatusBar } from '../../ui/useLightStatusBar';
 import Svg, { Defs, Ellipse, Path, RadialGradient, Rect, LinearGradient as SvgGrad, Stop } from 'react-native-svg';
 import { radius, font, shadowCard, alfa, type Palette, RESPIRO_ABAS, comPaleta, dark } from '../../theme';
-import { pesoV, pesoU } from '../../logic/medidas';
 import { T } from '../../textos';
 
 /* ============================================================
@@ -170,7 +170,6 @@ export default function Insights() {
   const recos = useMemo(() => recommendations(S), [S]);
   const eq = useMemo(() => balanceRead(S), [S]);
   const serie = useMemo(() => balanceSeries(S, eq.fraco), [S, eq.fraco]);
-  const r = journeySummary(S);
   const cor = (k: string) => (c as any)[k] as string;
 
   const destaque = pads[0];
@@ -197,15 +196,8 @@ export default function Insights() {
 
   const memoria = useMemo(() => companionMemoria(S), [S]);
 
-  const w = S.weights.filter((x: any) => x.t >= +daysAgo(7));
-  /* ⚠️ COM SINAL, E SÓ QUANDO HÁ O QUE COMPARAR. Era o valor absoluto:
-     "0,4 kg" não dizia se a semana foi de perda ou de ganho. E com menos
-     de duas pesagens nos sete dias a linha escrevia "0,0 kg", uma
-     estabilidade que ninguém mediu — sem as duas, o peso sai da linha. */
-  const vSem = w.length >= 2 ? variacaoDe(pesoV(S, w[w.length - 1].kg - w[0].kg), pesoU(S)) : null;
-  const dSem = !vSem ? null : vSem.tom === 'neutro' ? vSem.delta.toLowerCase() : vSem.delta;
-  /* Conta check-ins, e check-in é dia com resposta — não dia com linha. */
-  const ci7 = S.checkins.filter((x: any) => x.t >= +daysAgo(7) && respostaNoDia(x)).length;
+  /* O resumo da semana que acabou de fechar, se já saiu. */
+  const leituraPronta = leituraDaSemana(S, semanaLida(now()).de);
   /* Os primeiros registros: um check-in respondido, uma segunda pesagem
      ou uma segunda aplicação. A pesagem e a dose do cadastro não contam —
      são o formulário, e não o diário. */
@@ -707,32 +699,55 @@ export default function Insights() {
           </View>
         )}
 
-        {/* ---- gerar resumos ----
-             "Resumos" nomeava um lugar onde eles já estariam; "Gerar resumos"
-             nomeia a ação, que é o que de fato acontece — cada um é montado
-             na hora, com os dados de hoje.
+        {/* ---- resumos ----
+             ⚠️ VOLTOU A SER "RESUMOS", E CADA LINHA ABRE UMA TELA PRONTA
+             (01/10/2026, pedido do dono). Era "Gerar resumos", e duas das
+             três linhas mandavam uma pergunta para a conversa ("Analise meu
+             progresso", "Prepare minha consulta") — a pessoa tocava num
+             resumo e caía num chat esperando a IA escrever. Agora o nome diz
+             o que está lá: o resumo da semana (app/leitura) e o documento
+             para a consulta (app/resumo-medico). Perguntar continua a um
+             toque, na conversa.
+
+             ⚠️ O "PREPARO DA CONSULTA" SAIU (mesmo dia). Aberto, ele levava à
+             tela de Consultas inteira — a próxima, o que levar, as que já
+             foram —, e ficava ao lado do resumo para consulta como se fossem
+             dois documentos. O "o que levar" continua em Consultas, na aba
+             Cuidado, onde a consulta mora.
+
+             E o resumo da semana ganhou aqui o lugar FIXO que não tinha: o
+             carrossel da Home só o mostra pronto ou como convite, e girando
+             entre outros. Desligado, era daqui que não havia como religar.
 
              A lista usa o mesmo ListRow com fio da área médica da Home: são
-             o mesmo tipo de coisa, três atalhos para documentos, e repetir o
-             padrão poupa a pessoa de aprender dois. */}
+             o mesmo tipo de coisa, atalhos para o que está pronto, e repetir
+             o padrão poupa a pessoa de aprender dois. */}
         <View style={{ marginTop: outras.length > 0 || !eq.vazia || acoes.length > 0 ? 40 : 0 }}>
           <SectionHead title={K().resumos} />
           <Txt v="note" c={c.tx3} style={{ marginTop: 4 }}>{K().resumosNota}</Txt>
 
-          {/* ⚠️ ANTES DOS PRIMEIROS REGISTROS, OS TRÊS ESPERAM (28/09/2026,
+          {/* ⚠️ ANTES DOS PRIMEIROS REGISTROS, ELES ESPERAM (28/09/2026,
               pedido do dono). Abertos, montavam documentos de nada — "semana
               1 · 0 check-ins", um preparo de consulta sem peso nem sintoma.
               Ficam na lista, porque dizem o que o app vai fazer, mas sem
-              toque e com o aviso de quando passam a existir. */}
+              toque e com o aviso de quando passam a existir.
+
+              ⚠️ O RESUMO DA SEMANA SÓ EXISTE COM O SERVIDOR DA LEITURA
+              (logic/leitura, leituraLigada) — sem ele, a linha some, como
+              some o convite da Home. */}
           <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 16, padding: 16, opacity: comRegistros ? 1 : 0.55 }}>
-            <ListRow ic="chart" title={K().resumoDaSemana}
-              sub={comRegistros ? K().resumoDaSemanaSub(r.semana, ci7, dSem) : K().disponivelDepois}
-              onPress={comRegistros ? perguntar(T.rotina.perguntas.meuProgresso) : undefined} />
-            <View style={{ height: 1, backgroundColor: c.line, marginVertical: 12 }} />
-            <ListRow ic="cal" title={K().preparoDaConsulta}
-              sub={!comRegistros ? K().disponivelDepois : temAcompanhamento(S) ? K().preparoDaConsultaSub : K().preparoSemEquipe}
-              onPress={comRegistros ? perguntar(T.rotina.perguntas.prepararConsulta) : undefined} />
-            <View style={{ height: 1, backgroundColor: c.line, marginVertical: 12 }} />
+            {leituraLigada() ? (
+              <>
+                <ListRow ic="spark" title={K().resumoDaSemana}
+                  sub={!comRegistros ? K().disponivelDepois
+                    : leituraPronta ? K().resumoDaSemanaPronto(fmtPeriodo(new Date(leituraPronta.semana), new Date(noCalendario(leituraPronta.semana, 6))))
+                      /* o mesmo estado em que /leitura mostra "desligado" */
+                      : !aceitouALeitura(S) ? K().resumoDaSemanaDesligado
+                        : K().resumoDaSemanaToda}
+                  onPress={comRegistros ? go('/leitura') : undefined} />
+                <View style={{ height: 1, backgroundColor: c.line, marginVertical: 12 }} />
+              </>
+            ) : null}
             <ListRow ic="doc" title={K().documento}
               sub={comRegistros ? K().documentoSub : K().disponivelDepois}
               onPress={comRegistros ? go('/resumo-medico') : undefined} />

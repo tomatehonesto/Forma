@@ -1,8 +1,8 @@
 import type { State } from '../seed';
 import { examStatus, cadenciaDias, aguaDoDia, startWeight } from '../derive';
 import { SINTOMAS_LIDOS, grauDoSintoma } from '../escalas';
-import { DAY, startOfDay } from '../time';
-import { COMPORTAMENTOS, RESULTADOS, JANELA_SEMANAS, type Dia, type Comportamento, type Resultado } from './dias';
+import { DAY } from '../time';
+import { COMPORTAMENTOS, RESULTADOS, JANELA_SEMANAS, noCalendario, type Dia, type Comportamento, type Resultado } from './dias';
 import { comparar, nivelDe, forcaDe, tendencia } from './regua';
 
 /* ============================================================
@@ -49,7 +49,7 @@ const OBVIO = (b: Comportamento, r: Resultado, lag: number) =>
 
 export function habitos({ dias, ate }: Contexto): Candidata[] {
   const fora: Candidata[] = [];
-  const metade = ate - (JANELA_SEMANAS / 2) * 7 * DAY;
+  const metade = noCalendario(ate, -(JANELA_SEMANAS / 2) * 7);
   for (const b of COMPORTAMENTOS) for (const r of RESULTADOS) for (const lag of [0, 1]) {
     if (OBVIO(b, r, lag)) continue;
     const pares: { com: boolean; valor: number; t: number }[] = [];
@@ -216,7 +216,7 @@ export function exames({ S, ate }: Contexto): Candidata[] {
 function semanasDeTreino(S: State, ate: number, n: number) {
   const checkins = ((S as any).checkins ?? []) as any[];
   return Array.from({ length: n }, (_, i) => {
-    const fim = ate - (n - 1 - i) * 7 * DAY, ini = fim - 7 * DAY;
+    const fim = noCalendario(ate, -7 * (n - 1 - i)), ini = noCalendario(fim, -7);
     const doPeriodo = checkins.filter((c) => c.t >= ini && c.t < fim);
     return { treinos: doPeriodo.filter((c) => (c.exerc ?? 0) > 0).length, registros: doPeriodo.length };
   });
@@ -266,7 +266,7 @@ export function sintomas({ S, ate }: Contexto): Candidata[] {
     const serie = (ini: number, fim: number) => checkins
       .filter((c) => c.t >= ini && c.t < fim && respondido(c))
       .map((c) => grauDoSintoma(c, s.id) ?? 0);
-    const agora = serie(ate - 14 * DAY, ate), antes = serie(ate - 28 * DAY, ate - 14 * DAY);
+    const agora = serie(noCalendario(ate, -14), ate), antes = serie(noCalendario(ate, -28), noCalendario(ate, -14));
     if (agora.length < 4 || antes.length < 4) continue;
     const ma = media(antes), mg = media(agora);
     if (ma >= 1.5 && mg <= ma / 2) {
@@ -291,13 +291,13 @@ export function pesoSemanal({ S, ate }: Contexto): Candidata[] {
   const checkins = ((S as any).checkins ?? []) as any[];
   const semanas: { fim: number; perda: number; treinos: number; prot: number | null; agua: number | null }[] = [];
   for (let i = 11; i >= 0; i--) {
-    const fim = ate - i * 7 * DAY, ini = fim - 7 * DAY;
+    const fim = noCalendario(ate, -7 * i), ini = noCalendario(fim, -7);
     const ultimoAntes = pesos.filter((w) => w.t < ini).pop();
     const ultimoNa = pesos.filter((w) => w.t >= ini && w.t < fim).pop();
     if (!ultimoAntes || !ultimoNa || ultimoNa.t - ultimoAntes.t > 14 * DAY) continue;
     const doPeriodo = checkins.filter((c) => c.t >= ini && c.t < fim);
     const prots = doPeriodo.map((c) => c.prot).filter((v): v is number => typeof v === 'number' && v > 0);
-    const aguas = Array.from({ length: 7 }, (_, k) => aguaDoDia(S, +startOfDay(ini + k * DAY))).filter((v) => v > 0);
+    const aguas = Array.from({ length: 7 }, (_, k) => aguaDoDia(S, noCalendario(ini, k))).filter((v) => v > 0);
     semanas.push({
       fim, perda: ultimoAntes.kg - ultimoNa.kg,
       treinos: doPeriodo.filter((c) => (c.exerc ?? 0) > 0).length,
@@ -365,12 +365,12 @@ export function constancia({ S, de, ate }: Contexto): Candidata[] {
   /* a melhor semana de água e de proteína, entre as últimas 12 */
   const checkins = ((S as any).checkins ?? []) as any[];
   const porSemana = (f: (ini: number, fim: number) => number[]) => Array.from({ length: 12 }, (_, i) => {
-    const fim = ate - (11 - i) * 7 * DAY, ini = fim - 7 * DAY;
+    const fim = noCalendario(ate, -7 * (11 - i)), ini = noCalendario(fim, -7);
     const xs = f(ini, fim);
     return xs.length >= 3 ? media(xs) : null;
   });
   const medidasDaSemana: [string, (number | null)[], number | undefined][] = [
-    ['agua', porSemana((ini) => Array.from({ length: 7 }, (_, k) => aguaDoDia(S, +startOfDay(ini + k * DAY))).filter((v) => v > 0)), P.targets?.waterMl],
+    ['agua', porSemana((ini) => Array.from({ length: 7 }, (_, k) => aguaDoDia(S, noCalendario(ini, k))).filter((v) => v > 0)), P.targets?.waterMl],
     ['proteina', porSemana((ini, fim) => checkins.filter((c) => c.t >= ini && c.t < fim && typeof c.prot === 'number' && c.prot > 0).map((c) => c.prot)), P.targets?.prot],
   ];
   for (const [nome, xs] of medidasDaSemana) {
@@ -385,7 +385,7 @@ export function constancia({ S, de, ate }: Contexto): Candidata[] {
 
   /* o dia da semana mais forte em proteína, nas 6 semanas */
   const porDia: number[][] = Array.from({ length: 7 }, () => []);
-  for (const c of checkins) if (c.t >= ate - JANELA_SEMANAS * 7 * DAY && c.t < ate && typeof c.prot === 'number' && c.prot > 0) porDia[new Date(c.t).getDay()].push(c.prot);
+  for (const c of checkins) if (c.t >= noCalendario(ate, -JANELA_SEMANAS * 7) && c.t < ate && typeof c.prot === 'number' && c.prot > 0) porDia[new Date(c.t).getDay()].push(c.prot);
   const comAmostra = porDia.map((xs, dia) => ({ dia, xs })).filter((x) => x.xs.length >= 3);
   if (comAmostra.length >= 5) {
     const geral = media(comAmostra.flatMap((x) => x.xs));

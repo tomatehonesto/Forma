@@ -8,13 +8,14 @@ import { useStore } from '../../logic/store';
 import {
   journeySummary, journeyChanges, journeyGoals, metaDePeso, timelineWeeks, timelineEvents, timelineCounts, weightSeries,
   startWeight, curWeight, temEvolucao,
-  milestones, doseCycle, penStock, nextInjectionDate, siteLabel, nextSite,
+  milestones, marcoQueEhEvento, doseCycle, penStock, nextInjectionDate, siteLabel, nextSite,
   waterMlToday, litros, checkinToday, protocoloDaSemana, weekGrid, last7Days, M,
   sintomasDaSemana, diasDeSintomas, type Change, type TLEvent, type TLKind, type WeekMetric,
   diasAteAplicar, semanasDaGrade, temCiclo, diaDoTratamento, temHistoria,
 } from '../../logic/derive';
 import { now, fmtDate, relDay, nf, quandoEm } from '../../logic/time';
 import { Txt, Row, SectionHead, Divider, ListRow, Metric, Vazio, Rolagem } from '../../ui/kit';
+import { MetricasDaSemana, DestaquesDaSemana } from '../../ui/semanaEmNumeros';
 import { Icon } from '../../ui/Icon';
 import { AreaCurve } from '../../ui/charts';
 
@@ -397,6 +398,7 @@ function ChangeTile({ ch, onPress }: { ch: Change; onPress: () => void }) {
 function Semana({ w, proxT, filtro, aberto, onToggle }: { w: any; proxT: number; filtro: TLKind | null; aberto: boolean; onToggle: () => void }) {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
+  const router = useRouter();
   const perdeu = w.deltaPeso?.startsWith('−');
 
   /* Aberta, a semana mostra o que os NÚMEROS daquele ciclo dizem —
@@ -407,7 +409,9 @@ function Semana({ w, proxT, filtro, aberto, onToggle }: { w: any; proxT: number;
      Com um tipo escolhido nos chips a semana não vira accordion: os
      registros daquele tipo aparecem direto, porque são poucos e é isso
      que a pessoa foi buscar. */
-  const conquistas = filtro ? [] : milestones(S).filter((m) => m.t >= w.t && m.t < proxT);
+  /* A consulta e o exame já vêm como acontecimento (notaveis), com a cor
+     deles; o marco repetia a mesma linha logo abaixo (marcoQueEhEvento). */
+  const conquistas = filtro ? [] : milestones(S).filter((m) => m.t >= w.t && m.t < proxT && !marcoQueEhEvento(m));
   const notaveis = (w.eventos as TLEvent[]).filter((e) => filtro ? e.kind === filtro : NOTAVEIS.includes(e.kind));
   const metricas: WeekMetric[] = filtro ? [] : w.metricas;
   const cor = (k: string) => (c as any)[k] as string;
@@ -442,55 +446,63 @@ function Semana({ w, proxT, filtro, aberto, onToggle }: { w: any; proxT: number;
   );
 
   /* Sem caixas dentro de caixa: o conteúdo aberto respira no próprio card
-     da lista, separado por espaço e por um filete à esquerda. */
+     da lista, separado por espaço e por um filete à esquerda. A grade e os
+     destaques moram em ui/semanaEmNumeros, porque o resumo da semana
+     (app/leitura) mostra o mesmo. */
   const Corpo = (
     <View style={{ marginTop: 14 }}>
-      {metricas.length > 0 && (
-        <Row style={{ flexWrap: 'wrap' }}>
-          {metricas.map((m) => (
-            <View key={m.label} style={{ width: '50%', paddingRight: 12, marginBottom: 14 }}>
-              <Row gap={7}>
-                <Icon name={m.ic} size={14} color={c.tx4} sw={1.9} />
-                <Txt v="micro" c={c.tx3}>{m.label}</Txt>
-              </Row>
-              <Row gap={6} style={{ marginTop: 5, alignItems: 'baseline' }}>
-                <Metric value={m.valor} v="bodyMed" />
-                {m.delta && <Txt v="micro" c={m.good ? c.tx2 : c.tx4}>{m.delta}</Txt>}
-              </Row>
-            </View>
-          ))}
-        </Row>
-      )}
+      <MetricasDaSemana metricas={metricas} />
 
-      {[...conquistas.map((m) => ({ k: `m-${m.t}-${m.title}`, ic: m.ic, cor: c.lime, titulo: m.title, sub: m.sub })),
-        ...notaveis.map((ev) => ({ k: ev.key, ic: ev.ic, cor: cor(ev.color), titulo: ev.title, sub: ev.sub }))
-      ].map((it) => (
-        <Row key={it.k} gap={12} style={{ alignItems: 'flex-start', marginTop: 12 }}>
-          <View style={{ width: 3, alignSelf: 'stretch', borderRadius: 2, backgroundColor: it.cor }} />
-          <Icon name={it.ic} size={15} color={c.tx3} sw={1.9} />
-          <View style={{ flex: 1 }}>
-            <Txt v="caption" c={c.tx}>{it.titulo}</Txt>
-            <Txt v="micro" c={c.tx3} style={{ marginTop: 2 }} numberOfLines={1}>{it.sub}</Txt>
-          </View>
-        </Row>
-      ))}
+      <DestaquesDaSemana itens={[
+        ...conquistas.map((m) => ({ k: `m-${m.t}-${m.title}`, ic: m.ic, cor: c.lime, titulo: m.title, sub: m.sub })),
+        ...notaveis.map((ev) => ({ k: ev.key, ic: ev.ic, cor: cor(ev.color), titulo: ev.title, sub: ev.sub })),
+      ]} />
 
       {metricas.length === 0 && conquistas.length === 0 && notaveis.length === 0 && (
         <Txt v="caption" c={c.tx4}>{K().semRegistrosNaSemana}</Txt>
       )}
+
     </View>
   );
 
   if (filtro) {
     return <View style={{ paddingVertical: 16 }}>{Cabecalho}{Corpo}</View>;
   }
+  /* ⚠️ O ACORDEÃO É O RESUMO, E A TELA DA SEMANA É O DETALHE (01/10/2026,
+     pedido do dono). A "Semana N" (app/semana) — a aplicação, como se
+     sentiu, o dia a dia, a nota da consulta — só se abria pelo histórico;
+     daqui, onde a pessoa já está olhando a semana, não havia caminho. Nos
+     filtros de tipo ele não aparece: ali a lista é de registros.
+
+     ⚠️ O LINK MORA FORA DO ALVO QUE ABRE E FECHA. Dentro dele, o iOS faz
+     do cartão inteiro um elemento só para o VoiceOver, e o link sumia: o
+     toque duplo só fechava a semana (achado da revisão de 01/10/2026). É
+     o mesmo arranjo de ui/termosDoAceite. */
   return (
-    <Pressable onPress={onToggle} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
-      <View style={{ paddingVertical: 16 }}>
+    <View style={{ paddingVertical: 16 }}>
+      <Pressable
+        onPress={onToggle}
+        accessibilityRole="button"
+        accessibilityState={{ expanded: aberto }}
+        style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
+      >
         {Cabecalho}
         {expandido && Corpo}
-      </View>
-    </Pressable>
+      </Pressable>
+      {expandido ? (
+        <Pressable
+          onPress={() => router.push(`/semana?s=${w.semana}` as any)}
+          hitSlop={8}
+          accessibilityRole="link"
+          style={({ pressed }) => [{ alignSelf: 'flex-start', marginTop: 14, opacity: pressed ? 0.6 : 1 }]}
+        >
+          <Row gap={4}>
+            <Txt v="label" c={c.accent2}>{K().verDetalhes}</Txt>
+            <Icon name="chev" size={13} color={c.accent2} sw={2.2} />
+          </Row>
+        </Pressable>
+      ) : null}
+    </View>
   );
 }
 

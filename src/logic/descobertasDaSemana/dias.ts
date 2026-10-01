@@ -1,7 +1,7 @@
 import type { State } from '../seed';
 import { aguaDoDia } from '../derive';
 import { paraTela, grauDoSintoma } from '../escalas';
-import { DAY, startOfDay, now } from '../time';
+import { startOfDay, now } from '../time';
 import { alimentacao as alimPt } from '../../textos/pt-BR/alimentacao';
 import { alimentacao as alimEn } from '../../textos/en-US/alimentacao';
 import { alimentacao as alimEs } from '../../textos/es-419/alimentacao';
@@ -39,13 +39,26 @@ export type Dia = {
   sente: Record<Resultado, number | null>;
 };
 
+/** O dia `k` dias depois de `t`, às 00h, contado pelo CALENDÁRIO.
+
+    ⚠️ E NÃO SOMANDO 24 HORAS. Onde há horário de verão, a semana da
+    troca tem um dia de 23 ou de 25 horas, e a soma caía às 23h da
+    véspera ou à 01h do dia: a semana lida começava no domingo, a fileira
+    dos sete dias do resumo repetia um dia, e o check-in da segunda saía
+    da conta (achado da revisão de 01/10/2026; a mesma regra de injGrade,
+    em derive, e da grade do mês, em ui/calendario). */
+export const noCalendario = (t: number, k: number) => {
+  const d = new Date(t);
+  return +new Date(d.getFullYear(), d.getMonth(), d.getDate() + k);
+};
+
 /** A segunda-feira (00h) da semana de `agora`, e a semana lida: os 7
     dias antes dela. */
 export function semanaLida(agora: Date = now()) {
-  const hoje = startOfDay(agora);
-  const desdeSegunda = (hoje.getDay() + 6) % 7; // segunda = 0
-  const segunda = +hoje - desdeSegunda * DAY;
-  return { de: segunda - 7 * DAY, ate: segunda };
+  const hoje = +startOfDay(agora);
+  const desdeSegunda = (new Date(hoje).getDay() + 6) % 7; // segunda = 0
+  const segunda = noCalendario(hoje, -desdeSegunda);
+  return { de: noCalendario(segunda, -7), ate: segunda };
 }
 
 /* O café da manhã é reconhecido pelo nome, em qualquer um dos seis
@@ -57,7 +70,6 @@ const hora = (t: number) => { const d = new Date(t); return d.getHours() + d.get
 /** Os dias da janela, do mais antigo ao mais novo. */
 export function diasDaJanela(S: State, agora: Date = now()): Dia[] {
   const { ate } = semanaLida(agora);
-  const inicio = ate - JANELA_SEMANAS * 7 * DAY;
   const P: any = S.profile;
   const metaProt = P.targets?.prot || 0;
   const metaAgua = P.targets?.waterMl || 0;
@@ -67,8 +79,9 @@ export function diasDaJanela(S: State, agora: Date = now()): Dia[] {
   const temAplicacoes = aplicacoes.length > 0;
 
   const dias: Dia[] = [];
-  for (let t = inicio; t < ate; t += DAY) {
-    const dia = +startOfDay(t);
+  /* Os dias pelo calendário, e não de 24 em 24 horas (ver noCalendario). */
+  for (let k = -JANELA_SEMANAS * 7; k < 0; k++) {
+    const dia = noCalendario(ate, k);
     const c = checkins.find((x) => x.t === dia);
     const doDia = refeicoes.filter((m) => +startOfDay(m.t) === dia);
     /* refeições só dizem algo num dia em que a pessoa anotou pelo menos duas */
@@ -79,7 +92,7 @@ export function diasDaJanela(S: State, agora: Date = now()): Dia[] {
     const ultima = comiaRegistrado ? Math.max(...doDia.map((m) => hora(m.t))) : null;
     const agua = aguaDoDia(S, dia);
     const respondeu = !!c && (c.fome != null || c.energia != null || typeof c.mood === 'number' || typeof c.nausea === 'number');
-    const posApl = temAplicacoes ? aplicacoes.some((a) => dia - a === DAY || dia - a === 2 * DAY) : null;
+    const posApl = temAplicacoes ? aplicacoes.some((a) => a === noCalendario(dia, -1) || a === noCalendario(dia, -2)) : null;
 
     dias.push({
       t: dia,

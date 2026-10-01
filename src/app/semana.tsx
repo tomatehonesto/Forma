@@ -3,7 +3,8 @@ import { View } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
 import { INDICADORES, sintomasEm, timelineWeeks, notas, temAcompanhamento } from '../logic/derive';
-import { DAY, diasDaSemana, fmtDate, fmtPeriodoLongo, maiuscula, nf } from '../logic/time';
+import { diasDaSemana, fmtDate, fmtPeriodoLongo, maiuscula, nf, now, startOfDay } from '../logic/time';
+import { noCalendario } from '../logic/descobertasDaSemana';
 import { Txt } from '../ui/kit';
 import {
   TelaInterna, Titulao, Bloco, Grade2, Metrica, Progresso, Sanfona, SanfonaLinha, Cartao, Linha,
@@ -64,8 +65,19 @@ export default function Semana() {
     );
   }
 
-  const ini = new Date(w.t), fim = new Date(w.t + 6 * DAY);
-  const cs = (S.checkins as any[]).filter((x) => x.t >= w.t && x.t < w.t + 7 * DAY);
+  /* ⚠️ A JANELA É A DO CICLO, como no acordeão da Jornada (timelineWeeks):
+     da aplicação até o dia anterior à próxima. Eram sete dias corridos a
+     partir da aplicação — e, com o "Ver detalhes" do acordeão trazendo a
+     pessoa para cá, um ciclo de dez dias mostrava lá os dez e aqui só
+     sete (achado da revisão de 01/10/2026). O ciclo que ainda não fechou
+     vai até hoje, ou até o sétimo dia, o que vier depois. Os dias, pelo
+     calendário (ver noCalendario). */
+  const lista = semanas.indexOf(w);
+  const iniT = +startOfDay(w.t);
+  const fimT = lista > 0 ? +startOfDay(semanas[lista - 1].t) : Infinity;
+  const ini = new Date(iniT);
+  const fim = new Date(Number.isFinite(fimT) ? noCalendario(fimT, -1) : Math.max(noCalendario(iniT, 6), +startOfDay(now())));
+  const cs = (S.checkins as any[]).filter((x) => x.t >= iniT && x.t < fimT);
 
   /* OS SINTOMAS SAEM DA LEITURA COMPARTILHADA.
 
@@ -88,7 +100,7 @@ export default function Semana() {
   /* A nota que pertence a ESTA semana, não a mais recente do app: o bloco
      está contando o que aconteceu no ciclo, e uma nota de três semanas
      depois entraria aqui como se tivesse sido escrita na época. */
-  const nota = notas(S).find((n) => n.t >= w.t && n.t < w.t + 7 * DAY) ?? null;
+  const nota = notas(S).find((n) => n.t >= iniT && n.t < fimT) ?? null;
 
   return (
     <TelaInterna

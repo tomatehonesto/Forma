@@ -124,10 +124,10 @@ export const home = {
     proteina: 'Proteína',
     exercicioMetrica: 'Ejercicio',
     pesoMetrica: 'Peso',
-    litrosPorDia: (quanto: string) => `${quanto} L/día`,
+    /* o volume já vem escrito na unidade da pessoa (aguaTxt): "1,6 L", "54 fl oz" */
+    aguaPorDia: (quanto: string) => `${quanto}/día`,
     gramasPorDia: (quanto: number) => `${quanto} g/día`,
     minutos: (quanto: number) => `${quanto} min`,
-    deltaLitros: (quanto: string) => `${quanto} L`,
     deltaGramas: (quanto: string) => `${quanto} g`,
     deltaMinutos: (quanto: string) => `${quanto} min`,
   },
@@ -235,6 +235,7 @@ export const home = {
     semana: (numero: number) => `Semana ${numero}`,
     doseAjustada: 'dosis ajustada',
     semRegistrosNaSemana: 'Sin registros en esta semana.',
+    verDetalhes: 'Ver detalles',
     nadaNesteTipo: 'Nada registrado en este tipo todavía',
 
     metaFeita: 'lograda',
