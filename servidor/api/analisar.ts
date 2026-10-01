@@ -99,6 +99,7 @@ const Porcao = z.object({
   gordura: z.number().describe('gramas de gordura de UMA porção'),
   fibra: z.number().describe('gramas de fibra de UMA porção'),
   prateleira: z.enum(PRATELEIRAS).describe('em que grupo este alimento cai'),
+  com: z.string().describe('os ingredientes que você considerou, em poucas palavras e no idioma do aplicativo: "pão, tomate e muçarela"; o que não dá para ver na foto, a versão mais comum'),
 });
 
 const Item = z.object({
@@ -135,7 +136,10 @@ REGRAS
    ("Bobó de camarão", "Pad thai"); a medida; o peso; e proteína,
    energia, carboidrato, gordura e fibra dessa porção. Os números têm de
    ser coerentes entre si: 4 kcal por grama de proteína e de carboidrato,
-   9 por grama de gordura.
+   9 por grama de gordura. Em com, diga em poucas palavras os
+   ingredientes que você considerou — o que se vê e, para o que não se
+   vê (o recheio, o queijo por baixo), a versão mais comum —, para a
+   pessoa conferir e corrigir.
 
 4. qtd é QUANTAS unidades daquela medida você vê na foto: quatro
    colheres de arroz, um filé, duas fatias. Conte o que está no prato,

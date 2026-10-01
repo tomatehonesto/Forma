@@ -10,7 +10,7 @@ import { font, radius, ty } from '../theme';
 import { T } from '../textos';
 import { useStore } from '../logic/store';
 import {
-  buscarNosSeus, comoAlimento, estimarPeloNome, estimativaLigada, itemEstimado,
+  buscarNosSeus, comoAlimento, estimarPeloNome, estimativaLigada, itemEstimado, redescrever,
   type MotivoDaEstimativa,
 } from '../logic/estimativa';
 
@@ -208,15 +208,33 @@ function Passo({ nome, on, onPress }: { nome: string; on: boolean; onPress: () =
 }
 
 /** Um item do prato, com quantas unidades e o que ele soma. */
-export function ItemAlimento({ item, onQtd, onRemover }: {
+export function ItemAlimento({ item, onQtd, onRemover, onTrocar }: {
   item: ItemComida;
   onQtd: (q: number) => void;
   onRemover: () => void;
+  /** O item recalculado pelo "descrever melhor" — só para os estimados. */
+  onTrocar?: (novo: ItemComida) => void;
 }) {
   const { c } = useTheme();
   const nome = nomeItem(item);
   const ressalva = ressalvaItem(item);
   const conta = origemDe(item) !== 'sem-conta';
+
+  /* ⚠️ DESCREVER MELHOR (01/10/2026). O item que veio da estimativa — pela
+     foto ou pelo nome — diz com o que foi calculado, e a pessoa corrige
+     com as palavras dela ("de tomate, sem queijo"). Os itens da tabela
+     não têm isso: o número deles é da TACO, e não uma suposição. */
+  const [descrevendo, setDescrevendo] = useState(false);
+  const [descricao, setDescricao] = useState('');
+  const [estado, setEstado] = useState<'parado' | 'calculando' | MotivoDaEstimativa>('parado');
+  const podeDescrever = !!item.estimado && !!onTrocar && estimativaLigada();
+  const recalcular = async () => {
+    if (!onTrocar || descricao.trim().length < 2 || estado === 'calculando') return;
+    setEstado('calculando');
+    const r = await redescrever(item, descricao);
+    if (r.ok) { setEstado('parado'); setDescrevendo(false); setDescricao(''); onTrocar(r.item); }
+    else setEstado(r.motivo);
+  };
   if (!nome) return null;
 
   return (
@@ -230,6 +248,14 @@ export function ItemAlimento({ item, onQtd, onRemover }: {
           {/* Só o que foge do normal se anuncia. Escrever "da tabela" em
               toda linha seria avisar em todas para alertar sobre nenhuma. */}
           {ressalva ? <Txt v="micro" c={c.tx4}>{ressalva}</Txt> : null}
+          {item.estimado && item.rotulo?.com ? (
+            <Txt v="micro" c={c.tx3} style={{ marginTop: 2 }}>{K().calculadoCom(item.rotulo.com)}</Txt>
+          ) : null}
+          {podeDescrever && !descrevendo ? (
+            <Pressable onPress={() => setDescrevendo(true)} hitSlop={6} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1, marginTop: 4 }]}>
+              <Txt v="micro" c={c.accent} style={{ fontFamily: font.bodySemi }}>{K().descreverMelhor}</Txt>
+            </Pressable>
+          ) : null}
         </View>
         <Pressable onPress={onRemover} hitSlop={10} style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1 }]}>
           <Icon name="x" size={15} color={c.tx4} sw={2.2} />
@@ -254,6 +280,44 @@ export function ItemAlimento({ item, onQtd, onRemover }: {
             <Txt v="tag" c={c.tx2}>{K().gramas(gramasItem(item))}</Txt>
           </View>
         </Row>
+      ) : null}
+
+      {descrevendo ? (
+        <View style={{ gap: 8 }}>
+          <TextInput
+            value={descricao}
+            onChangeText={(v) => { setDescricao(v); if (estado !== 'calculando') setEstado('parado'); }}
+            placeholder={K().descreverPlaceholder}
+            placeholderTextColor={c.tx4}
+            autoFocus
+            returnKeyType="done"
+            onSubmitEditing={recalcular}
+            maxLength={160}
+            style={[ty.body, {
+              color: c.tx, backgroundColor: c.bg2, borderRadius: radius.sm,
+              paddingHorizontal: 12, paddingVertical: 10,
+            }]}
+          />
+          {estado !== 'parado' && estado !== 'calculando' ? (
+            <Txt v="micro" c={c.bad}>
+              {estado === 'sem-conta' ? T.comum.ia.semConta : estado === 'limite' ? T.comum.ia.limite : K().redescreverFalhou}
+            </Txt>
+          ) : null}
+          <Row gap={10} style={{ justifyContent: 'flex-end', alignItems: 'center' }}>
+            <Pressable onPress={() => { setDescrevendo(false); setDescricao(''); setEstado('parado'); }} hitSlop={6}>
+              <Txt v="caption" c={c.tx3}>{K().descreverCancelar}</Txt>
+            </Pressable>
+            <Pressable onPress={recalcular} disabled={descricao.trim().length < 2 || estado === 'calculando'} hitSlop={6}
+              style={({ pressed }) => [{ opacity: pressed || descricao.trim().length < 2 ? 0.5 : 1 }]}>
+              <Row gap={6} style={{ alignItems: 'center' }}>
+                {estado === 'calculando' ? <ActivityIndicator size="small" color={c.accent} /> : null}
+                <Txt v="caption" c={c.accent} style={{ fontFamily: font.bodySemi }}>
+                  {estado === 'calculando' ? K().recalculando : K().recalcular}
+                </Txt>
+              </Row>
+            </Pressable>
+          </Row>
+        </View>
       ) : null}
     </View>
   );

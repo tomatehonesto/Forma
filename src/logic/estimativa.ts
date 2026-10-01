@@ -60,7 +60,8 @@ export function limparRotulo(bruto: unknown): Rotulo | null {
   const onde = (PRATELEIRAS as readonly string[]).includes(r.onde as string) ? (r.onde as string) : null;
   if (!nome || !un || !unp || !gUn || gUn < 5 || p == null || kcal == null
     || carb == null || gord == null || fibra == null || !onde) return null;
-  return { nome, un, unp, gUn, p, kcal, carb, gord, fibra, onde };
+  const com = txt(r.com, 120);
+  return { nome, un, unp, gUn, p, kcal, carb, gord, fibra, onde, ...(com ? { com } : {}) };
 }
 
 /** O item de prato que nasce de um rótulo estimado — pelo nome digitado
@@ -68,9 +69,28 @@ export function limparRotulo(bruto: unknown): Rotulo | null {
 export const itemEstimado = (rotulo: Rotulo, qtd = 1, por: 'nome' | 'foto' = 'nome'): ItemComida =>
   ({ nome: rotulo.nome, qtd, rotulo, estimado: por });
 
-/** Pergunta ao servidor o rótulo de uma porção do que foi digitado. */
+/** Pergunta ao servidor o rótulo de uma porção do que foi digitado. O
+    texto pode ser um nome ("galinhada") ou uma descrição ("3 bruschettas
+    de tomate com muçarela"): a quantidade dita vira `qtd`. */
 export async function estimarPeloNome(nome: string): Promise<Estimativa> {
-  const escrito = nome.trim();
+  const r = await pedirEstimativa(nome);
+  return r.ok ? { ok: true, item: itemEstimado(r.rotulo, r.qtd ?? 1) } : r;
+}
+
+/* ⚠️ DESCREVER MELHOR (01/10/2026). A foto ou o nome supõem a versão mais
+   comum do prato, e o rótulo diz com quê (`com`). Quando não era
+   aquilo — a bruschetta era só de tomate —, a pessoa descreve, e o item
+   é recalculado com as palavras dela. A quantidade só muda se ela
+   escreveu um número; a origem (foto ou nome) fica. */
+export async function redescrever(item: ItemComida, descricao: string): Promise<Estimativa> {
+  const base = item.rotulo?.nome ?? item.nome ?? '';
+  const r = await pedirEstimativa(`${base}: ${descricao.trim()}`);
+  if (!r.ok) return r;
+  return { ok: true, item: itemEstimado(r.rotulo, r.qtd ?? item.qtd, item.estimado ?? 'nome') };
+}
+
+async function pedirEstimativa(texto: string): Promise<{ ok: true; rotulo: Rotulo; qtd: number | null } | { ok: false; motivo: MotivoDaEstimativa }> {
+  const escrito = texto.trim();
   if (escrito.length < 2) return { ok: false, motivo: 'nao-reconheci' };
   if (!URL_ESTIMAR) return { ok: false, motivo: 'sem-servidor' };
 
@@ -83,14 +103,15 @@ export async function estimarPeloNome(nome: string): Promise<Estimativa> {
       method: 'POST',
       signal: corta.signal,
       headers: await cabecalhosDaIa(),
-      body: JSON.stringify({ nome: escrito, idioma: localAtual() }),
+      body: JSON.stringify({ nome: escrito.slice(0, 200), idioma: localAtual() }),
     });
     const corpo = await r.json().catch(() => null);
     if (!corpo || corpo.ok !== true) {
       return { ok: false, motivo: motivoDaPorta(corpo) ?? (corpo?.motivo === 'sem-rede' ? 'sem-rede' : 'nao-reconheci') };
     }
     const rotulo = limparRotulo(corpo.rotulo);
-    return rotulo ? { ok: true, item: itemEstimado(rotulo) } : { ok: false, motivo: 'nao-reconheci' };
+    const qtd = Number.isInteger(corpo.qtd) && corpo.qtd >= 1 && corpo.qtd <= 20 ? corpo.qtd as number : null;
+    return rotulo ? { ok: true, rotulo, qtd } : { ok: false, motivo: 'nao-reconheci' };
   } catch {
     return { ok: false, motivo: 'sem-rede' };
   } finally {

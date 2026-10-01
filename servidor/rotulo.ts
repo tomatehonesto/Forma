@@ -19,6 +19,8 @@ export type Porcao = {
   gordura: number;
   fibra: number;
   prateleira: (typeof PRATELEIRAS)[number];
+  /** os ingredientes que entraram na conta, para a pessoa conferir */
+  com?: string;
 };
 
 /* Um número por 100 g, com uma casa. */
@@ -39,5 +41,6 @@ export function rotuloDaPorcao(e: Porcao) {
     gord: por100(e.gordura, g),
     fibra: por100(e.fibra, g),
     onde: e.prateleira,
+    ...(e.com && e.com.trim() ? { com: e.com.trim().slice(0, 120) } : {}),
   };
 }

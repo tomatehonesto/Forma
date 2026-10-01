@@ -75,6 +75,8 @@ export const Resposta = z.object({
   gordura: z.number().describe('gramas de gordura de UMA porção'),
   fibra: z.number().describe('gramas de fibra de UMA porção'),
   prateleira: z.enum(PRATELEIRAS).describe('em que grupo este alimento cai'),
+  com: z.string().describe('os ingredientes que entraram na conta, em poucas palavras e no idioma pedido: "pão, tomate e muçarela"'),
+  qtd: z.number().int().min(1).max(20).nullable().describe('quantas porções o texto diz que a pessoa comeu; nulo se não diz'),
 });
 
 const IDIOMAS: Record<string, string> = {
@@ -111,7 +113,17 @@ REGRAS
    nome, mas não troque o prato: "carbonara" é carbonara.
 
 5. Se o texto não é comida nem bebida — um objeto, uma frase, uma
-   pergunta —, responda comida: false e preencha o resto com zero.`;
+   pergunta —, responda comida: false e preencha o resto com zero.
+
+6. O texto pode ser uma DESCRIÇÃO, com ingredientes e quantidade ("3
+   bruschettas de tomate com muçarela", "bruschetta: de tomate, sem
+   queijo"). Use os ingredientes que a pessoa disse, e para o que ela não
+   disse, a versão mais comum. A quantidade vai em qtd; o rótulo continua
+   sendo de UMA porção. Se ela descreve mais de um alimento, faça o rótulo
+   do conjunto, como um prato só.
+
+7. Em com, diga em poucas palavras os ingredientes que entraram na
+   conta, para a pessoa conferir e corrigir.`;
 
 const CABECALHOS = {
   'content-type': 'application/json; charset=utf-8',
@@ -141,7 +153,7 @@ async function handler(req: Request): Promise<Response> {
   let idioma: string;
   try {
     const corpo = (await req.json()) as { nome?: string; idioma?: string };
-    nome = (corpo.nome ?? '').trim().slice(0, 120);
+    nome = (corpo.nome ?? '').trim().slice(0, 200);
     idioma = IDIOMAS[corpo.idioma ?? ''] ? (corpo.idioma as string) : 'pt-BR';
     if (nome.length < 2) return falhou('nao-reconheci', 400);
   } catch {
@@ -160,7 +172,9 @@ async function handler(req: Request): Promise<Response> {
     const e = r.parsed_output;
     if (!e || !e.comida) return falhou('nao-reconheci');
     const rotulo = rotuloDaPorcao(e);
-    return rotulo ? responder({ ok: true, rotulo }) : falhou('nao-reconheci');
+    /* qtd é o que a pessoa escreveu ("3 bruschettas"); sem número no
+       texto, vem nulo e o aplicativo mantém o que já tinha. */
+    return rotulo ? responder({ ok: true, rotulo, qtd: e.qtd ?? null }) : falhou('nao-reconheci');
   } catch (err) {
     if (err instanceof Anthropic.APIError) {
       console.error('modelo', err.status, err.message);

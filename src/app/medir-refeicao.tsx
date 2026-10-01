@@ -303,6 +303,7 @@ export default function MedirRefeicao() {
               item={it}
               onQtd={(q: number) => setItens((v) => v.map((x, j) => (j === i ? { ...x, qtd: q } : x)))}
               onRemover={() => setItens((v) => v.filter((_, j) => j !== i))}
+              onTrocar={(novo) => setItens((v) => v.map((x, j) => (j === i ? novo : x)))}
             />
           ))}
 

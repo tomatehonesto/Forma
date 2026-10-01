@@ -79,6 +79,9 @@ export type Rotulo = {
   porUnidade?: true;
   /** conta como líquido na hidratação — ver LIQUIDOS */
   liquido?: true;
+  /** num rótulo estimado, os ingredientes que entraram na conta ("pão,
+      tomate e muçarela"): a pessoa confere e descreve melhor se não for */
+  com?: string;
 };
 
 export type ItemComida = {
