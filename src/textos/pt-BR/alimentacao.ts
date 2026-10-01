@@ -411,10 +411,10 @@ export const alimentacao = {
     buscaPlaceholder: 'Busque um alimento ou um prato',
     itemSub: (marca: string, medida: string, gramas: number) =>
       `${marca}${medida} · ~${gramas} g de proteína`,
-    anotarEscrito: (texto: string) => `Anotar “${texto}”`,
-    semProteinaAinda: 'Não tenho a proteína desse ainda',
-    calcularEscrito: (texto: string) => `Calcular “${texto}”`,
-    calcularSub: 'Estimamos uma porção pelo nome',
+    /* quando nada da lista bate (ui/comida, BuscaAlimento): a estimativa com IA em destaque */
+    foraDaLista: 'Não está na nossa lista',
+    estimarComIa: 'Estimar com IA',
+    estimarComIaSub: (texto: string) => `Proteína e calorias de 1 porção de “${texto}”`,
     /* o que a estimativa considerou, e o "descrever melhor" (ui/comida, ItemAlimento) */
     calculadoCom: (com: string) => `Calculamos com ${com}`,
     descreverMelhor: 'Descrever melhor',
@@ -425,8 +425,8 @@ export const alimentacao = {
     descreverCancelar: 'Cancelar',
     calculando: 'Calculando…',
     seuPrato: 'seu prato',
-    estimativaSemRede: 'Sem conexão agora. Dá para anotar sem a conta.',
-    estimativaNaoReconheci: 'Não reconhecemos isso como comida. Dá para anotar mesmo assim.',
+    estimativaSemRede: 'Sem conexão agora. Tente de novo quando voltar.',
+    estimativaNaoReconheci: 'Não reconhecemos isso como comida. Tente escrever de outro jeito.',
     escanear: 'Escanear',
     lendoOPrato: 'Lendo o prato…',
     confiraALista: 'Confira a lista abaixo e ajuste o que precisar.',

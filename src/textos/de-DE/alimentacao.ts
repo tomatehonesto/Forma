@@ -341,10 +341,10 @@ export const alimentacao = {
     buscaPlaceholder: 'Such ein Lebensmittel oder einen Teller',
     itemSub: (marca: string, medida: string, gramas: number) =>
       `${marca}${medida} · ~${gramas} g Eiweiß`,
-    anotarEscrito: (texto: string) => `Notieren “${texto}”`,
-    semProteinaAinda: 'Das Eiweiß davon habe ich noch nicht',
-    calcularEscrito: (texto: string) => `„${texto}“ berechnen`,
-    calcularSub: 'Wir schätzen eine Portion anhand des Namens',
+    /* quando nada da lista bate (ui/comida, BuscaAlimento): a estimativa com IA em destaque */
+    foraDaLista: 'Nicht in unserer Liste',
+    estimarComIa: 'Mit KI schätzen',
+    estimarComIaSub: (texto: string) => `Eiweiß und Kalorien für 1 Portion „${texto}“`,
     /* o que a estimativa considerou, e o "descrever melhor" (ui/comida, ItemAlimento) */
     calculadoCom: (com: string) => `Berechnet mit ${com}`,
     descreverMelhor: 'Genauer beschreiben',
@@ -355,8 +355,8 @@ export const alimentacao = {
     descreverCancelar: 'Abbrechen',
     calculando: 'Wird berechnet …',
     seuPrato: 'dein Gericht',
-    estimativaSemRede: 'Gerade keine Verbindung. Du kannst es ohne Werte notieren.',
-    estimativaNaoReconheci: 'Das haben wir nicht als Essen erkannt. Du kannst es trotzdem notieren.',
+    estimativaSemRede: 'Gerade keine Verbindung. Versuch es noch einmal, wenn sie wieder da ist.',
+    estimativaNaoReconheci: 'Das haben wir nicht als Essen erkannt. Versuch es anders zu schreiben.',
     escanear: 'Scannen',
     lendoOPrato: 'Der Teller wird gelesen…',
     confiraALista: 'Schau die Liste unten durch und pass an, was nötig ist.',

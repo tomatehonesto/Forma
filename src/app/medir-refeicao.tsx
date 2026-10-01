@@ -276,10 +276,6 @@ export default function MedirRefeicao() {
             setItens((v) => [...v, { id: a.id, qtd: qtdPadrao(a.id) }]);
             setBusca('');
           }}
-          onLivre={(nome) => {
-            setItens((v) => [...v, { nome, qtd: 1 }]);
-            setBusca('');
-          }}
           onEstimado={(it) => {
             setItens((v) => [...v, it]);
             setBusca('');

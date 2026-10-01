@@ -5,6 +5,7 @@ import { buscarAlimento, gramasDe, medidaDe, type Alimento } from '../logic/alim
 import { gramasItem, medidaItem, nomeItem, ressalvaItem, origemDe, type ItemComida } from '../logic/prato';
 import { Txt, Row } from './kit';
 import { Icon } from './Icon';
+import { EstrelaIA } from './marca';
 import { useTheme } from './useTheme';
 import { font, radius, ty } from '../theme';
 import { T } from '../textos';
@@ -30,12 +31,10 @@ const K = () => T.alimentacao.telaMedirRefeicao;
 /* ------------------------------------------------------------------ */
 
 /** Campo de texto que sugere alimentos enquanto se digita. */
-export function BuscaAlimento({ valor, onChange, onEscolher, onLivre, onEstimado, jaTem }: {
+export function BuscaAlimento({ valor, onChange, onEscolher, onEstimado, jaTem }: {
   valor: string;
   onChange: (v: string) => void;
   onEscolher: (a: Alimento) => void;
-  /** Guardar o que foi digitado, quando a tabela não tem. */
-  onLivre: (nome: string) => void;
   /** Um prato estimado pelo nome — agora, ou de uma vez anterior. */
   onEstimado?: (it: ItemComida) => void;
   /** Ids já na lista — somem das sugestões para não entrar duas vezes. */
@@ -66,7 +65,7 @@ export function BuscaAlimento({ valor, onChange, onEscolher, onLivre, onEstimado
       : calculo === 'sem-conta' ? T.comum.ia.semConta
       : calculo === 'limite' ? T.comum.ia.limite
       : calculo === 'nao-reconheci' || calculo === 'sem-servidor' ? K().estimativaNaoReconheci
-        : K().calcularSub;
+        : K().estimarComIaSub(escrito);
 
   return (
     <View>
@@ -145,19 +144,26 @@ export function BuscaAlimento({ valor, onChange, onEscolher, onLivre, onEstimado
         </View>
       ) : null}
 
-      {/* O QUE A LISTA NÃO TEM, CALCULADO PELO NOME. Aparece só quando
-          nada bateu — nem a lista, nem os pratos que a pessoa já estimou
-          —, e pede o cálculo com um toque, em vez de a cada letra: cada
-          pedido é uma chamada ao modelo. Ver logic/estimativa. */}
+      {/* ⚠️ QUANDO NADA BATE, DUAS SAÍDAS DE PESOS DIFERENTES (01/10/2026).
+          "Calcular" e "Anotar" vinham iguais, e o dono não entendeu
+          nenhuma das duas. Agora um aviso discreto diz que não está na
+          lista; a estimativa vem em destaque, com a estrela da IA e o que
+          ela calcula; e só o nome vem apagado, dizendo que entra sem
+          conta. A estimativa é pedida com um toque, e não a cada letra:
+          cada pedido é uma chamada ao modelo. Ver logic/estimativa. */}
+      {semPar ? (
+        <Txt v="micro" c={c.tx3} style={{ marginTop: 10, marginBottom: 2, marginLeft: 2 }}>{K().foraDaLista}</Txt>
+      ) : null}
       {semPar && onEstimado && estimativaLigada() ? (
-        <Pressable onPress={calcular} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-          <Row gap={10} style={{
-            marginTop: 6, backgroundColor: c.bg1, borderWidth: 1, borderColor: c.line,
-            borderRadius: radius.md, paddingHorizontal: 13, paddingVertical: 10,
+        <Pressable onPress={calcular} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
+          <Row gap={11} style={{
+            marginTop: 6, backgroundColor: c.accentWeak, borderWidth: 1, borderColor: c.accent,
+            borderRadius: radius.md, paddingHorizontal: 13, paddingVertical: 11, alignItems: 'center',
           }}>
+            <EstrelaIA size={18} />
             <View style={{ flex: 1 }}>
-              <Txt v="label" numberOfLines={1}>{K().calcularEscrito(escrito)}</Txt>
-              <Txt v="micro" c={c.tx4}>{subDoCalculo}</Txt>
+              <Txt v="label" c={c.accent} style={{ fontFamily: font.bodySemi }}>{K().estimarComIa}</Txt>
+              <Txt v="micro" c={c.tx2} numberOfLines={2}>{subDoCalculo}</Txt>
             </View>
             {calculo === 'calculando'
               ? <ActivityIndicator size="small" color={c.accent} />
@@ -166,25 +172,11 @@ export function BuscaAlimento({ valor, onChange, onEscolher, onLivre, onEstimado
         </Pressable>
       ) : null}
 
-      {/* A tabela tem 144 alimentos e o Brasil tem mais. Sem esta saída,
-          quem comeu uma receita de família ficava sem registrar a
-          refeição — e perder o registro inteiro é pior do que registrar
-          sem o número. Entra com nome e sem conta, dito com todas as
-          letras. */}
-      {semPar ? (
-        <Pressable onPress={() => onLivre(escrito)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
-          <Row gap={10} style={{
-            marginTop: 6, backgroundColor: c.bg1, borderWidth: 1, borderColor: c.line,
-            borderRadius: radius.md, paddingHorizontal: 13, paddingVertical: 10,
-          }}>
-            <View style={{ flex: 1 }}>
-              <Txt v="label" numberOfLines={1}>{K().anotarEscrito(escrito)}</Txt>
-              <Txt v="micro" c={c.tx4}>{K().semProteinaAinda}</Txt>
-            </View>
-            <Icon name="plus" size={16} color={c.tx3} sw={2.4} />
-          </Row>
-        </Pressable>
-      ) : null}
+      {/* ⚠️ SEM "SÓ O NOME" (01/10/2026, decisão do dono). Um item sem número
+          não entra na proteína, nas metas, nos padrões nem na conversa:
+          registrar sem conta perde o sentido do registro. Quando nada da
+          lista bate, o caminho é a estimativa; se ela falhar, o recado
+          diz o que fazer, e a pessoa tenta de novo. */}
     </View>
   );
 }

@@ -312,10 +312,10 @@ export const alimentacao = {
     buscaPlaceholder: 'Cherchez un aliment ou une assiette',
     itemSub: (marca: string, medida: string, gramas: number) =>
       `${marca}${medida} · ~${gramas} g de protéines`,
-    anotarEscrito: (texto: string) => `Noter “${texto}”`,
-    semProteinaAinda: 'Je n’ai pas encore les protéines de celui-là',
-    calcularEscrito: (texto: string) => `Calculer “${texto}”`,
-    calcularSub: 'Nous estimons une portion d’après le nom',
+    /* quando nada da lista bate (ui/comida, BuscaAlimento): a estimativa com IA em destaque */
+    foraDaLista: 'Pas dans notre liste',
+    estimarComIa: 'Estimer avec l’IA',
+    estimarComIaSub: (texto: string) => `Protéines et calories pour 1 portion de « ${texto} »`,
     /* o que a estimativa considerou, e o "descrever melhor" (ui/comida, ItemAlimento) */
     calculadoCom: (com: string) => `Calculé avec ${com}`,
     descreverMelhor: 'Décrire plus précisément',
@@ -326,8 +326,8 @@ export const alimentacao = {
     descreverCancelar: 'Annuler',
     calculando: 'Calcul en cours…',
     seuPrato: 'votre plat',
-    estimativaSemRede: 'Pas de connexion pour l’instant. Vous pouvez le noter sans le calcul.',
-    estimativaNaoReconheci: 'Nous n’avons pas reconnu un aliment. Vous pouvez le noter quand même.',
+    estimativaSemRede: 'Pas de connexion pour l’instant. Réessayez quand elle revient.',
+    estimativaNaoReconheci: 'Nous n’avons pas reconnu un aliment. Essayez de l’écrire autrement.',
     escanear: 'Scanner',
     lendoOPrato: 'Lecture de l’assiette…',
     confiraALista: 'Vérifiez la liste ci-dessous et ajustez ce qu’il faut.',
