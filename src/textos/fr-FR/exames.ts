@@ -134,13 +134,6 @@ export const exames = {
   laudo: {
     entrada: 'Lire le compte rendu',
     entradaSub: 'PDF ou photo du papier — vous vérifiez avant d’enregistrer',
-    aceiteTitulo: 'Avant de lire votre compte rendu',
-    aceite1: 'Le fichier part vers notre service de lecture, au Brésil, et vers Anthropic, qui l’interprète aux États-Unis.',
-    aceite2: 'Aucun des deux ne le conserve. Dans votre journal restent seulement les résultats que vous enregistrez.',
-    aceite3: 'La lecture peut se tromper. Vous vérifiez chaque résultat sur le papier avant d’enregistrer.',
-    aceitar: 'J’accepte, lire le compte rendu',
-    recusar: 'Je préfère noter à la main',
-    politica: 'Lire la Politique de confidentialité',
     escolherTitulo: 'D’où vient le compte rendu ?',
     pdf: 'Choisir un PDF',
     foto: 'Photographier le compte rendu',

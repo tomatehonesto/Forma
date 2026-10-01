@@ -10,7 +10,8 @@ import { radius, font } from '../theme';
    OS TERMOS DE UM ACEITE, QUE ABREM E FECHAM
 
    Saiu de app/aceite-ia quando a leitura da semana ganhou o próprio
-   aceite (app/aceite-leitura): dois aceites, um desenho só.
+   aceite. Desde 01/10/2026 o aceite da IA é um só (ui/aceiteDaIa), e é
+   ele quem usa esta peça.
 
    O cabeçalho diz o que tem dentro antes de abrir: um "ver mais" sem
    conteúdo anunciado pede um toque às cegas. Dentro, cada termo tem

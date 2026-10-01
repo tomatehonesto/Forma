@@ -151,13 +151,6 @@ export const exames = {
   laudo: {
     entrada: 'Leggi il referto',
     entradaSub: 'PDF o foto del foglio — controlli prima di salvare',
-    aceiteTitulo: 'Prima di leggere il tuo referto',
-    aceite1: 'Il file va al nostro servizio di lettura, in Brasile, e ad Anthropic, che lo interpreta negli Stati Uniti.',
-    aceite2: 'Nessuno dei due lo conserva. Nel tuo diario restano solo i risultati che salvi.',
-    aceite3: 'La lettura può sbagliare. Controlli ogni risultato sul foglio prima di salvare.',
-    aceitar: 'Accetto, leggi il referto',
-    recusar: 'Preferisco annotarlo a mano',
-    politica: 'Leggi l’Informativa sulla privacy',
     escolherTitulo: 'Da dove arriva il referto?',
     pdf: 'Scegli un PDF',
     foto: 'Fotografa il referto',

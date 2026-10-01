@@ -120,13 +120,6 @@ export const exames = {
   laudo: {
     entrada: 'Read the lab report',
     entradaSub: 'A PDF or a photo of the paper — you check it before saving',
-    aceiteTitulo: 'Before we read your lab report',
-    aceite1: 'The file goes to our reading service, in Brazil, and to Anthropic, which interprets it in the United States.',
-    aceite2: 'Neither of them keeps it. Only the results you save stay in your diary.',
-    aceite3: 'The reading can be wrong. You check each result against the paper before saving.',
-    aceitar: 'I agree, read it',
-    recusar: 'I’d rather type it in',
-    politica: 'Read the Privacy Policy',
     escolherTitulo: 'Where is the report?',
     pdf: 'Choose a PDF',
     foto: 'Take a photo of the report',

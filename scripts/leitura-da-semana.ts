@@ -28,6 +28,7 @@ import { DAY } from '../src/logic/time';
 import { buildSeed, estadoVazio, ensureDefaults, type State } from '../src/logic/seed';
 import { resumoDaSemana, temMinimoDaSemana, descobertaParaLeitura, TETO_DO_RESUMO_DA_SEMANA } from '../src/logic/resumoDaSemana';
 import { estadoDaLeitura, registrarRecusaDaLeitura, registrarAceiteDaLeitura, guardarLeitura, leiturasGuardadas, LEITURAS_GUARDADAS, type Leitura } from '../src/logic/leitura';
+import { registrarAceiteDaIa, registrarRecusaDaIa } from '../src/logic/aceiteDaIa';
 import { candidatasDaSemana, escolherDaSemana, type Candidata } from '../src/logic/descobertasDaSemana';
 
 let falhas = 0;
@@ -166,13 +167,18 @@ comRelogioFixo(() => {
   const url = process.env.EXPO_PUBLIC_ANALISE_URL;
   process.env.EXPO_PUBLIC_ANALISE_URL = 'https://servidor.teste/api/analisar';
   const S: any = diario(2024);
-  ok(estadoDaLeitura(S, agora).tipo === 'pedirAceite', 'sem o aceite, o card pede o aceite');
+  ok(estadoDaLeitura(S, agora).tipo === 'pedirAceite', 'sem o aceite da IA, o convite aparece');
+  registrarRecusaDaIa(S);
+  ok(estadoDaLeitura(S, agora).tipo === 'oculto', 'o "agora não" do aceite da IA esconde o convite');
+  ok(estadoDaLeitura(S, new Date(+agora + 29 * DAY)).tipo === 'pedirAceite', 'e depois de 4 semanas ele volta');
+  registrarAceiteDaIa(S);
+  ok(estadoDaLeitura(S, agora).tipo === 'gerar', 'aceitar a IA liga a leitura: com registro, a semana é para gerar');
   registrarRecusaDaLeitura(S);
-  ok(estadoDaLeitura(S, agora).tipo === 'oculto', 'o "agora não" esconde o card');
-  ok(estadoDaLeitura(S, new Date(+agora + 29 * DAY)).tipo === 'pedirAceite', 'e depois de 4 semanas ele pergunta de novo');
+  ok(estadoDaLeitura(S, agora).tipo === 'oculto', 'desligar a leitura a esconde, mesmo com a IA aceita');
+  ok(estadoDaLeitura(S, new Date(+agora + 29 * DAY)).tipo === 'pedirAceite', 'desligada há mais de 4 semanas, o convite volta');
   registrarAceiteDaLeitura(S);
-  ok(estadoDaLeitura(S, agora).tipo === 'gerar', 'com o aceite e registro, a semana é para gerar');
-  ok(estadoDaLeitura(ensureDefaults(Object.assign(estadoVazio(), { profile: { ...(estadoVazio() as any).profile, aceiteDaLeitura: { versao: 1, em: 0 } } })) as State, agora).tipo === 'poucoRegistro',
+  ok(estadoDaLeitura(S, agora).tipo === 'gerar', 'religada, volta a gerar');
+  ok(estadoDaLeitura(ensureDefaults(Object.assign(estadoVazio(), { profile: { ...(estadoVazio() as any).profile, aceiteDaIa: { versao: 1, em: 0 } } })) as State, agora).tipo === 'poucoRegistro',
     'com o aceite e sem registro, o card convida a registrar, sem gerar');
   const leitura = (semana: number, chave: string): Leitura => ({ semana, criada: semana, texto: { semana: 's', descoberta: 'd', teste: 't' }, descoberta: { chave, area: 'habitos', nivel: 'forte', tipo: 'par' } });
   guardarLeitura(S, leitura(de, 'a'));

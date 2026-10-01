@@ -10,6 +10,8 @@ import { useTheme } from './useTheme';
 import { font, radius, ty } from '../theme';
 import { T } from '../textos';
 import { useStore } from '../logic/store';
+import { aceitouAIa } from '../logic/aceiteDaIa';
+import { useRouter } from 'expo-router';
 import {
   buscarNosSeus, comoAlimento, estimarPeloNome, estimativaLigada, itemEstimado, redescrever,
   type MotivoDaEstimativa,
@@ -41,6 +43,7 @@ export function BuscaAlimento({ valor, onChange, onEscolher, onEstimado, jaTem }
   jaTem?: string[];
 }) {
   const { c } = useTheme();
+  const router = useRouter();
   const S = useStore((x) => x.S);
   const achados = buscarAlimento(valor).filter((a) => !jaTem?.includes(a.id));
   /* Os pratos que a pessoa já estimou vêm do diário dela, e entram
@@ -55,6 +58,8 @@ export function BuscaAlimento({ valor, onChange, onEscolher, onEstimado, jaTem }
   useEffect(() => { setCalculo('parado'); }, [valor]);
   const calcular = async () => {
     if (!onEstimado || calculo === 'calculando') return;
+    /* A estimativa é IA: antes da primeira, o aceite único. */
+    if (!aceitouAIa(useStore.getState().S)) { router.push('/aceite-ia' as any); return; }
     setCalculo('calculando');
     const r = await estimarPeloNome(escrito);
     if (r.ok) { setCalculo('parado'); onEstimado(r.item); }
@@ -208,6 +213,7 @@ export function ItemAlimento({ item, onQtd, onRemover, onTrocar }: {
   onTrocar?: (novo: ItemComida) => void;
 }) {
   const { c } = useTheme();
+  const router = useRouter();
   const nome = nomeItem(item);
   const ressalva = ressalvaItem(item);
   const conta = origemDe(item) !== 'sem-conta';
@@ -222,6 +228,7 @@ export function ItemAlimento({ item, onQtd, onRemover, onTrocar }: {
   const podeDescrever = !!item.estimado && !!onTrocar && estimativaLigada();
   const recalcular = async () => {
     if (!onTrocar || descricao.trim().length < 2 || estado === 'calculando') return;
+    if (!aceitouAIa(useStore.getState().S)) { router.push('/aceite-ia' as any); return; }
     setEstado('calculando');
     const r = await redescrever(item, descricao);
     if (r.ok) { setEstado('parado'); setDescrevendo(false); setDescricao(''); onTrocar(r.item); }

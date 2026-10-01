@@ -312,7 +312,7 @@ export default function Home() {
       over: KL.chapeu,
       title: KL.slideConviteTitulo,
       body: KL.slideConviteTexto,
-      cta: KL.pedirSim, to: '/aceite-leitura',
+      cta: KL.pedirSim, to: '/aceite-ia?leitura=1',
       ia: true,
     }] : []),
     /* A PRÓXIMA APLICAÇÃO SÓ ENTRA QUANDO EXISTE UMA.

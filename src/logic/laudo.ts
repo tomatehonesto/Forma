@@ -1,4 +1,5 @@
 import { Platform } from 'react-native';
+import { aceitouAIa, registrarAceiteDaIa } from './aceiteDaIa';
 import { File } from 'expo-file-system';
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import { now, startOfDay } from './time';
@@ -31,15 +32,9 @@ const URL_ANALISE = process.env.EXPO_PUBLIC_ANALISE_URL;
 const URL_LAUDO = process.env.EXPO_PUBLIC_LAUDO_URL
   ?? (URL_ANALISE ? URL_ANALISE.replace(/\/analisar\/?$/, '/laudo') : undefined);
 
-/** A versão do texto do aceite (textos/<idioma>/exames, `laudo.aceite`). */
-export const VERSAO_DO_ACEITE_DO_LAUDO = 1;
-
-export const aceitouLeituraDoLaudo = (S: any) =>
-  (S?.profile?.aceiteDoLaudo?.versao ?? 0) >= VERSAO_DO_ACEITE_DO_LAUDO;
-
-export const registrarAceiteDoLaudo = (s: any) => {
-  s.profile.aceiteDoLaudo = { em: +now(), versao: VERSAO_DO_ACEITE_DO_LAUDO };
-};
+/* ⚠️ O ACEITE DO LAUDO É O DA IA, UM SÓ (logic/aceiteDaIa, 01/10/2026). */
+export const aceitouLeituraDoLaudo = aceitouAIa;
+export const registrarAceiteDoLaudo = registrarAceiteDaIa;
 
 export const leituraDoLaudoLigada = () => !!URL_LAUDO;
 

@@ -10,6 +10,7 @@ import { MOMENTOS, itensDe, momentoDaHora, nomeItem, qtdPadrao, somaDe, type Ite
 import { analisarFoto, RECADO } from '../logic/analise';
 import { BuscaAlimento, ItemAlimento, BotaoEscanear, FotoDoPrato } from '../ui/comida';
 import { CameraPrato } from '../ui/CameraPrato';
+import { aceitouAIa } from '../logic/aceiteDaIa';
 import { Txt, Row, SheetScreen } from '../ui/kit';
 import { Acordeao, Botao, Grade, Linha, Opc } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
@@ -228,7 +229,8 @@ export default function MedirRefeicao() {
           empurrava a busca para baixo, e é a busca que a maioria usa. */}
       <Row style={{ justifyContent: 'space-between', alignItems: 'center', marginTop: 22, marginBottom: 10 }}>
         <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1 }}>{K().oQueTinhaNoPrato}</Txt>
-        {foto ? null : <BotaoEscanear onPress={() => setCamera(true)} />}
+        {/* A foto é IA: antes da primeira, o aceite único (logic/aceiteDaIa). */}
+        {foto ? null : <BotaoEscanear onPress={() => (aceitouAIa(S) ? setCamera(true) : router.push('/aceite-ia' as any))} />}
       </Row>
 
       {/* Com foto tirada, ela toma o lugar do atalho e mostra o que está

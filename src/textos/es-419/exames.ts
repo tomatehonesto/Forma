@@ -120,13 +120,6 @@ export const exames = {
   laudo: {
     entrada: 'Leer el informe',
     entradaSub: 'PDF o foto del papel — lo revisas antes de guardar',
-    aceiteTitulo: 'Antes de leer tu informe',
-    aceite1: 'El archivo va a nuestro servicio de lectura, en Brasil, y a Anthropic, que lo interpreta en Estados Unidos.',
-    aceite2: 'Ninguno de los dos lo guarda. En tu diario quedan solo los resultados que guardes.',
-    aceite3: 'La lectura puede equivocarse. Revisas cada resultado contra el papel antes de guardar.',
-    aceitar: 'Acepto, quiero leerlo',
-    recusar: 'Prefiero anotarlo a mano',
-    politica: 'Leer la Política de Privacidad',
     escolherTitulo: '¿De dónde viene el informe?',
     pdf: 'Elegir un PDF',
     foto: 'Tomar una foto del informe',

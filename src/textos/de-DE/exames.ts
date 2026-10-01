@@ -160,13 +160,6 @@ export const exames = {
   laudo: {
     entrada: 'Befund einlesen',
     entradaSub: 'PDF oder Foto vom Papier — du prüfst vor dem Speichern',
-    aceiteTitulo: 'Bevor wir deinen Befund lesen',
-    aceite1: 'Die Datei geht an unseren Lesedienst in Brasilien und an Anthropic, das sie in den USA auswertet.',
-    aceite2: 'Keiner von beiden speichert sie. In deinem Tagebuch bleiben nur die Werte, die du speicherst.',
-    aceite3: 'Das Lesen kann sich irren. Du prüfst jeden Wert am Papier, bevor du speicherst.',
-    aceitar: 'Einverstanden, einlesen',
-    recusar: 'Lieber von Hand eintragen',
-    politica: 'Datenschutzerklärung lesen',
     escolherTitulo: 'Woher kommt der Befund?',
     pdf: 'PDF auswählen',
     foto: 'Befund fotografieren',

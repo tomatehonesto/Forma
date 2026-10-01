@@ -167,19 +167,10 @@ export const exames = {
 
   /* ---- a leitura do laudo (app/laudo, logic/laudo) ----
 
-     ⚠️ O ACEITE (aceite1 a aceite3) TEM VERSÃO: mudar o que ele diz pede
-     subir VERSAO_DO_ACEITE_DO_LAUDO, em logic/laudo, para ele ser pedido
-     de novo. */
+     O aceite é o único da IA (logic/aceiteDaIa, ui/aceiteDaIa). */
   laudo: {
     entrada: 'Ler o laudo',
     entradaSub: 'PDF ou foto do papel — você confere antes de salvar',
-    aceiteTitulo: 'Antes de ler o seu laudo',
-    aceite1: 'O arquivo vai para o nosso serviço de leitura, no Brasil, e para a Anthropic, que o interpreta nos Estados Unidos.',
-    aceite2: 'Ele não é guardado em nenhum dos dois. No seu diário ficam só os resultados que você salvar.',
-    aceite3: 'A leitura pode errar. Você confere cada resultado contra o papel antes de salvar.',
-    aceitar: 'Concordo, quero ler',
-    recusar: 'Prefiro anotar à mão',
-    politica: 'Ler a Política de Privacidade',
     escolherTitulo: 'De onde vem o laudo?',
     pdf: 'Escolher um PDF',
     foto: 'Tirar uma foto do laudo',

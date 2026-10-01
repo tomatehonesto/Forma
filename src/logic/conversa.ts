@@ -2,6 +2,7 @@ import type { State } from './seed';
 import { localAtual } from './local';
 import { paisLidoDoAparelho } from './pais';
 import { now } from './time';
+import { aceitouAIa, registrarAceiteDaIa } from './aceiteDaIa';
 import { resumoDaJornada } from './resumoDaJornada';
 import { cabecalhosDaIa, motivoDaPorta, type MotivoDaPorta } from './portaDaIa';
 
@@ -40,16 +41,10 @@ export const conversaLigada = () => !!urlDaConversa();
 /* O aceite                                                           */
 /* ------------------------------------------------------------------ */
 
-/** Sobe quando o texto do aceite muda de sentido: a pessoa aceita de
-    novo o que passou a ser dito. */
-export const VERSAO_DO_ACEITE_DA_CONVERSA = 1;
-
-export const aceitouAConversa = (S: any) =>
-  (S?.profile?.aceiteDaConversa?.versao ?? 0) >= VERSAO_DO_ACEITE_DA_CONVERSA;
-
-export const registrarAceiteDaConversa = (s: any) => {
-  s.profile.aceiteDaConversa = { em: +now(), versao: VERSAO_DO_ACEITE_DA_CONVERSA };
-};
+/* ⚠️ O ACEITE DA CONVERSA É O DA IA, UM SÓ (logic/aceiteDaIa,
+   01/10/2026). Os nomes ficam para quem já os chamava. */
+export const aceitouAConversa = aceitouAIa;
+export const registrarAceiteDaConversa = registrarAceiteDaIa;
 
 /* ------------------------------------------------------------------ */
 /* As conversas guardadas                                             */

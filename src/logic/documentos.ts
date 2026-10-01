@@ -38,6 +38,9 @@
    versão, antes de sair do __DEV__, a seção 8 ganhou o que faltava: a
    conversa, a leitura da semana e o nome do prato também vão para a
    Anthropic, nos EUA, e a seção 7 já dizia isso.
+   E o aceite da IA passou a ser um só (logic/aceiteDaIa), para a conversa, o
+   resumo da semana, o laudo, a foto do prato e a estimativa pelo nome:
+   a seção 4 diz isso numa linha, com as finalidades listadas.
    Ainda na 2.3, entrou a avaliação das respostas (logic/avaliacao): o 👍
    manda a nota, o 👎 confirmado manda a pergunta e a resposta para o
    banco, por até 12 meses (seções 2, 3, 4, 6, 7 e 10).
@@ -231,10 +234,7 @@ export const PRIVACIDADE = (): Documento => ({
         '<b>Dados de saúde, e guardá-los na sua conta</b> — <b>consentimento específico e destacado</b> (art. 11, I). É o aceite que você dá no cadastro, antes de o plano ser montado, com um aviso que diz o que será feito.',
         '<b>Compartilhamento com a clínica a que você se conecta</b> — <b>consentimento específico</b> (art. 11, I), dado na tela do código, antes de conectar, com a lista do que a clínica passa a ver. O que a clínica guarda como prontuário depois de a conexão acabar segue a <b>tutela da saúde</b>, em procedimento realizado por profissionais de saúde (art. 11, II, "f"), e as regras de prontuário que valem para ela.',
         '<b>Conta, cadastro e funcionamento do aplicativo</b> — <b>execução de contrato</b> (art. 7º, V): sem esses dados o app não funciona.',
-        '<b>Leitura da foto do prato</b> — <b>consentimento</b> (art. 7º, I), dado no momento em que você escolhe usar a câmera em vez do registro manual.',
-        '<b>Leitura do laudo</b> — <b>consentimento específico e destacado</b> (art. 11, I), dado numa tela própria antes da primeira leitura, que diz para onde o arquivo vai e que ele não é guardado. Sem esse aceite, os exames continuam sendo anotados à mão.',
-        '<b>Conversa com a Morphi Intelligence</b> — <b>consentimento específico e destacado</b> (art. 11, I), dado na própria conversa antes da primeira pergunta, que diz o que ela lê e para onde vai. Sem esse aceite, nenhuma pergunta sai do aparelho.',
-        '<b>Leitura da semana</b> — <b>consentimento específico e destacado</b> (art. 11, I), dado no próprio card da Home antes da primeira leitura, que diz o que sai do aparelho e o que fica guardado. Sem esse aceite, nada sai; o "agora não" e o "desligar" param a leitura.',
+        '<b>Inteligência artificial</b> — a conversa com a Morphi Intelligence, o resumo da semana, a leitura do laudo, a leitura da foto do prato e a estimativa de um prato pelo nome — <b>consentimento específico e destacado</b> (art. 11, I), dado uma vez, na primeira vez que você usa qualquer uma delas, numa tela que lista cada finalidade, o que sai do aparelho e para onde vai. Sem esse aceite, nenhuma dessas funções é usada e nada sai do aparelho. O resumo da semana pode ser desligado na própria leitura, e as outras só funcionam quando você pede.',
         '<b>Avaliação de uma resposta</b> — <b>consentimento específico e destacado</b> (art. 11, I), dado a cada envio: o 👎 abre uma folha que diz o que sai, e nada sai antes de você tocar em Enviar. O 👍 manda só a nota.',
         '<b>Leitura do aplicativo de saúde do celular</b> — <b>consentimento</b>, concedido e revogado nos ajustes do sistema operacional.',
       ],
@@ -258,7 +258,7 @@ export const PRIVACIDADE = (): Documento => ({
         '<b>A foto do prato</b>, quando você usa a leitura por foto — a imagem é reduzida no aparelho e enviada para ser interpretada. Ela <b>não é armazenada</b>: nem no registro da refeição, nem no serviço que faz a intermediação.',
         '<b>O laudo, quando você usa a leitura do laudo</b> — o PDF ou a foto do exame é enviado para ser interpretado, e volta como uma lista de resultados que você confere antes de salvar. O arquivo <b>não é armazenado</b>: nem no seu diário, nem no serviço que faz a intermediação. O que fica são só os resultados que você salvou, como qualquer exame anotado.',
         '<b>A conversa com a Morphi Intelligence, quando você pergunta</b> — a pergunta, as últimas mensagens da conversa e um resumo dos seus registros (tratamento, peso, sintomas, check-ins, alimentação, água, exercício e exames) são enviados para gerar a resposta, junto com o país configurado no seu aparelho, que serve para dar os números de emergência e de apoio certos. O resumo não leva o seu nome completo, o seu e-mail, o nome de quem acompanha você nem as suas anotações livres. Nada disso <b>é armazenado</b> no serviço que faz a intermediação; a conversa fica só no seu aparelho e não vai para a sua conta.',
-        '<b>A leitura da semana, toda segunda, se você ligou</b> — um resumo da semana que passou (peso, aplicações, check-ins, sintomas, água, proteína e treinos) e uma descoberta calculada no seu aparelho são enviados para gerar a leitura, com o país configurado no aparelho. Sem o seu nome completo, o seu e-mail, o nome de quem acompanha você ou as suas anotações. Nada disso <b>é armazenado</b> no serviço que faz a intermediação; a leitura fica só no seu aparelho e não vai para a sua conta.',
+        '<b>O resumo da semana, toda segunda, depois do aceite da inteligência artificial e enquanto você não o desligar</b> — um resumo da semana que passou (peso, aplicações, check-ins, sintomas, água, proteína e treinos) e uma descoberta calculada no seu aparelho são enviados para gerar a leitura, com o país configurado no aparelho. Sem o seu nome completo, o seu e-mail, o nome de quem acompanha você ou as suas anotações. Nada disso <b>é armazenado</b> no serviço que faz a intermediação; a leitura fica só no seu aparelho e não vai para a sua conta.',
         '<b>A avaliação de uma resposta, quando você avalia</b> — o 👍 manda só a nota. O 👎, quando você confirma, manda o motivo, a sua pergunta e a resposta avaliada, para o nosso banco em São Paulo. Nada mais da conversa nem dos seus registros.',
         '<b>O nome de um prato, quando você pede a estimativa</b> — só o nome digitado é enviado, e volta como uma porção estimada. Não é armazenado no serviço que faz a intermediação.',
         '<b>A sua fala, quando você usa o microfone</b> — o reconhecimento de voz é feito pelo sistema do aparelho. Pedimos que ele aconteça no próprio aparelho, mas quando o aparelho não tem o reconhecimento local do seu idioma, o sistema pode enviar o áudio aos servidores da Apple ou do Google. Isso só acontece enquanto o microfone está ligado.',
@@ -291,9 +291,9 @@ export const PRIVACIDADE = (): Documento => ({
       ],
       itens: [
         '<b>A foto do prato</b>, só quando você usa a leitura por foto. Envolve apenas a imagem enviada, que não é armazenada. Se preferir que isso não aconteça, registre as refeições manualmente.',
-        '<b>O laudo</b>, só quando você usa a leitura do laudo, e depois do aceite específico. Envolve apenas o arquivo enviado, que não é armazenado. Se preferir que isso não aconteça, anote os exames à mão.',
-        '<b>A conversa com a Morphi Intelligence</b>, só quando você pergunta, e depois do aceite específico. Envolve a pergunta, as últimas mensagens e o resumo dos registros da seção 6, que não são armazenados. Se preferir que isso não aconteça, não ligue a conversa.',
-        '<b>A leitura da semana</b>, só se você a ligou. Envolve o resumo da semana e a descoberta da seção 6, que não são armazenados. Se preferir que isso não aconteça, desligue a leitura.',
+        '<b>O laudo</b>, só quando você usa a leitura do laudo, e depois do aceite da inteligência artificial. Envolve apenas o arquivo enviado, que não é armazenado. Se preferir que isso não aconteça, anote os exames à mão.',
+        '<b>A conversa com a Morphi Intelligence</b>, só quando você pergunta, e depois do aceite da inteligência artificial. Envolve a pergunta, as últimas mensagens e o resumo dos registros da seção 6, que não são armazenados. Se preferir que isso não aconteça, não ligue a conversa.',
+        '<b>O resumo da semana</b>, depois do aceite da inteligência artificial e enquanto você não o desligar. Envolve o resumo da semana e a descoberta da seção 6, que não são armazenados. Se preferir que isso não aconteça, desligue a leitura.',
         '<b>O nome de um prato</b>, quando você pede a estimativa. Só o nome digitado.',
         '<b>O seu e-mail</b>, que o serviço de envio usa para entregar o código de acesso.',
         '<b>O identificador da Apple</b>, quando você escolhe entrar com ela.',
@@ -418,9 +418,9 @@ export const TERMOS = (): Documento => ({
         'Monta um resumo do tratamento para você levar à consulta.',
         'Com o seu consentimento, compartilha o seu diário com a clínica parceira a que você se conectar, enquanto a conexão durar.',
         'Lê a foto de um prato, quando você escolhe, e sugere os itens da refeição.',
-        'Lê o PDF ou a foto de um laudo, quando você escolhe e depois de um aceite próprio, e sugere os resultados para você conferir.',
-        'Responde às suas perguntas sobre o tratamento, pela Morphi Intelligence, depois de um aceite próprio. Ela não indica nem muda dose.',
-        'Toda segunda, se você ligar, escreve uma leitura da sua semana, com uma descoberta sobre os seus registros e um teste para a semana seguinte, depois de um aceite próprio.',
+        'Lê o PDF ou a foto de um laudo, quando você escolhe e depois do aceite da inteligência artificial, e sugere os resultados para você conferir.',
+        'Responde às suas perguntas sobre o tratamento, pela Morphi Intelligence, depois do aceite da inteligência artificial. Ela não indica nem muda dose.',
+        'Toda segunda, escreve um resumo da sua semana, com uma descoberta sobre os seus registros e um teste para a semana seguinte, depois do aceite da inteligência artificial. Ele se desliga na própria leitura.',
         'Lê pesagens do aplicativo de saúde do celular, com a sua autorização.',
       ],
     },

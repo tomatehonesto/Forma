@@ -170,8 +170,12 @@ export const DESTINO_NO_PERFIL: Record<string, Destino> = {
   aceiteDoLaudo: 'parte:preferencias',
   /* o aceite da conversa (logic/conversa), pelo mesmo motivo */
   aceiteDaConversa: 'parte:preferencias',
-  /* o aceite (ou a recusa) da leitura da semana (logic/leitura) */
+  /* o desligar (ou o religar) da leitura da semana (logic/leitura) */
   aceiteDaLeitura: 'parte:preferencias',
+  /* o aceite único da Morphi Intelligence (logic/aceiteDaIa, 01/10/2026):
+     anda com a pessoa entre aparelhos, para não ser pedido em cada um. Os
+     três acima ficam para os registros antigos. */
+  aceiteDaIa: 'parte:preferencias',
 
   consentimento: 'coluna',
 

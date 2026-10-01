@@ -1,5 +1,6 @@
 import type { State } from './seed';
 import { now } from './time';
+import { aceitouAIa, recusouAIaHaPouco } from './aceiteDaIa';
 import { localAtual } from './local';
 import { paisLidoDoAparelho } from './pais';
 import { cabecalhosDaIa, motivoDaPorta, type MotivoDaPorta } from './portaDaIa';
@@ -45,17 +46,26 @@ const urlDaLeitura = () => {
 };
 export const leituraLigada = () => !!urlDaLeitura();
 
-export const aceitouALeitura = (S: any) => (S?.profile?.aceiteDaLeitura?.versao ?? 0) >= VERSAO_DO_ACEITE_DA_LEITURA;
-/* ⚠️ O "AGORA NÃO" VALE 4 SEMANAS, e não para sempre. Não há (ainda) uma
-   tela de preferências para religar; perguntar de novo depois de um mês é
-   o caminho de volta, e quatro semanas não é insistir. O mesmo vale para o
-   "desligar" da própria leitura. */
+/* ⚠️ O ACEITE É O DA IA, UM SÓ (logic/aceiteDaIa, 01/10/2026). Aceitar a
+   Morphi Intelligence liga a leitura junto. `aceiteDaLeitura` passou a
+   guardar só o desligar dela: { em, recusou: true } quando a pessoa
+   desligou na própria leitura, { em, versao } quando religou.
+
+   ⚠️ DESLIGADA, SOME POR 4 SEMANAS, e depois o convite volta ao
+   carrossel. Não há (ainda) uma tela de preferências para religar;
+   perguntar de novo depois de um mês é o caminho de volta, e quatro
+   semanas não é insistir. */
 export const SEMANAS_ATE_PERGUNTAR_DE_NOVO = 4;
+const desligadaEm = (S: any): number | null =>
+  S?.profile?.aceiteDaLeitura?.recusou ? (S.profile.aceiteDaLeitura.em ?? 0) : null;
+export const aceitouALeitura = (S: any) => aceitouAIa(S) && desligadaEm(S) == null;
 export const recusouALeitura = (S: any, agora: number = +now()) => {
-  const a = S?.profile?.aceiteDaLeitura;
-  return !!a?.recusou && !aceitouALeitura(S) && agora - (a.em ?? 0) < SEMANAS_ATE_PERGUNTAR_DE_NOVO * 7 * 864e5;
+  const em = desligadaEm(S);
+  return em != null && agora - em < SEMANAS_ATE_PERGUNTAR_DE_NOVO * 7 * 864e5;
 };
+/** Religa a leitura (o convite do carrossel, para quem já aceitou a IA). */
 export const registrarAceiteDaLeitura = (s: any) => { s.profile.aceiteDaLeitura = { em: +now(), versao: VERSAO_DO_ACEITE_DA_LEITURA }; };
+/** Desliga a leitura (o botão da própria leitura). */
 export const registrarRecusaDaLeitura = (s: any) => { s.profile.aceiteDaLeitura = { em: +now(), recusou: true }; };
 
 export const leiturasGuardadas = (S: any): Leitura[] => ((S?.leituras ?? []) as Leitura[]).slice().sort((a, b) => a.semana - b.semana);
@@ -77,7 +87,7 @@ export type EstadoDaLeitura =
   | { tipo: 'pronta'; leitura: Leitura };
 
 export function estadoDaLeitura(S: State, agora: Date = now()): EstadoDaLeitura {
-  if (!leituraLigada() || recusouALeitura(S, +agora)) return { tipo: 'oculto' };
+  if (!leituraLigada() || recusouALeitura(S, +agora) || recusouAIaHaPouco(S, +agora)) return { tipo: 'oculto' };
   if (!aceitouALeitura(S)) return { tipo: 'pedirAceite' };
   const { de } = semanaLida(agora);
   const guardada = leituraDaSemana(S, de);

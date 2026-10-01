@@ -19,6 +19,7 @@ import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
 import { radius, font } from '../theme';
 import { T } from '../textos';
+import { FolhaDoAceiteDaIa } from '../ui/aceiteDaIa';
 
 /* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo. */
 const K = () => T.exames.laudo;
@@ -127,25 +128,14 @@ export default function Laudo() {
 
   /* ------------------------------------------------------------ */
   if (fase === 'aceite') {
+    /* ⚠️ A FOLHA É A DO ACEITE ÚNICO DA IA (ui/aceiteDaIa, 01/10/2026).
+       Recusar continua sendo anotar à mão. */
     return (
-      <SheetScreen titulo={K().aceiteTitulo} onClose={() => router.back()}>
-        <View style={{ marginTop: 18, gap: 12 }}>
-          {[K().aceite1, K().aceite2, K().aceite3].map((t, i) => (
-            <Row key={i} gap={12} style={{ alignItems: 'flex-start' }}>
-              <Icon name={['lock', 'check', 'info'][i]} size={17} color={c.accent} sw={1.9} />
-              <Txt v="body" c={c.tx2} style={{ flex: 1, lineHeight: 23 }}>{t}</Txt>
-            </Row>
-          ))}
-          <Pressable onPress={() => router.push('/documento?id=privacidade' as any)} hitSlop={8}
-            style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1, alignSelf: 'flex-start', marginTop: 4 }]}>
-            <Txt v="label" c={c.accent2}>{K().politica}</Txt>
-          </Pressable>
-          <View style={{ gap: 10, marginTop: 14 }}>
-            <Botao label={K().aceitar} onPress={() => { update((s: any) => { registrarAceiteDoLaudo(s); }); setFase('escolher'); }} />
-            <Botao label={K().recusar} tom="fantasma" onPress={anotarAMao} />
-          </View>
-        </View>
-      </SheetScreen>
+      <FolhaDoAceiteDaIa
+        onAceitar={() => { update((s: any) => { registrarAceiteDoLaudo(s); }); setFase('escolher'); }}
+        onRecusar={anotarAMao}
+        onFechar={() => router.back()}
+      />
     );
   }
 
