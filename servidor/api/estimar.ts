@@ -36,6 +36,30 @@ import { abrirPorta } from '../cota.js';
 
 const cliente = new Anthropic();
 
+/** O pedido ao modelo, num lugar só: o handler e a avaliação
+    (scripts/avaliacao/recursos.ts). `idioma` é a chave ('pt-BR'…);
+    `modelo` só muda na avaliação. */
+export function parametrosDaEstimativa(p: { nome: string; idioma: string }, modelo = 'claude-opus-5') {
+  return {
+    model: modelo,
+    max_tokens: 2000,
+    system: [{ type: 'text' as const, text: INSTRUCOES, cache_control: { type: 'ephemeral' as const } }],
+    messages: [
+      {
+        role: 'user' as const,
+        content: `Idioma: ${IDIOMAS[p.idioma] ?? IDIOMAS['pt-BR']}\nO que a pessoa comeu: ${p.nome}`,
+      },
+    ],
+    output_config: {
+      format: zodOutputFormat(Resposta),
+      /* É conhecimento, e não raciocínio longo: o modelo sabe o que é
+         uma carbonara. 'low' deixa a resposta rápida, e a pessoa está
+         com o registro aberto esperando. */
+      effort: 'low' as const,
+    },
+  };
+}
+
 export const Resposta = z.object({
   comida: z.boolean().describe('false se o texto não descreve algo que se come ou se bebe'),
   nome: z.string().describe('o nome do prato como se escreve no idioma pedido, com inicial maiúscula'),
@@ -128,24 +152,7 @@ async function handler(req: Request): Promise<Response> {
   if (!porta.ok) return falhou(porta.motivo, porta.status);
 
   try {
-    const r = await cliente.messages.parse({
-      model: 'claude-opus-5',
-      max_tokens: 2000,
-      system: [{ type: 'text', text: INSTRUCOES, cache_control: { type: 'ephemeral' } }],
-      messages: [
-        {
-          role: 'user',
-          content: `Idioma: ${IDIOMAS[idioma]}\nO que a pessoa comeu: ${nome}`,
-        },
-      ],
-      output_config: {
-        format: zodOutputFormat(Resposta),
-        /* É conhecimento, e não raciocínio longo: o modelo sabe o que é
-           uma carbonara. 'low' deixa a resposta rápida, e a pessoa está
-           com o registro aberto esperando. */
-        effort: 'low',
-      },
-    });
+    const r = await cliente.messages.parse(parametrosDaEstimativa({ nome, idioma }));
 
     const e = r.parsed_output;
     if (!e || !e.comida) return falhou('nao-reconheci');

@@ -29,6 +29,31 @@ import { abrirPorta } from '../cota.js';
 
 const cliente = new Anthropic();
 
+/** O pedido ao modelo, num lugar só: o handler e a avaliação
+    (scripts/avaliacao/recursos.ts). `modelo` só muda na avaliação. */
+export function parametrosDoLaudo(p: { arquivo: string; tipo: string }, modelo = 'claude-opus-5') {
+  const bloco = p.tipo === 'application/pdf'
+    ? { type: 'document' as const, source: { type: 'base64' as const, media_type: 'application/pdf' as const, data: p.arquivo } }
+    : { type: 'image' as const, source: { type: 'base64' as const, media_type: p.tipo as 'image/jpeg' | 'image/png' | 'image/webp', data: p.arquivo } };
+  return {
+    model: modelo,
+    max_tokens: 4000,
+    system: [{ type: 'text' as const, text: INSTRUCOES, cache_control: { type: 'ephemeral' as const } }],
+    messages: [
+      {
+        role: 'user' as const,
+        content: [bloco, { type: 'text' as const, text: 'Quais resultados estão neste laudo?' }],
+      },
+    ],
+    output_config: {
+      format: zodOutputFormat(Resposta),
+      /* Ler um laudo é transcrever uma tabela com cuidado — mais atenção
+         do que o prato, porque um dígito errado é um número falso. */
+      effort: 'high' as const,
+    },
+  };
+}
+
 const Resultado = z.object({
   marcador: z.enum(CHAVES as [string, ...string[]]).nullable()
     .describe('a chave da LISTA, quando o resultado é um dos marcadores dela; senão nulo'),
@@ -138,27 +163,7 @@ async function handler(req: Request): Promise<Response> {
   if (!porta.ok) return falhou(porta.motivo, porta.status);
 
   try {
-    const bloco = tipo === 'application/pdf'
-      ? { type: 'document' as const, source: { type: 'base64' as const, media_type: 'application/pdf' as const, data: arquivo } }
-      : { type: 'image' as const, source: { type: 'base64' as const, media_type: tipo, data: arquivo } };
-
-    const r = await cliente.messages.parse({
-      model: 'claude-opus-5',
-      max_tokens: 4000,
-      system: [{ type: 'text', text: INSTRUCOES, cache_control: { type: 'ephemeral' } }],
-      messages: [
-        {
-          role: 'user',
-          content: [bloco, { type: 'text', text: 'Quais resultados estão neste laudo?' }],
-        },
-      ],
-      output_config: {
-        format: zodOutputFormat(Resposta),
-        /* Ler um laudo é transcrever uma tabela com cuidado — mais atenção
-           do que o prato, porque um dígito errado é um número falso. */
-        effort: 'high',
-      },
-    });
+    const r = await cliente.messages.parse(parametrosDoLaudo({ arquivo, tipo }));
 
     const bruto = r.parsed_output;
     if (!bruto) return falhou('nao-reconheci');

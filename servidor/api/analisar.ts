@@ -37,6 +37,38 @@ import { abrirPorta } from '../cota.js';
 
 const cliente = new Anthropic();
 
+/** O pedido ao modelo, num lugar só: o handler e a avaliação
+    (scripts/avaliacao/recursos.ts) chamam esta função, e por isso a
+    avaliação mede o que vai para a pessoa. `modelo` só muda na avaliação. */
+export function parametrosDaFoto(p: { imagem: string; tipo: TipoOk; idioma: string }, modelo = 'claude-opus-5') {
+  return {
+    model: modelo,
+    max_tokens: 4000,
+    system: [{ type: 'text' as const, text: INSTRUCOES, cache_control: { type: 'ephemeral' as const } }],
+    /* A tabela e as regras não mudam entre uma foto e outra, e são a
+       maior parte do prompt. Com o breakpoint aqui, a partir da segunda
+       leitura só a imagem é cobrada cheia. */
+    messages: [
+      {
+        role: 'user' as const,
+        content: [
+          { type: 'image' as const, source: { type: 'base64' as const, media_type: p.tipo, data: p.imagem } },
+          { type: 'text' as const, text: `O que tem neste prato? Idioma do aplicativo: ${p.idioma}.` },
+        ],
+      },
+    ],
+    output_config: {
+      format: zodOutputFormat(Resposta),
+      /* Reconhecer comida e casar com uma lista de comidas é tarefa de
+         percepção, não de raciocínio longo — e tem alguém olhando para
+         uma roda girando enquanto isso. 'medium' é o meio-termo entre a
+         espera e a qualidade do casamento; é uma palavra para trocar se
+         a medição disser outra coisa. */
+      effort: 'medium' as const,
+    },
+  };
+}
+
 const IDIOMAS: Record<string, string> = {
   'pt-BR': 'português do Brasil',
   'en-US': 'inglês americano',
@@ -175,32 +207,7 @@ async function handler(req: Request): Promise<Response> {
   if (!porta.ok) return falhou(porta.motivo, porta.status);
 
   try {
-    const r = await cliente.messages.parse({
-      model: 'claude-opus-5',
-      max_tokens: 4000,
-      system: [{ type: 'text', text: INSTRUCOES, cache_control: { type: 'ephemeral' } }],
-      /* A tabela e as regras não mudam entre uma foto e outra, e são a
-         maior parte do prompt. Com o breakpoint aqui, a partir da segunda
-         leitura só a imagem é cobrada cheia. */
-      messages: [
-        {
-          role: 'user',
-          content: [
-            { type: 'image', source: { type: 'base64', media_type: tipo, data: imagem } },
-            { type: 'text', text: `O que tem neste prato? Idioma do aplicativo: ${idioma}.` },
-          ],
-        },
-      ],
-      output_config: {
-        format: zodOutputFormat(Resposta),
-        /* Reconhecer comida e casar com uma lista de comidas é tarefa de
-           percepção, não de raciocínio longo — e tem alguém olhando para
-           uma roda girando enquanto isso. 'medium' é o meio-termo entre a
-           espera e a qualidade do casamento; é uma palavra para trocar se
-           a medição disser outra coisa. */
-        effort: 'medium',
-      },
-    });
+    const r = await cliente.messages.parse(parametrosDaFoto({ imagem, tipo, idioma }));
 
     const bruto = r.parsed_output?.itens ?? [];
     const conhecidos = new Set((ALIMENTOS as { id: string }[]).map((a) => a.id));

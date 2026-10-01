@@ -68,3 +68,6 @@ public/rede-telas.js
 .claude/hillclimb/**/entradas.html
 .claude/hillclimb/conversa/piloto/
 .claude/hillclimb/conversa/v2-dificeis/
+
+# Bases externas para avaliar a IA (Nutrition5k, CC BY 4.0): ficam fora do git
+.claude/avaliacao-dados/
