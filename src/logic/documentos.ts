@@ -34,7 +34,10 @@
 
    ⚠️ A 2.3 (01/10/2026) TRAZ A LEITURA DA SEMANA (logic/leitura,
    servidor/api/leitura): consentimento próprio, o que sai toda segunda,
-   e que ela fica só no aparelho. Entra na revisão do advogado.
+   e que ela fica só no aparelho. Entra na revisão do advogado. Na mesma
+   versão, antes de sair do __DEV__, a seção 8 ganhou o que faltava: a
+   conversa, a leitura da semana e o nome do prato também vão para a
+   Anthropic, nos EUA, e a seção 7 já dizia isso.
 
    ⚠️ ISTO É UMA MINUTA, E NÃO UM PARECER. Foi escrita a partir do que o
    aplicativo de fato faz — cada afirmação daqui é conferível no código —,
@@ -277,11 +280,14 @@ export const PRIVACIDADE = (): Documento => ({
       titulo: '8. Transferência internacional',
       paragrafos: [
         'O banco com o seu diário fica em <b>território nacional</b>, em São Paulo.',
-        'Quatro coisas podem ser tratadas por provedores sediados nos <b>Estados Unidos</b>, o que configura transferência internacional nos termos do <b>art. 33 da LGPD</b>:',
+        'Sete coisas podem ser tratadas por provedores sediados nos <b>Estados Unidos</b>, o que configura transferência internacional nos termos do <b>art. 33 da LGPD</b>:',
       ],
       itens: [
         '<b>A foto do prato</b>, só quando você usa a leitura por foto. Envolve apenas a imagem enviada, que não é armazenada. Se preferir que isso não aconteça, registre as refeições manualmente.',
         '<b>O laudo</b>, só quando você usa a leitura do laudo, e depois do aceite específico. Envolve apenas o arquivo enviado, que não é armazenado. Se preferir que isso não aconteça, anote os exames à mão.',
+        '<b>A conversa com a Morphi Intelligence</b>, só quando você pergunta, e depois do aceite específico. Envolve a pergunta, as últimas mensagens e o resumo dos registros da seção 6, que não são armazenados. Se preferir que isso não aconteça, não ligue a conversa.',
+        '<b>A leitura da semana</b>, só se você a ligou. Envolve o resumo da semana e a descoberta da seção 6, que não são armazenados. Se preferir que isso não aconteça, desligue a leitura.',
+        '<b>O nome de um prato</b>, quando você pede a estimativa. Só o nome digitado.',
         '<b>O seu e-mail</b>, que o serviço de envio usa para entregar o código de acesso.',
         '<b>O identificador da Apple</b>, quando você escolhe entrar com ela.',
       ],
@@ -341,7 +347,7 @@ export const PRIVACIDADE = (): Documento => ({
       titulo: '14. Segurança',
       paragrafos: [
         'No aparelho, os dados ficam na área privada do aplicativo, protegida pelo sistema operacional. A sessão da sua conta fica guardada cifrada, com a chave no cofre do sistema (Keychain no iPhone, Keystore no Android).',
-        'No banco, cada linha tem uma regra que diz quem pode lê-la: a sua conta lê o seu diário, e a clínica conectada lê o que a seção 6 lista, enquanto a conexão durar. Todo o tráfego, com o banco e com as leituras de foto e de laudo, é criptografado via HTTPS.',
+        'No banco, cada linha tem uma regra que diz quem pode lê-la: a sua conta lê o seu diário, e a clínica conectada lê o que a seção 6 lista, enquanto a conexão durar. Todo o tráfego, com o banco e com o que vai para a inteligência artificial, é criptografado via HTTPS.',
         'Nenhum sistema é inviolável, e não prometemos o contrário. Em caso de incidente de segurança que possa acarretar risco relevante, comunicaremos a <b>ANPD</b> e as pessoas afetadas, conforme o <b>art. 48 da LGPD</b>.',
         'A segurança do seu aparelho é parte disso: manter bloqueio de tela e o sistema atualizado protege o que está guardado aqui.',
       ],
