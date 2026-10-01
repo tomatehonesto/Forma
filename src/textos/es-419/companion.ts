@@ -136,6 +136,8 @@ export const companion = {
     dataOntem: 'Ayer',
     fecharMenu: 'Cerrar el menú',
     compartilhar: 'Compartir',
+    /* a folha da seleção nativa (app/selecionar-texto) */
+    selecionarTitulo: 'Seleccionar texto',
     /* o 👍 e o 👎 da resposta, e a folha do 👎 (app/avaliar-resposta) */
     curtir: 'Me sirvió la respuesta',
     naoCurtir: 'No me sirvió',

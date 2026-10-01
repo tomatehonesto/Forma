@@ -271,6 +271,10 @@ export default function Companion() {
     update((s: any) => { marcarAvaliacao(s, id, t, 1); });
     avisar(i, K().obrigadoNota);
   };
+  const selecionar = (t: number, quem: 'me' | 'ai') => {
+    const id = conversaAtual(S)?.id;
+    if (id) router.push(`/selecionar-texto?conversa=${encodeURIComponent(id)}&t=${t}&quem=${quem}` as any);
+  };
   const naoCurtir = (t: number) => {
     const id = conversaAtual(S)?.id;
     if (id) router.push(`/avaliar-resposta?conversa=${encodeURIComponent(id)}&t=${t}` as any);
@@ -566,11 +570,12 @@ export default function Companion() {
             ) : null}
             {m.who === 'me' ? (
             <View style={{ alignSelf: 'flex-end', maxWidth: '84%', marginTop: novoDia(i) ? 0 : 32, alignItems: 'flex-end' }}>
-              {/* Selecionável, como a resposta: segurar o dedo abre o copiar
-                  do sistema, em vez do copiar inteiro que estava aqui. */}
-              <View style={{ backgroundColor: c.accent, borderRadius: radius.lg, borderBottomRightRadius: 6, paddingHorizontal: 16, paddingVertical: 12 }}>
-                <Txt v="bodyMed" c={c.accentInk} selectable style={{ lineHeight: 22 }}>{m.text}</Txt>
-              </View>
+              {/* Segurar abre a seleção nativa (app/selecionar-texto). */}
+              <Pressable onLongPress={() => selecionar(m.t, 'me')} delayLongPress={350}>
+                <View style={{ backgroundColor: c.accent, borderRadius: radius.lg, borderBottomRightRadius: 6, paddingHorizontal: 16, paddingVertical: 12 }}>
+                  <Txt v="bodyMed" c={c.accentInk} style={{ lineHeight: 22 }}>{m.text}</Txt>
+                </View>
+              </Pressable>
               <Txt v="micro" c={c.tx4} style={{ marginTop: 5, marginRight: 4 }}>{hora(m.t)}</Txt>
             </View>
           ) : (
@@ -611,7 +616,15 @@ export default function Companion() {
               {/* Parágrafos mais afastados que o padrão do RichDoc: a
                   resposta é lida no celular, de uma vez, e parágrafo
                   colado em parágrafo vira parede. */}
-              <RichDoc text={semLinks(m.text)} selecionavel style={{ gap: 16 }} />
+              {/* ⚠️ SEGURAR ABRE A SELEÇÃO NATIVA, NUMA FOLHA (01/10/2026).
+                  O `selectable` do texto, no iPhone, só copia o parágrafo
+                  inteiro, sem as alças de arrastar. A folha mostra o mesmo
+                  texto num campo de leitura do sistema, onde as alças
+                  funcionam — o desenho do ChatGPT. Aqui a resposta continua
+                  com títulos e listas. */}
+              <Pressable onLongPress={() => selecionar(m.t, 'ai')} delayLongPress={350}>
+                <RichDoc text={semLinks(m.text)} style={{ gap: 16 }} />
+              </Pressable>
               {/* ⚠️ O DESTINO É UM BOTÃO, E NÃO UM LINK NO MEIO DO TEXTO
                   (30/09/2026). Sublinhado no meio da frase, ele disputava
                   com a leitura e era fácil de não ver; embaixo, é o passo

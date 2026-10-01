@@ -129,6 +129,8 @@ export const companion = {
     dataOntem: 'Yesterday',
     fecharMenu: 'Close the menu',
     compartilhar: 'Share',
+    /* a folha da seleção nativa (app/selecionar-texto) */
+    selecionarTitulo: 'Select text',
     /* o 👍 e o 👎 da resposta, e a folha do 👎 (app/avaliar-resposta) */
     curtir: 'Helpful answer',
     naoCurtir: 'Not helpful',

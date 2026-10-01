@@ -175,6 +175,8 @@ export const companion = {
     dataOntem: 'Ieri',
     fecharMenu: 'Chiudi il menu',
     compartilhar: 'Condividi',
+    /* a folha da seleção nativa (app/selecionar-texto) */
+    selecionarTitulo: 'Seleziona testo',
     /* o 👍 e o 👎 da resposta, e a folha do 👎 (app/avaliar-resposta) */
     curtir: 'Risposta utile',
     naoCurtir: 'Risposta non utile',

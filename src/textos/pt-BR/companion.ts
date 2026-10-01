@@ -214,6 +214,8 @@ export const companion = {
     dataOntem: 'Ontem',
     fecharMenu: 'Fechar o menu',
     compartilhar: 'Compartilhar',
+    /* a folha da seleção nativa (app/selecionar-texto) */
+    selecionarTitulo: 'Selecionar texto',
     /* o 👍 e o 👎 da resposta, e a folha do 👎 (app/avaliar-resposta) */
     curtir: 'Gostei da resposta',
     naoCurtir: 'Não gostei da resposta',

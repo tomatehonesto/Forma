@@ -503,6 +503,8 @@ export default function RootLayout() {
            'aceite-ia',
            /* O 👎 da resposta abre por cima da conversa (ver app/avaliar-resposta). */
            'avaliar-resposta',
+           /* Segurar uma mensagem abre a seleção nativa (ver app/selecionar-texto). */
+           'selecionar-texto',
            /* O aceite da leitura da semana abre por cima da Home (ver
               app/aceite-leitura). */
            'aceite-leitura',

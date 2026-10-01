@@ -140,6 +140,8 @@ export const companion = {
     dataOntem: 'Hier',
     fecharMenu: 'Fermer le menu',
     compartilhar: 'Partager',
+    /* a folha da seleção nativa (app/selecionar-texto) */
+    selecionarTitulo: 'Sélectionner le texte',
     /* o 👍 e o 👎 da resposta, e a folha do 👎 (app/avaliar-resposta) */
     curtir: 'Réponse utile',
     naoCurtir: 'Réponse pas utile',
