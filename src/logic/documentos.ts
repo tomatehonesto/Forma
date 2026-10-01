@@ -411,6 +411,8 @@ export const TERMOS = (): Documento => ({
         'Com o seu consentimento, compartilha o seu diário com a clínica parceira a que você se conectar, enquanto a conexão durar.',
         'Lê a foto de um prato, quando você escolhe, e sugere os itens da refeição.',
         'Lê o PDF ou a foto de um laudo, quando você escolhe e depois de um aceite próprio, e sugere os resultados para você conferir.',
+        'Responde às suas perguntas sobre o tratamento, pela Morphi Intelligence, depois de um aceite próprio. Ela não indica nem muda dose.',
+        'Toda segunda, se você ligar, escreve uma leitura da sua semana, com uma descoberta sobre os seus registros e um teste para a semana seguinte, depois de um aceite próprio.',
         'Lê pesagens do aplicativo de saúde do celular, com a sua autorização.',
       ],
     },
