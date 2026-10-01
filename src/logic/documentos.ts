@@ -32,6 +32,10 @@
    Morphi Intelligence, que é IA de verdade, faltava nas duas listas
    (seções 4 e 12). Entra na revisão do advogado com o resto.
 
+   ⚠️ A 2.3 (01/10/2026) TRAZ A LEITURA DA SEMANA (logic/leitura,
+   servidor/api/leitura): consentimento próprio, o que sai toda segunda,
+   e que ela fica só no aparelho. Entra na revisão do advogado.
+
    ⚠️ ISTO É UMA MINUTA, E NÃO UM PARECER. Foi escrita a partir do que o
    aplicativo de fato faz — cada afirmação daqui é conferível no código —,
    mas quem publica documento jurídico de aplicativo de saúde é advogado.
@@ -118,7 +122,7 @@ export const temIdentificacao = () => !!(EMPRESA.nome && EMPRESA.cnpj && EMPRESA
 
 /** Sobe quando o conteúdo mudar de forma relevante — e conversa com a
     versão do aviso de consentimento, em src/logic/consentimento.ts. */
-export const VERSAO_DOS_DOCUMENTOS = '2.2';
+export const VERSAO_DOS_DOCUMENTOS = '2.3';
 export const VIGENTE_DESDE = '1º de outubro de 2026';
 
 /* ⚠️ AS CÓPIAS DE SEGURANÇA DO BANCO: quantos dias elas guardam o que foi
@@ -222,6 +226,7 @@ export const PRIVACIDADE = (): Documento => ({
         '<b>Leitura da foto do prato</b> — <b>consentimento</b> (art. 7º, I), dado no momento em que você escolhe usar a câmera em vez do registro manual.',
         '<b>Leitura do laudo</b> — <b>consentimento específico e destacado</b> (art. 11, I), dado numa tela própria antes da primeira leitura, que diz para onde o arquivo vai e que ele não é guardado. Sem esse aceite, os exames continuam sendo anotados à mão.',
         '<b>Conversa com a Morphi Intelligence</b> — <b>consentimento específico e destacado</b> (art. 11, I), dado na própria conversa antes da primeira pergunta, que diz o que ela lê e para onde vai. Sem esse aceite, nenhuma pergunta sai do aparelho.',
+        '<b>Leitura da semana</b> — <b>consentimento específico e destacado</b> (art. 11, I), dado no próprio card da Home antes da primeira leitura, que diz o que sai do aparelho e o que fica guardado. Sem esse aceite, nada sai; o "agora não" e o "desligar" param a leitura.',
         '<b>Leitura do aplicativo de saúde do celular</b> — <b>consentimento</b>, concedido e revogado nos ajustes do sistema operacional.',
       ],
       depois: [
@@ -244,6 +249,7 @@ export const PRIVACIDADE = (): Documento => ({
         '<b>A foto do prato</b>, quando você usa a leitura por foto — a imagem é reduzida no aparelho e enviada para ser interpretada. Ela <b>não é armazenada</b>: nem no registro da refeição, nem no serviço que faz a intermediação.',
         '<b>O laudo, quando você usa a leitura do laudo</b> — o PDF ou a foto do exame é enviado para ser interpretado, e volta como uma lista de resultados que você confere antes de salvar. O arquivo <b>não é armazenado</b>: nem no seu diário, nem no serviço que faz a intermediação. O que fica são só os resultados que você salvou, como qualquer exame anotado.',
         '<b>A conversa com a Morphi Intelligence, quando você pergunta</b> — a pergunta, as últimas mensagens da conversa e um resumo dos seus registros (tratamento, peso, sintomas, check-ins, alimentação, água, exercício e exames) são enviados para gerar a resposta. O resumo não leva o seu nome completo, o seu e-mail, o nome de quem acompanha você nem as suas anotações livres. Nada disso <b>é armazenado</b> no serviço que faz a intermediação; a conversa fica só no seu aparelho e não vai para a sua conta.',
+        '<b>A leitura da semana, toda segunda, se você ligou</b> — um resumo da semana que passou (peso, aplicações, check-ins, sintomas, água, proteína e treinos) e uma descoberta calculada no seu aparelho são enviados para gerar a leitura. Sem o seu nome completo, o seu e-mail, o nome de quem acompanha você ou as suas anotações. Nada disso <b>é armazenado</b> no serviço que faz a intermediação; a leitura fica só no seu aparelho e não vai para a sua conta.',
         '<b>O nome de um prato, quando você pede a estimativa</b> — só o nome digitado é enviado, e volta como uma porção estimada. Não é armazenado no serviço que faz a intermediação.',
         '<b>A sua fala, quando você usa o microfone</b> — o reconhecimento de voz é feito pelo sistema do aparelho. Pedimos que ele aconteça no próprio aparelho, mas quando o aparelho não tem o reconhecimento local do seu idioma, o sistema pode enviar o áudio aos servidores da Apple ou do Google. Isso só acontece enquanto o microfone está ligado.',
       ],
@@ -258,8 +264,8 @@ export const PRIVACIDADE = (): Documento => ({
         '<b>Supabase</b> (banco de dados, autenticação e armazenamento) — guarda a sua conta e o seu diário, na região de São Paulo.',
         '<b>Resend</b> (envio de e-mail) — entrega o código de acesso no seu e-mail. Recebe o endereço e o código, e mais nada do seu diário.',
         '<b>Apple</b> — quando você escolhe entrar com a Apple, ela confirma quem você é e nos passa um identificador e, se você permitir, o e-mail.',
-        '<b>Vercel</b> (infraestrutura) — hospeda as funções que intermedeiam a leitura da foto do prato e a do laudo, a estimativa pelo nome e a conversa com a Morphi Intelligence, em servidores no Brasil. Não guarda a imagem, o laudo nem a conversa, e não tem banco de dados nosso.',
-        '<b>Anthropic</b> (modelo de IA) — interpreta a foto do prato e o laudo, estima um prato pelo nome e escreve as respostas da Morphi Intelligence. Nem a imagem, nem o laudo, nem a conversa são usados para treinar modelos.',
+        '<b>Vercel</b> (infraestrutura) — hospeda as funções que intermedeiam a leitura da foto do prato e a do laudo, a estimativa pelo nome, a leitura da semana e a conversa com a Morphi Intelligence, em servidores no Brasil. Não guarda a imagem, o laudo nem a conversa, e não tem banco de dados nosso.',
+        '<b>Anthropic</b> (modelo de IA) — interpreta a foto do prato e o laudo, estima um prato pelo nome e escreve as respostas e a leitura da semana da Morphi Intelligence. Nem a imagem, nem o laudo, nem a conversa são usados para treinar modelos.',
         '<b>A clínica a que você se conecta</b> — o que a seção 6 lista, enquanto a conexão durar, e o que ela guarda como prontuário depois.',
         '<b>Autoridades públicas</b>, diante de obrigação legal ou ordem judicial, e apenas o estritamente exigido.',
       ],
@@ -320,7 +326,7 @@ export const PRIVACIDADE = (): Documento => ({
     {
       titulo: '12. Decisões automatizadas e revisão humana (art. 20)',
       paragrafos: [
-        'Quatro partes do aplicativo são produzidas por máquina. Três usam <b>inteligência artificial</b>: a <b>leitura da foto do prato</b>, a <b>leitura do laudo</b> e as <b>respostas da Morphi Intelligence</b>. A quarta, as <b>descobertas</b>, são cálculos feitos no seu aparelho sobre os seus próprios registros, que apontam padrões — coincidências entre o que você registrou, e não causa. Todas <b>podem errar</b>.',
+        'Quatro partes do aplicativo são produzidas por máquina. Três usam <b>inteligência artificial</b>: a <b>leitura da foto do prato</b>, a <b>leitura do laudo</b> e as <b>respostas e a leitura da semana da Morphi Intelligence</b>. A quarta, as <b>descobertas</b>, são cálculos feitos no seu aparelho sobre os seus próprios registros (inclusive a descoberta da leitura da semana), que apontam padrões — coincidências entre o que você registrou, e não causa. Todas <b>podem errar</b>.',
         'Nenhuma delas decide nada sobre o seu tratamento — a lista da foto e os resultados do laudo vão para a sua conferência antes de salvar, as descobertas são leitura, não conduta, e a Morphi Intelligence não sugere nem muda dose. Ainda assim, você pode contestar qualquer uma delas e <b>pedir revisão por uma pessoa</b>: escreva para ' + CANAL() + '.',
         '<b>Não tome decisão sobre dose, sintoma, alergia ou restrição alimentar com base apenas no que a máquina escreveu.</b> Confirme com a sua equipe de saúde.',
       ],
@@ -413,7 +419,7 @@ export const TERMOS = (): Documento => ({
         'A conduta de qualquer profissional ou clínica com quem você se vincule.',
       ],
       depois: [
-        '<b>Conteúdo gerado por máquina.</b> A leitura da foto, a leitura do laudo e as respostas da Morphi Intelligence usam inteligência artificial; as descobertas são cálculos sobre os seus registros. Todas podem conter imprecisões. <b>Não tome decisão sobre dose, sintoma, alergia ou restrição alimentar baseando-se apenas nelas.</b> Você pode pedir revisão humana de qualquer uma, conforme o art. 20 da LGPD, escrevendo para ' + CANAL() + '.',
+        '<b>Conteúdo gerado por máquina.</b> A leitura da foto, a leitura do laudo e as respostas e a leitura da semana da Morphi Intelligence usam inteligência artificial; as descobertas são cálculos sobre os seus registros. Todas podem conter imprecisões. <b>Não tome decisão sobre dose, sintoma, alergia ou restrição alimentar baseando-se apenas nelas.</b> Você pode pedir revisão humana de qualquer uma, conforme o art. 20 da LGPD, escrevendo para ' + CANAL() + '.',
       ],
     },
     {
