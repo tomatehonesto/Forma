@@ -2556,8 +2556,9 @@ export function recentQuestions(S: State): string[] {
    consulta nenhuma. A ordem é a prioridade — o que acabou de acontecer
    vem antes do que vale sempre —, e o corte é de quatro.
 
-   Quando a IA do Morphi Intelligence chegar, é ela quem responde; quem
-   escolhe o que perguntar continua sendo este motor, que lê o diário. */
+   Quem responde é a IA do Morphi Intelligence (servidor/api/conversa,
+   desde 29/09/2026); quem escolhe o que perguntar continua sendo este
+   motor, que lê o diário. */
 export function companionSuggestions(S: State): string[] {
   const out: string[] = [];
   const cyc = doseCycle(S);

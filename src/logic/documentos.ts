@@ -26,6 +26,12 @@
    base do art. 11, I, e o aceite próprio que o aplicativo pede antes da
    primeira leitura (logic/laudo, VERSAO_DO_ACEITE_DO_LAUDO).
 
+   ⚠️ A 2.2 (01/10/2026) CORRIGE O QUE ERA DE MÁQUINA. A 2.1 dizia que as
+   descobertas usam inteligência artificial; elas são regras fixas que
+   rodam no aparelho (logic/derive, `patterns`; logic/descobertas). E a
+   Morphi Intelligence, que é IA de verdade, faltava nas duas listas
+   (seções 4 e 12). Entra na revisão do advogado com o resto.
+
    ⚠️ ISTO É UMA MINUTA, E NÃO UM PARECER. Foi escrita a partir do que o
    aplicativo de fato faz — cada afirmação daqui é conferível no código —,
    mas quem publica documento jurídico de aplicativo de saúde é advogado.
@@ -112,8 +118,8 @@ export const temIdentificacao = () => !!(EMPRESA.nome && EMPRESA.cnpj && EMPRESA
 
 /** Sobe quando o conteúdo mudar de forma relevante — e conversa com a
     versão do aviso de consentimento, em src/logic/consentimento.ts. */
-export const VERSAO_DOS_DOCUMENTOS = '2.1';
-export const VIGENTE_DESDE = '29 de setembro de 2026';
+export const VERSAO_DOS_DOCUMENTOS = '2.2';
+export const VIGENTE_DESDE = '1º de outubro de 2026';
 
 /* ⚠️ AS CÓPIAS DE SEGURANÇA DO BANCO: quantos dias elas guardam o que foi
    apagado. Sete é o do plano Pro do Supabase, e o projeto de produção
@@ -314,8 +320,8 @@ export const PRIVACIDADE = (): Documento => ({
     {
       titulo: '12. Decisões automatizadas e revisão humana (art. 20)',
       paragrafos: [
-        'Três partes do aplicativo são produzidas por máquina: a <b>leitura da foto do prato</b>, a <b>leitura do laudo</b> e as <b>descobertas</b>, que apontam padrões nos seus próprios registros. As três são probabilísticas e <b>podem errar</b>.',
-        'Nenhuma delas decide nada sobre o seu tratamento — a lista da foto e os resultados do laudo vão para a sua conferência antes de salvar, e as descobertas são leitura, não conduta. Ainda assim, você pode contestar qualquer uma delas e <b>pedir revisão por uma pessoa</b>: escreva para ' + CANAL() + '.',
+        'Quatro partes do aplicativo são produzidas por máquina. Três usam <b>inteligência artificial</b>: a <b>leitura da foto do prato</b>, a <b>leitura do laudo</b> e as <b>respostas da Morphi Intelligence</b>. A quarta, as <b>descobertas</b>, são cálculos feitos no seu aparelho sobre os seus próprios registros, que apontam padrões — coincidências entre o que você registrou, e não causa. Todas <b>podem errar</b>.',
+        'Nenhuma delas decide nada sobre o seu tratamento — a lista da foto e os resultados do laudo vão para a sua conferência antes de salvar, as descobertas são leitura, não conduta, e a Morphi Intelligence não sugere nem muda dose. Ainda assim, você pode contestar qualquer uma delas e <b>pedir revisão por uma pessoa</b>: escreva para ' + CANAL() + '.',
         '<b>Não tome decisão sobre dose, sintoma, alergia ou restrição alimentar com base apenas no que a máquina escreveu.</b> Confirme com a sua equipe de saúde.',
       ],
     },
@@ -407,7 +413,7 @@ export const TERMOS = (): Documento => ({
         'A conduta de qualquer profissional ou clínica com quem você se vincule.',
       ],
       depois: [
-        '<b>Conteúdo gerado por IA.</b> A leitura da foto, a leitura do laudo e as descobertas usam inteligência artificial e são probabilísticas — podem conter imprecisões. <b>Não tome decisão sobre dose, sintoma, alergia ou restrição alimentar baseando-se apenas nelas.</b> Você pode pedir revisão humana de qualquer uma, conforme o art. 20 da LGPD, escrevendo para ' + CANAL() + '.',
+        '<b>Conteúdo gerado por máquina.</b> A leitura da foto, a leitura do laudo e as respostas da Morphi Intelligence usam inteligência artificial; as descobertas são cálculos sobre os seus registros. Todas podem conter imprecisões. <b>Não tome decisão sobre dose, sintoma, alergia ou restrição alimentar baseando-se apenas nelas.</b> Você pode pedir revisão humana de qualquer uma, conforme o art. 20 da LGPD, escrevendo para ' + CANAL() + '.',
       ],
     },
     {
