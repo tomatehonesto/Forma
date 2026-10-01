@@ -32,7 +32,7 @@ import { radius, alfa, type Palette, RESPIRO_ABAS } from '../../theme';
 import { fotoDaEquipe, focoDaEquipe, iniciaisDeQuemCuida } from '../../ui/retratos';
 import { FaixaDaConta } from '../../ui/conta';
 import { PrimeirosPassos } from '../../ui/primeirosPassos';
-import { CartaoDaSemana } from '../../ui/cartaoDaSemana';
+import { useLeituraDaSemana, frasesDaLeitura } from '../../ui/leituraDaSemana';
 import { boasVindasNaHome } from '../../logic/apresentacao';
 import { marcoRecente, semanaQuePassou } from '../../logic/destaques';
 import { T } from '../../textos';
@@ -200,6 +200,13 @@ export default function Home() {
   const temLembreteDeDose = alertasDe(S, 'dose').some((a) => a.on);
   const marco = marcoRecente(S);
   const semanaPassada = semanaQuePassou(S);
+  /* ⚠️ A LEITURA DA SEMANA MORA NO CARROSSEL (01/10/2026). Era um card
+     próprio na folha, grande, e repetia a semana que "A semana que
+     passou" já mostrava. Pronta, ela toma o lugar desse resumo; sem
+     aceite, o convite é um slide de prioridade baixa. Ver
+     ui/leituraDaSemana. */
+  const leitura = useLeituraDaSemana();
+  const KL = T.descobertas.semana;
   type SlideHero = { over: string; title: string; body: string; cta: string; to: string; ia?: boolean; ic?: string };
 
   /* ⚠️ O ATRASO DA APLICAÇÃO É EXATO, e não estimado. `nextInjectionDate`
@@ -283,7 +290,13 @@ export default function Home() {
       cta: K().marcoCta, to: '/conquistas', ic: marco.ic,
     }] : []),
 
-    ...(semanaPassada ? [{
+    ...(leitura.tipo === 'pronta' ? [{
+      over: KL.chapeu,
+      title: frasesDaLeitura(leitura.leitura.texto.descoberta).primeira,
+      body: frasesDaLeitura(leitura.leitura.texto.descoberta).resto,
+      cta: KL.lerInteira, to: `/leitura?semana=${leitura.leitura.semana}`,
+      ia: true,
+    }] : semanaPassada ? [{
       over: K().resumoChapeu,
       title: K().resumoTitulo(semanaPassada.semana),
       body: [semanaPassada.deltaPeso ? K().resumoPeso(semanaPassada.deltaPeso) : null, semanaPassada.resumo || null]
@@ -292,6 +305,16 @@ export default function Home() {
     }] : []),
 
     { over: brief.chapeu, title: brief.head, body: brief.body, cta: K().entendaOPorQue, to: `/companion?q=${encodeURIComponent(brief.q)}` },
+    /* O convite da leitura, depois da mensagem do dia: ele é para aceitar
+       uma vez, e não pode empurrar para fora o que pede ação (o teto é de
+       quatro). O "Agora não" mora na folha do aceite. */
+    ...(leitura.tipo === 'pedirAceite' ? [{
+      over: KL.aceiteTitulo.toLocaleUpperCase(),
+      title: KL.aceitePergunta,
+      body: KL.pedirTexto,
+      cta: KL.pedirSim, to: '/aceite-leitura',
+      ia: true,
+    }] : []),
     /* A PRÓXIMA APLICAÇÃO SÓ ENTRA QUANDO EXISTE UMA.
 
        Quem respondeu "ainda não sei" no medicamento sai do cadastro sem
@@ -757,12 +780,6 @@ export default function Home() {
               (depois de comemorar) ou quando a pessoa esconde. Ver
               ui/primeirosPassos. */}
           <PrimeirosPassos style={{ marginHorizontal: PAD, marginBottom: 40 }} />
-
-          {/* A LEITURA DA SEMANA — toda segunda, a Morphi Intelligence lê a
-              semana que passou: como foi, uma descoberta e um teste. Ver
-              ui/cartaoDaSemana e docs/superpowers/specs/2026-10-01-leitura-
-              da-semana-design.md. Some sozinho quando não há o que mostrar. */}
-          <CartaoDaSemana style={{ marginHorizontal: PAD, marginBottom: 40 }} />
 
           {/* metas diarias */}
           <View style={{ paddingHorizontal: PAD }}>

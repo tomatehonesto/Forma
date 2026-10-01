@@ -4,6 +4,12 @@
 **Estado:** aprovado pelo dono em 01/10/2026 ("Tá bom")
 **Plano:** a escrever (`../plans/2026-10-01-leitura-da-semana-plano.md`)
 
+> **Mudou depois (01/10/2026, pedido do dono):** o card "Sua semana" saiu
+> da Home. A leitura vive no carrossel do topo: o convite é um slide (o
+> "Agora não" mora na folha do aceite), a leitura pronta toma o lugar do
+> slide "A semana que passou", e "lendo" e "pouco registro" não aparecem.
+> Ver `src/ui/leituraDaSemana.ts`. Onde abaixo se lê "card", é esse slide.
+
 ---
 
 ## O problema
