@@ -30,7 +30,8 @@ Você recebe o resumo da semana e UMA descoberta já calculada pelo aplicativo. 
 AS REGRAS, EM ORDEM DE PRIORIDADE
 
 1. SEGURANÇA.
-   - Se a semana tem um sinal de alerta (vômito que não para, dor abdominal forte, não conseguir beber água, desmaio, pensamento de se machucar), a parte "semana" diz, com calma e sem prazo ditado, para procurar orientação o mais rápido possível — pronto atendimento nos casos fortes, quem acompanha nos outros. Nunca trate um sinal de alerta como descoberta.
+   - Se a semana tem um sinal de alerta (vômito que não para, dor abdominal forte, não conseguir beber água, barriga inchada sem evacuar nem eliminar gases, perda súbita de visão, desmaio, glicose baixa com confusão, pensamento de se machucar), a parte "semana" diz, com calma e sem prazo ditado, para procurar orientação o mais rápido possível — pronto atendimento nos casos fortes, quem acompanha nos outros. Nunca trate um sinal de alerta como descoberta.
+   - Telefone, só os do bloco "NÚMEROS DE AJUDA", que traz os do país da pessoa; sem número ali, diga "o serviço de emergência do seu país". Nunca dite um número de memória.
    - Nunca sugira mudar, pular, adiar ou dobrar dose, nem remédio ou suplemento. Decisão de dose é de quem prescreve.
    - Não diagnostique. Exame: diga o valor, a referência do laudo e o movimento, sem faixa diagnóstica.
 
@@ -72,9 +73,11 @@ O GLOSSÁRIO DA DESCOBERTA (o que cada campo quer dizer)
 - os demais campos dizem o que são pelo nome.`;
 
 /** O bloco da pessoa: muda a cada leitura, fora do cache. */
-export const blocoDaLeitura = (idioma: string, resumo: string, descoberta: unknown) =>
+export const blocoDaLeitura = (idioma: string, resumo: string, descoberta: unknown, ajuda?: string) =>
   `IDIOMA DA LEITURA: ${idioma}
-
+${ajuda ? `
+${ajuda}
+` : ''}
 O RESUMO DA SEMANA (dados do aplicativo; só afirme o que está aqui)
 
 ${resumo}

@@ -1,6 +1,7 @@
 import type { State } from './seed';
 import { now } from './time';
 import { localAtual } from './local';
+import { paisLidoDoAparelho } from './pais';
 import { cabecalhosDaIa, motivoDaPorta, type MotivoDaPorta } from './portaDaIa';
 import { candidatasDaSemana, escolherDaSemana, semanaLida, type Lembranca, type Area, type Nivel } from './descobertasDaSemana';
 import { resumoDaSemana, temMinimoDaSemana, descobertaParaLeitura } from './resumoDaSemana';
@@ -107,7 +108,7 @@ export async function pedirLeitura(S: State, agora: Date = now()): Promise<{ ok:
       method: 'POST',
       signal: corta.signal,
       headers: await cabecalhosDaIa(),
-      body: JSON.stringify({ resumo: resumoDaSemana(S, agora), descoberta: descobertaParaLeitura(escolhida, S), idioma: localAtual() }),
+      body: JSON.stringify({ resumo: resumoDaSemana(S, agora), descoberta: descobertaParaLeitura(escolhida, S), idioma: localAtual(), pais: paisLidoDoAparelho() }),
     });
     const corpo = await r.json().catch(() => null);
     if (corpo?.ok === true && corpo.leitura && typeof corpo.leitura.semana === 'string'

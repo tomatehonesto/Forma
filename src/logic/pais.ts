@@ -207,6 +207,12 @@ let doAparelho: Pais | null = null;
    e, na falta, o mercado do build. */
 export const paisAtual = (): Pais => doAparelho ?? PADRAO;
 
+/* ⚠️ O QUE O APARELHO DISSE, SEM O PADRÃO DO BUILD. É o que vai para a IA
+   (servidor/ajuda): ela dá telefone de emergência pelo país, e um
+   brasileiro com o telefone em outra região não pode receber o 188 por
+   palpite. Sem leitura, null, e a IA não dita número. */
+export const paisLidoDoAparelho = (): Pais | null => doAparelho;
+
 /** O palpite do aparelho, dito por logic/local quando ele lê a região. */
 export const paisDoAparelho = (p: string | null) => {
   doAparelho = p && PAISES.includes(p) ? p : null;

@@ -1,6 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { abrirPorta } from '../cota.js';
 import { INSTRUCOES, blocoDaPessoa } from '../conversa/prompt.js';
+import { blocoDeAjuda, paisDoPedido } from '../ajuda.js';
 
 /* ============================================================
    A CONVERSA DO MORPHI INTELLIGENCE
@@ -60,7 +61,7 @@ export function mensagensDe(historico: Troca[], pergunta: string): Anthropic.Mes
 }
 
 /** Confere o corpo do pedido. Devolve null quando não serve. */
-export function lerPedido(corpo: any): { pergunta: string; historico: Troca[]; resumo: string; idioma: string } | null {
+export function lerPedido(corpo: any): { pergunta: string; historico: Troca[]; resumo: string; idioma: string; pais: string | null } | null {
   if (!corpo || typeof corpo !== 'object') return null;
   const pergunta = typeof corpo.pergunta === 'string' ? corpo.pergunta.trim() : '';
   if (pergunta.length < 1 || pergunta.length > TETOS.pergunta) return null;
@@ -75,7 +76,10 @@ export function lerPedido(corpo: any): { pergunta: string; historico: Troca[]; r
     if (t.texto.trim()) historico.push({ quem: t.quem, texto: t.texto });
   }
   const idioma = IDIOMAS[corpo.idioma] ? corpo.idioma : 'pt-BR';
-  return { pergunta, historico, resumo, idioma };
+  /* O país da pessoa: só para os números de ajuda e os fatos locais
+     (servidor/ajuda). A orientação clínica não muda com ele. */
+  const pais = paisDoPedido(corpo, idioma);
+  return { pergunta, historico, resumo, idioma, pais };
 }
 
 /** O pedido ao modelo, montado num lugar só: o handler e a avaliação
@@ -98,7 +102,7 @@ export function parametrosDaConversa(pedido: NonNullable<ReturnType<typeof lerPe
          entrada, mas uma pergunta por hora, de qualquer pessoa, já mantém
          o cache quente para todas. */
       { type: 'text', text: INSTRUCOES, cache_control: { type: 'ephemeral', ttl: '1h' } },
-      { type: 'text', text: blocoDaPessoa(IDIOMAS[pedido.idioma], pedido.resumo) },
+      { type: 'text', text: blocoDaPessoa(IDIOMAS[pedido.idioma], pedido.resumo, blocoDeAjuda(pedido.pais)) },
     ],
     messages: mensagensDe(pedido.historico, pedido.pergunta),
     /* Conversa, e não raciocínio longo: a pessoa está com a tela

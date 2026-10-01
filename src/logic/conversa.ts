@@ -1,5 +1,6 @@
 import type { State } from './seed';
 import { localAtual } from './local';
+import { paisLidoDoAparelho } from './pais';
 import { now } from './time';
 import { resumoDaJornada } from './resumoDaJornada';
 import { cabecalhosDaIa, motivoDaPorta, type MotivoDaPorta } from './portaDaIa';
@@ -284,6 +285,8 @@ export async function perguntarAoMorphi(
         })),
         resumo: resumoDaJornada(S),
         idioma: localAtual(),
+        /* só para os números de ajuda e os fatos locais (servidor/ajuda) */
+        pais: paisLidoDoAparelho(),
       }),
     });
     /* Recusa antes do modelo (sessão, limite, pedido): JSON comum. */

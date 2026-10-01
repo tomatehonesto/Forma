@@ -1,6 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { abrirPorta } from '../cota.js';
 import { REGRAS_DA_LEITURA, blocoDaLeitura } from '../leitura/prompt.js';
+import { blocoDeAjuda, paisDoPedido } from '../ajuda.js';
 
 /* ============================================================
    A LEITURA DA SEMANA
@@ -30,7 +31,7 @@ const IDIOMAS: Record<string, string> = {
 export const TETOS_DA_LEITURA = { resumo: 8000, descoberta: 3000 };
 const NIVEIS = new Set(['forte', 'comeco', 'retrato']);
 
-export type PedidoDaLeitura = { resumo: string; descoberta: { nivel: string; area: string; tipo: string; dados: Record<string, unknown> }; idioma: string };
+export type PedidoDaLeitura = { resumo: string; descoberta: { nivel: string; area: string; tipo: string; dados: Record<string, unknown> }; idioma: string; pais?: string | null };
 
 /** Confere o corpo do pedido. Devolve null quando não serve. */
 export function lerPedidoDaLeitura(corpo: any): PedidoDaLeitura | null {
@@ -43,7 +44,7 @@ export function lerPedidoDaLeitura(corpo: any): PedidoDaLeitura | null {
   if (JSON.stringify(d).length > TETOS_DA_LEITURA.descoberta) return null;
   for (const v of Object.values(d.dados)) if (!['string', 'number', 'boolean'].includes(typeof v)) return null;
   const idioma = IDIOMAS[corpo.idioma] ? corpo.idioma : 'pt-BR';
-  return { resumo, descoberta: { nivel: d.nivel, area: d.area, tipo: d.tipo, dados: d.dados }, idioma };
+  return { resumo, descoberta: { nivel: d.nivel, area: d.area, tipo: d.tipo, dados: d.dados }, idioma, pais: paisDoPedido(corpo, idioma) };
 }
 
 const ESQUEMA = {
@@ -61,7 +62,7 @@ export function parametrosDaLeitura(p: PedidoDaLeitura) {
     max_tokens: 2000,
     system: [
       { type: 'text' as const, text: REGRAS_DA_LEITURA, cache_control: { type: 'ephemeral' as const, ttl: '1h' as const } },
-      { type: 'text' as const, text: blocoDaLeitura(IDIOMAS[p.idioma], p.resumo, p.descoberta) },
+      { type: 'text' as const, text: blocoDaLeitura(IDIOMAS[p.idioma], p.resumo, p.descoberta, blocoDeAjuda(p.pais === undefined ? paisDoPedido({}, p.idioma) : p.pais)) },
     ],
     messages: [{ role: 'user' as const, content: 'Escreva a leitura desta semana.' }],
     output_config: { effort: 'low' as const, format: { type: 'json_schema' as const, schema: ESQUEMA } },
