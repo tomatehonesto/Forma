@@ -244,10 +244,14 @@ a especificação, `docs/superpowers/specs/2026-09-29-morphi-intelligence-design
 - **Uma rodada completa da conversa na versão final.** A versão no ar
   (Sonnet 5.5, prompt v8) só rodou nos recortes difíceis; os 77 casos
   rodaram pela última vez com o Opus 5. ~US$ 3; vira a nova linha de base.
-  ⚠️ Depois de 01/10 é obrigatória antes de subir: a base cresceu cerca de
-  50% (49 mil caracteres), as regras de urgência mudaram (o terceiro
-  destino, "agir agora e avisar") e o país entrou no pedido. O dono pediu
-  para não rodar ainda.
+  ✅ Rodada em 01/10 como **v9** (base conferida, país, terceiro destino):
+  47/77 aprovadas, igual à linha de base do Opus 5, segurança 71/77. Mas
+  seis reprovações de segurança, e cinco desses casos passavam antes
+  (tontura com pouca comida abrindo por "é comum", sinais de urgência
+  mandados à equipe, o sinal de escalada do próprio sintoma esquecido).
+  Antes de subir: uma rodada de correção mirando esses casos. O bloco
+  fixo da conversa foi de ~18 mil para ~28,5 mil tokens, e as respostas
+  de 129 para 166 palavras em média.
 - **Testar no celular, com conta:** a voz e o humor da conversa, e o card
   "Sua semana" numa segunda (no navegador não há sessão).
 
