@@ -67,4 +67,42 @@ export const descobertas = {
   clinicaTitulo: 'A sua clínica pode ficar deste lado',
   clinicaTexto: 'Com o código que ela te deu, a sua equipe aparece aqui e as orientações dela param de se perder no meio das mensagens.',
   clinicaCta: 'Usar o código',
+  /* ---------- a leitura da semana (01/10/2026) ----------
+     O card "Sua semana" na Home, a tela /leitura e o aceite próprio. Ver
+     docs/superpowers/specs/2026-10-01-leitura-da-semana-design.md. A voz é
+     a da Morphi Intelligence ("eu"), e o aceite diz o que sai, o que fica
+     e o que a leitura é — coincidência, e não causa. */
+  semana: {
+    chapeu: 'SUA SEMANA',
+    titulo: 'Sua semana',
+    pedirTitulo: 'Quer que eu leia a sua semana?',
+    pedirTexto: 'Toda segunda eu olho os seus registros da semana que passou e te conto como foi, uma descoberta sobre você e um teste para a semana que vem.',
+    pedirSim: 'Quero',
+    pedirNao: 'Agora não',
+    poucoTitulo: 'Na segunda, eu leio a sua semana',
+    poucoTexto: 'Faça o check-in em pelo menos 3 dias, ou se pese uma vez, e eu tenho o que ler.',
+    lendo: 'Lendo a sua semana…',
+    parteSemana: 'A semana',
+    parteDescoberta: 'Uma descoberta',
+    parteTeste: 'Para testar',
+    lerInteira: 'Ler inteira',
+    conversar: 'Conversar sobre isso',
+    telaTitulo: 'A leitura da semana',
+    desligar: 'Desligar a leitura da semana',
+    desligada: 'Desliguei. Daqui a 4 semanas eu pergunto de novo.',
+    aceiteTitulo: 'A leitura da semana',
+    aceitePergunta: 'Quer que eu leia a sua semana toda segunda?',
+    termosTitulo: 'O que isso quer dizer',
+    termosResumo: 'O que sai do aparelho, o que fica guardado e o que ela é',
+    aceite1Titulo: 'O que sai do aparelho',
+    aceite1: 'Toda segunda, um resumo da sua semana — peso, aplicação, check-ins, sintomas, água, proteína e treinos — e uma descoberta calculada no seu aparelho vão para o nosso servidor, que pede a leitura à IA da Anthropic. Sem o seu nome completo, sem e-mail e sem as suas anotações.',
+    aceite2Titulo: 'O que fica guardado',
+    aceite2: 'A leitura volta para o seu aparelho e fica só nele, como a conversa. O servidor não guarda nada, e a Anthropic não usa os dados para treinar modelos.',
+    aceite3Titulo: 'O que ela é',
+    aceite3: 'Uma leitura dos seus registros: aponta coincidências, e não causa, e não substitui a sua equipe. Nada nela muda dose.',
+    politica: 'Ler a Política de Privacidade',
+    aceitar: 'Ligar a leitura da semana',
+    recusar: 'Agora não',
+    aceiteRodape: 'Você pode desligar quando quiser, na própria leitura.',
+  },
 };

@@ -32,6 +32,7 @@ import { radius, alfa, type Palette, RESPIRO_ABAS } from '../../theme';
 import { fotoDaEquipe, focoDaEquipe, iniciaisDeQuemCuida } from '../../ui/retratos';
 import { FaixaDaConta } from '../../ui/conta';
 import { PrimeirosPassos } from '../../ui/primeirosPassos';
+import { CartaoDaSemana } from '../../ui/cartaoDaSemana';
 import { boasVindasNaHome } from '../../logic/apresentacao';
 import { marcoRecente, semanaQuePassou } from '../../logic/destaques';
 import { T } from '../../textos';
@@ -756,6 +757,12 @@ export default function Home() {
               (depois de comemorar) ou quando a pessoa esconde. Ver
               ui/primeirosPassos. */}
           <PrimeirosPassos style={{ marginHorizontal: PAD, marginBottom: 40 }} />
+
+          {/* A LEITURA DA SEMANA — toda segunda, a Morphi Intelligence lê a
+              semana que passou: como foi, uma descoberta e um teste. Ver
+              ui/cartaoDaSemana e docs/superpowers/specs/2026-10-01-leitura-
+              da-semana-design.md. Some sozinho quando não há o que mostrar. */}
+          <CartaoDaSemana style={{ marginHorizontal: PAD, marginBottom: 40 }} />
 
           {/* metas diarias */}
           <View style={{ paddingHorizontal: PAD }}>

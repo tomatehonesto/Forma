@@ -27,6 +27,7 @@ import { comRelogioFixo } from './avaliacao/relogio';
 import { DAY } from '../src/logic/time';
 import { buildSeed, estadoVazio, ensureDefaults, type State } from '../src/logic/seed';
 import { resumoDaSemana, temMinimoDaSemana, descobertaParaLeitura, TETO_DO_RESUMO_DA_SEMANA } from '../src/logic/resumoDaSemana';
+import { estadoDaLeitura, registrarRecusaDaLeitura, registrarAceiteDaLeitura, guardarLeitura, leiturasGuardadas, LEITURAS_GUARDADAS, type Leitura } from '../src/logic/leitura';
 import { candidatasDaSemana, escolherDaSemana, type Candidata } from '../src/logic/descobertasDaSemana';
 
 let falhas = 0;
@@ -151,6 +152,32 @@ comRelogioFixo(() => {
   ok(temMinimoDaSemana(diario(1), agora), 'com check-in todo dia, há');
   const c = descobertaParaLeitura({ area: 'exames', tipo: 'exameMelhorou', chave: 'x', nivel: 'forte', forca: 1, dados: { marcador: 'LDL', dataAntes: diaAntes(100), diaDaSemana: 3 } });
   ok(/^\d{4}-\d{2}-\d{2}$/.test(String(c.dados.dataAntes)) && c.dados.diaDaSemana === 'quarta-feira', 'a descoberta vai ao servidor com as datas e o dia da semana escritos');
+});
+
+/* ---------------- 7. o card ---------------- */
+comRelogioFixo(() => {
+  console.log('\n7. O CARD (logic/leitura)');
+  const url = process.env.EXPO_PUBLIC_ANALISE_URL;
+  process.env.EXPO_PUBLIC_ANALISE_URL = 'https://servidor.teste/api/analisar';
+  const S: any = diario(2024);
+  ok(estadoDaLeitura(S, agora).tipo === 'pedirAceite', 'sem o aceite, o card pede o aceite');
+  registrarRecusaDaLeitura(S);
+  ok(estadoDaLeitura(S, agora).tipo === 'oculto', 'o "agora não" esconde o card');
+  ok(estadoDaLeitura(S, new Date(+agora + 29 * DAY)).tipo === 'pedirAceite', 'e depois de 4 semanas ele pergunta de novo');
+  registrarAceiteDaLeitura(S);
+  ok(estadoDaLeitura(S, agora).tipo === 'gerar', 'com o aceite e registro, a semana é para gerar');
+  ok(estadoDaLeitura(ensureDefaults(Object.assign(estadoVazio(), { profile: { ...(estadoVazio() as any).profile, aceiteDaLeitura: { versao: 1, em: 0 } } })) as State, agora).tipo === 'poucoRegistro',
+    'com o aceite e sem registro, o card convida a registrar, sem gerar');
+  const leitura = (semana: number, chave: string): Leitura => ({ semana, criada: semana, texto: { semana: 's', descoberta: 'd', teste: 't' }, descoberta: { chave, area: 'habitos', nivel: 'forte', tipo: 'par' } });
+  guardarLeitura(S, leitura(de, 'a'));
+  const est = estadoDaLeitura(S, agora);
+  ok(est.tipo === 'pronta' && est.leitura.descoberta.chave === 'a', 'com a leitura da semana guardada, o card mostra a leitura');
+  for (let i = 1; i <= 10; i++) guardarLeitura(S, leitura(de - i * 7 * DAY, `x${i}`));
+  ok(leiturasGuardadas(S).length === LEITURAS_GUARDADAS && leiturasGuardadas(S).some((l) => l.semana === de), 'guarda as últimas 8, e a desta semana fica');
+  guardarLeitura(S, leitura(de, 'b'));
+  ok(leiturasGuardadas(S).filter((l) => l.semana === de).length === 1, 'a mesma semana não duplica');
+  if (url === undefined) delete process.env.EXPO_PUBLIC_ANALISE_URL; else process.env.EXPO_PUBLIC_ANALISE_URL = url;
+  ok(estadoDaLeitura(S, agora).tipo === 'oculto', 'sem servidor configurado, o card não aparece');
 });
 
 /* ---------------- 6. o servidor ---------------- */

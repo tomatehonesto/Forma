@@ -199,8 +199,10 @@ O mesmo desenho do aceite da conversa (folha por cima, termos no
 acordeão), com a pergunta "Quer que eu leia a sua semana toda segunda?" e
 o que sai do aparelho (o resumo da semana e a descoberta calculada; sem
 nome, sem anotações). `VERSAO_DO_ACEITE_DA_LEITURA = 1`, gravado como o da
-conversa. Recusar esconde o card até a pessoa ligar de novo nas
-preferências.
+conversa. O "Agora não" (do card ou da folha) e o "Desligar" da própria
+leitura escondem o card por 4 semanas, e ele pergunta de novo: sem uma
+tela de preferências para religar, perguntar depois de um mês é o caminho
+de volta. Fechar a folha pelo X não é resposta.
 
 ### 5. O card e a tela
 

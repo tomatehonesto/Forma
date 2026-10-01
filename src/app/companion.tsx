@@ -4,6 +4,7 @@ import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import * as Clipboard from 'expo-clipboard';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
+import { leituraDaSemana, leituraComoMensagem } from '../logic/leitura';
 import {
   acrescentarPergunta, origemDoEndereco, type OrigemDaPergunta, type PerguntaFeita,
 } from '../logic/perguntas';
@@ -161,12 +162,20 @@ export default function Companion() {
      (30/09/2026): uma pergunta tocada (?q), o campo do Insights
      (?escrever) ou a estrela do Insights (?nova). Cair no meio da última
      conversa misturava o assunto novo com o velho; ela continua no menu. */
-  const { q: qEntrada, escrever: escEntrada, nova: novaEntrada } = useLocalSearchParams<{ q?: string; escrever?: string; nova?: string }>();
+  const { q: qEntrada, escrever: escEntrada, nova: novaEntrada, leitura: leituraEntrada } = useLocalSearchParams<{ q?: string; escrever?: string; nova?: string; leitura?: string }>();
   useEffect(() => {
     const S0 = useStore.getState().S;
-    const intencaoNova = !!qEntrada || escEntrada === '1' || novaEntrada === '1';
+    const intencaoNova = !!qEntrada || escEntrada === '1' || novaEntrada === '1' || !!leituraEntrada;
     if (conversaParada(S0, Date.now()) || (intencaoNova && (conversaAtual(S0)?.msgs.length ?? 0) > 0)) {
       update((s: any) => { recomecarConversa(s); });
+    }
+    /* "CONVERSAR SOBRE ISSO", DA LEITURA DA SEMANA (app/leitura): a conversa
+       nova abre com a leitura como a primeira mensagem dela, sem chamar o
+       servidor — o texto já veio na segunda. A pessoa responde em cima. */
+    const l = leituraEntrada ? leituraDaSemana(S0, Number(leituraEntrada)) : null;
+    if (l) {
+      const Ks = T.descobertas.semana;
+      update((s: any) => { guardarNaConversa(s, { who: 'ai', text: leituraComoMensagem(l, { semana: Ks.parteSemana, descoberta: Ks.parteDescoberta, teste: Ks.parteTeste }), t: Date.now() }); });
     }
   }, []);
   const aceitou = aceitouAConversa(S);

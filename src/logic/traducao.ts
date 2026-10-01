@@ -126,6 +126,9 @@ export const DESTINO_NO_ESTADO: Record<string, Destino> = {
      que nenhum texto nosso descreve. As perguntas feitas (`asked`) já
      sobem pela escolha da pessoa; as respostas, não. */
   conversa: 'aparelho',
+  /* ⚠️ A LEITURA DA SEMANA TAMBÉM (logic/leitura): texto da IA sobre dado
+     de saúde, e a memória das descobertas mostradas. Fica no aparelho. */
+  leituras: 'aparelho',
 };
 
 export const DESTINO_NO_PERFIL: Record<string, Destino> = {
@@ -167,6 +170,8 @@ export const DESTINO_NO_PERFIL: Record<string, Destino> = {
   aceiteDoLaudo: 'parte:preferencias',
   /* o aceite da conversa (logic/conversa), pelo mesmo motivo */
   aceiteDaConversa: 'parte:preferencias',
+  /* o aceite (ou a recusa) da leitura da semana (logic/leitura) */
+  aceiteDaLeitura: 'parte:preferencias',
 
   consentimento: 'coluna',
 
