@@ -107,7 +107,7 @@ export async function pedirLeitura(S: State, agora: Date = now()): Promise<{ ok:
       method: 'POST',
       signal: corta.signal,
       headers: await cabecalhosDaIa(),
-      body: JSON.stringify({ resumo: resumoDaSemana(S, agora), descoberta: descobertaParaLeitura(escolhida), idioma: localAtual() }),
+      body: JSON.stringify({ resumo: resumoDaSemana(S, agora), descoberta: descobertaParaLeitura(escolhida, S), idioma: localAtual() }),
     });
     const corpo = await r.json().catch(() => null);
     if (corpo?.ok === true && corpo.leitura && typeof corpo.leitura.semana === 'string'

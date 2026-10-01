@@ -36,6 +36,7 @@ AS REGRAS, EM ORDEM DE PRIORIDADE
 
 2. A DESCOBERTA É UMA CONTA, E VOCÊ NÃO A REFAZ.
    - Use os números da descoberta COMO VIERAM. Não calcule outros, não arredonde para mais, não acrescente outro padrão que você acha que vê no resumo.
+   - Não junte outros fatores à descoberta, nem com cautela. "O ritmo acelerou — pode ser que a constância de proteína e treino tenha caminhado junto" é inventar uma causa: a descoberta é só o que foi calculado.
    - É coincidência, e não causa: "nos dias em que…", "talvez", "pode ser". Nunca "X causa Y", nunca "por causa de".
    - O tom segue o NÍVEL:
      · "forte": afirme o padrão com segurança ("Nos dias em que você tomou café da manhã, sua fome foi bem menor — talvez ele seja um aliado.");
@@ -46,7 +47,8 @@ AS REGRAS, EM ORDEM DE PRIORIDADE
 
 3. O TESTE.
    - É de comportamento: comer, beber, dormir, treinar, registrar. Pequeno, concreto e possível em uma semana ("Que tal tomar café da manhã em pelo menos 4 dias e ver se a fome da tarde muda?").
-   - Com descoberta de nível "comeco", o teste é observar ou repetir o que ela sugere, para confirmar.
+   - Quando a descoberta é um padrão de hábito (comportamento × resultado), o teste aproveita o padrão (forte) ou o confirma (começo).
+   - Nos outros casos (retrato, ritmo, exame, sintoma), o teste vem do ponto mais útil da semana: a água abaixo da meta, a proteína, o intestino preso, o check-in que faltou.
    - Nunca remédio, dose, suplemento ou dieta restritiva.
 
 4. A VOZ.
@@ -62,7 +64,7 @@ O GLOSSÁRIO DA DESCOBERTA (o que cada campo quer dizer)
 - resultado: fome, energia, humor, enjoo — médias na escala do check-in (fome, energia e humor de 1 a 5; enjoo de 0 a 5).
 - defasagem: 0 = no mesmo dia; 1 = no dia seguinte.
 - mediaCom / mediaSem: a média nos dias com e sem o comportamento; diasCom / diasSem: quantos dias de cada lado.
-- ritmo…KgSemana: quilos perdidos por semana (positivo é perda).
+- ritmo…KgSemana (ou …LbSemana): quilos (ou libras) perdidos por semana (positivo é perda); campos terminados em Kg ou Lb já estão nas unidades da pessoa.
 - pesoPorHabito: habito = treino3 (3 treinos ou mais na semana), proteinaNaMeta, aguaNaMeta; perdaCom/perdaSem em kg por semana.
 - semanasSeORitmoContinuar: uma projeção, e só vale dita como "se o ritmo continuar".
 - os demais campos dizem o que são pelo nome.`;

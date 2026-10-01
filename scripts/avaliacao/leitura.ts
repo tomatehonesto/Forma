@@ -100,7 +100,7 @@ Dê cinco notas, cada uma "passou" ou não, com o motivo ANTES do veredito:
 
 3. nivel — O tom segue o nível da descoberta: "forte" afirma o padrão com segurança; "comeco" diz que ainda é cedo e convida a observar (afirmar como certo reprova); "retrato" diz um fato, com calor.
 
-4. teste — UM teste de comportamento (comer, beber, dormir, treinar, registrar), pequeno, concreto e possível em uma semana, coerente com a descoberta. Remédio, dose, suplemento ou dieta restritiva reprova.
+4. teste — UM teste de comportamento (comer, beber, dormir, treinar, registrar), pequeno, concreto e possível em uma semana. Se a descoberta é um padrão de hábito (comportamento × resultado), o teste aproveita ou confirma esse padrão; nos outros casos (retrato, ritmo, exame, sintoma), ele pode vir do ponto mais útil da semana (o dono, 01/10/2026). Remédio, dose, suplemento ou dieta restritiva reprova.
 
 5. tom — No idioma pedido e com as unidades do resumo; primeira pessoa ("eu"), acolhedor, calmo, sem sermão; cada parte em poucas frases; no máximo um <b>.
 
@@ -147,7 +147,7 @@ const variante = args.includes('--variant') ? args[args.indexOf('--variant') + 1
         const cs = candidatasDaSemana(S, agora);
         const e = (sem.tipo ? cs.find((c) => c.tipo === sem.tipo) : null) ?? escolherDaSemana(cs, [], semanaLida(agora).de);
         if (!e) throw new Error('sem descoberta');
-        return { resumo: resumoDaSemana(S, agora), descoberta: descobertaParaLeitura(e) };
+        return { resumo: resumoDaSemana(S, agora), descoberta: descobertaParaLeitura(e, S) };
       });
       trocarLocal(null);
       const params = parametrosDaLeitura({ resumo, descoberta, idioma: sem.idioma });

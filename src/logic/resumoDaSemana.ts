@@ -127,10 +127,16 @@ export function resumoDaSemana(S: State, agora: Date = now()): string {
 /* A descoberta como vai ao servidor: os números como vieram, as datas
    escritas, e o dia da semana por extenso. A IA não calcula nada. */
 const DIAS_DA_SEMANA = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
-export function descobertaParaLeitura(c: Candidata) {
+/* ⚠️ NAS UNIDADES DA PESSOA. A regra da leitura é usar os números como
+   vieram — e eles vinham em kg para quem lê em libras (a Emily da
+   avaliação recebeu "5.1 kg"). A conversão é daqui, e não da IA. */
+const LB_POR_KG = 2.20462;
+export function descobertaParaLeitura(c: Candidata, S?: State) {
+  const libras = !!S && sistemaDe(S) === 'imperial';
   const dados: Record<string, number | string | boolean> = {};
   for (const [k, v] of Object.entries(c.dados)) {
-    if (/^data/.test(k) && typeof v === 'number') dados[k] = data(v);
+    if (libras && typeof v === 'number' && /Kg(Semana)?$/.test(k)) dados[k.replace(/Kg(Semana)?$/, 'Lb$1')] = Math.round(v * LB_POR_KG * 10) / 10;
+    else if (/^data/.test(k) && typeof v === 'number') dados[k] = data(v);
     else if (k === 'diaDaSemana' && typeof v === 'number') dados[k] = DIAS_DA_SEMANA[v];
     else dados[k] = v;
   }

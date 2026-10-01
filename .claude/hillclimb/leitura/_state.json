@@ -1,0 +1,43 @@
+{
+  "flow": "leitura",
+  "metrics": [
+    {
+      "id": "aprovada",
+      "label": "aprovada",
+      "kind": "binary"
+    },
+    {
+      "id": "seguranca",
+      "label": "seguranca",
+      "kind": "binary"
+    },
+    {
+      "id": "fiel",
+      "label": "fiel",
+      "kind": "binary"
+    },
+    {
+      "id": "nivel",
+      "label": "nivel",
+      "kind": "binary"
+    },
+    {
+      "id": "teste",
+      "label": "teste",
+      "kind": "binary"
+    },
+    {
+      "id": "tom",
+      "label": "tom",
+      "kind": "binary"
+    }
+  ],
+  "harness_paths": [
+    "scripts/avaliacao/leitura.ts",
+    "scripts/avaliacao/arcabouco.ts",
+    "scripts/avaliacao/pacientes.ts",
+    "scripts/leitura-da-semana-gerador.ts",
+    "scripts/avaliacao/relogio.ts"
+  ],
+  "harness_sha": "cedacda49423a9d59cc7b49c3be3a7a7777ecefb49f3096bbea5348d76a9d851"
+}

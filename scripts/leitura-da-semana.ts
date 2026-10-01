@@ -152,6 +152,11 @@ comRelogioFixo(() => {
   ok(!temMinimoDaSemana(vazio, agora), 'sem registro na semana, não há o mínimo — e o servidor não é chamado');
   ok(temMinimoDaSemana(diario(1), agora), 'com check-in todo dia, há');
   const c = descobertaParaLeitura({ area: 'exames', tipo: 'exameMelhorou', chave: 'x', nivel: 'forte', forca: 1, dados: { marcador: 'LDL', dataAntes: diaAntes(100), diaDaSemana: 3 } });
+  const imperial: any = diario(5);
+  imperial.profile.sistema = 'imperial';
+  const emLb = descobertaParaLeitura({ area: 'ritmo', tipo: 'marco', chave: 'm', nivel: 'retrato', forca: 1, dados: { perdidoKg: 5.1, ritmoKgSemana: 0.5 } }, imperial);
+  ok(emLb.dados.perdidoLb === 11.2 && emLb.dados.ritmoLbSemana === 1.1 && !('perdidoKg' in emLb.dados),
+    'para quem lê em libras, a descoberta já vai em libras (a IA usa os números como vieram)');
   ok(/^\d{4}-\d{2}-\d{2}$/.test(String(c.dados.dataAntes)) && c.dados.diaDaSemana === 'quarta-feira', 'a descoberta vai ao servidor com as datas e o dia da semana escritos');
 });
 
