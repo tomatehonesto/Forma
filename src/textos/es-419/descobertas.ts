@@ -83,7 +83,7 @@ export const descobertas = {
     termosTitulo: 'Qué significa esto',
     termosResumo: 'Qué sale del teléfono, qué se guarda y qué es',
     aceite1Titulo: 'Qué sale del teléfono',
-    aceite1: 'Cada lunes, un resumen de tu semana — peso, aplicación, check-ins, síntomas, agua, proteína y entrenamientos — y un descubrimiento calculado en tu teléfono van a nuestro servidor, que le pide la lectura a la IA de Anthropic. Sin tu nombre completo, sin correo y sin tus notas.',
+    aceite1: 'Cada lunes, un resumen de tu semana — peso, aplicación, check-ins, síntomas, agua, proteína y entrenamientos — y un descubrimiento calculado en tu teléfono van a nuestro servidor, que le pide la lectura a la IA de Anthropic, en Estados Unidos. Sin tu nombre completo, sin correo y sin tus notas.',
     aceite2Titulo: 'Qué se guarda',
     aceite2: 'La lectura vuelve a tu teléfono y se queda solo ahí, como la conversación. El servidor no guarda nada, y Anthropic no usa los datos para entrenar modelos.',
     aceite3Titulo: 'Qué es',

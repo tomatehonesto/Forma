@@ -95,7 +95,7 @@ export const descobertas = {
     termosTitulo: 'O que isso quer dizer',
     termosResumo: 'O que sai do aparelho, o que fica guardado e o que ela é',
     aceite1Titulo: 'O que sai do aparelho',
-    aceite1: 'Toda segunda, um resumo da sua semana — peso, aplicação, check-ins, sintomas, água, proteína e treinos — e uma descoberta calculada no seu aparelho vão para o nosso servidor, que pede a leitura à IA da Anthropic. Sem o seu nome completo, sem e-mail e sem as suas anotações.',
+    aceite1: 'Toda segunda, um resumo da sua semana — peso, aplicação, check-ins, sintomas, água, proteína e treinos — e uma descoberta calculada no seu aparelho vão para o nosso servidor, que pede a leitura à IA da Anthropic, nos Estados Unidos. Sem o seu nome completo, sem e-mail e sem as suas anotações.',
     aceite2Titulo: 'O que fica guardado',
     aceite2: 'A leitura volta para o seu aparelho e fica só nele, como a conversa. O servidor não guarda nada, e a Anthropic não usa os dados para treinar modelos.',
     aceite3Titulo: 'O que ela é',

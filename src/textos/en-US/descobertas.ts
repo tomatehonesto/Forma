@@ -81,7 +81,7 @@ export const descobertas = {
     termosTitulo: 'What this means',
     termosResumo: 'What leaves your phone, what’s kept, and what it is',
     aceite1Titulo: 'What leaves your phone',
-    aceite1: 'Every Monday, a summary of your week — weight, injection, check-ins, symptoms, water, protein and workouts — and a finding calculated on your phone go to our server, which asks Anthropic’s AI for the reading. Without your full name, your email or your notes.',
+    aceite1: 'Every Monday, a summary of your week — weight, injection, check-ins, symptoms, water, protein and workouts — and a finding calculated on your phone go to our server, which asks Anthropic’s AI, in the United States, for the reading. Without your full name, your email or your notes.',
     aceite2Titulo: 'What’s kept',
     aceite2: 'The reading comes back to your phone and stays only there, like the chat. The server keeps nothing, and Anthropic doesn’t use the data to train models.',
     aceite3Titulo: 'What it is',

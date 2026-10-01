@@ -103,7 +103,7 @@ export const descobertas = {
     termosTitulo: 'Was das bedeutet',
     termosResumo: 'Was das Telefon verlässt, was gespeichert wird und was sie ist',
     aceite1Titulo: 'Was das Telefon verlässt',
-    aceite1: 'Jeden Montag gehen eine Zusammenfassung deiner Woche — Gewicht, Injektion, Check-ins, Symptome, Wasser, Protein und Training — und eine auf deinem Telefon berechnete Entdeckung an unseren Server, der die Lesung bei der KI von Anthropic anfragt. Ohne deinen vollen Namen, deine E-Mail oder deine Notizen.',
+    aceite1: 'Jeden Montag gehen eine Zusammenfassung deiner Woche — Gewicht, Injektion, Check-ins, Symptome, Wasser, Protein und Training — und eine auf deinem Telefon berechnete Entdeckung an unseren Server, der die Lesung bei der KI von Anthropic in den USA anfragt. Ohne deinen vollen Namen, deine E-Mail oder deine Notizen.',
     aceite2Titulo: 'Was gespeichert wird',
     aceite2: 'Die Lesung kommt auf dein Telefon zurück und bleibt nur dort, wie das Gespräch. Der Server speichert nichts, und Anthropic nutzt die Daten nicht zum Trainieren von Modellen.',
     aceite3Titulo: 'Was sie ist',
