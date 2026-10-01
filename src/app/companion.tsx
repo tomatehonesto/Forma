@@ -14,6 +14,7 @@ import {
   recomecarConversa, conversaLigada, conversaParada, destinosDe, semLinks, conversaAtual,
   perguntasRestantes, AVISAR_QUANDO_RESTAREM, perguntarAoMorphi, type MotivoDaConversa,
 } from '../logic/conversa';
+import { avaliarResposta, marcarAvaliacao } from '../logic/avaliacao';
 import { Txt, Row, CircleBtn, RichDoc, Rolagem } from '../ui/kit';
 import { EstrelaIA } from '../ui/marca';
 import { startOfDay, fmtDate, fmtTime, DAY } from '../logic/time';
@@ -260,6 +261,20 @@ export default function Companion() {
      o que acabou de acontecer — "Copiado", "Guardada para a consulta" —,
      por dois segundos, ao lado dos ícones. */
   const [feito, setFeito] = useState<{ i: number; texto: string } | null>(null);
+  /* O 👍 e o 👎 (logic/avaliacao). Avaliada uma vez, a resposta fica
+     marcada no aparelho, e os dois ícones param. */
+  const curtir = async (t: number, i: number) => {
+    const id = conversaAtual(S)?.id;
+    if (!id) return;
+    const r = await avaliarResposta({ nota: 1 });
+    if (!r.ok) { avisar(i, r.motivo === 'sem-conta' ? K().avaliarSemConta : K().avaliarFalhou); return; }
+    update((s: any) => { marcarAvaliacao(s, id, t, 1); });
+    avisar(i, K().obrigadoNota);
+  };
+  const naoCurtir = (t: number) => {
+    const id = conversaAtual(S)?.id;
+    if (id) router.push(`/avaliar-resposta?conversa=${encodeURIComponent(id)}&t=${t}` as any);
+  };
   const avisar = (i: number, texto: string) => {
     setFeito({ i, texto });
     setTimeout(() => setFeito((x) => (x?.i === i && x.texto === texto ? null : x)), 2000);
@@ -632,6 +647,23 @@ export default function Companion() {
                     <Icon name={a.ic} size={17} color={c.tx3} sw={1.9} />
                   </Pressable>
                 ))}
+                {/* O 👍 MANDA SÓ A NOTA, NA HORA; O 👎 ABRE A FOLHA (app/avaliar-resposta),
+                    que diz o que sai antes de mandar. Ver logic/avaliacao. */}
+                {[
+                  { ic: 'thumbup', nota: 1 as const, rotulo: K().curtir, fazer: () => curtir(m.t, i) },
+                  { ic: 'thumbdown', nota: -1 as const, rotulo: K().naoCurtir, fazer: () => naoCurtir(m.t) },
+                ].map((a) => {
+                  const marcado = m.avaliacao === a.nota;
+                  return (
+                    <Pressable
+                      key={a.ic} onPress={a.fazer} disabled={m.avaliacao != null} accessibilityRole="button" accessibilityLabel={a.rotulo}
+                      accessibilityState={{ selected: marcado }} hitSlop={4}
+                      style={({ pressed }) => [{ width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: pressed ? c.bg1 : 'transparent', opacity: m.avaliacao != null && !marcado ? 0.35 : 1 }]}
+                    >
+                      <Icon name={a.ic} size={17} color={marcado ? c.accent : c.tx3} sw={marcado ? 2.3 : 1.9} />
+                    </Pressable>
+                  );
+                })}
                 {/* ⚠️ LEVAR PARA A CONSULTA TEM TEXTO SEMPRE, ao contrário dos
                     dois ícones: não há desenho que todo mundo leia como
                     "guardar para o médico". Depois do toque, ele vira o

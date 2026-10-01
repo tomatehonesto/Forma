@@ -38,6 +38,9 @@
    versão, antes de sair do __DEV__, a seção 8 ganhou o que faltava: a
    conversa, a leitura da semana e o nome do prato também vão para a
    Anthropic, nos EUA, e a seção 7 já dizia isso.
+   Ainda na 2.3, entrou a avaliação das respostas (logic/avaliacao): o 👍
+   manda a nota, o 👎 confirmado manda a pergunta e a resposta para o
+   banco, por até 12 meses (seções 2, 3, 4, 6, 7 e 10).
 
    ⚠️ ISTO É UMA MINUTA, E NÃO UM PARECER. Foi escrita a partir do que o
    aplicativo de fato faz — cada afirmação daqui é conferível no código —,
@@ -194,7 +197,8 @@ export const PRIVACIDADE = (): Documento => ({
         '<b>Hábitos</b> — refeições, proteína, hidratação e exercício que você registra.',
         '<b>Foto de perfil</b> — quando você escolhe uma.',
         '<b>Preferências</b> — metas diárias, horários de lembrete, idioma e tema do aplicativo.',
-        '<b>Perguntas ao Morphi</b> — o que você pergunta dentro do aplicativo, com a hora e se a pergunta foi digitada por você ou sugerida por nós. Elas <b>ficam só no aparelho</b>: não vão para a sua conta, nem para a clínica, nem para nós.',
+        '<b>Perguntas ao Morphi</b> — o que você pergunta dentro do aplicativo, com a hora e se a pergunta foi digitada por você ou sugerida por nós. Elas <b>ficam só no aparelho</b>: não vão para a sua conta, nem para a clínica, nem para nós — a não ser a pergunta e a resposta que você nos manda ao avaliar mal uma resposta (abaixo).',
+        '<b>Avaliação das respostas da Morphi Intelligence</b> — o 👍 ou o 👎 que você dá a uma resposta. No 👎, se você confirmar o envio, também o motivo que escolheu, a pergunta e a resposta avaliadas, o idioma e o país configurado no aparelho.',
         '<b>Vínculo com clínica</b> — quando você se conecta a uma clínica parceira: o código de convite, a clínica, quem passou o código e as datas de início e de fim.',
         '<b>Registro do consentimento</b> — a data e a versão do aviso que você aceitou.',
       ],
@@ -213,6 +217,7 @@ export const PRIVACIDADE = (): Documento => ({
         '<b>Lembretes</b> — para disparar os alertas que você mesmo configurou.',
         '<b>Leitura de foto</b> — para sugerir os itens do prato quando você fotografa uma refeição.',
         '<b>Leitura do laudo</b> — para sugerir os resultados de um exame a partir do PDF ou da foto do laudo, quando você escolhe ler em vez de digitar.',
+        '<b>Melhorar a Morphi Intelligence</b> — para corrigir as respostas que você avaliou mal e nos mandou.',
         '<b>Obrigações legais</b> — quando a lei exigir de nós.',
       ],
       depois: [
@@ -230,6 +235,7 @@ export const PRIVACIDADE = (): Documento => ({
         '<b>Leitura do laudo</b> — <b>consentimento específico e destacado</b> (art. 11, I), dado numa tela própria antes da primeira leitura, que diz para onde o arquivo vai e que ele não é guardado. Sem esse aceite, os exames continuam sendo anotados à mão.',
         '<b>Conversa com a Morphi Intelligence</b> — <b>consentimento específico e destacado</b> (art. 11, I), dado na própria conversa antes da primeira pergunta, que diz o que ela lê e para onde vai. Sem esse aceite, nenhuma pergunta sai do aparelho.',
         '<b>Leitura da semana</b> — <b>consentimento específico e destacado</b> (art. 11, I), dado no próprio card da Home antes da primeira leitura, que diz o que sai do aparelho e o que fica guardado. Sem esse aceite, nada sai; o "agora não" e o "desligar" param a leitura.',
+        '<b>Avaliação de uma resposta</b> — <b>consentimento específico e destacado</b> (art. 11, I), dado a cada envio: o 👎 abre uma folha que diz o que sai, e nada sai antes de você tocar em Enviar. O 👍 manda só a nota.',
         '<b>Leitura do aplicativo de saúde do celular</b> — <b>consentimento</b>, concedido e revogado nos ajustes do sistema operacional.',
       ],
       depois: [
@@ -253,6 +259,7 @@ export const PRIVACIDADE = (): Documento => ({
         '<b>O laudo, quando você usa a leitura do laudo</b> — o PDF ou a foto do exame é enviado para ser interpretado, e volta como uma lista de resultados que você confere antes de salvar. O arquivo <b>não é armazenado</b>: nem no seu diário, nem no serviço que faz a intermediação. O que fica são só os resultados que você salvou, como qualquer exame anotado.',
         '<b>A conversa com a Morphi Intelligence, quando você pergunta</b> — a pergunta, as últimas mensagens da conversa e um resumo dos seus registros (tratamento, peso, sintomas, check-ins, alimentação, água, exercício e exames) são enviados para gerar a resposta, junto com o país configurado no seu aparelho, que serve para dar os números de emergência e de apoio certos. O resumo não leva o seu nome completo, o seu e-mail, o nome de quem acompanha você nem as suas anotações livres. Nada disso <b>é armazenado</b> no serviço que faz a intermediação; a conversa fica só no seu aparelho e não vai para a sua conta.',
         '<b>A leitura da semana, toda segunda, se você ligou</b> — um resumo da semana que passou (peso, aplicações, check-ins, sintomas, água, proteína e treinos) e uma descoberta calculada no seu aparelho são enviados para gerar a leitura, com o país configurado no aparelho. Sem o seu nome completo, o seu e-mail, o nome de quem acompanha você ou as suas anotações. Nada disso <b>é armazenado</b> no serviço que faz a intermediação; a leitura fica só no seu aparelho e não vai para a sua conta.',
+        '<b>A avaliação de uma resposta, quando você avalia</b> — o 👍 manda só a nota. O 👎, quando você confirma, manda o motivo, a sua pergunta e a resposta avaliada, para o nosso banco em São Paulo. Nada mais da conversa nem dos seus registros.',
         '<b>O nome de um prato, quando você pede a estimativa</b> — só o nome digitado é enviado, e volta como uma porção estimada. Não é armazenado no serviço que faz a intermediação.',
         '<b>A sua fala, quando você usa o microfone</b> — o reconhecimento de voz é feito pelo sistema do aparelho. Pedimos que ele aconteça no próprio aparelho, mas quando o aparelho não tem o reconhecimento local do seu idioma, o sistema pode enviar o áudio aos servidores da Apple ou do Google. Isso só acontece enquanto o microfone está ligado.',
       ],
@@ -273,7 +280,7 @@ export const PRIVACIDADE = (): Documento => ({
         '<b>Autoridades públicas</b>, diante de obrigação legal ou ordem judicial, e apenas o estritamente exigido.',
       ],
       depois: [
-        'Não usamos <b>ferramentas de terceiros</b> de telemetria, analytics ou monitoramento de erro, e não lemos as perguntas que você faz ao Morphi. Não compartilhamos com anunciantes, brokers de dados ou terceiros para fins de marketing.',
+        'Não usamos <b>ferramentas de terceiros</b> de telemetria, analytics ou monitoramento de erro, e não lemos as perguntas que você faz ao Morphi — a não ser as que você nos manda ao avaliar mal uma resposta. Não compartilhamos com anunciantes, brokers de dados ou terceiros para fins de marketing.',
       ],
     },
     {
@@ -306,6 +313,7 @@ export const PRIVACIDADE = (): Documento => ({
         `<b>As cópias de segurança do banco</b> — guardam o que foi apagado por até ${DIAS_DAS_COPIAS_DE_SEGURANCA} dias, e depois somem sozinhas. Elas existem para recuperar o banco de uma falha, e não são usadas para mais nada.`,
         '<b>Outro aparelho em que você entrou</b> — mantém a cópia local do diário até você sair da conta nele, ou até ele voltar a ter conexão e saber que a conta foi apagada.',
         '<b>As perguntas ao Morphi</b> — só no aparelho, que guarda as 12 mais recentes. Elas não vão para a conta.',
+        '<b>As avaliações das respostas</b> — até 12 meses, e depois são apagadas. Apagar a conta apaga as suas na hora. Elas não entram na cópia dos seus dados; para pedir as suas, escreva para o nosso canal.',
         '<b>Foto do prato</b> — não é guardada. Existe durante a chamada e é descartada.',
         '<b>Laudo enviado para leitura</b> — não é guardado. Existe durante a chamada e é descartado; ficam no diário só os resultados que você salvou.',
         '<b>O que a clínica guarda</b> — o que foi registrado durante a conexão fica com ela como prontuário, pelo prazo que as regras de prontuário impõem a ela. Para apagar o que está lá, o pedido é feito à clínica.',

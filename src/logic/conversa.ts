@@ -65,7 +65,8 @@ export const registrarAceiteDaConversa = (s: any) => {
    e começa outra; o histórico reabre qualquer uma. Tudo no aparelho, com
    teto de conversas e de mensagens por conversa. */
 
-export type MensagemDaConversa = { who: 'me' | 'ai'; text: string; t: number };
+/** `avaliacao`: o 👍 (1) ou 👎 (-1) que a pessoa deu à resposta (logic/avaliacao). */
+export type MensagemDaConversa = { who: 'me' | 'ai'; text: string; t: number; avaliacao?: 1 | -1 };
 export type Conversa = { id: string; titulo: string; criada: number; atualizada: number; msgs: MensagemDaConversa[] };
 
 /** Quantas mensagens cada conversa guarda. As mais antigas saem primeiro. */
@@ -91,7 +92,7 @@ const novoId = () => `c${Date.now().toString(36)}${Math.floor(Math.random() * 1e
 /* O estado das conversas, lido com cuidado. O desenho anterior guardava
    `{ msgs }`, uma conversa só: ela vira a primeira da lista, aberta. */
 type Guardadas = { atual: string | null; lista: Conversa[] };
-function lerConversas(S: any): Guardadas {
+export function lerConversas(S: any): Guardadas {
   const c = S?.conversa;
   if (c && Array.isArray(c.msgs)) {
     const msgs = c.msgs.filter(valida);
