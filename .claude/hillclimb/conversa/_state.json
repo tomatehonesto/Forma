@@ -67,5 +67,5 @@
     "scripts/avaliacao/juiz.ts",
     "scripts/avaliacao/relogio.ts"
   ],
-  "harness_sha": "3826a885bd8f731fae6e290fc3f4accc7bd233bb47724dca49a299b5a7864628"
+  "harness_sha": "cdbf9b31374a142dd2bdd2fb85dd20210937287518c6f3bc4562c894542e0fc3"
 }
