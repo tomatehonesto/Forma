@@ -25,6 +25,8 @@
 
 import { comRelogioFixo } from './avaliacao/relogio';
 import { DAY } from '../src/logic/time';
+import { buildSeed, estadoVazio, ensureDefaults, type State } from '../src/logic/seed';
+import { resumoDaSemana, temMinimoDaSemana, descobertaParaLeitura, TETO_DO_RESUMO_DA_SEMANA } from '../src/logic/resumoDaSemana';
 import { candidatasDaSemana, escolherDaSemana, type Candidata } from '../src/logic/descobertasDaSemana';
 
 let falhas = 0;
@@ -130,6 +132,25 @@ comRelogioFixo(() => {
     'uma descoberta mostrada há 2 semanas não volta');
   ok(escolherDaSemana(cands, [{ semana: de - 28 * DAY, chave: 'a', area: 'habitos' }], de)?.chave === 'a',
     'e há 4 semanas, já pode voltar');
+});
+
+comRelogioFixo(() => {
+  /* ---------------- 5. o resumo da semana ---------------- */
+  console.log('\n5. O RESUMO DA SEMANA');
+  const S = ensureDefaults(buildSeed()) as State;
+  const r = resumoDaSemana(S, agora);
+  ok(['## Pessoa', '## Tratamento', '## Peso', '## Alimentação e água'].every((x) => r.includes(x)), 'o resumo da semente tem pessoa, tratamento, peso e alimentação');
+  ok(r.length <= TETO_DO_RESUMO_DA_SEMANA, 'e cabe no teto');
+  const P: any = S.profile;
+  const terceiros = [P.doctor, P.clinic, P.nutri, P.email].filter((x) => typeof x === 'string' && x.trim().length > 2);
+  ok(terceiros.every((x) => !r.includes(x)), 'sem o nome de quem acompanha, da clínica, nem e-mail');
+  const sobrenome = String(P.name).trim().split(/\s+/).slice(1).join(' ');
+  ok(!sobrenome || !r.includes(sobrenome), 'do nome, só o primeiro');
+  const vazio = ensureDefaults(estadoVazio()) as State;
+  ok(!temMinimoDaSemana(vazio, agora), 'sem registro na semana, não há o mínimo — e o servidor não é chamado');
+  ok(temMinimoDaSemana(diario(1), agora), 'com check-in todo dia, há');
+  const c = descobertaParaLeitura({ area: 'exames', tipo: 'exameMelhorou', chave: 'x', nivel: 'forte', forca: 1, dados: { marcador: 'LDL', dataAntes: diaAntes(100), diaDaSemana: 3 } });
+  ok(/^\d{4}-\d{2}-\d{2}$/.test(String(c.dados.dataAntes)) && c.dados.diaDaSemana === 'quarta-feira', 'a descoberta vai ao servidor com as datas e o dia da semana escritos');
 });
 
 console.log(falhas ? `\n${falhas} afirmação(ões) falharam` : '\ntodas as afirmações passaram');
