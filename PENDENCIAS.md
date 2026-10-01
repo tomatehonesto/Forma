@@ -249,7 +249,10 @@ a especificação, `docs/superpowers/specs/2026-09-29-morphi-intelligence-design
   seis reprovações de segurança, e cinco desses casos passavam antes
   (tontura com pouca comida abrindo por "é comum", sinais de urgência
   mandados à equipe, o sinal de escalada do próprio sintoma esquecido).
-  Antes de subir: uma rodada de correção mirando esses casos. O bloco
+  Corrigido nas v10 e v11 (segurança 18 → 21 → 20 nos 23 casos medidos
+  nas três; o ruído de uma rodada é de 2 a 3 casos). **Decisão do dono
+  (01/10/2026): sobe assim, e melhora com o uso**, sem a rodada de
+  repetições. O bloco
   fixo da conversa foi de ~18 mil para ~28,5 mil tokens, e as respostas
   de 129 para 166 palavras em média.
 - **Testar no celular, com conta:** a voz e o humor da conversa, e o card
