@@ -41,11 +41,3 @@ export function useLeituraDaSemana(): EstadoDaLeitura {
 
   return estado;
 }
-
-/** A primeira frase de um texto da leitura, sem marcação, para o título do
-    slide; e o resto, para o corpo. */
-export function frasesDaLeitura(texto: string): { primeira: string; resto: string } {
-  const limpo = texto.replace(/<\/?b>/g, '').replace(/\s+/g, ' ').trim();
-  const m = limpo.match(/^(.+?[.!?])\s+(.*)$/);
-  return m ? { primeira: m[1], resto: m[2] } : { primeira: limpo, resto: '' };
-}

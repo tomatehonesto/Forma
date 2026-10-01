@@ -32,7 +32,7 @@ import { radius, alfa, type Palette, RESPIRO_ABAS } from '../../theme';
 import { fotoDaEquipe, focoDaEquipe, iniciaisDeQuemCuida } from '../../ui/retratos';
 import { FaixaDaConta } from '../../ui/conta';
 import { PrimeirosPassos } from '../../ui/primeirosPassos';
-import { useLeituraDaSemana, frasesDaLeitura } from '../../ui/leituraDaSemana';
+import { useLeituraDaSemana } from '../../ui/leituraDaSemana';
 import { boasVindasNaHome } from '../../logic/apresentacao';
 import { marcoRecente, semanaQuePassou } from '../../logic/destaques';
 import { T } from '../../textos';
@@ -292,9 +292,9 @@ export default function Home() {
 
     ...(leitura.tipo === 'pronta' ? [{
       over: KL.chapeu,
-      title: frasesDaLeitura(leitura.leitura.texto.descoberta).primeira,
-      body: frasesDaLeitura(leitura.leitura.texto.descoberta).resto,
-      cta: KL.lerInteira, to: `/leitura?semana=${leitura.leitura.semana}`,
+      title: KL.slideProntoTitulo,
+      body: KL.slideProntoTexto,
+      cta: KL.slideProntoCta, to: `/leitura?semana=${leitura.leitura.semana}`,
       ia: true,
     }] : semanaPassada ? [{
       over: K().resumoChapeu,
@@ -309,9 +309,9 @@ export default function Home() {
        uma vez, e não pode empurrar para fora o que pede ação (o teto é de
        quatro). O "Agora não" mora na folha do aceite. */
     ...(leitura.tipo === 'pedirAceite' ? [{
-      over: KL.aceiteTitulo.toLocaleUpperCase(),
-      title: KL.aceitePergunta,
-      body: KL.pedirTexto,
+      over: KL.chapeu,
+      title: KL.slideConviteTitulo,
+      body: KL.slideConviteTexto,
       cta: KL.pedirSim, to: '/aceite-leitura',
       ia: true,
     }] : []),

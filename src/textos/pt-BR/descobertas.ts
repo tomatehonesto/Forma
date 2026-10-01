@@ -74,6 +74,12 @@ export const descobertas = {
      e o que a leitura é — coincidência, e não causa. */
   semana: {
     chapeu: 'SUA SEMANA',
+    /* os slides do carrossel da Home (app/(tabs)/index): curtos de propósito */
+    slideProntoTitulo: 'Seu resumo da semana está pronto',
+    slideProntoTexto: 'Como foi, uma descoberta e um teste para a próxima.',
+    slideProntoCta: 'Ver o resumo',
+    slideConviteTitulo: 'Quer um resumo da sua semana?',
+    slideConviteTexto: 'Toda segunda eu leio seus registros e te conto o que descobri.',
     titulo: 'Sua semana',
     pedirTitulo: 'Quer que eu leia a sua semana?',
     pedirTexto: 'Toda segunda eu olho os seus registros da semana que passou e te conto como foi, uma descoberta sobre você e um teste para a semana que vem.',

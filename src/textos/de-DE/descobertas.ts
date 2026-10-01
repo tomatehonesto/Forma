@@ -82,6 +82,12 @@ export const descobertas = {
   /* the weekly reading — see ../pt-BR/descobertas.ts */
   semana: {
     chapeu: 'DEINE WOCHE',
+    /* os slides do carrossel da Home (app/(tabs)/index): curtos de propósito */
+    slideProntoTitulo: 'Dein Wochenrückblick ist fertig',
+    slideProntoTexto: 'Wie sie lief, eine Entdeckung und ein Test für die nächste.',
+    slideProntoCta: 'Rückblick ansehen',
+    slideConviteTitulo: 'Möchtest du einen Rückblick auf deine Woche?',
+    slideConviteTexto: 'Jeden Montag lese ich deine Einträge und erzähle dir, was ich entdeckt habe.',
     titulo: 'Deine Woche',
     pedirTitulo: 'Soll ich deine Woche lesen?',
     pedirTexto: 'Jeden Montag schaue ich mir an, was du letzte Woche eingetragen hast, und erzähle dir, wie sie war, eine Entdeckung über dich und einen Versuch für die nächste Woche.',
