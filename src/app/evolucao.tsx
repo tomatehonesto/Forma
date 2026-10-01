@@ -80,7 +80,9 @@ export default function Evolucao() {
   const medidas = (S.measures as any[]).filter((m) => m.t >= desde);
 
   const fm: any = firstMeasure(S), lm: any = latestMeasure(S);
-  const ultimoPeso = (S.weights as any[])[S.weights.length - 1];
+  /* ⚠️ PODE NÃO HAVER PESAGEM: o cadastro grava uma, mas ela se apaga em
+     /registro. Sem a guarda, a tela quebrava ao ler a data (01/10/2026). */
+  const ultimoPeso = (S.weights as any[])[S.weights.length - 1] as { t: number; kg: number } | undefined;
   const a1c = examBy(S, 'HbA1c');
   const pa = (S.vitals as any).pa as { sys: number; dia: number }[];
   /* O que a seção "Vem de exame" teria para mostrar — sem nada, ela não
@@ -114,8 +116,8 @@ export default function Evolucao() {
                número e ele mesmo. Sem evolução, o destaque é o peso de hoje,
                que é o que existe, e a linha de cima diz de quando ele é. */
             sub={temEvolucao(S)
-              ? `${pesoN(S, startWeight(S))} › ${pesoTxt(S, curWeight(S))} · ${fmtDate(ultimoPeso.t)}`
-              : fmtDate(ultimoPeso.t)}
+              ? `${pesoN(S, startWeight(S))} › ${pesoTxt(S, curWeight(S))}${ultimoPeso ? ` · ${fmtDate(ultimoPeso.t)}` : ''}`
+              : ultimoPeso ? fmtDate(ultimoPeso.t) : ''}
             valor={temEvolucao(S) ? variacaoDe(pesoV(S, curWeight(S) - startWeight(S))).numero : pesoN(S, curWeight(S))}
             unidade={pesoU(S)}
             pontos={pesos.map((p) => ({ v: p.v, rotulo: nf(p.v, 1), quando: fmtDate(p.t) }))}

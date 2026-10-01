@@ -308,6 +308,12 @@ export const home = {
     metas: 'Metas',
     oDiaADia: 'O dia a dia',
     seuTratamento: 'Seu tratamento',
+    /* o vazio de "Seu tratamento" e de "Suas metas" (Jornada, Histórico) */
+    semanasVaziasTitulo: 'As semanas começam na primeira aplicação',
+    semanasVaziasTexto: 'O tratamento é contado de uma aplicação à outra. Registre a primeira, e cada semana aparece aqui com o que aconteceu nela.',
+    registrarAplicacao: 'Registrar aplicação',
+    metasVaziasTitulo: 'Crie uma meta',
+    metasVaziasTexto: 'Água, sono, treino ou o que fizer sentido para você.',
     verTudo: 'Ver tudo',
 
     /* ---------- a linha do tempo ---------- */

@@ -506,6 +506,8 @@ export const cuidado = {
     anotarDuvidaSub: 'Para perguntar na próxima consulta',
 
     prescricoes: 'Prescrições',
+    semReceitas: 'Nenhuma receita registrada ainda',
+    semReceitasTexto: 'As receitas que a sua clínica registrar aparecem aqui.',
     pedirReceita: 'Pedir nova receita',
     clinicaPreparou: 'O que a clínica preparou',
 

@@ -217,6 +217,12 @@ export const home = {
     metas: 'Goals',
     oDiaADia: 'Day to day',
     seuTratamento: 'Your treatment',
+    /* o vazio de "Seu tratamento" e de "Suas metas" (Jornada, Histórico) */
+    semanasVaziasTitulo: 'Weeks start with your first injection',
+    semanasVaziasTexto: 'Treatment is counted from one injection to the next. Log the first one, and each week shows up here with what happened in it.',
+    registrarAplicacao: 'Log an injection',
+    metasVaziasTitulo: 'Create a goal',
+    metasVaziasTexto: 'Water, sleep, workouts or whatever makes sense for you.',
     verTudo: 'See all',
 
     porSemana: 'By week',

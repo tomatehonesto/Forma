@@ -696,6 +696,19 @@ export default function Jornada() {
             style={{ marginTop: 14, marginHorizontal: -PAD }}
             contentContainerStyle={{ paddingHorizontal: PAD, gap: 10 }}
           >
+            {/* ⚠️ SEM META NENHUMA, UM CONVITE (01/10/2026). Quem quer manter o
+                peso não tem meta de peso, e uma conta nova não tem as suas:
+                sobrava o título e uma fileira vazia. A seção é porta para
+                /metas, então o lugar do primeiro cartão vira o convite. */}
+            {!metas.length ? (
+              <Pressable onPress={go('/metas')} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
+                <View style={{ width: 200, backgroundColor: c.bg1, borderRadius: radius.lg, padding: 15, gap: 8 }}>
+                  <Icon name="plus" size={16} sw={2.2} color={c.accent} />
+                  <Txt v="label" c={c.accent}>{K().metasVaziasTitulo}</Txt>
+                  <Txt v="micro" c={c.tx3} style={{ lineHeight: 16 }}>{K().metasVaziasTexto}</Txt>
+                </View>
+              </Pressable>
+            ) : null}
             {metas.map((m) => {
               const feita = !!(m as any).feita;
               const pessoal = !!(m as any).pessoal;
@@ -836,7 +849,17 @@ export default function Jornada() {
             })}
           </Rolagem>
 
-          {filtro === null ? (
+          {filtro === null && !semanas.length ? (
+            /* ⚠️ SEM APLICAÇÃO, NÃO HÁ SEMANA (01/10/2026). A seção abre com
+               check-ins ou refeições (`temHistoria`), mas as semanas contam
+               de uma aplicação à outra: sem nenhuma, sobrava "Por semana 0"
+               e um cartão em branco. É porta de entrada, então explica e
+               leva a registrar. */
+            <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 14 }}>
+              <Vazio ic="syringe" titulo={K().semanasVaziasTitulo} texto={K().semanasVaziasTexto}
+                acao={K().registrarAplicacao} onAcao={go('/aplicacao')} />
+            </View>
+          ) : filtro === null ? (
             /* "Por semana" é a única aba que agrupa por ciclo — é o que
                dá sentido a ela existir como aba própria. */
             <>

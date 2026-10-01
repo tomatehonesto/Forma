@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { timelineWeeks, timelineEvents, timelineCounts, temCiclo, type TLKind } from '../logic/derive';
 import { DAY, dataLonga, fmtDate, fmtPeriodo } from '../logic/time';
-import { Txt } from '../ui/kit';
+import { Txt, Vazio } from '../ui/kit';
 import {
   TelaInterna, Titulao, Chips, Sanfona, SanfonaLinha, Cartao, Linha, Aviso,
 } from '../ui/internas';
@@ -91,7 +91,11 @@ export default function Historico() {
 
       <Chips itens={chips} valor={aba} onChange={setAba} />
 
-      {aba === 'semana' ? (
+      {aba === 'semana' && !semanas.length ? (
+        /* Sem aplicação não há semana — o mesmo vazio da Jornada. */
+        <Vazio ic="syringe" titulo={J().semanasVaziasTitulo} texto={J().semanasVaziasTexto}
+          acao={J().registrarAplicacao} onAcao={() => router.push('/aplicacao' as any)} />
+      ) : aba === 'semana' ? (
         <Sanfona>
           {semanas.map((w) => (
             <SanfonaLinha

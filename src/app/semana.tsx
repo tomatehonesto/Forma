@@ -155,6 +155,9 @@ export default function Semana() {
         </Bloco>
       ) : null}
 
+      {/* Some quando a semana só teve a aplicação: ela já está no topo, e
+          a sanfona ficava vazia (01/10/2026). */}
+      {w.eventos.length ? (
       <Bloco titulo={K().diaADia}>
         <Sanfona>
           {w.eventos.map((e) => (
@@ -171,6 +174,7 @@ export default function Semana() {
           ))}
         </Sanfona>
       </Bloco>
+      ) : null}
 
       {/* Mesmo motivo da folha de registro: sem ninguém para quem
           levar, a pauta da consulta não é um bloco em branco a preencher

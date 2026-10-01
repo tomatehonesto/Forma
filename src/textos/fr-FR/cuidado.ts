@@ -345,6 +345,8 @@ export const cuidado = {
     anotarDuvidaSub: 'À poser à la prochaine consultation',
 
     prescricoes: 'Ordonnances',
+    semReceitas: 'Aucune ordonnance pour l’instant',
+    semReceitasTexto: 'Les ordonnances enregistrées par votre clinique apparaissent ici.',
     pedirReceita: 'Demander une nouvelle ordonnance',
     clinicaPreparou: 'Ce que la clinique a préparé',
 

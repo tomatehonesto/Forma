@@ -7,7 +7,7 @@ import {
   fichaDaEquipe, destinoDoDocumento, tipoDoDocumento, notasAbertas, clinicaConectada,
   metaClinica, metasDiscordam, ALVOS, type ChaveDeAlvo,
 } from '../logic/derive';
-import { Txt, Card, Row, Chevron, SectionHead, Rolagem } from '../ui/kit';
+import { Txt, Card, Row, Chevron, SectionHead, Rolagem, Vazio } from '../ui/kit';
 import { TelaInterna, Titulao, Cartao, Linha, Aviso } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { fotoDaEquipe, focoDaEquipe, inicialDoNome } from '../ui/retratos';
@@ -420,7 +420,12 @@ export default function Medico() {
           style={{ marginTop: 32, marginBottom: 10 }}
         />
         <Cartao>
-          {S.prescriptions.map((p: any) => (
+          {/* Com clínica e sem receita, o cartão ficava em branco: a seção é
+              porta (o pedido no título), então diz o que vai aparecer. */}
+          {!(S.prescriptions ?? []).length ? (
+            <Vazio ic="pill" titulo={K().semReceitas} texto={K().semReceitasTexto} />
+          ) : null}
+          {(S.prescriptions ?? []).map((p: any) => (
             <Pressable key={p.name} onPress={go(`/prescricao?t=${p.t}`)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
               <Row gap={12} style={{ paddingHorizontal: 16, paddingVertical: 14, alignItems: 'flex-start' }}>
                 <View style={{ width: 34, alignItems: 'center', marginTop: 1 }}>
@@ -552,6 +557,11 @@ export default function Medico() {
           />
         ) : null}
 
+        {/* ⚠️ E SOME QUANDO NÃO HÁ NENHUM (01/10/2026). Numa conta nova
+            sobravam o título e um cartão vazio. A seção só mostra o que
+            existe e não é porta para nada — o exame se anota em Exames —,
+            então, sem documento, ela não aparece. */}
+        {(S.documents ?? []).length ? (<>
         <Txt v="h2" style={{ marginTop: 32, marginBottom: 10 }}>{K().documentos}</Txt>
         <Cartao>
           {S.documents.map((d: any, i: number) => (
@@ -564,6 +574,7 @@ export default function Medico() {
             />
           ))}
         </Cartao>
+        </>) : null}
       </View>
     </TelaInterna>
   );

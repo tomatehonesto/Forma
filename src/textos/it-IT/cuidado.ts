@@ -451,6 +451,8 @@ export const cuidado = {
     anotarDuvidaSub: 'Da chiedere alla prossima visita',
 
     prescricoes: 'Prescrizioni',
+    semReceitas: 'Ancora nessuna ricetta registrata',
+    semReceitasTexto: 'Le ricette registrate dalla tua clinica compaiono qui.',
     pedirReceita: 'Chiedi una ricetta nuova',
     clinicaPreparou: 'Quello che ha preparato il centro',
 

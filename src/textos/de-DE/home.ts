@@ -239,6 +239,12 @@ export const home = {
     metas: 'Ziele',
     oDiaADia: 'Der Alltag',
     seuTratamento: 'Deine Behandlung',
+    /* o vazio de "Seu tratamento" e de "Suas metas" (Jornada, Histórico) */
+    semanasVaziasTitulo: 'Die Wochen beginnen mit der ersten Injektion',
+    semanasVaziasTexto: 'Die Behandlung zählt von einer Injektion zur nächsten. Trag die erste ein, dann erscheint hier jede Woche mit dem, was in ihr passiert ist.',
+    registrarAplicacao: 'Injektion eintragen',
+    metasVaziasTitulo: 'Ziel anlegen',
+    metasVaziasTexto: 'Wasser, Schlaf, Training oder was für dich Sinn ergibt.',
     verTudo: 'Alles ansehen',
 
     porSemana: 'Nach Woche',

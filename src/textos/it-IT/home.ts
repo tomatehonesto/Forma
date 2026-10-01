@@ -278,6 +278,12 @@ export const home = {
     metas: 'Obiettivi',
     oDiaADia: 'Giorno per giorno',
     seuTratamento: 'La tua terapia',
+    /* o vazio de "Seu tratamento" e de "Suas metas" (Jornada, Histórico) */
+    semanasVaziasTitulo: 'Le settimane iniziano con la prima iniezione',
+    semanasVaziasTexto: 'Il trattamento si conta da un’iniezione all’altra. Registra la prima, e ogni settimana compare qui con quello che è successo.',
+    registrarAplicacao: 'Registra un’iniezione',
+    metasVaziasTitulo: 'Crea un obiettivo',
+    metasVaziasTexto: 'Acqua, sonno, allenamento o ciò che ha senso per te.',
     verTudo: 'Vedi tutto',
 
     /* ---------- la linea del tempo ---------- */

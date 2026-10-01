@@ -328,6 +328,8 @@ export const cuidado = {
     anotarDuvidaSub: 'To ask at the next appointment',
 
     prescricoes: 'Prescriptions',
+    semReceitas: 'No prescriptions yet',
+    semReceitasTexto: 'Prescriptions your clinic records show up here.',
     pedirReceita: 'Ask for a new prescription',
     clinicaPreparou: 'What the clinic prepared',
 
