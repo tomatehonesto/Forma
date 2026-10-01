@@ -86,8 +86,11 @@ function emLinha(
      <b>negrito</b>     ênfase, como no Rich
      [termo](/rota)     termo que abre uma tela
    ============================================================ */
-export function RichDoc({ text, ir, style }: {
+export function RichDoc({ text, ir, style, selecionavel }: {
   text: string;
+  /* O texto que a pessoa pode querer guardar (a resposta da IA): segurar
+     o dedo seleciona e abre o copiar do sistema. */
+  selecionavel?: boolean;
   /* Sem isto, os termos entre colchetes viram texto comum — ver emLinha. */
   ir?: (to: string) => void;
   style?: StyleProp<ViewStyle>;
@@ -101,7 +104,7 @@ export function RichDoc({ text, ir, style }: {
     if (!paragrafo.length) return;
     const t = paragrafo.join(' ');
     blocos.push(
-      <Text key={`p${blocos.length}`} style={[ty.body, { color: c.tx, lineHeight: 25 }]}>
+      <Text key={`p${blocos.length}`} selectable={selecionavel} style={[ty.body, { color: c.tx, lineHeight: 25 }]}>
         {emLinha(t, 'body', c.tx, c, ir)}
       </Text>,
     );
@@ -114,7 +117,7 @@ export function RichDoc({ text, ir, style }: {
     if (l.startsWith('## ')) {
       fecharParagrafo();
       blocos.push(
-        <Text key={`h${blocos.length}`} style={[ty.bodyMed, { fontFamily: font.bodySemi, color: c.tx, marginTop: blocos.length ? 10 : 0 }]}>
+        <Text key={`h${blocos.length}`} selectable={selecionavel} style={[ty.bodyMed, { fontFamily: font.bodySemi, color: c.tx, marginTop: blocos.length ? 10 : 0 }]}>
           {l.slice(3)}
         </Text>,
       );
@@ -128,7 +131,7 @@ export function RichDoc({ text, ir, style }: {
               do bloco: item de duas linhas com o ponto centralizado fica
               flutuando no vão entre elas. */}
           <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: c.tx3, marginTop: 10 }} />
-          <Text style={[ty.body, { color: c.tx, lineHeight: 25, flex: 1 }]}>
+          <Text selectable={selecionavel} style={[ty.body, { color: c.tx, lineHeight: 25, flex: 1 }]}>
             {emLinha(l.slice(2), 'body', c.tx, c, ir)}
           </Text>
         </Row>,

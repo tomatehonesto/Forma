@@ -551,11 +551,11 @@ export default function Companion() {
             ) : null}
             {m.who === 'me' ? (
             <View style={{ alignSelf: 'flex-end', maxWidth: '84%', marginTop: novoDia(i) ? 0 : 32, alignItems: 'flex-end' }}>
-              <Pressable onLongPress={() => copiar(m.text, i)}>
-                <View style={{ backgroundColor: c.accent, borderRadius: radius.lg, borderBottomRightRadius: 6, paddingHorizontal: 16, paddingVertical: 12 }}>
-                  <Txt v="bodyMed" c={c.accentInk} style={{ lineHeight: 22 }}>{m.text}</Txt>
-                </View>
-              </Pressable>
+              {/* Selecionável, como a resposta: segurar o dedo abre o copiar
+                  do sistema, em vez do copiar inteiro que estava aqui. */}
+              <View style={{ backgroundColor: c.accent, borderRadius: radius.lg, borderBottomRightRadius: 6, paddingHorizontal: 16, paddingVertical: 12 }}>
+                <Txt v="bodyMed" c={c.accentInk} selectable style={{ lineHeight: 22 }}>{m.text}</Txt>
+              </View>
               <Txt v="micro" c={c.tx4} style={{ marginTop: 5, marginRight: 4 }}>{hora(m.t)}</Txt>
             </View>
           ) : (
@@ -596,7 +596,7 @@ export default function Companion() {
               {/* Parágrafos mais afastados que o padrão do RichDoc: a
                   resposta é lida no celular, de uma vez, e parágrafo
                   colado em parágrafo vira parede. */}
-              <RichDoc text={semLinks(m.text)} style={{ gap: 16 }} />
+              <RichDoc text={semLinks(m.text)} selecionavel style={{ gap: 16 }} />
               {/* ⚠️ O DESTINO É UM BOTÃO, E NÃO UM LINK NO MEIO DO TEXTO
                   (30/09/2026). Sublinhado no meio da frase, ele disputava
                   com a leitura e era fácil de não ver; embaixo, é o passo
