@@ -63,12 +63,14 @@ export const metas = {
       nome: 'Eiweiß pro Tag',
       onde: 'Wird beim Essen und im Protokoll gezählt',
       origem: 'Aus deinem Gewicht berechnet, mit 1,2 g pro Kilo',
+      cuidado: 'Wenn du eine Nierenerkrankung hast, gilt die Eiweißmenge, die dein Behandlungsteam festlegt, nicht diese Rechnung.',
       un: 'g',
       escreve: (gramas: number) => String(gramas),
     },
     waterMl: {
       nome: 'Trinken pro Tag',
       origem: 'Aus deinem Gewicht, deinem Alter und deinem Bewegungsniveau berechnet',
+      cuidado: 'Wenn dein Behandlungsteam dir wegen Herz oder Nieren eine Trinkmenge begrenzt hat, gilt seine Zahl, nicht diese Rechnung.',
       onde: 'Wird beim Trinken und im Protokoll gezählt',
     },
     exercMin: {
@@ -405,6 +407,7 @@ export const metas = {
     divergeTexto: (por: string, dela: string, nosso: string) =>
       `${por} hat ${dela} festgelegt, und wir rechnen mit ${nosso}. Wir heben beide auf: du kannst im Medizin-Bereich zu der deines Teams zurück, oder den Unterschied mit zum nächsten Termin nehmen.`,
     recomendadoTitulo: 'Das ist der empfohlene Wert',
+    cuidadoTitulo: 'Herz oder Nieren',
 
     verAnotacao: 'Die Notiz deines Teams ansehen',
     anotacaoSub: (por: string, valor: string) => `${por} · ${valor}`,

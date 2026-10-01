@@ -51,12 +51,14 @@ export const metas = {
       nome: 'Protéines par jour',
       onde: 'Comptées dans l’alimentation et dans le protocole',
       origem: 'Calculé d’après votre poids, à 1,2 g par kilo',
+      cuidado: 'Si vous avez une maladie rénale, les protéines du jour sont celles que fixe votre équipe, pas ce calcul.',
       un: 'g',
       escreve: (gramas: number) => String(gramas),
     },
     waterMl: {
       nome: 'Hydratation par jour',
       origem: 'Calculé d’après votre poids, votre âge et votre niveau d’activité',
+      cuidado: 'Si votre équipe vous a demandé de limiter les liquides, à cause du cœur ou des reins, c’est son chiffre qui compte, pas ce calcul.',
       onde: 'Comptée dans l’hydratation et dans le protocole',
     },
     exercMin: {
@@ -394,6 +396,7 @@ export const metas = {
     divergeTexto: (por: string, dela: string, nosso: string) =>
       `${por} a défini ${dela}, et nous comptons sur ${nosso}. Nous gardons les deux : vous pouvez revenir au sien dans l’Espace médical, ou emporter l’écart à la prochaine consultation.`,
     recomendadoTitulo: 'C’est la valeur recommandée',
+    cuidadoTitulo: 'Cœur ou reins',
 
     verAnotacao: 'Voir la note de votre équipe',
     anotacaoSub: (por: string, valor: string) => `${por} · ${valor}`,

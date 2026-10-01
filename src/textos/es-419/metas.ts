@@ -38,12 +38,14 @@ export const metas = {
       nome: 'Proteína por día',
       onde: 'Se cuenta en la alimentación y en el protocolo',
       origem: 'Calculado de tu peso, a 1,2 g por kilo',
+      cuidado: 'Si tienes enfermedad renal, la proteína del día es la que defina tu equipo, y no este cálculo.',
       un: 'g',
       escreve: (gramas: number) => String(gramas),
     },
     waterMl: {
       nome: 'Hidratación por día',
       origem: 'Calculado de tu peso, tu edad y tu nivel de actividad',
+      cuidado: 'Si tu equipo te pidió limitar los líquidos, por el corazón o los riñones, vale su número y no este cálculo.',
       onde: 'Se cuenta en la hidratación y en el protocolo',
     },
     exercMin: {
@@ -328,6 +330,7 @@ export const metas = {
     divergeTexto: (por: string, dela: string, nosso: string) =>
       `${por} definió ${dela}, y estamos pidiendo ${nosso}. Guardamos los dos: puedes volver al de tu equipo en el Área médica, o llevar la diferencia a la próxima consulta.`,
     recomendadoTitulo: 'Este es el valor recomendado',
+    cuidadoTitulo: 'Corazón o riñones',
 
     verAnotacao: 'Ver la anotación de tu equipo',
     anotacaoSub: (por: string, valor: string) => `${por} · ${valor}`,

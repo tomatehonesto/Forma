@@ -40,12 +40,14 @@ export const metas = {
       nome: 'Protein per day',
       onde: 'Tracked in nutrition and in the protocol',
       origem: 'Calculated from your weight, at 1.2 g per kilo',
+      cuidado: 'If you have kidney disease, your daily protein is the one your care team sets, not this calculation.',
       un: 'g',
       escreve: (gramas: number) => String(gramas),
     },
     waterMl: {
       nome: 'Hydration per day',
       origem: 'Calculated from your weight, your age and your activity level',
+      cuidado: 'If your care team asked you to limit fluids because of your heart or kidneys, their number counts, not this calculation.',
       onde: 'Tracked in hydration and in the protocol',
     },
     exercMin: {
@@ -323,6 +325,7 @@ export const metas = {
     divergeTexto: (por: string, dela: string, nosso: string) =>
       `${por} set ${dela}, and we’re going by ${nosso}. We keep both: you can go back to theirs in the Care area, or take the difference to your next visit.`,
     recomendadoTitulo: 'This is the recommended value',
+    cuidadoTitulo: 'Heart or kidneys',
 
     verAnotacao: 'View your team’s note',
     anotacaoSub: (por: string, valor: string) => `${por} · ${valor}`,

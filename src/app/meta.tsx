@@ -210,6 +210,9 @@ export default function Meta() {
           ) : def.ressalva ? (
             <Aviso ic="steth" dentro titulo={K().recomendadoTitulo} texto={def.ressalva} />
           ) : null}
+          {!proc.meta && def.cuidado ? (
+            <Aviso ic="steth" dentro titulo={K().cuidadoTitulo} texto={def.cuidado} />
+          ) : null}
 
           {/* A SAÍDA, e ela é a mesma porta que trouxe o número para cá. */}
           {proc.meta && chave !== 'peso' ? (

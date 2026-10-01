@@ -2273,6 +2273,9 @@ export function macrosDe(kcal: number, prot: number): { gord: number; carb: numb
   return { gord, carb, fibra };
 }
 
+/** O teto da meta de água calculada, em mililitros. Ver `agua`, abaixo. */
+export const AGUA_TETO_ML = 3000;
+
 export function planoDoCadastro(d: {
   altura: number; peso: number; meta: number; ritmo: number | null;
   /** 0 sedentário, 1 leve, 2 moderado, 3 muito ativo */
@@ -2360,10 +2363,16 @@ export function planoDoCadastro(d: {
 
        São as duas perguntas — nascimento e atividade física — virando
        conta. É esse o critério para uma pergunta existir no cadastro. */
-    agua: Math.round(
+    /* ⚠️ COM TETO DE 3 LITROS (01/10/2026). Sem ele, a conta por quilo
+       dava cerca de 4,6 L a quem pesa 130 kg — perto do dobro da ingestão
+       adequada da EFSA (2,0 L para mulheres, 2,5 L para homens, contando
+       a água da comida). Peso alto não pede o dobro de água, e uma meta
+       que não se cumpre vira cobrança. Ver docs/revisao-clinica/
+       2026-10-01-auditoria-da-base.md. */
+    agua: Math.min(AGUA_TETO_ML, Math.round(
       (d.peso * (idade <= 55 ? 35 : idade <= 65 ? 30 : 25)
         + [0, 100, 250, 400][d.atividade ?? 0]) / 100,
-    ) * 100,
+    ) * 100),
     /* A META DE GORDURA CORPORAL CONTINUA FORA DAQUI.
 
        Ela dependia do sexo biológico — 28% é a ponta saudável para
@@ -4558,6 +4567,11 @@ export const ALVOS = (): Record<ChaveDeAlvo, {
      saber olhando a folha. A meta de peso não tem ressalva porque nenhum
      protocolo conta contra ela. */
   ressalva?: string;
+  /* ⚠️ QUEM NÃO PODE SEGUIR A CONTA. A água e a proteína calculadas
+     servem para a maioria e fazem mal a quem tem coração ou rins com
+     restrição de líquido ou de proteína: para essas pessoas o número é da
+     equipe. O aviso aparece sempre que o número não é da equipe. */
+  cuidado?: string;
   /* A RÉGUA DESTA GRANDEZA. Os quatro eram <Stepper> — mais e menos, um
      passo por toque —, e o peso já tinha virado régua em toda tela que o
      pergunta. Mais e menos servem para corrigir; para dizer QUANTO, a
@@ -4585,6 +4599,7 @@ export const ALVOS = (): Record<ChaveDeAlvo, {
   prot: {
     ic: 'utensils', nome: A().prot.nome, onde: A().prot.onde, origem: A().prot.origem,
     ressalva: A().ressalvaDoProtocolo,
+    cuidado: A().prot.cuidado,
     regua: { min: 40, max: 220, passo: 5, tracoCada: 5, casas: 0, esp: 10, salto: 5 },
     un: () => A().prot.un, passo: 5, min: 40, max: 220,
     le: (S) => (S.profile as any).targets.prot,
@@ -4595,6 +4610,7 @@ export const ALVOS = (): Record<ChaveDeAlvo, {
        passo de 250 ml é um copo, que é a unidade em que se bebe. */
     ic: 'water', nome: A().waterMl.nome, onde: A().waterMl.onde, origem: A().waterMl.origem,
     ressalva: A().ressalvaDoProtocolo,
+    cuidado: A().waterMl.cuidado,
     /* Em LITROS, e o estado guarda mililitros: a régua mostra o número
        que a pessoa lê em toda outra tela. O passo é um copo. */
     regua: { min: 0.75, max: 5, passo: 0.25, tracoCada: 0.1, casas: 2, esp: 40, salto: 0.25 },
