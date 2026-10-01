@@ -25,7 +25,7 @@
 export type Numero = { numero: string; nome: string; nota?: string };
 export type Ajuda = {
   emergencia: Numero | null;
-  crise: (Numero & { h24: boolean }) | null;
+  crise: (Numero & { h24: boolean; gratuito?: boolean }) | null;
 };
 
 /* Conferidos em 01/10/2026 (docs/revisao-clinica/numeros-de-ajuda.md). Portugal: o
@@ -34,7 +34,7 @@ export type Ajuda = {
 export const NUMEROS: Record<string, Ajuda> = {
   BR: {
     emergencia: { numero: '192', nome: 'SAMU' },
-    crise: { numero: '188', nome: 'CVV', h24: true },
+    crise: { numero: '188', nome: 'CVV', gratuito: true, h24: true },
   },
   PT: {
     emergencia: { numero: '112', nome: 'Número Europeu de Emergência' },
@@ -42,19 +42,19 @@ export const NUMEROS: Record<string, Ajuda> = {
   },
   US: {
     emergencia: { numero: '911', nome: '911' },
-    crise: { numero: '988', nome: '988 Suicide & Crisis Lifeline', h24: true },
+    crise: { numero: '988', nome: '988 Suicide & Crisis Lifeline', gratuito: true, h24: true },
   },
   CA: {
     emergencia: { numero: '911', nome: '9-1-1' },
-    crise: { numero: '988', nome: '9-8-8 Suicide Crisis Helpline', h24: true },
+    crise: { numero: '988', nome: '9-8-8 Suicide Crisis Helpline', gratuito: true, h24: true },
   },
   GB: {
     emergencia: { numero: '999', nome: 'emergency' },
-    crise: { numero: '116 123', nome: 'Samaritans', h24: true },
+    crise: { numero: '116 123', nome: 'Samaritans', gratuito: true, h24: true },
   },
   IE: {
     emergencia: { numero: '112 ou 999', nome: 'emergência' },
-    crise: { numero: '116 123', nome: 'Samaritans Ireland', h24: true },
+    crise: { numero: '116 123', nome: 'Samaritans Ireland', gratuito: true, h24: true },
   },
   AU: {
     emergencia: { numero: '000', nome: 'Triple Zero' },
@@ -62,11 +62,11 @@ export const NUMEROS: Record<string, Ajuda> = {
   },
   MX: {
     emergencia: { numero: '911', nome: '911' },
-    crise: { numero: '800 911 2000', nome: 'Línea de la Vida', h24: true },
+    crise: { numero: '800 911 2000', nome: 'Línea de la Vida', gratuito: true, h24: true },
   },
   AR: {
     emergencia: { numero: '911', nome: 'emergencias' },
-    crise: { numero: '0800 999 0091', nome: 'Línea de Salud Mental', h24: true },
+    crise: { numero: '0800 999 0091', nome: 'Línea de Salud Mental', gratuito: true, h24: true },
   },
   CO: {
     emergencia: { numero: '123', nome: 'Línea 123' },
@@ -74,27 +74,27 @@ export const NUMEROS: Record<string, Ajuda> = {
   },
   CL: {
     emergencia: { numero: '131', nome: 'SAMU' },
-    crise: { numero: '*4141', nome: 'Línea de Prevención del Suicidio', h24: true },
+    crise: { numero: '*4141', nome: 'Línea de Prevención del Suicidio', gratuito: true, h24: true },
   },
   PE: {
     emergencia: { numero: '106', nome: 'SAMU', nota: 'em Lima e em 16 regiões; fora delas, os Bombeiros, 116' },
-    crise: { numero: '113', nome: 'Línea 113 Salud, opción 5 (salud mental)', h24: true },
+    crise: { numero: '113', nome: 'Línea 113 Salud, opción 5 (salud mental)', gratuito: true, h24: true },
   },
   UY: {
     emergencia: { numero: '911', nome: '911' },
-    crise: { numero: '0800 0767', nome: 'Línea Vida', nota: 'ou *0767 do celular', h24: true },
+    crise: { numero: '0800 0767', nome: 'Línea Vida', nota: 'ou *0767 do celular', gratuito: true, h24: true },
   },
   ES: {
     emergencia: { numero: '112', nome: '112' },
-    crise: { numero: '024', nome: 'Línea 024', h24: true },
+    crise: { numero: '024', nome: 'Línea 024', gratuito: true, h24: true },
   },
   FR: {
     emergencia: { numero: '15', nome: 'SAMU' },
-    crise: { numero: '3114', nome: 'numéro national de prévention du suicide', h24: true },
+    crise: { numero: '3114', nome: 'numéro national de prévention du suicide', gratuito: true, h24: true },
   },
   BE: {
     emergencia: { numero: '112', nome: 'urgences' },
-    crise: { numero: '0800 32 123', nome: 'Centre de Prévention du Suicide (em francês)', nota: 'em neerlandês, Zelfmoordlijn 1813', h24: true },
+    crise: { numero: '0800 32 123', nome: 'Centre de Prévention du Suicide (em francês)', nota: 'em neerlandês, Zelfmoordlijn 1813', gratuito: true, h24: true },
   },
   CH: {
     emergencia: { numero: '144', nome: 'ambulância' },
@@ -106,15 +106,15 @@ export const NUMEROS: Record<string, Ajuda> = {
   },
   IT: {
     emergencia: { numero: '112', nome: 'Numero Unico di Emergenza' },
-    crise: { numero: '02 2327 2327', nome: 'Telefono Amico', h24: true },
+    crise: { numero: '02 2327 2327', nome: 'Telefono Amico', gratuito: true, h24: true },
   },
   DE: {
     emergencia: { numero: '112', nome: 'Rettungsdienst' },
-    crise: { numero: '0800 111 0 111', nome: 'TelefonSeelsorge', nota: 'ou 0800 111 0 222', h24: true },
+    crise: { numero: '0800 111 0 111', nome: 'TelefonSeelsorge', nota: 'ou 0800 111 0 222', gratuito: true, h24: true },
   },
   AT: {
     emergencia: { numero: '144', nome: 'Rettung' },
-    crise: { numero: '142', nome: 'Telefonseelsorge', h24: true },
+    crise: { numero: '142', nome: 'Telefonseelsorge', gratuito: true, h24: true },
   },
 };
 
@@ -182,7 +182,7 @@ export function blocoDeAjuda(pais: string | null): string {
   }
   linhas.push('NÚMEROS DE AJUDA DESTE PAÍS (use só estes):');
   linhas.push(`- emergência: ${a.emergencia ? `${a.emergencia.nome}, ${a.emergencia.numero}${a.emergencia.nota ? ` (${a.emergencia.nota})` : ""}` : 'não conferido; diga "o serviço de emergência do seu país"'}`);
-  linhas.push(`- apoio emocional: ${a.crise ? `${a.crise.nome}, ${a.crise.numero}${a.crise.h24 ? ' (24 horas)' : ''}${a.crise.nota ? ` (${a.crise.nota})` : ''}` : 'não conferido; diga "a linha de apoio emocional do seu país"'}`);
+  linhas.push(`- apoio emocional: ${a.crise ? `${a.crise.nome}, ${a.crise.numero}${[a.crise.gratuito ? 'ligação gratuita' : '', a.crise.h24 ? '24 horas' : ''].filter(Boolean).length ? ` (${[a.crise.gratuito ? 'ligação gratuita' : '', a.crise.h24 ? '24 horas' : ''].filter(Boolean).join(', ')})` : ''}${a.crise.nota ? ` (${a.crise.nota})` : ''}` : 'não conferido; diga "a linha de apoio emocional do seu país"'}`);
   linhas.push(TOXICOLOGIA);
   return linhas.join('\n');
 }

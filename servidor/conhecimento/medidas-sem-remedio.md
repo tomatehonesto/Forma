@@ -70,9 +70,10 @@ Vale para toda menção a água e soro abaixo. A meta de água do aplicativo
   [aviso conjunto de nutrição 2025]
 - Movimento: uma caminhada diária ajuda o intestino.
 - Um horário fixo para ir ao banheiro, sem segurar a vontade.
-- Pedir ajuda: muitos dias sem evacuar, sangue nas fezes.
-- Urgência: barriga muito inchada e dura, dor forte, vômito ou não
-  eliminar gases; pode ser obstrução intestinal. [Bulas FDA e EMA]
+- Pedir ajuda: muitos dias sem evacuar, barriga inchada com dor que não
+  é forte, sangue nas fezes.
+- Urgência: barriga inchada com dor forte, vômito ou sem eliminar gases;
+  pode ser obstrução intestinal. [Bulas FDA e EMA]
 
 ## Queimação e refluxo
 - Refeições menores; jantar mais cedo e mais leve.

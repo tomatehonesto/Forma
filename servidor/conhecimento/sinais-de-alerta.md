@@ -27,8 +27,8 @@ Telefones não entram aqui: os do país da pessoa vêm do aplicativo.
   pode não ter volta, e perda súbita de visão tem outras causas que
   também são urgentes. [EMA Wegovy e Ozempic 4.4; ANVISA, alerta GGMON
   06/2025; bula Wegovy Brasil]
-- **Intestino preso com barriga inchada e dura, vômito, ou sem evacuar
-  nem eliminar gases:** pode ser obstrução intestinal. [Bulas FDA 6.2;
+- **Intestino preso com barriga inchada e, junto, não eliminar gases,
+  vomitar ou dor forte:** pode ser obstrução intestinal. [Bulas FDA 6.2;
   EMA e bula Wegovy Brasil, efeitos graves]
 - **Vômito ou diarreia que não param**, não conseguir manter nem água,
   sangue no vômito ou nas fezes, ou sinais de desidratação forte (pouca
@@ -75,6 +75,10 @@ Telefones não entram aqui: os do país da pessoa vêm do aplicativo.
 - **Mudança na visão**, em quem tem diabetes tipo 2 (advertência de
   complicações da retinopatia diabética). Perda súbita é urgência.
   [Bulas FDA Ozempic, Wegovy e Zepbound; bula Wegovy Brasil]
+- **Intestino preso há dias com barriga inchada e dor que não é forte,**
+  ainda eliminando gases e sem vômito: falar com quem acompanha o mais
+  rápido possível. Se vier dor forte, vômito ou parar de eliminar gases,
+  é urgência (acima). [Bulas FDA 6.2]
 - **Coração acelerado em repouso** que dura alguns minutos ou volta com
   frequência. Com dor no peito, falta de ar ou desmaio, é urgência.
   [Bulas FDA Wegovy e Saxenda]

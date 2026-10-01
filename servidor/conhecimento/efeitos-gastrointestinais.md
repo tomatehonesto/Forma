@@ -33,7 +33,7 @@ nutrição 2025]
 - Não deitar logo depois de comer (ajuda no refluxo).
 - **Constipação:** água, fibra aumentada aos poucos (verduras, frutas,
   grãos integrais, feijões) e movimento. Se passar de alguns dias, falar
-  com quem acompanha. Barriga inchada e dura, vômito, ou sem evacuar nem
+  com quem acompanha. Barriga inchada com dor forte, vômito ou sem
   eliminar gases é urgência (ver `sinais-de-alerta`).
 - **Diarreia ou vômito:** repor líquido em goles pequenos, ou soro de
   reidratação oral; perda de líquido prolongada pode desidratar e afetar
