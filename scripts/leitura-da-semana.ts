@@ -1,0 +1,136 @@
+/* ============================================================
+   A SONDA DA LEITURA DA SEMANA — o motor de descobertas
+
+     npx tsx --tsconfig scripts/tsconfig.json scripts/leitura-da-semana.ts
+
+   ⚠️ O QUE ESTA SONDA SEGURA É O ALARME FALSO. Com dezenas de pares
+   testados por pessoa, a coincidência aparece sozinha; se a régua deixa
+   passar um "padrão forte" num diário de números sorteados, ela deixa
+   passar a mesma ilusão em gente de verdade — e a pessoa muda de hábito
+   por causa de ruído. Ver docs/superpowers/specs/2026-10-01-leitura-da-
+   semana-design.md.
+
+   Ela afirma:
+     1. em 100 diários aleatórios, padrão forte em no máximo 5;
+     2. o padrão plantado (café da manhã baixa a fome) é achado, com a
+        direção certa; dia sem refeição não conta como "sem café"; os
+        pares óbvios ficam de fora;
+     3. cada detector de tendência acha o caso plantado e ignora o ruído;
+     4. todo diário com registro sai com uma descoberta; as áreas se
+        alternam; a memória segura 3 semanas.
+
+   Tudo com sorteio de semente fixa e relógio fixo: o resultado é o mesmo
+   em toda rodada.
+   ============================================================ */
+
+import { comRelogioFixo } from './avaliacao/relogio';
+import { DAY } from '../src/logic/time';
+import { candidatasDaSemana, escolherDaSemana, type Candidata } from '../src/logic/descobertasDaSemana';
+
+let falhas = 0;
+const ok = (certo: boolean, o: string, detalhe = '') => {
+  console.log(`${certo ? '  ok  ' : '  NÃO '} ${o}${detalhe ? `  (${detalhe})` : ''}`);
+  if (!certo) falhas += 1;
+};
+
+import { diario, diaAntes, agora, de } from './leitura-da-semana-gerador';
+
+const COMPARACOES = new Set(['par', 'pesoPorHabito']);
+const fortesDeComparacao = (cs: Candidata[]) => cs.filter((c) => c.nivel === 'forte' && COMPARACOES.has(c.tipo));
+
+comRelogioFixo(() => {
+  /* ---------------- 1. o alarme falso ---------------- */
+  console.log('\n1. O ALARME FALSO — 100 diários sem padrão nenhum');
+  let comForte = 0, comComeco = 0, semNada = 0;
+  const exemplos: string[] = [];
+  for (let i = 1; i <= 100; i++) {
+    const cs = candidatasDaSemana(diario(i * 7919), agora);
+    const f = fortesDeComparacao(cs);
+    if (f.length) { comForte++; if (exemplos.length < 3) exemplos.push(f[0].chave); if (process.env.DIAG) for (const x of f) console.log('    falso', x.chave, JSON.stringify(x.dados)); }
+    if (cs.some((c) => c.nivel === 'comeco')) comComeco++;
+    if (!escolherDaSemana(cs, [], de)) semNada++;
+  }
+  ok(comForte <= 5, 'padrão forte em no máximo 5 de 100 diários aleatórios', `${comForte}${exemplos.length ? `: ${exemplos.join(', ')}` : ''}`);
+  ok(semNada === 0, 'todo diário com registro sai com uma descoberta', `começo de padrão em ${comComeco}, nada em ${semNada}`);
+
+  /* ---------------- 2. o padrão plantado ---------------- */
+  console.log('\n2. O PADRÃO PLANTADO — café da manhã baixa a fome');
+  let achados = 0, direcao = 0;
+  for (let i = 1; i <= 20; i++) {
+    const cs = candidatasDaSemana(diario(i * 104729, { cafeBaixaFome: 2 }), agora);
+    const par = cs.find((c) => c.chave === 'par:cafe:fome:0' && c.nivel === 'forte');
+    if (process.env.DIAG) { const q = cs.find((c) => c.chave === 'par:cafe:fome:0'); console.log('    plantado', q?.nivel, JSON.stringify(q?.dados)); }
+    if (par) { achados++; if ((par.dados.mediaCom as number) < (par.dados.mediaSem as number)) direcao++; }
+  }
+  ok(achados >= 18, 'o padrão plantado vira padrão forte em pelo menos 18 de 20 diários', `${achados}`);
+  ok(direcao === achados, 'e sempre na direção certa: com café, menos fome', `${direcao}/${achados}`);
+
+  const vazios = candidatasDaSemana(diario(31337, { semRefeicaoComFome: true }), agora);
+  ok(!vazios.some((c) => c.chave.startsWith('par:cafe:')), 'dia sem refeição registrada não conta como "sem café"');
+
+  const obvios = candidatasDaSemana(diario(4242, { enjooPorDia: (k) => (k % 7 === 6 || k % 7 === 5 ? 4 : 0) }), agora);
+  ok(!obvios.some((c) => c.chave.startsWith('par:posAplicacao:enjoo')), 'o enjoo depois da aplicação fica de fora (já é a janela do enjoo)');
+
+  /* ---------------- 3. os detectores de tendência ---------------- */
+  console.log('\n3. OS DETECTORES DE TENDÊNCIA');
+  {
+    const S: any = diario(777, { pesoPorSemana: (s) => (s >= 4 ? 0.2 : 0.9) });
+    /* a dose subiu há 4 semanas */
+    S.injections = S.injections.map((x: any) => ({ ...x, dose: x.t >= diaAntes(28) ? 7.5 : 5 }));
+    const cs = candidatasDaSemana(S, agora);
+    ok(cs.some((c) => c.tipo === 'ritmoDaDose' && (c.dados.ritmoDepoisKgSemana as number) > (c.dados.ritmoAntesKgSemana as number)),
+      'o ritmo que acelerou depois da subida de dose é achado');
+    ok(cs.some((c) => c.tipo === 'ritmoAcelerou' && c.nivel === 'forte'), 'e o ritmo das últimas 4 semanas que acelerou é padrão forte');
+  }
+  {
+    const S: any = diario(776, { pesoPorSemana: (s) => (s >= 4 ? 1.0 : 0.3) });
+    S.injections = S.injections.map((x: any) => ({ ...x, dose: x.t >= diaAntes(28) ? 7.5 : 5 }));
+    const cs = candidatasDaSemana(S, agora);
+    ok(!cs.some((c) => c.tipo === 'ritmoDaDose'), 'desacelerar depois da subida de dose NÃO vira descoberta da dose (é o tempo, não a dose)');
+    ok(cs.some((c) => c.tipo === 'ritmoDesacelerou') && !cs.some((c) => c.tipo === 'ritmoDesacelerou' && c.nivel !== 'retrato'),
+      'e a desaceleração das últimas semanas é só retrato');
+  }
+  {
+    const cs = candidatasDaSemana(diario(778, { pesoPorSemana: () => 0.5 }), agora);
+    ok(!cs.some((c) => ['ritmoAcelerou', 'ritmoDesacelerou', 'ritmoDaDose'].includes(c.tipo)), 'um ritmo constante, com a oscilação normal, não vira descoberta');
+  }
+  {
+    const S: any = diario(779);
+    S.exams = [
+      { marker: 'LDL', unit: 'mg/dL', ref: '< 130', good: 'down', values: [{ t: diaAntes(120), v: 142 }, { t: diaAntes(10), v: 118 }] },
+      { marker: 'TSH', unit: 'µUI/mL', ref: '0,4–4,0', good: '', values: [{ t: diaAntes(10), v: 2.1 }] },
+    ];
+    const cs = candidatasDaSemana(S, agora);
+    ok(cs.some((c) => c.tipo === 'exameEntrouNaFaixa' && c.dados.marcador === 'LDL'), 'o LDL que caiu para dentro da faixa entre dois laudos é achado');
+    ok(!cs.some((c) => c.area === 'exames' && c.dados.marcador === 'TSH'), 'um marcador com um laudo só não gera nada');
+  }
+  {
+    const cs = candidatasDaSemana(diario(780, { enjooPorDia: (k) => (k > 14 ? 3 : 1) }), agora);
+    ok(cs.some((c) => c.tipo === 'sintomaCaiu'), 'o enjoo que caiu pela metade nas últimas 2 semanas é achado');
+  }
+  {
+    const S: any = diario(781);
+    S.measures = [
+      { t: diaAntes(40), cintura: 100 },
+      { t: diaAntes(4), cintura: 94 },
+    ];
+    S.weights = [{ t: diaAntes(41), kg: 90 }, { t: diaAntes(20), kg: 88 }, { t: diaAntes(5), kg: 86.6 }];
+    const cs = candidatasDaSemana(S, agora);
+    ok(cs.some((c) => c.tipo === 'cinturaMaisQuePeso'), 'a cintura caindo mais rápido que o peso é achada');
+  }
+
+  /* ---------------- 4. a escolha da semana ---------------- */
+  console.log('\n4. A ESCOLHA DA SEMANA');
+  const fake = (area: any, chave: string, nivel: any, forca: number): Candidata => ({ area, tipo: 'x', chave, nivel, forca, dados: {} });
+  const cands = [fake('habitos', 'a', 'forte', 0.9), fake('ritmo', 'b', 'forte', 0.5), fake('constancia', 'c', 'retrato', 0.9)];
+  ok(escolherDaSemana(cands, [], de)?.chave === 'a', 'sem histórico, vence o mais forte');
+  ok(escolherDaSemana(cands, [{ semana: de - 7 * DAY, chave: 'z', area: 'habitos' }], de)?.chave === 'b',
+    'se a semana passada foi de hábitos, outra área no mesmo nível vence');
+  ok(escolherDaSemana(cands, [{ semana: de - 14 * DAY, chave: 'a', area: 'habitos' }], de)?.chave === 'b',
+    'uma descoberta mostrada há 2 semanas não volta');
+  ok(escolherDaSemana(cands, [{ semana: de - 28 * DAY, chave: 'a', area: 'habitos' }], de)?.chave === 'a',
+    'e há 4 semanas, já pode voltar');
+});
+
+console.log(falhas ? `\n${falhas} afirmação(ões) falharam` : '\ntodas as afirmações passaram');
+process.exit(falhas ? 1 : 0);
