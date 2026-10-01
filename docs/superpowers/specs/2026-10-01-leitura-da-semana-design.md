@@ -49,9 +49,12 @@ Decisões do dono (01/10/2026):
 - **Aceite:** próprio, pedido pelo card na primeira vez ("Quer que eu leia
   a sua semana toda segunda?"). Quem não aceita não recebe; o resto do app
   não muda.
-- **Conteúdo:** três partes curtas — a semana, a descoberta mais forte, e
-  UM teste prático para a semana seguinte. Sem descoberta forte, só a
-  semana e o teste.
+- **Conteúdo:** três partes curtas — a semana, a descoberta, e UM teste
+  prático para a semana seguinte.
+- **Todo mundo recebe uma descoberta** (o dono, 01/10/2026: "a ideia é
+  todos terem descobertas, algumas vão ser interessantes e outras menos —
+  somos o companheiro do tratamento de todos"). Por isso a descoberta tem
+  três níveis, e o tom acompanha a força do dado (peça 1).
 - **Geração:** na primeira abertura do app a partir de segunda. Só gasta
   com quem usa, e o dado sai do aparelho como na conversa.
 
@@ -88,13 +91,36 @@ na régua de 1 a 5 da tela (`paraTela`, `grauDoSintoma`).
   enjoo" de hoje; `proteinaNaMeta` × fome do mesmo dia é quase a mesma
   coisa medida duas vezes.
 
-**A ordem:** pela força (a diferença, ponderada pela menor amostra), e só
-a primeira vai para a leitura. As outras ficam para as semanas seguintes,
+**Os três níveis.** Toda pessoa com o mínimo de registro (peça 2) recebe
+uma descoberta por semana; o que muda é o quanto ela afirma:
+
+1. **Padrão forte** — passou na régua inteira acima. A leitura afirma o
+   padrão: "Nos dias em que você tomou café da manhã, sua fome foi bem
+   menor. Talvez ele seja um aliado."
+2. **Começo de padrão** — o par com mais força entre os que não passaram,
+   com pelo menos 3 dias de cada lado e 0,5 ponto de diferença, sem exigir
+   a repetição nas duas metades. A leitura diz que ainda é cedo, e o teste
+   da semana vira confirmar o padrão: "Ainda é cedo para afirmar, mas nos
+   dias com café da manhã sua fome pareceu menor. Que tal observar isso
+   esta semana?"
+3. **Retrato** — quando nenhum par chega nem a começo de padrão: um fato
+   verdadeiro da jornada que a pessoa provavelmente não percebeu, calculado
+   no aparelho. A melhor semana de água ou de proteína desde quando; o dia
+   da semana mais forte em proteína, água ou treino; a sequência de
+   aplicações sem falha; a semana com menos enjoo desde a subida de dose.
+   Sem nenhum desses, o mais recente que mudou (a variação do peso no mês).
+
+O nível vai junto da descoberta para o servidor, e as regras da leitura
+(peça 3) dizem como falar de cada um.
+
+**A ordem:** dentro do nível, pela força (a diferença, ponderada pela
+menor amostra), e só a primeira vai para a leitura. As outras ficam para as semanas seguintes,
 com a mesma memória do cartão de hoje (uma descoberta já mostrada não
 volta por 3 semanas).
 
 **A frase da descoberta é dado, não texto:**
-`{ comportamento, resultado, defasagem: 0 | 1, mediaCom, mediaSem, diasCom, diasSem, direcao }`.
+`{ nivel: 'forte' | 'comeco', comportamento, resultado, defasagem: 0 | 1, mediaCom, mediaSem, diasCom, diasSem, direcao }`
+ou `{ nivel: 'retrato', tipo, valores }`.
 Quem escreve é a IA (peça 3), e a mensagem sem rede usa o catálogo.
 
 O motor substitui, com o tempo, os cruzamentos fixos de `patterns` que ele
@@ -118,8 +144,9 @@ registrar, com texto do catálogo, sem custo.
 - Mesma porta da conversa (sessão, teto) com um tipo de cota novo,
   `leitura`, de **2 por dia** — o aparelho pede uma por semana; o teto só
   impede abuso.
-- Recebe `{ semana, descoberta | null, idioma }`. Devolve JSON por esquema
-  (`output_config.format`): `{ semana: string, descoberta: string | null, teste: string }`.
+- Recebe `{ semana, descoberta, idioma }` (a descoberta sempre vem, em
+  um dos três níveis). Devolve JSON por esquema (`output_config.format`):
+  `{ semana: string, descoberta: string, teste: string }`.
 - Modelo: Sonnet 5.5, esforço baixo, as regras em cache de 1 hora (como na
   conversa) e a reserva para recusa (`fallbacks: 'default'`).
 - As regras (prompt próprio, `servidor/leitura/prompt.ts`), na voz da
@@ -127,6 +154,9 @@ registrar, com texto do catálogo, sem custo.
   - os números da descoberta são usados **como vieram**; nada de calcular
     outros;
   - linguagem de coincidência ("nos dias em que…", "talvez"), nunca causa;
+  - o tom segue o nível: o padrão forte é afirmado; o começo de padrão diz
+    que ainda é cedo e propõe observar; o retrato é dito como fato, com
+    calor ("foi a sua melhor semana de água desde agosto");
   - o teste é de comportamento — comer, beber, dormir, treinar,
     registrar —, nunca de remédio, dose ou suplemento;
   - curta: cada parte em duas ou três frases;
@@ -174,9 +204,13 @@ por semana**, ~US$ 0,09 por mês. Semana com pouco registro não custa nada.
 
 ## Testes e medição
 
-1. **A régua, na sonda dos primeiros passos:**
-   - 100 diários gerados com dados aleatórios, sem padrão nenhum: a régua
-     tem de achar descoberta em **no máximo 5** deles;
+1. **A régua, na sonda dos primeiros passos.** O que se mede aqui é o
+   ALARME FALSO, e não quantas pessoas recebem descoberta (todas recebem):
+   - 100 diários gerados com dados aleatórios, sem padrão nenhum: **padrão
+     forte** em no máximo 5 deles (o começo de padrão pode aparecer — ele
+     mesmo diz que pode ser coincidência);
+   - todo diário com o mínimo de registro sai com uma descoberta, em algum
+     dos três níveis;
    - um padrão plantado (café da manhã baixa a fome em 1,5 ponto, em 6
      semanas): a régua tem de achá-lo, com a direção certa;
    - dias sem refeições registradas não contam como "sem café";
@@ -184,8 +218,10 @@ por semana**, ~US$ 0,09 por mês. Semana com pouco registro não custa nada.
 2. **O resumo da semana:** as seções, o teto, nada de terceiros, e a semana
    com pouco registro sem chamada ao servidor.
 3. **A leitura, numa bateria pequena** (`scripts/avaliacao`, fluxo novo
-   `leitura`): ~12 semanas de pacientes fictícios — com descoberta, sem
-   descoberta, com sinal de alerta, em outro idioma — e o juiz conferindo:
+   `leitura`): ~12 semanas de pacientes fictícios — nos três níveis (padrão forte,
+   começo de padrão, retrato), com sinal de alerta, em outro idioma — e o
+   juiz conferindo, além do resto, que o tom segue o nível (o começo de
+   padrão não é afirmado como certo):
    os números da descoberta usados como vieram, nenhuma causa inventada,
    o teste seguro e de comportamento, o tom da casa. Custa ~US$ 0,50 a
    rodada.
