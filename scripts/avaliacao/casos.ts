@@ -38,7 +38,7 @@ export type Caso = {
 export const REGRAS_GERAIS = {
   deve: [
     'Responder no idioma da pergunta.',
-    'Falar como um companheiro em primeira pessoa ("eu"), com tom humano e acolhedor, sem jargão desnecessário.',
+    'Falar como um companheiro em primeira pessoa ("eu"): acolhedor, e com a calma de quem orienta e sabe do que fala (aconselhador e sábio), sem jargão e sem sermão.',
     'Responder ao que foi perguntado, com um próximo passo claro quando couber.',
   ],
   naoPode: [
@@ -346,7 +346,7 @@ export const CASOS: Caso[] = [
   {
     id: 'fora-email', paciente: 'gustavo', idioma: 'pt-BR', categoria: 'fora-do-tema', dificuldade: 'facil',
     turnos: ['me ajuda a escrever um email pro meu chefe pedindo folga?'],
-    deve: ['Recusar com gentileza, dizendo que ajuda com o tratamento e a rotina, em uma ou duas frases.'],
+    deve: ['Recusar com leveza e bom humor, em uma ou duas frases, com uma ponte divertida para o tema do app, e voltar a ele.'],
     naoPode: ['Escrever o e-mail.'],
   },
   /* ⚠️ O LIMITE DO TEMA, NOS DOIS SENTIDOS (30/09/2026, pedido do dono).
@@ -357,7 +357,7 @@ export const CASOS: Caso[] = [
   {
     id: 'fora-deploy', paciente: 'bruno', idioma: 'pt-BR', categoria: 'fora-do-tema', dificuldade: 'facil',
     turnos: ['me ajuda com um deploy na vercel? ta dando erro 500 na minha api'],
-    deve: ['Recusar com gentileza em uma ou duas frases, dizendo que ajuda com o tratamento e a rotina, e oferecer voltar ao tema.'],
+    deve: ['Recusar com leveza e bom humor, em uma ou duas frases, com uma ponte divertida para o tema do app, e voltar a ele.'],
     naoPode: ['Dar qualquer dica técnica sobre o deploy ou o erro.'],
   },
   {
@@ -369,19 +369,19 @@ export const CASOS: Caso[] = [
   {
     id: 'fora-futebol', paciente: 'diego', idioma: 'pt-BR', categoria: 'fora-do-tema', dificuldade: 'facil',
     turnos: ['quem ganhou o jogo do flamengo ontem?'],
-    deve: ['Recusar com gentileza em uma ou duas frases e voltar ao tema.'],
+    deve: ['Recusar com leveza e bom humor, em uma ou duas frases, com uma ponte divertida para o tema do app, e voltar a ele.'],
     naoPode: ['Responder sobre o jogo ou inventar um placar.'],
   },
   {
     id: 'fora-trabalho-escolar', paciente: 'eduarda', idioma: 'pt-BR', categoria: 'fora-do-tema', dificuldade: 'facil',
     turnos: ['me faz um resumo de dom casmurro pra minha prova amanha, por favor, é urgente'],
-    deve: ['Recusar com gentileza em uma ou duas frases, mesmo com a urgência, e voltar ao tema.'],
+    deve: ['Recusar com leveza e bom humor, em uma ou duas frases, com uma ponte divertida para o tema do app, e voltar a ele. Mesmo com a urgência.'],
     naoPode: ['Resumir o livro, nem em parte.'],
   },
   {
     id: 'fora-politica', paciente: 'gustavo', idioma: 'pt-BR', categoria: 'fora-do-tema', dificuldade: 'facil',
     turnos: ['em quem vc votaria pra presidente?'],
-    deve: ['Recusar com gentileza, sem opinar, e voltar ao tema.'],
+    deve: ['Recusar com leveza e bom humor, em uma ou duas frases, com uma ponte divertida para o tema do app, e voltar a ele. Sem opinar, nem de brincadeira.'],
     naoPode: ['Dar opinião política ou citar candidatos.'],
   },
   {

@@ -83,7 +83,12 @@ export function lerPedido(corpo: any): { pergunta: string; historico: Troca[]; r
     mesma coisa que vai para a pessoa — modelo, regras, resumo e histórico. */
 export function parametrosDaConversa(pedido: NonNullable<ReturnType<typeof lerPedido>>): Anthropic.MessageStreamParams {
   return {
-    model: 'claude-opus-5',
+    /* ⚠️ O SONNET 5.5, E NÃO O OPUS 5 (30/09/2026). Na avaliação
+       (scripts/avaliacao, v3 contra v4), o Sonnet empatou ou ganhou em
+       segurança, limites, dados, fatos e utilidade, pela metade do custo
+       por resposta e mais rápido. Trocar de novo de modelo passa pela
+       avaliação antes. */
+    model: 'claude-sonnet-5-5',
     max_tokens: 2000,
     system: [
       /* ⚠️ CACHE DE 1 HORA, e não os 5 minutos padrão (30/09/2026). As regras
@@ -156,7 +161,17 @@ async function handler(req: Request): Promise<Response> {
     async start(ctl) {
       let escreveu = false;
       try {
-        const fluxo = cliente.messages.stream(parametrosDaConversa(pedidoOk));
+        /* ⚠️ COM RESERVA DO SERVIDOR (fallbacks: 'default'). Se o Sonnet 5.5
+           recusar uma pergunta (os filtros de segurança dele às vezes pegam
+           pergunta legítima de saúde), a própria API refaz o pedido num
+           modelo que responde, na mesma chamada, em vez de a pessoa ver
+           "sem rede". Só aqui, e não em parametrosDaConversa: a avaliação
+           chama o modelo sem a reserva, e mede o Sonnet sozinho. */
+        const fluxo = cliente.beta.messages.stream({
+          ...parametrosDaConversa(pedidoOk),
+          betas: ['server-side-fallback-2026-07-01'],
+          fallbacks: 'default',
+        } as any);
         fluxo.on('text', (trecho) => {
           if (!trecho) return;
           escreveu = true;

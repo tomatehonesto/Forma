@@ -225,11 +225,14 @@ a especificação, `docs/superpowers/specs/2026-09-29-morphi-intelligence-design
 
 **Antes de fechar o teto de 30 por dia:**
 
-- ~~**Medir o custo.**~~ Medido na avaliação (30/09): cerca de
-  **US$ 0,03 por pergunta** no Opus 5 com o cache aquecido (mediana,
-  sem o juiz). No teto de 30 por dia, até ~US$ 0,85 por pessoa por dia.
-  A primeira pergunta depois de 5 minutos parada paga a gravação do
-  cache (uns 16 mil tokens, ~US$ 0,10).
+- ~~**Medir o custo.**~~ Medido na avaliação (30/09): no Opus 5, cerca
+  de US$ 0,03 por pergunta com o cache quente — no teto de 30 por dia,
+  uma pessoa custava mais que a assinatura. Feito: o modelo passou ao
+  **Sonnet 5.5** (~US$ 0,015 por pergunta, e melhor na avaliação), o
+  teto a **10 por dia e 100 em 30 dias** (20261001012518), e o cache das
+  regras a 1 hora. Pior caso: ~US$ 1,50 por pessoa a cada 30 dias.
+- **O teto de 30 dias só está no morphi-dev.** Subir a migração para a
+  produção junto com as outras, na virada.
 
 **A avaliação da conversa** (`scripts/avaliacao/`, notas em
 `.claude/hillclimb/conversa/`): 77 casos com 17 pacientes fictícios e um
