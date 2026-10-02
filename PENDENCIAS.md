@@ -719,7 +719,8 @@ lembretes tocando e a leitura de peso chegando, em build de verdade.
 
 ## 9. Os ícones alternativos precisam de prebuild
 
-`expo-alternate-app-icons` entra por projeto nativo: os 12 ícones são
+`expo-alternate-app-icons` entra por projeto nativo: os 10 ícones (um por
+paleta, desde 02/10/2026) são
 declarados no plugin do `app.json` e o arquivo nativo é escrito no
 `prebuild`. No EAS isso acontece no próprio build; num dev client local,
 rodar `npx expo prebuild --clean` depois de mexer em `PALETAS`.
@@ -860,12 +861,15 @@ porta dos fundos.
 
 ---
 
-## 🟡 11. As paletas definitivas ainda vão ser desenhadas
+## 🟡 11. As paletas: escolhidas; as auroras ainda são giradas
 
-As cinco que estão no código — Original, Amora, Pitaia, Brasa, Floresta —
-são **provisórias**: valores escolhidos à mão para a tela existir e ser
-testada. As definitivas vêm depois, junto com as auroras feitas de
-propósito para cada uma, em vez de giradas no matiz a partir da azul.
+**Atualizado em 02/10/2026:** as dez definitivas foram escolhidas pelo dono
+(ver docs/superpowers/specs/2026-10-02-paletas-design.md) e estão no código,
+conferidas por `scripts/paletas.ts`. O que segue em aberto é a aurora: ela
+ainda é a azul girada no matiz, e não uma imagem feita para cada paleta. E
+os ícones novos só aparecem num build nativo novo (item 9).
+
+O texto abaixo é o contrato para mexer na lista.
 
 Quando isso acontecer, o contrato é este — e ele não perdoa erro de nome,
 porque o empacotador resolve cada `require` em tempo de compilação:
@@ -896,16 +900,20 @@ e sem ícone.
 
 **As regras que a tela impõe**
 
-- **Cinco, numa fileira só.** Não há `flexWrap`: uma sexta paleta não
-  cabe, e é para não caber.
+- **Duas fileiras de cinco, escritas à mão** (`FILEIRAS_DA_ESCOLHA`, em
+  src/theme.ts). Não há `flexWrap`: a undécima paleta não cabe até alguém
+  decidir onde ela mora, e a trava (R16) confere.
 - **Oito letras no nome, no máximo.** A coluna tem 65 pixels num telefone
   de 360pt. Foi por isso que "Framboesa" virou "Pitaia".
 - **Ação e alcançado bem separadas.** Se as duas forem próximas, o botão
   que leva a algum lugar e a marca do que já foi feito viram a mesma
   coisa — que é o problema que as paletas fechadas existem para evitar.
-- **Um id que sai da lista precisa de uma linha em `ensureDefaults`**, em
-  `src/logic/seed.ts`: ou traduzindo para o novo, ou caindo na original.
-  Sem ela a pessoa perde a escolha em silêncio.
+- **Passar na trava**: `npx tsx --tsconfig scripts/tsconfig.json
+  scripts/paletas.ts` (contraste, sentido, uma cor de base por paleta).
+  Os dois geradores se recusam a rodar se ela falhar.
+- **Um id que sai da lista precisa de uma sucessora em `PALETA_QUE_SAIU`**
+  (src/theme.ts), que `ensureDefaults` aplica — ou cai na original. Sem ela
+  a pessoa perde a escolha em silêncio.
 
 ---
 

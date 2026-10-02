@@ -24,20 +24,45 @@
    Rode de novo sempre que PALETAS mudar em src/theme.ts — e depois
    `npx expo prebuild --clean`, porque ícone alternativo entra pelo
    projeto nativo.
+
+   ⚠️ E ELE NÃO GERA NADA SE AS PALETAS NÃO PASSAREM NA TRAVA (02/10/2026).
+   scripts/paletas.ts roda primeiro. O ícone é o lugar onde a paleta vai
+   mais longe — até a tela inicial do telefone, e só sai de lá com um
+   build nativo novo —, então é o último lugar para uma paleta que não
+   segura a própria marca.
    ============================================================ */
 
 import sharp from 'sharp';
 import { mkdir, writeFile, readFile } from 'node:fs/promises';
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+
+/* A trava é TypeScript, porque importa os tokens de verdade de
+   src/theme.ts; daqui ela roda pelo tsx, como as outras sondas. A linha
+   vai inteira para o shell, sem lista de argumentos: no Windows o npx é
+   um .cmd, e .cmd só roda por shell. */
+function travaDasPaletas() {
+  const r = spawnSync(
+    'npx tsx --tsconfig scripts/tsconfig.json scripts/paletas.ts',
+    { cwd: fileURLToPath(new URL('..', import.meta.url)), stdio: 'inherit', shell: true },
+  );
+  return r.status === 0;
+}
 
 const LADO = 1024;
 
 /* O MESMO CAMINHO DA MARCA, lido do arquivo em vez de copiado: se o
-   símbolo mudar em src/ui/marca.tsx, o ícone muda junto na próxima
-   geração, e não fica um M velho no telefone de alguém. */
+   símbolo mudar, o ícone muda junto na próxima geração, e não fica um M
+   velho no telefone de alguém.
+
+   ⚠️ ELE MORA EM src/ui/marcaCaminhos.ts desde 30/09/2026 (commit
+   9518fc5), e não mais em marca.tsx, que só o reexporta — e o gerador
+   seguia procurando lá e parava em "não achei D_SIMBOLO" (achado de
+   02/10/2026, na hora de gerar os ícones das dez). */
 async function caminhoDoSimbolo() {
-  const src = await readFile(new URL('../src/ui/marca.tsx', import.meta.url), 'utf8');
+  const src = await readFile(new URL('../src/ui/marcaCaminhos.ts', import.meta.url), 'utf8');
   const m = src.match(/D_SIMBOLO = '([^']+)'/);
-  if (!m) throw new Error('não achei D_SIMBOLO em src/ui/marca.tsx');
+  if (!m) throw new Error('não achei D_SIMBOLO em src/ui/marcaCaminhos.ts');
   return m[1];
 }
 
@@ -94,6 +119,11 @@ function svg(acao, marca, ocupacao) {
 const png = (texto) => sharp(Buffer.from(texto)).png({ compressionLevel: 9, palette: true }).toBuffer();
 
 async function main() {
+  if (!travaDasPaletas()) {
+    console.error('\n  ⚠️  As paletas não passaram em scripts/paletas.ts. Nenhum ícone foi gerado.\n');
+    process.exit(1);
+  }
+
   CAMINHO = await caminhoDoSimbolo();
   const lista = await paletas();
   const dir = new URL('../assets/icones/', import.meta.url);

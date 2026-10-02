@@ -8,7 +8,7 @@ import { comRotulo, nomeItem, somaDe, type ItemComida } from './prato';
 import { marcarComoVistas, conquistas, feitas } from './conquistas';
 import { formaDe } from './formas';
 import type { Notificacao, FaseDoCiclo } from './notificacoes';
-import { PALETAS } from '../theme';
+import { PALETAS, PALETA_QUE_SAIU } from '../theme';
 import { doseDiaria, type Forma } from './meds';
 import type { Sistema } from './medidas';
 import type { Local } from './local';
@@ -1279,6 +1279,13 @@ export function ensureDefaults(S: any) {
      esta linha a regra acima jogaria essa pessoa de volta para o azul,
      que é perder uma escolha por causa de uma troca de rótulo. */
   if ((S as any).paleta === 'framboesa') (S as any).paleta = 'pitaia';
+  /* ⚠️ E QUEM TINHA UMA DAS QUE SAÍRAM EM 02/10/2026 vai para a vizinha
+     mais próxima, e não para o azul: a Pitaia (magenta) vira a Vinho e a
+     Brasa (laranja) vira a Telha — ver `PALETA_QUE_SAIU`, em src/theme. A
+     regra de cima existe para id que ninguém reconhece; uma paleta que saiu
+     com sucessora conhecida não é isso. Vem depois da Framboesa, que vira
+     Pitaia e daqui segue para a Vinho. */
+  if (PALETA_QUE_SAIU[(S as any).paleta]) (S as any).paleta = PALETA_QUE_SAIU[(S as any).paleta];
   if (!PALETAS.some((p) => p.id === (S as any).paleta)) (S as any).paleta = 'original';
   delete (S as any).cor;
   delete (S as any).destaque;

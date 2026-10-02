@@ -24,10 +24,30 @@
 
    Rode de novo sempre que PALETAS mudar em src/theme.ts, ou quando um dos
    arquivos originais for substituído.
+
+   ⚠️ E ELE NÃO GERA NADA SE AS PALETAS NÃO PASSAREM NA TRAVA (02/10/2026).
+   scripts/paletas.ts roda primeiro, e uma falha para tudo antes do
+   primeiro arquivo. Depois de gerar, ela roda de novo com --aurora: a
+   forte sobre a imagem (R7) só se mede com a imagem pronta, e esta é a
+   hora em que ela fica pronta.
    ============================================================ */
 
 import sharp from 'sharp';
 import { mkdir, writeFile, readFile } from 'node:fs/promises';
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+
+/* A trava é TypeScript, porque importa os tokens de verdade de
+   src/theme.ts; daqui ela roda pelo tsx, como as outras sondas. A linha
+   vai inteira para o shell, sem lista de argumentos: no Windows o npx é
+   um .cmd, e .cmd só roda por shell. */
+function travaDasPaletas(...extra) {
+  const r = spawnSync(
+    ['npx tsx --tsconfig scripts/tsconfig.json scripts/paletas.ts', ...extra].join(' '),
+    { cwd: fileURLToPath(new URL('..', import.meta.url)), stdio: 'inherit', shell: true },
+  );
+  return r.status === 0;
+}
 
 /* Qualidade alta de propósito: a aurora ocupa a tela inteira atrás de
    texto branco, e artefato de compressão em gradiente aparece como
@@ -63,6 +83,11 @@ async function paletas() {
 }
 
 async function main() {
+  if (!travaDasPaletas()) {
+    console.error('\n  ⚠️  As paletas não passaram em scripts/paletas.ts. Nenhuma aurora foi gerada.\n');
+    process.exit(1);
+  }
+
   const lista = await paletas();
   const dir = new URL('../assets/auroras/', import.meta.url);
   await mkdir(dir, { recursive: true });
@@ -86,6 +111,11 @@ async function main() {
   }
 
   console.log(`${lista.length * FONTES.length} auroras · ${(bytes / 1024 / 1024).toFixed(2)} MB`);
+
+  if (!travaDasPaletas('--aurora')) {
+    console.error('\n  ⚠️  As auroras foram gravadas, mas a forte não lê sobre elas (R7). Não publique estas imagens.\n');
+    process.exit(1);
+  }
 }
 
 main().catch((e) => { console.error(e); process.exit(1); });

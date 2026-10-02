@@ -1,7 +1,7 @@
 # Dez paletas, com a regra "sóbria + forte" verificada
 
-**Data:** 02/10/2026 · **Estado:** aprovado pelo dono; regra e candidatas em
-construção, imagens e ícones só depois da escolha dele
+**Data:** 02/10/2026 · **Estado:** aplicado — as dez escolhidas pelo dono
+estão em `src/theme.ts`, com auroras, ícones e a trava (ver "A escolha", no fim)
 
 ## Por quê
 
@@ -49,3 +49,43 @@ e o par a ≥ 20. Nome com até 8 letras.
 4. Depois da escolha: `PALETAS`, auroras (9 por paleta, ~0,65 MB cada
    conjunto), ícones alternativos (exigem build nativo novo, sem OTA), duas
    fileiras de 5 em Aparência, `PENDENCIAS` atualizado.
+
+## A escolha (02/10/2026)
+
+Cinco rodadas de prévia lado a lado (claro, escuro e sobre a aurora), com
+as cores calculadas por `comPaleta`. O que o dono decidiu:
+
+| Paleta | Sóbria | Clara | Forte | Aurora |
+|---|---|---|---|---|
+| Original | #065CF5 | #4C8BFF | #DDF62C | 0 / 1 |
+| Amora | #6B3BF5 | #9B7BFF | #2BE8C8 | 12 / 1,05 |
+| Vinho | #830F3E | #FFA3B1 | #FDEFBA | 80 / 0,75 |
+| Telha | #852102 | #FF8F4F | #FFE2CC | 136 / 1 |
+| Oliva | #555D1C | #BBC851 | #FDBA8A | 172 / 0,7 |
+| Floresta | #15803D | #4ADE80 | #E9B8FF | −124 / 0,95 |
+| Oceano | #017482 | #3ECCE2 | #FFBAD4 | −90 / 1 |
+| Marinho | #033B7A | #559CD4 | #C3D4FD | −30 / 0,6 |
+| Camurça | #655046 | #BB958E | #F6C3BB | 105 / 0,28 |
+| Grafite | #2E3440 | #B6BECC | #FFEE32 | −17 / 0,12 |
+
+- **Saíram** Pitaia e Brasa; quem as tinha vai para a Vinho e a Telha
+  (`PALETA_QUE_SAIU`, usado em `ensureDefaults`). Ficaram pelo caminho,
+  vistas e recusadas: Índigo e Ameixa (repetiam o roxo da Amora), Cacau,
+  Urucum e Tucano (marrom/ferrugem; a Tucano era a Grafite no claro), Ocaso
+  (no escuro, a Telha; a forte, a da Oliva), Malva (pastel possível, no
+  lugar da Pitaia, que também saiu).
+- **R17, uma cor de base por paleta**: família pelo matiz OKLCH (vermelho,
+  terroso, verde, petróleo, azul, roxo, rosa, e cinza abaixo de croma 0,05),
+  e no par Δh das sóbrias ≥ 20°, Δh das claras ≥ 26° e ΔEok das claras ≥ 8.
+  Três pares ficam perto por decisão do dono e saem como aviso com nome:
+  Original–Marinho, Floresta–Oliva, Camurça–Grafite (`PARES_APROVADOS`).
+- **A Amora tem a família calma própria** (`calma`): a forte de sempre é o
+  teal da má notícia que não cobra, e só nela essa família vira um azul
+  calmo (#9ED1FD). A R18 confere a família de toda paleta (pílula, ponto no
+  painel, longe do âmbar e do vermelho, cor e não cinza, longe da ação).
+- **R16**: a escolha mora em `FILEIRAS_DA_ESCOLHA`, duas fileiras de cinco
+  escritas à mão; a trava confere que toda paleta está numa delas, uma vez.
+- **A Grafite ganhou amarelo-limão** (#FFEE32, a partir de uma referência
+  do dono): antes dividia o verde-limão com a Original. Testadas também o
+  amarelo-ouro (#FFD100) e a base de carvão neutro (#333533); as quatro
+  passavam na trava, e ele escolheu o limão sobre o grafite de hoje.

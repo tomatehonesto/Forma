@@ -11,7 +11,7 @@ import { Txt, Row } from '../ui/kit';
 import { TelaInterna, Titulao, Bloco } from '../ui/internas';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
-import { PALETAS, paletaDe, alfa, mix, radius, font } from '../theme';
+import { FILEIRAS_DA_ESCOLHA, paletaDe, alfa, mix, radius, font } from '../theme';
 import type { Tema } from '../logic/seed';
 import { T } from '../textos';
 
@@ -24,13 +24,21 @@ const K = () => T.perfil.telaAparencia;
    ⚠️ A ESCOLHA ERA DE DUAS CORES SOLTAS, e isso empurrava para a pessoa
    uma decisão que é de design: ação e alcançado próximas fazem o botão
    que leva a algum lugar e a marca do que já foi feito virarem a mesma
-   coisa. São cinco paletas fechadas agora, cada uma um conjunto já olhado
+   coisa. São paletas fechadas agora, cada uma um conjunto já olhado
    junto.
 
    ⚠️ E ERAM DOZE, EM TRÊS FILEIRAS. Doze bolinhas viram uma grade, e uma
    grade se examina: a pessoa compara, volta, desiste. Cinco numa linha só
    se veem de uma vez — a escolha inteira cabe num olhar, que é o tamanho
    certo para uma decisão que não tem resposta errada.
+
+   ⚠️ E AGORA SÃO DEZ, EM DUAS FILEIRAS DE CINCO (02/10/2026), escolhidas
+   pelo dono em cinco rodadas de prévia — e cada uma passa numa regra que
+   as doze não tinham: nenhuma repete a cor de base de outra (R17, em
+   scripts/paletas.ts). Duas fileiras ainda se veem de uma vez. Elas são
+   escritas em src/theme.ts (`FILEIRAS_DA_ESCOLHA`), e não quebradas aqui:
+   a ordem diz alguma coisa — as cores na de cima, os verdes, os azuis e
+   os neutros na de baixo.
 
    ⚠️ E A GRADE JÁ FOI DE ÍCONES. Cada opção era o ícone do aplicativo
    naquela paleta — bonito, e ruim para escolher: quadrados com a mesma
@@ -245,13 +253,17 @@ export default function Aparencia() {
       </Bloco>
 
       {/* ---- as paletas ---- */}
-      {/* ⚠️ SEM `flexWrap`, E ISSO É A REGRA E NÃO O ACASO. A fileira é
-          uma linha só por definição: se uma sexta paleta entrar um dia, o
-          certo é ela não caber e alguém ter de decidir — e não a grade
-          quebrar sozinha numa segunda fileira com um item solto. */}
+      {/* ⚠️ SEM `flexWrap`, E ISSO É A REGRA E NÃO O ACASO. Cada fileira é
+          uma linha só por definição, e as fileiras são escritas em
+          src/theme.ts (`FILEIRAS_DA_ESCOLHA`): se uma undécima paleta
+          entrar um dia, o certo é ela não caber e alguém ter de decidir
+          onde ela mora — e não a grade quebrar sozinha com um item solto.
+          A trava confere (R16, em scripts/paletas.ts). */}
       <Bloco titulo={K().escolhaCor}>
-        <Row>
-          {PALETAS.map((p) => {
+        <View style={{ gap: 14 }}>
+        {FILEIRAS_DA_ESCOLHA.map((fileira) => (
+        <Row key={fileira.join()}>
+          {fileira.map(paletaDe).map((p) => {
             const on = p.id === paletaId;
             const acao = isDark ? p.acaoEscura : p.acaoClara;
             return (
@@ -288,6 +300,8 @@ export default function Aparencia() {
             );
           })}
         </Row>
+        ))}
+        </View>
       </Bloco>
 
       <View />

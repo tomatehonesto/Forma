@@ -87,7 +87,13 @@ export const light: Palette = {
      dizem quem o aplicativo é; esta aqui diz o estado de um número, e um
      estado que muda de cor conforme o gosto de quem instalou deixa de ser
      um código. O teal já era fixo para a barra de exercício, pelo mesmo
-     motivo. */
+     motivo.
+
+     ⚠️ COM UMA EXCEÇÃO, A AMORA (02/10/2026). A forte dela é este mesmo
+     verde-água, e ali manter o teal fixo é o que quebra o código: a má
+     notícia sairia com a cor do alcançado. Só ela troca a família
+     inteira, por um azul calmo — ver `calma` em PALETAS e o fim de
+     `comPaleta`. */
   tealBg: '#D5FAF6', tealInk: '#08574D',
 
   /* Painel de destaque — azul saturado em gradiente. Precisa ler como
@@ -364,10 +370,33 @@ export const shadowSoft = (p: Palette) => ({
    cinco que ficaram dividem a roda inteira, e cada uma se reconhece de
    longe: azul, violeta, magenta, laranja, verde.
 
+   ⚠️ E VOLTARAM A SER DEZ (02/10/2026), escolhidas pelo dono em cinco
+   rodadas de prévia lado a lado — no claro, no escuro e sobre a aurora.
+   O que mudou desde as doze não foi o número, foi a régua: cada uma passa
+   na trava de contraste e sentido, e numa regra nova, a R17 — uma cor de
+   base por paleta, nenhuma com o nome de cor de outra, no claro e no
+   escuro. Três pares ficam perto de propósito, vistos e aprovados por ele
+   (Original e Marinho, os dois azuis; Floresta e Oliva, os dois verdes;
+   Camurça e Grafite, os dois neutros), e moram na trava como exceção com
+   nome: a próxima paleta não herda a licença. Saíram Pitaia e Brasa, e
+   quem as tinha escolhido passa para a vizinha mais próxima (ver
+   `PALETA_QUE_SAIU`, abaixo). A escolha é em duas fileiras de cinco, e
+   são elas que decidem a ordem (`FILEIRAS_DA_ESCOLHA`).
+
    O que sai daqui sai junto: a aurora, o ícone e a linha do plugin. Os
    dois geradores leem esta lista, e quem a encurtar precisa rodar
    `node scripts/gerar-aurora.mjs` e `node scripts/gerar-icones.mjs`, e
    colar o plugin.json novo em app.json.
+
+   ⚠️ E NENHUMA ENTRA SEM PASSAR NA TRAVA (02/10/2026). O corte de doze
+   para cinco foi feito no olho, por vizinhança de matiz, e o olho deixou
+   passar o contraste: das sete que saíram, três quebravam a regra que a
+   Original segue sem dizer — uma SÓBRIA escura que carrega branco e uma
+   FORTE luminosa que carrega tinta preta. Agora ela está escrita em
+   números em scripts/paletas.ts, sobre os tokens que `comPaleta` entrega,
+   e os dois geradores se recusam a rodar se ela falhar:
+
+     npx tsx --tsconfig scripts/tsconfig.json scripts/paletas.ts
 
    CADA PALETA TEM TRÊS PARTES
 
@@ -411,22 +440,55 @@ const escurecer = (hex: string, t: number) =>
 
 const BRANCO = '#FFFFFF';
 
+/* O contraste do WCAG 2, o mesmo que scripts/paletas.ts mede. */
+const luz = (hex: string) => {
+  const lin = (i: number) => { const v = canal(hex, i) / 255; return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
+  return 0.2126 * lin(0) + 0.7152 * lin(1) + 0.0722 * lin(2);
+};
+const contraste = (a: string, b: string) => {
+  const [x, y] = [luz(a), luz(b)].sort((m, n) => n - m);
+  return (x + 0.05) / (y + 0.05);
+};
+
+/** A cor, levantada para o branco só o bastante para ler `minimo` sobre
+    `fundo` — e intacta, se já lê. */
+const levantarAte = (cor: string, fundo: string, minimo: number) => {
+  for (let t = 0; t < 1; t += 0.01) {
+    const c = mix(cor, BRANCO, t);
+    if (contraste(c, fundo) >= minimo) return c;
+  }
+  return BRANCO;
+};
+
+/** A família da má notícia que não cobra: os quatro tokens que a Jornada
+    lê para o ponto do veredito e para a pílula do ChangeTile. */
+export type Calma = Pick<Palette, 'teal' | 'tealPale' | 'tealBg' | 'tealInk'>;
+
 export type Paleta = {
   id: string;
   nome: string;
-  /** a cor de ação, em cada modo — o resto da família sai daqui */
+  /** a cor de ação, em cada modo — o resto da família sai daqui.
+      `acaoClara` é a SÓBRIA: escura, carrega branco, e é superfície nos
+      dois modos (botão no claro, painel, "+" e avatar em ambos).
+      `acaoEscura` é a CLARA: a sóbria levantada para ser texto no escuro. */
   acaoClara: string;
   acaoEscura: string;
   /** a tinta por cima da cor de ação cheia */
   inkClaro: string;
   inkEscuro: string;
-  /** a cor do alcançado, e a tinta escura que vai por cima dela */
+  /** a cor do alcançado — a FORTE: luminosa, brilha sobre o escuro —, e a
+      tinta escura que vai por cima dela */
   alcancado: string;
   alcancadoInk: string;
   /** giro de matiz, em graus, sobre a aurora original — que é azul */
   auroraHue: number;
   /** fator de saturação da aurora: 1 mantém, abaixo de 1 lava */
   auroraSat: number;
+  /** ⚠️ SÓ PARA QUEM A FORTE CAI EM CIMA DO TEAL (02/10/2026). A família
+      da má notícia que não cobra, trocada inteira e nos dois modos — ver
+      o fim de `comPaleta`. A trava recusa quem a trouxer sem precisar
+      (R18 em scripts/paletas.ts). */
+  calma?: { claro: Calma; escuro: Calma };
 };
 
 export const PALETAS: Paleta[] = [
@@ -440,32 +502,157 @@ export const PALETAS: Paleta[] = [
     id: 'amora', nome: 'Amora',
     acaoClara: '#6B3BF5', acaoEscura: '#9B7BFF', inkClaro: '#FFFFFF', inkEscuro: '#150B2B',
     alcancado: '#2BE8C8', alcancadoInk: '#04211C',
-    auroraHue: 40, auroraSat: 1.05,
+    auroraHue: 12, auroraSat: 1.05,
+    /* ⚠️ A AMORA NÃO USA O TEAL, E É A ÚNICA (02/10/2026).
+
+       O dono quis a forte de sempre, o verde-água #2BE8C8 — e ele mora a
+       ΔEok 1,45 do teal fixo, a cor da má notícia que não cobra. Na
+       Jornada, quem escolhia a Amora via o ponto de "Acima do início" com
+       a cor do ponto de "No seu ritmo", no mesmo painel; e no escuro a
+       pílula do peso que subiu ficava com a cara do selo do alcançado
+       (0,44 entre os fundos). O código dizia "você conseguiu" e "isto
+       subiu" com uma cor só.
+
+       Mover o teal de todo mundo foi descartado: ele é fixo justamente
+       para um estado não mudar de cor conforme o gosto de quem instalou,
+       e trocá-lo por causa de uma paleta mudaria o código das outras
+       nove. Ele se dobra só aqui, onde mantê-lo fixo é o que quebra o
+       código.
+
+       ⚠️ AZUL, E NÃO ARDÓSIA NEM PERVINCA. Um azul calmo, matiz 245°:
+       longe da água (13,9), do violeta da ação (41° de matiz), do âmbar
+       do "pede conversa" e do vermelho. A ardósia foi vista e saiu: a
+       pílula lia como a do "Estável", e a Jornada já recusou ausência de
+       cor para notícia ruim — lê como desligado. A pervinca também: lia
+       como o chip "Dose ajustada", que vive na mesma tela.
+
+       ⚠️ NO ESCURO, A TINTA É O PRÓPRIO PONTO E O VÉU É O AZUL CHEIO. O
+       véu do ponto, que é claro e pouco saturado, dava um cinza-azulado
+       sobre o cartão, e com a tinta clara a pílula virava a do "Estável".
+       O véu de #5CB6FD carrega cor; o ponto lê 7,2:1 sobre ele.
+
+       O ponto lê no painel exatamente como o teal lê hoje: 3,64:1 no
+       meio, 2,62 debaixo do vidro, onde a etiqueta mora. 3:1 até no alto
+       do painel pedia um ponto quase branco, e ele deixava de ser cor.
+
+       O que vem junto, porque lê o mesmo token: o terceiro tom do orbe
+       (Companion e Insights), o painel "estado" da apresentação, o painel
+       sem foto de cálcio e fósforo, e no escuro o traço do valor na
+       régua dos exames. Visto nas duas folhas da rodada. */
+    calma: {
+      claro: { teal: '#9ED1FD', tealPale: '#BADEFE', tealBg: '#D3E9FD', tealInk: '#13517D' },
+      escuro: { teal: '#9ED1FD', tealPale: '#264056', tealBg: 'rgba(92,182,253,0.22)', tealInk: '#9ED1FD' },
+    },
+  },  {
+    /* Vinho com champanhe. A sóbria é escura de propósito: o vinho de 18/09
+       (#9F1239) ficava a 12 do vermelho de apagar, e aqui fica a 18,6
+       (R13). No escuro, a clara vira um rosa-claro — e é a vizinha mais
+       perto da Telha, as duas bases vermelho-escuras. */
+    id: 'vinho', nome: 'Vinho',
+    acaoClara: '#830F3E', acaoEscura: '#FFA3B1', inkClaro: '#FFFFFF', inkEscuro: '#2B040F',
+    alcancado: '#FDEFBA', alcancadoInk: '#231F1A',
+    auroraHue: 80, auroraSat: 0.75,
   },
   {
-    /* ⚠️ CHAMAVA-SE FRAMBOESA, e o nome não cabia. As cinco ficam numa
-       fileira só, e numa fileira de cinco cada rótulo tem 65 pixels:
-       "Framboesa" pedia 66 e aparecia como "Framboe…". Nome de paleta é
-       rótulo antes de ser poesia — e pitaia, que é magenta por dentro e
-       âmbar por fora, diz a mesma cor em seis letras. */
-    id: 'pitaia', nome: 'Pitaia',
-    acaoClara: '#C4187F', acaoEscura: '#F06FB4', inkClaro: '#FFFFFF', inkEscuro: '#2B0418',
-    alcancado: '#FFC93C', alcancadoInk: '#2B1E04',
-    auroraHue: 110, auroraSat: 1.1,
+    /* ⚠️ O LARANJA DAS DEZ (02/10/2026). Laranja vivo não carrega branco e
+       mora a menos de 15 do vermelho de apagar; o que passa é o tijolo, o
+       laranja queimado mais claro que ainda fica longe dele (R13). A
+       Brasa (âmbar) e o Urucum (laranja-ferrugem) foram vistos e
+       recusados pelo dono; o tijolo com creme ficou. No escuro, os botões
+       são laranja. */
+    id: 'telha', nome: 'Telha',
+    acaoClara: '#852102', acaoEscura: '#FF8F4F', inkClaro: '#FFFFFF', inkEscuro: '#2B0E04',
+    alcancado: '#FFE2CC', alcancadoInk: '#2A1A12',
+    auroraHue: 136, auroraSat: 1,
   },
   {
-    id: 'brasa', nome: 'Brasa',
-    acaoClara: '#C2410C', acaoEscura: '#FB923C', inkClaro: '#FFFFFF', inkEscuro: '#2B1004',
-    alcancado: '#FFD84D', alcancadoInk: '#2B2004',
-    auroraHue: 165, auroraSat: 1.05,
+    /* Verde-oliva com pêssego alaranjado. O pêssego foi escolha do dono,
+       no lugar do lilás e do mel: o mel era quase o dourado da antiga
+       Pitaia e fazia da Oliva uma irmã da Floresta. A aurora fica oliva —
+       com o giro que a métrica dizia "certo" ela saía verde puro, e foi o
+       olho que escolheu. */
+    id: 'oliva', nome: 'Oliva',
+    acaoClara: '#555D1C', acaoEscura: '#BBC851', inkClaro: '#FFFFFF', inkEscuro: '#191C06',
+    alcancado: '#FDBA8A', alcancadoInk: '#311805',
+    auroraHue: 172, auroraSat: 0.7,
   },
   {
+    /* ⚠️ VERDE COM LILÁS, E NÃO COM AMARELO (02/10/2026). Com a Oliva ao
+       lado, as duas eram "verde com amarelo ou laranja" em dois tons — a
+       mesma ideia duas vezes, nas palavras do dono. A base fica; troca a
+       forte, que se afasta do pêssego da Oliva de 11 para 16 e de 36° para
+       102° de matiz. O lilás puxa para o rosa (315°) porque o lilás
+       azulado ficava a 5 do gelo da Marinho. */
     id: 'floresta', nome: 'Floresta',
     acaoClara: '#15803D', acaoEscura: '#4ADE80', inkClaro: '#FFFFFF', inkEscuro: '#042B14',
-    alcancado: '#FFD84D', alcancadoInk: '#2B2004',
-    auroraHue: -85, auroraSat: 0.95,
+    alcancado: '#E9B8FF', alcancadoInk: '#1E0F24',
+    auroraHue: -124, auroraSat: 0.95,
+  },
+  {
+    /* Azul-petróleo com rosa-coral — o oceano e o coral. O petróleo foi
+       girado para longe da Original (de 223° para 209°), e a clara mora a
+       8,5 do teal fixo: é a paleta que mais encosta na má notícia que não
+       cobra, e ainda passa. */
+    id: 'oceano', nome: 'Oceano',
+    acaoClara: '#017482', acaoEscura: '#3ECCE2', inkClaro: '#FFFFFF', inkEscuro: '#04202B',
+    alcancado: '#FFBAD4', alcancadoInk: '#311420',
+    auroraHue: -90, auroraSat: 1,
+  },
+  {
+    /* ⚠️ TODA EM AZUL, A PEDIDO DO DONO (02/10/2026): marinho, um azul de
+       céu no escuro e azul-gelo na conquista. O marinho fechado, e não o
+       petróleo da prévia, porque o petróleo encostava na Oceano (sóbrias a
+       12,4 e claras a 26°); o fechado as leva a 17,5 e 34°. O preço é
+       ficar perto da Original — os dois azuis do conjunto, aprovados assim
+       (R17). O azul-água da referência dele não passa: é o teal da má
+       notícia. */
+    id: 'marinho', nome: 'Marinho',
+    acaoClara: '#033B7A', acaoEscura: '#559CD4', inkClaro: '#FFFFFF', inkEscuro: '#06182B',
+    alcancado: '#C3D4FD', alcancadoInk: '#151E37',
+    auroraHue: -30, auroraSat: 0.6,
+  },
+  {
+    /* O neutro quente: marrom-acinzentado com rosa antigo, a referência de
+       pastel do dono. A base continua fechada o bastante para o branco — o
+       pastel mora na forte e na aurora, quase sem cor. Fica da família da
+       Grafite (as duas sem matiz, R17), aprovado assim. */
+    id: 'camurca', nome: 'Camurça',
+    acaoClara: '#655046', acaoEscura: '#BB958E', inkClaro: '#FFFFFF', inkEscuro: '#221B1A',
+    alcancado: '#F6C3BB', alcancadoInk: '#221B1A',
+    auroraHue: 105, auroraSat: 0.28,
+  },
+  {
+    /* A ÚNICA SEM MATIZ. Aqui a aurora não gira: ela perde cor, e o
+       alcançado fica sendo a única coisa saturada da tela — que é
+       exatamente o que esta paleta quer dizer.
+
+       ⚠️ COM AMARELO-LIMÃO, E NÃO MAIS COM O VERDE-LIMÃO DA ORIGINAL
+       (02/10/2026, escolha do dono a partir de uma referência dele). As
+       duas dividiam a forte, e no seletor a Grafite era "a Original de
+       roupa escura". O amarelo estava livre no conjunto — a Floresta
+       passou para o lilás —, e o limão (#FFEE32) é o mais aceso e o mais
+       frio dos testados; o ouro e a base de carvão neutro também passavam. */
+    id: 'grafite', nome: 'Grafite',
+    acaoClara: '#2E3440', acaoEscura: '#B6BECC', inkClaro: '#FFFFFF', inkEscuro: '#14181F',
+    alcancado: '#FFEE32', alcancadoInk: '#262100',
+    auroraHue: -17, auroraSat: 0.12,
   },
 ];
+
+/** ⚠️ A ESCOLHA É EM DUAS FILEIRAS DE CINCO, e elas são escritas aqui, e não
+    quebradas pela tela (02/10/2026). Uma fileira que quebra sozinha deixa
+    um item solto quando a conta muda; com as fileiras escritas, a undécima
+    paleta não cabe até alguém decidir onde ela mora — a trava confere que
+    toda paleta está numa fileira, uma vez, e que nenhuma passa de cinco. */
+export const FILEIRAS_DA_ESCOLHA: string[][] = [
+  ['original', 'amora', 'vinho', 'telha', 'oliva'],
+  ['floresta', 'oceano', 'marinho', 'camurca', 'grafite'],
+];
+
+/** ⚠️ QUEM ESCOLHEU UMA PALETA QUE SAIU (02/10/2026) passa para a vizinha
+    mais próxima, e não para a Original: a Pitaia (magenta) vira a Vinho e
+    a Brasa (laranja) vira a Telha. Ver `ensureDefaults`, em logic/seed. */
+export const PALETA_QUE_SAIU: Record<string, string> = { pitaia: 'vinho', brasa: 'telha' };
 
 export const paletaDe = (id?: string) => PALETAS.find((x) => x.id === id) ?? PALETAS[0];
 
@@ -487,6 +674,38 @@ export function comPaleta(p: Palette, id: string | undefined, isDark: boolean): 
   const base = isDark ? pal.acaoEscura : pal.acaoClara;
   const ink = isDark ? pal.inkEscuro : pal.inkClaro;
   const alc = pal.alcancado;
+  /* ⚠️ A SÓBRIA NÃO MUDA DE MODO (02/10/2026).
+
+     No escuro, `base` é a CLARA — a cor de ação clareada para ser TEXTO
+     sobre o fundo escuro: link, aba ativa, chip. O painel da Jornada, o
+     "+" da barra e o avatar são o contrário disso: SUPERFÍCIES, com texto
+     branco e a cor do alcançado por cima. Saindo da clara, o branco sobre
+     o painel da Floresta dava 1,74:1 e o alcançado 1,26:1 — o número da
+     Jornada, o "+" e a inicial do avatar sumiam em quatro das cinco
+     paletas, e só no escuro, que ninguém olha na hora de escolher.
+
+     A Original nunca teve isso porque o escuro dela foi ajustado à mão: o
+     painel desce de #4C8BFF por #1F5FE0 — a luz da sóbria — até #0A2E9E,
+     e o gradiente vai de #4C8BFF à própria sóbria #065CF5. Aqui é o mesmo
+     desenho: o painel é a rampa do claro (a superfície é a mesma nos dois
+     modos; o que muda é a página em volta dela), e o gradiente vai da
+     sóbria levantada até a sóbria. Assim a R11 de scripts/paletas.ts
+     herda a R1 e a R4, que o claro já confere.
+
+     O preço está no traço: grad* também pinta a curva de área e o anel
+     sobre o cartão escuro, e eles ficam mais escuros do que eram com a
+     clara — exatamente como na Original. A ponta escura sobe até ler
+     (abaixo), e a trava mede essa ponta (R11t). */
+  const sobria = pal.acaoClara;
+  /* ⚠️ E A PONTA DO GRADIENTE NO ESCURO SOBE ATÉ LER (02/10/2026, visto
+     na prévia das dez). Com a sóbria pura, o "+" da barra, o avatar e o
+     traço do gráfico de doses quase sumiam no cartão escuro nas paletas
+     de sóbria escura — Grafite 1,42:1, Índigo 1,79, Cacau 1,85, Ameixa
+     2,03. A ponta escura sobe para o branco só o bastante para dar 3:1
+     sobre o cartão, que é exatamente onde a Original já está (#065CF5
+     sobre o cartão dá 3,03). Quem já passava fica igual. O "+" continua
+     branco por cima: a R11 confere o branco sobre a ponta clara. */
+  const pontaEscura = isDark ? levantarAte(sobria, p.bg1, 3) : sobria;
 
   const feita: Palette = {
     ...p,
@@ -499,13 +718,15 @@ export function comPaleta(p: Palette, id: string | undefined, isDark: boolean): 
     accentInk: ink,
     accentWeak: alfa(base, isDark ? 0.14 : 0.08),
     accentLine: alfa(base, isDark ? 0.28 : 0.2),
-    gradFrom: base,
-    gradTo: escurecer(base, isDark ? 0.3 : 0.24),
+    /* No claro, da sóbria para baixo; no escuro, de cima para a sóbria —
+       o mesmo degrau que a Original dá à mão entre os dois modos. */
+    gradFrom: isDark ? mix(pontaEscura, BRANCO, 0.22) : sobria,
+    gradTo: isDark ? pontaEscura : escurecer(sobria, 0.24),
     /* O painel de destaque é a rampa curta: claro em cima, cheio no meio,
-       fundo embaixo. */
-    panelFrom: mix(base, BRANCO, isDark ? 0 : 0.22),
-    panelMid: base,
-    panelTo: escurecer(base, 0.5),
+       fundo embaixo. Sai da sóbria nos dois modos — ver acima. */
+    panelFrom: mix(sobria, BRANCO, 0.22),
+    panelMid: sobria,
+    panelTo: escurecer(sobria, 0.5),
     /* A rampa longa começa quase noturna e termina no fundo da tela. */
     altFrom: mix(base, BRANCO, 0.1),
     altMid: escurecer(base, 0.58),
@@ -531,6 +752,17 @@ export function comPaleta(p: Palette, id: string | undefined, isDark: boolean): 
        junto para não ficar um verde solto no meio de uma paleta vinho. */
     green: alc,
     greenDim: escurecer(alc, 0.1),
+
+    /* ---- a má notícia que não cobra ----
+
+       ⚠️ O TEAL É FIXO, MENOS ONDE A FORTE É ELE (02/10/2026). A paleta
+       que traz `calma` troca a família inteira — o ponto, a lavagem, a
+       tinta e a pálida —, e as telas não ficam sabendo: elas leem
+       `teal`, e o teal da Amora é azul. Trocar só a pílula deixaria o
+       ponto do veredito com a cor da forte; trocar só o ponto, a pílula.
+       A trava mede a família de quem a traz como mede o teal de todo
+       mundo (R12 e R18), e recusa quem a trouxer sem precisar. */
+    ...pal.calma?.[isDark ? 'escuro' : 'claro'],
   };
 
   guardadas.set(chave, feita);
