@@ -58,6 +58,14 @@ export const etapa = {
     { head: 'La fame può tornare un po’.', body: 'Verso la fine del ciclo è normale che l’appetito torni un po’. Fa parte del percorso, ed è per questo che la prossima dose ha un giorno fisso.', q: 'Perché la fame torna prima della prossima dose?' },
     { head: 'Una settimana di terapia.', body: 'Hai completato la prima settimana. Sono i check-in di questi giorni a mostrare come ha risposto il corpo, e cosa vale la pena portare alla visita.', q: 'Com’è andata la mia prima settimana?' },
   ],
+  /* ⚠️ Il sesto giorno di chi prende la dose ogni giorno (01/10/2026) —
+     vedi ../pt-BR/etapa.ts. Quello sopra parla del ciclo settimanale; con
+     una dose al giorno non c’è una fine del ciclo che la fame aspetti. */
+  primeiraDiaSeisDiaria: {
+    head: 'Niente alti e bassi nella settimana.',
+    body: 'Con una dose al giorno, il farmaco resta a un livello simile da un giorno all’altro — la fame non ha un giorno fisso per tornare. Se compare, il check-in è il posto dove annotarla.',
+    q: 'Come funziona un farmaco quotidiano?',
+  },
 
   /* ---------- 4. mantenimento ---------- */
   manutencaoChapeu: 'MANTENIMENTO',

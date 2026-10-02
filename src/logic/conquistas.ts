@@ -1,5 +1,5 @@
 import type { State } from './seed';
-import { MEDS } from './meds';
+import { MEDS, doseDiaria } from './meds';
 import { DAY, startOfDay, now, diffDays, nf, doseTxt } from './time';
 import { T } from '../textos';
 import { pesoTxt, compTxt } from './medidas';
@@ -153,6 +153,22 @@ function porJanela(S: State, vale: (c: any) => boolean): Medida {
   return { feito: melhor, quando: (alvo) => primeiraVez.get(alvo) ?? null };
 }
 
+/* O instante da primeira dose de cada dia com dose — um por dia. A data de
+   cada degrau da trilha diária é a hora em que o dia N ganhou a dose dele,
+   e não a meia-noite: é ela que ordena o marco na linha do tempo. */
+const primeiraDoseDeCadaDia = (S: State) => {
+  const porDia = new Map<number, number>();
+  for (const i of (S.injections ?? []) as any[]) {
+    const d = diaDe(i.t);
+    if (!porDia.has(d) || i.t < (porDia.get(d) as number)) porDia.set(d, i.t);
+  }
+  return [...porDia.values()];
+};
+
+/** Os degraus da trilha de doses de quem toma todo dia: uma semana, um mês,
+    um trimestre, um semestre e um ano de dias com dose. */
+const DOSES_DIARIAS = [7, 30, 90, 180, 365];
+
 const diasEm = (S: State, vale: (c: any) => boolean) =>
   (S.checkins as any[]).filter(vale).map((c) => diaDe(c.t)).sort((a, b) => a - b);
 
@@ -197,13 +213,25 @@ const CATALOGO = (): Trilha[] => [
   /* ---------------- tratamento ---------------- */
   {
     /* "Doses" para todas as formas, e o ícone da forma de agora
-       (01/10/2026). Os níveis ainda são os da dose semanal — contar dias
-       com dose para quem toma todo dia é a parte B. */
+       (01/10/2026). */
+    /* ⚠️⚠️ NA DOSE DIÁRIA, A TRILHA CONTA DIAS COM DOSE, COM DEGRAUS DE
+       DIAS (01/10/2026, decisão do dono — parte B2 de
+       docs/superpowers/specs/2026-10-01-oral-e-diario-design.md). Os
+       degraus semanais — 1, 4, 12, 26, 52, 104 — são uma semana, um mês,
+       três meses, meio ano, um ano e dois anos de caneta; para quem toma
+       todo dia, "4 doses" chegava no quarto dia e "104" em três meses e
+       meio, com uma comemoração em tela cheia atrás da outra no primeiro
+       mês. Os do diário são 7, 30, 90, 180 e 365 dias — a mesma semana,
+       mês, trimestre, semestre e ano. E conta DIAS, e não registros: duas
+       doses no mesmo dia são um dia (a constância do diário é de dias com
+       dose — decisão do dono). Quem toma por semana não vê nada mudar. */
     id: 'doses', familia: 'tratamento', ic: (S) => iconeDaDose(S), titulo: T.conquistas.doses,
     niveis: [1, 4, 12, 26, 52, 104],
-    desc: (a) => T.conquistas.dosesDesc(a),
-    falta: (r) => T.conquistas.dosesFalta(r),
-    medida: (S) => porContagem((S.injections as any[]).map((i) => i.t)),
+    desc: (a, S) => (doseDiaria(S) ? T.conquistas.dosesDiasDesc(a) : T.conquistas.dosesDesc(a)),
+    falta: (r, _a, S) => (doseDiaria(S) ? T.conquistas.dosesDiasFalta(r) : T.conquistas.dosesFalta(r)),
+    medida: (S) => (doseDiaria(S)
+      ? porContagem(primeiraDoseDeCadaDia(S))
+      : porContagem((S.injections as any[]).map((i) => i.t))),
   },
   {
     id: 'tempo', familia: 'tratamento', ic: 'cal', titulo: T.conquistas.tempo,
@@ -213,11 +241,15 @@ const CATALOGO = (): Trilha[] => [
        de uma primeira dose que não existe. */
     falta: (r, _alvo, S) => ((S.injections as any[]).length ? T.conquistas.tempoFalta(r) : T.conquistas.tempoSemDose),
     medida: (S) => {
-      const i1 = (S.injections as any[])[0];
+      /* A PRIMEIRA PELA DATA, e não a primeira da lista (01/10/2026): uma
+         dose retroativa registrada depois mora no fim da lista, e a
+         sincronia insere pela data — as duas ordens não são a mesma. */
+      const i1 = ((S.injections ?? []) as any[]).reduce((a: any, i: any) => (!a || i.t < a.t ? i : a), null);
       if (!i1) return { feito: 0, quando: () => null };
       /* Quem já tinha começado respondeu no cadastro a última dose, e não a
          primeira: o relógio dessa pessoa começa no início que ela contou. */
-      const d0 = i1.origem === 'cadastro' && S.profile.startT ? diaDe(S.profile.startT) : diaDe(i1.t);
+      const comCadastro = ((S.injections ?? []) as any[]).some((i) => i.origem === 'cadastro');
+      const d0 = comCadastro && S.profile.startT ? diaDe(S.profile.startT) : diaDe(i1.t);
       return { feito: diffDays(now(), new Date(d0)), quando: (a) => (diffDays(now(), new Date(d0)) >= a ? d0 + a * DAY : null) };
     },
   },
@@ -460,8 +492,12 @@ const CATALOGO = (): Trilha[] => [
    aqui: cada caneta tem a sua, e o catálogo de medicamentos é quem sabe.
    A primeira dose não entra como nível — chegar nela é o próprio começo,
    e já conta na trilha de doses. */
+/* ⚠️ E A TRILHA DE DOSES TEM OS DEGRAUS DA CADÊNCIA (01/10/2026): os de dias
+   para quem toma todo dia, os de semanas para os outros — ver a trilha. */
 const niveisDaTrilha = (t: Trilha, S: State): number[] =>
-  (t.id === 'titulacao' ? (M(S).doses ?? []).slice(1) : t.niveis);
+  (t.id === 'titulacao' ? (M(S).doses ?? []).slice(1)
+    : t.id === 'doses' && doseDiaria(S) ? DOSES_DIARIAS
+      : t.niveis);
 
 export function conquistas(S: State): Conquista[] {
   return CATALOGO()
@@ -563,16 +599,28 @@ export type VistoEm = Record<string, number>;
 
 export const vistoEm = (S: State): VistoEm => ((S as any).vistoEmConquistas ?? {}) as VistoEm;
 
+/* ⚠️⚠️ A TRILHA DE DOSES TEM DUAS ESCADAS, E CADA UMA A SUA MARCA D'ÁGUA
+   (01/10/2026, achado da revisão). Na dose diária os degraus são de dias
+   (7, 30, 90, 180, 365); no semanal, de doses (1, 4, 12, 26, 52, 104) — e o
+   nível 3 de uma não é o nível 3 da outra. Com uma marca só, o
+   `ensureDefaults` a baixava para o nível diário, e quem voltava para a
+   caneta semanal via comemorados de novo, em tela cheia, os degraus
+   semanais que já tinha visto meses antes. Agora a escada diária guarda a
+   dela em 'doses:diaria', e `visto.doses` é só do semanal — nenhuma das
+   duas mexe na outra. */
+export const chaveDaMarca = (q: { id: string }, S: State) =>
+  (q.id === 'doses' && doseDiaria(S) ? 'doses:diaria' : q.id);
+
 /** As trilhas que subiram de nível desde a última vez que o app contou. */
 export const novosNiveis = (S: State): Conquista[] => {
   const visto = vistoEm(S);
-  return conquistas(S).filter((q) => q.nivel > (visto[q.id] ?? 0));
+  return conquistas(S).filter((q) => q.nivel > (visto[chaveDaMarca(q, S)] ?? 0));
 };
 
 /** A marca d'água no nível de agora — o que a pessoa passou a saber. */
 export const marcarComoVistas = (S: any) => {
   const visto: VistoEm = S.vistoEmConquistas ?? (S.vistoEmConquistas = {});
-  for (const q of conquistas(S)) visto[q.id] = q.nivel;
+  for (const q of conquistas(S)) visto[chaveDaMarca(q, S)] = q.nivel;
 };
 
 /** Quantos níveis foram alcançados, somando as trilhas. */

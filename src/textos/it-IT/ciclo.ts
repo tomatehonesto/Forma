@@ -72,6 +72,36 @@ export const ciclo = {
   /* ---------- il segnale in più ---------- */
   dormiuBem: (resto: string) => `Hai dormito bene — il tuo corpo tende a rispondere meglio oggi. ${resto}`,
 
+  /* ---------- la dose quotidiana: un ciclo con una fase sola (01/10/2026) ----------
+     ⚠️ Le ragioni sono in ../pt-BR/ciclo.ts. Con una dose al giorno il
+     livello resta simile da un giorno all’altro — niente salita, niente
+     picco, niente calo —, quindi le cinque tappe qui sotto non valgono, e
+     la Home alterna questi tre messaggi. Nessuno spiega come prendere il
+     farmaco (digiuno, acqua, orario): è materia clinica e resta nella
+     conversazione con l’IA. «Con una dose al giorno», mai «preso»: Saxenda
+     si inietta, e queste frasi non conoscono la forma. */
+  faseDiariaLabel: 'Dose quotidiana',
+  faseDiariaRange: 'Ogni giorno',
+  faseDiariaHint: 'Con la dose ogni giorno, l’effetto resta stabile.',
+  diariaQ: 'Come funziona un farmaco quotidiano?',
+  diarios: [
+    {
+      head: 'Con la dose ogni giorno, l’effetto resta stabile.',
+      body: 'Con una dose al giorno, il farmaco resta a un livello simile da un giorno all’altro — la fame e la nausea, quando compaiono, non seguono un giorno preciso della settimana.',
+      q: 'Come funziona un farmaco quotidiano?',
+    },
+    {
+      head: 'È la costanza che mantiene stabile il livello.',
+      body: 'Ogni dose che registri qui completa la tua settimana di terapia, ed è questa sequenza di giorni che va nel riepilogo per la visita.',
+      q: 'Perché la dose è ogni giorno?',
+    },
+    {
+      head: 'Con l’effetto stabile, è il piatto a fare la giornata.',
+      body: 'Cominciare dalle proteine e tenere l’acqua in pari di solito aiuta a tenere meglio la fame tra un pasto e l’altro.',
+      q: 'Come compongo i miei pasti?',
+    },
+  ],
+
   /* ============================================================
      LE CINQUE TAPPE — lo stepper del ciclo
 

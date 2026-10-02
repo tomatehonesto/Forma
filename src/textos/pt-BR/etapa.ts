@@ -58,6 +58,17 @@ export const etapa = {
     { head: 'A fome pode voltar um pouco.', body: 'Perto do fim do ciclo, é esperado que o apetite volte a aparecer. Faz parte — e é por isso que a próxima dose tem dia marcado.', q: 'Por que a fome volta antes da próxima dose?' },
     { head: 'Uma semana de tratamento.', body: 'Você completou a primeira semana. É pelos check-ins destes dias que dá para ver como o corpo respondeu, e o que vale levar para a consulta.', q: 'Como foi a minha primeira semana?' },
   ],
+  /* ⚠️ O SEXTO DIA DE QUEM TOMA TODO DIA (01/10/2026, parte B1 de
+     docs/superpowers/specs/2026-10-01-oral-e-diario-design.md). O de cima
+     fala da fome voltando "perto do fim do ciclo" e da próxima dose com dia
+     marcado — o ciclo semanal. Com uma dose por dia o nível fica parecido
+     de um dia para o outro, e não há fim de ciclo para a fome esperar. Os
+     outros seis recados servem às duas cadências. */
+  primeiraDiaSeisDiaria: {
+    head: 'Sem altos e baixos na semana.',
+    body: 'Com uma dose por dia, o remédio fica num nível parecido de um dia para o outro — a fome não tem dia marcado para voltar. Se ela aparecer, o check-in é o lugar de anotar.',
+    q: 'Como funciona o remédio de todo dia?',
+  },
 
   /* ---------- 4. manutenção ---------- */
   manutencaoChapeu: 'MANUTENÇÃO',

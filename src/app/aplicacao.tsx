@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { View, Pressable } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
   M, nextSite, siteLabel, penStock, instanteDaAplicacao, rodizioDeLocais,
   dosesPorRecipiente, recipienteDaDose, faltaNaDose,
+  gravarDose, dosesNoDia, doseDiaria,
 } from '../logic/derive';
 import { FORMAS, concordar, formaDe, faixaDaMolecula, meioDaFaixa, umOutro, oA } from '../logic/formas';
 import { PerguntaDaValidade } from '../ui/recipiente';
@@ -90,8 +91,19 @@ export default function Aplicacao() {
 
   const hoje = +startOfDay(now());
 
-  const [quandoT, setQuandoT] = useState(hoje);
+  /* ⚠️ A FOLHA PODE ABRIR NUM DIA QUE PASSOU (`?t=`, o dia às 00h —
+     01/10/2026, parte B1). Quem toca "registrar" na folha de um dia da
+     fileira de sete (app/dia) lembrou daquele dia, e não de hoje: a folha
+     abria em hoje, a pessoa salvava sem conferir, e a dose ia para o dia
+     errado — o dia esquecido continuava vazio e hoje ficava com duas.
+     Nunca adiante: o calendário daqui não aceita futuro (ui/calendario), e
+     o parâmetro também não. */
+  const { t: tParam } = useLocalSearchParams<{ t?: string }>();
+  const pedido = tParam != null && Number.isFinite(Number(tParam)) ? +startOfDay(new Date(Number(tParam))) : null;
+  const [quandoT, setQuandoT] = useState(pedido != null && pedido <= hoje ? pedido : hoje);
   const [calAberto, setCalAberto] = useState(false);
+  /* A segunda dose do mesmo dia pede confirmação — ver `salvar`. */
+  const [confirmandoDupla, setConfirmandoDupla] = useState(false);
   /* Sem dose no perfil, com escada, nenhum degrau vem escolhido; sem
      escada, a régua abre no meio da faixa, como no cadastro. */
   const [dose, setDose] = useState<number>(S.profile.dose || meioDaFaixa(S.profile.med) || 0);
@@ -153,8 +165,27 @@ export default function Aplicacao() {
      vem da molécula NA MESMA VIA. Ver a nota em logic/formas. */
   const faixa = med.doses.length ? null : faixaDaMolecula(med.mol, forma);
 
+  /* ⚠️⚠️ NA DOSE DIÁRIA, UMA SEGUNDA DOSE NO MESMO DIA PEDE CONFIRMAÇÃO
+     (01/10/2026, parte B1 de docs/superpowers/specs/2026-10-01-oral-e-diario-design.md).
+     Com dose todo dia, "será que já registrei a de hoje?" é a dúvida de
+     sempre, e a folha não respondia: salvava a segunda, e dose dobrada
+     no histórico vai para o resumo da consulta como dose dobrada. Não
+     há borracha (ver a nota do histórico em app/aplicacoes), então a
+     pergunta vem antes. Pode ter sido mesmo uma segunda dose — o botão
+     de cima a registra. Na caneta semanal, duas no mesmo dia nunca
+     foram o caso a proteger, e a folha continua como era. */
+  const doDia = dosesNoDia(S, quandoT);
+  const pedeConfirmacao = doseDiaria(S) && doDia.length > 0;
+  const horaDoDia = quandoT === hoje && doDia.length ? fmtTime(new Date(doDia[doDia.length - 1].t)) : null;
+  /* Trocar o dia desfaz a pergunta: ela era sobre o dia de antes. */
+  useEffect(() => { setConfirmandoDupla(false); }, [quandoT]);
+
   const salvar = () => {
     if (!podeSalvar) return;
+    if (pedeConfirmacao && !confirmandoDupla) {
+      setConfirmandoDupla(true);
+      return;
+    }
     const t = instanteDaAplicacao(quandoT);
     update((s: any) => {
       if (registraRecipiente) {
@@ -174,12 +205,18 @@ export default function Aplicacao() {
          ganhava um local de injeção inventado, que ia para o histórico e
          para o PDF do médico. Os já gravados não aparecem mais
          (logic/formas, localDaDose). */
-      s.injections.push({ t, med: s.profile.med, dose, site: vocab.injetavel ? site : '', note: '' });
-      s.profile.dose = dose;
+      /* ⚠️ `gravarDose`, E NÃO `push` + `profile.dose = dose` (01/10/2026,
+         conserto da parte B1 que vale para todos). A dose entra no lugar
+         da data dela, e a dose do perfil só muda quando esta é a mais
+         recente: registrar hoje a dose de 3 mg de duas semanas atrás,
+         já em 7 mg, fazia a pessoa voltar a "estar" em 3 mg. */
+      gravarDose(s, { t, med: s.profile.med, dose, site: vocab.injetavel ? site : '', note: '' });
       /* Nada a decrementar: quantas doses saíram do recipiente é quantas
          aplicações caíram na janela dele. Ver `canetas` em logic/derive. */
     });
-    router.replace('/aplicacao-ok' as any);
+    /* O instante vai junto: a confirmação mostra ESTA dose, e não a mais
+       recente — que, num registro retroativo, é outra (app/aplicacao-ok). */
+    router.replace(`/aplicacao-ok?t=${t}` as any);
   };
 
   const descanso = (() => {
@@ -195,7 +232,20 @@ export default function Aplicacao() {
       /* Sem subtítulo: a data agora tem campo próprio, e o cabeçalho
          escrevia a mesma frase três centímetros acima dele. */
       onClose={() => router.back()}
-      rodape={<Botao label={K().salvar(vocab.acao)} onPress={salvar} desligado={!podeSalvar} />}
+      /* A pergunta da segunda dose mora no pé, no lugar do botão: é ali
+         que o dedo está, e no corpo da folha ela ficaria abaixo da dobra. */
+      rodape={confirmandoDupla ? (
+        <View style={{ gap: 10 }}>
+          <Txt v="bodyMed">{K().jaHaNoDia(horaDoDia)}</Txt>
+          <Txt v="caption" c={c.tx2}>{K().duplaTexto}</Txt>
+          <Botao label={K().registrarMaisUma} onPress={salvar} />
+          <Botao
+            label={K().trocarODia}
+            tom="fantasma"
+            onPress={() => { setConfirmandoDupla(false); setCalAberto(true); }}
+          />
+        </View>
+      ) : <Botao label={K().salvar(vocab.acao)} onPress={salvar} desligado={!podeSalvar} />}
     >
       <View style={{ marginTop: 18, gap: 10 }}>
         {/* ⚠️⚠️ A DATA É UM CAMPO QUE ABRE O CALENDÁRIO — e este campo já

@@ -52,7 +52,7 @@
 
 import { DAY, diffDays, startOfDay, now, nf, doseTxt } from './time';
 import {
-  todayBrief, doseCycle, janelaDoEnjoo, lastInjection, temDose, M, pesoDeReferencia, comecouNoApp,
+  todayBrief, doseCycle, janelaDoEnjoo, lastInjection, temDose, M, pesoDeReferencia, comecouNoApp, doseDiaria,
 } from './derive';
 import type { State } from './seed';
 import { T } from '../textos';
@@ -80,6 +80,20 @@ const diasDesdeUltima = (S: State) => {
 function subiuDeDose(S: State) {
   const injs = (S.injections as any[]).slice().sort((a, b) => a.t - b.t);
   if (injs.length < 2) return null;
+  /* ⚠️ NA DOSE DIÁRIA, O DEGRAU É A ÚLTIMA MUDANÇA, E NÃO AS DUAS ÚLTIMAS
+     DOSES (01/10/2026, parte B1). No semanal a dose nova é a última
+     registrada pela semana inteira; no diário ela deixa de ser "a última
+     diferente da anterior" no dia seguinte, e a etapa da dose nova durava
+     um dia. Aqui se procura a última troca de dose, e quem mede os sete
+     dias da etapa é a data dela. */
+  if (doseDiaria(S)) {
+    for (let i = injs.length - 1; i > 0; i--) {
+      /* a troca de remédio encerra a busca: de antes dela, nada é degrau */
+      if (remedioDaDose(S, injs[i]) !== remedioDaDose(S, injs[i - 1])) return null;
+      if (injs[i].dose !== injs[i - 1].dose) return { de: injs[i - 1].dose, para: injs[i].dose, t: injs[i].t };
+    }
+    return null;
+  }
   const ultima = injs[injs.length - 1], anterior = injs[injs.length - 2];
   if (ultima.dose === anterior.dose) return null;
   /* ⚠️ TROCA DE REMÉDIO NÃO É DEGRAU (01/10/2026): de Ozempic 1 mg para
@@ -264,7 +278,10 @@ function daEtapa(S: State): Mensagem | null {
      maior — é ele que explica por que o enjoo voltou depois de ter
      passado. */
   const subiu = subiuDeDose(S);
-  if (subiu && desde <= JANELA_DIAS) {
+  /* No semanal a dose nova é a última, e `desde` conta dela; na diária
+     conta-se da própria mudança (ver `subiuDeDose`). */
+  const desdeODegrau = subiu && doseDiaria(S) ? diffDays(now(), startOfDay(new Date(subiu.t))) : desde;
+  if (subiu && desdeODegrau <= JANELA_DIAS) {
     const jan = janelaDoEnjoo(S);
     return {
       chapeu: T.etapa.doseNovaChapeu,
@@ -289,11 +306,23 @@ function daEtapa(S: State): Mensagem | null {
      dono): o dia 1 é o dia em que a primeira dose foi registrada —
      `desde` é zero nele —, e cada um dos sete tem o seu recado. No oitavo, a
      semana acabou, e o ciclo volta a falar. */
-  const dias = T.etapa.primeiraDias;
-  if ((S.injections as any[]).length === 1 && comecouNoApp(S) && desde >= 0 && desde < dias.length) {
-    const dia = dias[desde];
+  /* ⚠️ NA DOSE DIÁRIA, A PRIMEIRA SEMANA CONTA DA PRIMEIRA DOSE (01/10/2026,
+     parte B1). "A única aplicação é a primeira" deixa de valer no segundo
+     dia — a segunda dose chega amanhã —, e a etapa durava um dia. Aqui o
+     dia sai da primeira dose registrada, e o sexto recado, que fala da
+     fome voltando "perto do fim do ciclo", tem a versão do remédio que
+     fica em nível estável. */
+  const diaria = doseDiaria(S);
+  const primeira = diaria ? Math.min(...(S.injections as any[]).map((i) => i.t)) : null;
+  const naPrimeira = primeira == null ? desde : diffDays(now(), startOfDay(new Date(primeira)));
+  const dias = diaria
+    ? T.etapa.primeiraDias.map((d, i) => (i === 5 ? T.etapa.primeiraDiaSeisDiaria : d))
+    : T.etapa.primeiraDias;
+  const ehAPrimeira = diaria || (S.injections as any[]).length === 1;
+  if (ehAPrimeira && comecouNoApp(S) && naPrimeira >= 0 && naPrimeira < dias.length) {
+    const dia = dias[naPrimeira];
     return {
-      chapeu: T.etapa.primeiraChapeu(desde + 1),
+      chapeu: T.etapa.primeiraChapeu(naPrimeira + 1),
       head: dia.head,
       body: dia.body,
       q: dia.q,

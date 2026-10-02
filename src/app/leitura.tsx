@@ -61,8 +61,18 @@ const KS = () => T.home.telaSemana;
    semana delas (leituraQueCobre).
 
    SEM CICLO QUE COBRE 4 DIAS DA SEMANA DA IA, a semana é a de segunda a
-   domingo: sem aplicação registrada (a Jornada também não tem semanas) e
-   com medicação diária, cujos "ciclos" são de um dia (cicloQueCobre).
+   domingo: sem aplicação registrada (a Jornada também não tem semanas), ou
+   na primeira semana de tratamento, quando o único ciclo ainda não cobre
+   quatro dias dela (cicloQueCobre).
+
+   ⚠️ A MEDICAÇÃO DIÁRIA ESTAVA NESTA LISTA, E SAIU (01/10/2026, parte B2
+   de docs/superpowers/specs/2026-10-01-oral-e-diario-design.md). Os
+   "ciclos" dela eram de um dia — um por dose —, nenhum cobria 4 dias, e
+   o Insights abria a semana de segunda a domingo enquanto a Jornada abria
+   "Semana 90" de um dia só. Agora a semana de quem toma todo dia é o bloco
+   de 7 dias do tratamento (`timelineWeeks`), numerado como o painel: dois
+   blocos seguidos sempre dão 4 dias a um deles, e o diário abre o bloco do
+   topo por qualquer porta, como a caneta abre o ciclo do topo.
 
    ⚠️ A AÇÃO "EXPORTAR" DA BARRA, QUE A "SEMANA N" TINHA, NÃO VEIO. O
    rótulo dela era "Uma cópia dos seus dados" e ela abria o resumo para a
@@ -100,9 +110,10 @@ export default function ResumoDaSemana() {
      via pelo Insights. Agora é a mesma, e a leitura mais recente mora nela
      (DoCiclo, daLeituraAtual).
 
-     Só com ciclo semanal: com medicação diária cada "ciclo" é de um dia, e
-     nenhum cobre 4 dias da semana da IA (cicloQueCobre) — aí a semana é a
-     de segunda a domingo (DaSemanaLida). */
+     Só quando algum ciclo cobre 4 dias da semana da IA (cicloQueCobre) —
+     senão a semana é a de segunda a domingo (DaSemanaLida). Na medicação
+     diária os ciclos são os blocos de 7 dias do tratamento desde a parte
+     B2 (01/10/2026), e um dos dois que dividem a semana sempre cobre 4. */
   const cicloDoTopo = cicloQueCobre(semanas, atual) ? semanas[0] : null;
   /* Um ciclo que não existe mais (a aplicação foi apagada) abre o mais
      recente, como a "Semana N" fazia. */
@@ -150,8 +161,10 @@ function DoCiclo({ ciclo, semanas, daLeituraAtual, pedida }: {
 
   return (
     <Resumo
-      /* a aplicação do cadastro não tem local: a pergunta foi só a data */
-      lead={[KS().semanaN(ciclo.semana), periodo, ciclo.dose, ciclo.site].filter(Boolean).join(' · ')}
+      /* a aplicação do cadastro não tem local: a pergunta foi só a data.
+         Na dose diária, o bloco diz quantos dias tiveram dose — "6 de 7
+         doses", como o cabeçalho dele na Jornada (01/10/2026, parte B2). */
+      lead={[KS().semanaN(ciclo.semana), periodo, ciclo.dosesTexto, ciclo.dose, ciclo.site].filter(Boolean).join(' · ')}
       sub={`${KS().semanaN(ciclo.semana)} · ${periodo}`}
       metricas={ciclo.metricas}
       dias={diasDoPeriodo(S, ini, noCalendario(ultimoDia, 1))}

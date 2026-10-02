@@ -125,6 +125,8 @@ export const home = {
     /* ⚠️ UNE SEMAINE VIDE A SA PROPRE PHRASE, et non un blanc : une semaine
        sans relevé a eu lieu, et son chapitre existe. */
     semRegistros: 'Aucun relevé cette semaine',
+    /* dose quotidienne, une semaine avec des doses seulement (voir ../pt-BR) */
+    semOutrosRegistros: 'Aucun autre relevé cette semaine',
 
     hidratacao: 'Hydratation',
     proteina: 'Protéines',
@@ -136,6 +138,13 @@ export const home = {
     minutos: (quanto: number) => `${quanto} min`,
     deltaGramas: (quanto: string) => `${quanto} g`,
     deltaMinutos: (quanto: string) => `${quanto} min`,
+
+    /* ⚠️ Le décompte de la semaine pour une dose quotidienne (01/10/2026) —
+       voir ../pt-BR/home.ts. Les jours comptent jusqu’à aujourd’hui, et
+       aujourd’hui seulement après sa dose ; le zéro a sa propre phrase,
+       car « 0 dose sur 4 » sonne comme un reproche. */
+    dosesDaSemana: (feitas: number, dias: number) =>
+      (feitas === 0 ? 'Aucune dose notée' : `${feitas} ${feitas > 1 ? 'doses' : 'dose'} sur ${dias}`),
   },
 
   mudancas: {
@@ -196,6 +205,9 @@ export const home = {
       `${feitos} ${feitos > 1 ? 'jours' : 'jour'} sur ${dias} avec un check-in · ${aplicadas} ${aplicadas > 1 ? 'semaines' : 'semaine'} sur ${vividas} avec une dose`,
     diasComCheckinSo: (feitos: number, dias: number) =>
       `${feitos} ${feitos > 1 ? 'jours' : 'jour'} sur ${dias} avec un check-in`,
+    /* ⚠️ La ligne du panneau pour une dose quotidienne (01/10/2026) — voir ../pt-BR/home.ts. */
+    diasComCheckinEDose: (feitos: number, dias: number, comDose: number, diasDaSemana: number) =>
+      `${feitos} ${feitos > 1 ? 'jours' : 'jour'} sur ${dias} avec un check-in · ${comDose} ${comDose > 1 ? 'jours' : 'jour'} sur ${diasDaSemana} avec une dose`,
     primeiraDose: 'Première dose',
     primeiraDoseTexto: 'Le cycle commence à compter à partir de la première dose que vous enregistrez.',
     semanaASemana: 'Semaine par semaine. Touchez pour voir ce qui a marqué chaque cycle.',

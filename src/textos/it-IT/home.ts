@@ -148,6 +148,8 @@ export const home = {
     /* ⚠️ UNA SETTIMANA VUOTA HA UNA FRASE SUA, e non uno spazio bianco:
        una settimana senza registri c'è stata, e il suo capitolo esiste. */
     semRegistros: 'Nessuna registrazione in questa settimana',
+    /* dose quotidiana, una settimana con sole dosi (vedi ../pt-BR) */
+    semOutrosRegistros: 'Nessun’altra registrazione in questa settimana',
 
     hidratacao: 'Idratazione',
     proteina: 'Proteine',
@@ -159,6 +161,13 @@ export const home = {
     minutos: (quanto: number) => `${quanto} min`,
     deltaGramas: (quanto: string) => `${quanto} g`,
     deltaMinutos: (quanto: string) => `${quanto} min`,
+
+    /* ⚠️ Il conteggio della settimana con dose quotidiana (01/10/2026) —
+       vedi ../pt-BR/home.ts. I giorni contano fino a oggi, e oggi solo dopo
+       la sua dose; lo zero ha una frase sua, perché «0 su 4 dosi» suona
+       come un rimprovero. */
+    dosesDaSemana: (feitas: number, dias: number) =>
+      (feitas === 0 ? 'Nessuna dose registrata' : `${feitas} su ${dias} ${dias === 1 ? 'dose' : 'dosi'}`),
   },
 
   /* ============================================================
@@ -235,6 +244,9 @@ export const home = {
       `${feitos} su ${dias} ${dias === 1 ? 'giorno' : 'giorni'} con check-in · ${aplicadas} su ${vividas} ${vividas === 1 ? 'settimana' : 'settimane'} con dose`,
     diasComCheckinSo: (feitos: number, dias: number) =>
       `${feitos} su ${dias} ${dias === 1 ? 'giorno' : 'giorni'} con check-in`,
+    /* ⚠️ La riga del pannello con dose quotidiana (01/10/2026) — vedi ../pt-BR/home.ts. */
+    diasComCheckinEDose: (feitos: number, dias: number, comDose: number, diasDaSemana: number) =>
+      `${feitos} su ${dias} ${dias === 1 ? 'giorno' : 'giorni'} con check-in · ${comDose} su ${diasDaSemana} ${diasDaSemana === 1 ? 'giorno' : 'giorni'} con dose`,
     primeiraDose: 'Prima dose',
     primeiraDoseTexto: 'Il ciclo inizia a contare dalla prima dose che registri.',
     semanaASemana: 'Settimana per settimana. Tocca per vedere che cosa ha segnato ogni ciclo.',

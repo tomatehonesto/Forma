@@ -55,6 +55,10 @@ export const conquistas = {
   doses: 'Dosen',
   dosesDesc: (a: number) => `${p(a, 'Dosis', 'Dosen')} eingetragen`,
   dosesFalta: (r: number) => `Noch ${p(r, 'Dosis', 'Dosen')}`,
+  /* ⚠️ Bei täglicher Dosis zählt der Pfad TAGE mit Dosis (01/10/2026) –
+     Stufen von 7, 30, 90, 180 und 365 Tagen. Siehe ../pt-BR/conquistas.ts. */
+  dosesDiasDesc: (a: number) => `${p(a, 'Tag', 'Tage')} mit Dosis`,
+  dosesDiasFalta: (r: number) => `Noch ${p(r, 'Tag', 'Tage')} mit Dosis`,
 
   tempo: 'Behandlungsdauer',
   /* Unter einem Jahr zählt es in Monaten, ab da in Jahren: „12 Monate“

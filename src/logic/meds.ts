@@ -192,6 +192,40 @@ export function MEDS_POR_PAIS(): { comuns: [string, Med][]; outros: [string, Med
 
 export const CADENCE_DAYS = (m: string) => (MEDS[m]?.cad === 'daily' ? 1 : 7);
 
+/* ============================================================
+   A CADÊNCIA DO PERFIL, E A PERGUNTA "É DOSE DIÁRIA?"
+
+   ⚠️ MORA AQUI, E NÃO NO DERIVE (01/10/2026), por causa de quem pergunta.
+   A trilha de doses das conquistas precisa saber se a pessoa toma todo
+   dia, e conquistas.ts não pode importar o derive (o derive importa
+   conquistas — ver o alto de lá). Uma segunda cópia da regra lá dentro
+   seria o defeito de sempre: duas respostas para "quem é diário?", e a
+   primeira tela que discordasse da outra mostraria isso na frente de
+   quem usa. Então a regra desceu para o catálogo, que os dois já leem, e
+   o derive continua com `cadenciaDias` e reexporta `doseDiaria`.
+
+   A cadência é a do catálogo, a menos que a pessoa tenha dito outra no
+   cadastro (`profile.intervalo` — ver `cadenciaDias`, em derive).
+
+   ⚠️ "DIÁRIA" É CADÊNCIA DE UM DIA, e só isso: Saxenda, Victoza e
+   Rybelsus pelo catálogo, ou qualquer remédio com `intervalo` 1. É a
+   chave da parte B de docs/superpowers/specs/2026-10-01-oral-e-diario-design.md:
+   para quem toma todo dia, a dose vira um hábito do dia (um toque, como
+   o check-in), a semana é a do tratamento (blocos de 7 dias contados do
+   início) e tudo o que foi desenhado em cima de um ciclo semanal — as
+   fases, o "vale" da fome, a janela do enjoo — sai de cena. Quem toma
+   por semana não vê diferença nenhuma: TODA mudança da parte B pergunta
+   isto antes.
+   ============================================================ */
+export const cadenciaDoPerfil = (p: { med: string; intervalo?: unknown }) => {
+  const i = p.intervalo;
+  return typeof i === 'number' && i > 0 ? i : CADENCE_DAYS(p.med);
+};
+
+/** A pessoa toma a dose todo dia? (cadência de um dia) */
+export const doseDiaria = (S: { profile: { med: string } }) =>
+  cadenciaDoPerfil(S.profile as { med: string; intervalo?: unknown }) === 1;
+
 /** Validade da caneta aberta, em dias, para o medicamento em uso. */
 export const SHELF_DAYS = (m: string) => MEDS[m]?.shelf ?? 21;
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
@@ -8,8 +8,12 @@ import {
   cadenciaTexto,
   doseDoPerfil,
   diasAteAplicar, temCiclo,
+  doseDiaria, doseDeHoje, inicioDoTratamento, diasComDose, gravarDose, instanteDaAplicacao, faltaNaDose, doseEmUsoNoDia,
+  dosesEmOrdem, doseEhDiaria,
 } from '../logic/derive';
-import { now, diffDays, fmtDate, relDay, doseTxt, quandoEm, maiuscula, dataComDiaDaSemana, ordemDaSemana } from '../logic/time';
+import {
+  now, diffDays, fmtDate, relDay, doseTxt, quandoEm, maiuscula, dataComDiaDaSemana, ordemDaSemana, startOfDay, fmtTime,
+} from '../logic/time';
 import {
   formaDe, nesteNesta, nomeDaMolecula, oA, FORMAS, injetavelDe, iconeDaDose, localDaDose, remedioDaDose,
 } from '../logic/formas';
@@ -67,6 +71,7 @@ import { radius, shadowCard } from '../theme';
 
 export default function Aplicacoes() {
   const S = useStore((s) => s.S);
+  const update = useStore((s) => s.update);
   const { c } = useTheme();
   const router = useRouter();
 
@@ -129,6 +134,88 @@ export default function Aplicacoes() {
 
   const doseStr = doseDoPerfil(S);
 
+  /* ============================================================
+     A DOSE DIÁRIA NESTA TELA (01/10/2026, parte B1 de
+     docs/superpowers/specs/2026-10-01-oral-e-diario-design.md)
+
+     Para quem toma todo dia, o que era do ciclo semanal sai: o cartão de
+     cima deixa de contar a próxima dose ("Amanhã", todo dia) e diz a dose
+     de hoje, como a faixa da Home; a linha "Ciclo da dose" some com a tela
+     de ciclo (/ciclo é de cinco fases de uma semana); a "próxima" tracejada
+     sai da grade e do histórico; e a frase da curva para de prometer um
+     vale antes da próxima dose.
+
+     ⚠️⚠️ E A GRADE PASSA A MARCAR DIAS ESQUECIDOS, VÁRIOS DE UMA VEZ.
+     Quem toma todo dia e passou a semana sem registrar não vai abrir a
+     folha cinco vezes: toca nos dias vazios e confirma. Só dias que já
+     passaram — hoje tem o toque da Home, com a hora real, e futuro não é
+     registro —, só dias do tratamento (antes do início não há dose a
+     esquecer) e nunca um dia que já tem dose. Cada um entra ao meio-dia
+     (`instanteDaAplicacao`) e sem local: ninguém sabe mais onde aplicou na
+     terça passada, e "não informado" é a verdade. Nada se apaga — vale a
+     nota do histórico, lá embaixo.
+
+     ⚠️ E COM A DOSE QUE ESTAVA EM USO NAQUELE DIA, e não a do perfil
+     (01/10/2026, achado da revisão): quem subiu de 3 para 7 mg ontem e
+     marcava a semana passada gravava 7 mg em dias de 3 mg — um degrau de
+     titulação inventado, que a semana da Jornada mostrava como "dose
+     ajustada" e o resumo levava ao médico. Ver `doseEmUsoNoDia`.
+
+     ⚠️ E SÓ QUANDO A DOSE PODE SER REGISTRADA (01/10/2026, achado da
+     revisão): a mesma pergunta do toque da Home e da folha, `faltaNaDose`
+     — sem caneta registrada, a injeção diária saía de caneta nenhuma por
+     este caminho, e só por ele. Enquanto falta, a grade não marca nada e
+     a dica não aparece.
+     ============================================================ */
+  const diaria = doseDiaria(S);
+  const cartaoDeHoje = diaria && comCiclo;
+  const hojeDose = doseDeHoje(S);
+  const DH = T.tratamento.doseDeHoje;
+  const hoje0 = +startOfDay(now());
+  const inicio = inicioDoTratamento(S);
+  const [selecao, setSelecao] = useState<number[]>([]);
+  const podeRegistrar = !faltaNaDose(S, { dose: (S.profile as any).dose, usadasAntes: null }).length;
+  /* ⚠️ E NUNCA UM DIA DA ÉPOCA DA CANETA (01/10/2026, achado da revisão):
+     quem trocou de semanal para diário via os dias vazios entre duas canetas
+     como "esqueceu de registrar?". Só depois da última dose não diária. */
+  const ultimaNaoDiaria = [...dosesEmOrdem(S)].reverse().find((i) => !doseEhDiaria(S, i));
+  const corteDaCaneta = ultimaNaoDiaria ? +startOfDay(new Date(ultimaNaoDiaria.t)) : -Infinity;
+  const marcavel = (cell: { t: number; applied: boolean }) =>
+    diaria && podeRegistrar && !cell.applied && cell.t < hoje0 && cell.t > corteDaCaneta
+    && (inicio == null || cell.t >= inicio);
+  const temMarcavel = cal.some(marcavel);
+  /* Só valem os que continuam marcáveis: um dia que ganhou dose depois do
+     toque (pela folha, ou de outro aparelho) sai da conta do botão. */
+  const marcados = selecao.filter((t) => cal.some((cell) => cell.t === t && marcavel(cell)));
+  const alternar = (t: number) =>
+    setSelecao((m) => (m.includes(t) ? m.filter((x) => x !== t) : [...m, t]));
+  const registrarMarcados = () => {
+    /* Lido na hora do toque: um dia que ganhou dose entre a marcação e a
+       confirmação (outro aparelho, a sincronia) não ganha a segunda. */
+    const atual = useStore.getState().S;
+    /* A pergunta da dose de novo, no estado de agora — o mesmo que o
+       `registrarHoje` da Home faz: se algo faltar (a caneta foi apagada
+       de outro aparelho), a folha pergunta, e nada é gravado aqui. */
+    if (faltaNaDose(atual, { dose: (atual.profile as any).dose, usadasAntes: null }).length) {
+      setSelecao([]);
+      router.push('/aplicacao' as any);
+      return;
+    }
+    const ja = new Set(diasComDose(atual));
+    const hojeAgora = +startOfDay(now());
+    const dias = marcados.filter((t) => !ja.has(t) && t < hojeAgora).sort((a, b) => a - b);
+    setSelecao([]);
+    if (!dias.length) return;
+    /* A dose de cada dia sai do diário de antes da gravação: um dia recém
+       marcado não vira referência para o vizinho. */
+    const emUso = dias.map((d) => doseEmUsoNoDia(atual, d));
+    update((s: any) => {
+      dias.forEach((d, k) => {
+        gravarDose(s, { t: instanteDaAplicacao(d), med: emUso[k].med, dose: emUso[k].dose, site: '', note: '' });
+      });
+    });
+  };
+
   return (
     <TelaInterna
       titulo={K().titulo}
@@ -165,13 +252,19 @@ export default function Aplicacoes() {
           formulário que existe ao lado e que faz tudo isso com escolha.
           Duas portas para a mesma sala, e a de dentro do cartão fazia
           menos. */}
+      {/* Na dose diária, a dose de HOJE — feita, e a que horas, ou ainda
+          não registrada —, e não a próxima (ver o bloco acima). */}
       <View style={{ backgroundColor: c.accentWeak, borderRadius: radius.card, padding: 18 }}>
-        <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>{comCiclo ? K().proximaAplicacao : K().primeiraDose}</Txt>
+        <Txt v="micro" c={c.accent} style={{ letterSpacing: 1 }}>
+          {cartaoDeHoje ? DH.chapeu : comCiclo ? K().proximaAplicacao : K().primeiraDose}
+        </Txt>
         <Txt v="display" style={{ fontSize: 30, lineHeight: 36, marginTop: 6 }}>
-          {comCiclo ? maiuscula(quandoEm(ndDays).label) : K().aindaNaoRegistrada}
+          {cartaoDeHoje
+            ? (hojeDose.feita && hojeDose.t != null ? DH.feitaAs(fmtTime(new Date(hojeDose.t))) : DH.aindaNaoRegistrada)
+            : comCiclo ? maiuscula(quandoEm(ndDays).label) : K().aindaNaoRegistrada}
         </Txt>
         <Txt v="caption" c={c.tx2} style={{ marginTop: 3 }}>
-          {comCiclo ? `${maiuscula(dataComDiaDaSemana(nd))} · ${doseStr}` : doseStr}
+          {comCiclo && !cartaoDeHoje ? `${maiuscula(dataComDiaDaSemana(nd))} · ${doseStr}` : doseStr}
         </Txt>
       </View>
 
@@ -187,14 +280,18 @@ export default function Aplicacoes() {
             intervalo duas vezes e a palavra nova só no fim. O sub da fase
             é a frase que explica: "efeito cedendo, fome voltando aos
             poucos". */}
-        <Linha
-          ic="waves"
-          titulo={K().cicloDaDose}
-          sub={comCiclo
-            ? K().cicloSub(cic.dayIn, cic.total, cic.fases.find((f) => f.estado === 'agora')?.sub ?? K().emCurso)
-            : K().cicloSemDose}
-          onPress={() => router.push('/ciclo' as any)}
-        />
+        {/* Sem "Ciclo da dose" na dose diária: as fases são de uma semana,
+            e /ciclo não abre para quem toma todo dia (01/10/2026). */}
+        {!diaria ? (
+          <Linha
+            ic="waves"
+            titulo={K().cicloDaDose}
+            sub={comCiclo
+              ? K().cicloSub(cic.dayIn, cic.total, cic.fases.find((f) => f.estado === 'agora')?.sub ?? K().emCurso)
+              : K().cicloSemDose}
+            onPress={() => router.push('/ciclo' as any)}
+          />
+        ) : null}
         {/* O ESTOQUE SAI DE canetaAtual(), e não do código. Aqui havia
             "Validade jun/2026 · lote 2K4F1" e uma pastilha "3 doses"
             escritos à mão — o app nunca perguntou lote nem validade a
@@ -253,7 +350,11 @@ export default function Aplicacoes() {
       {semAplicacao ? null : (
       <Bloco
         titulo={K().constancia}
-        nota={semAplicacao
+        /* Na dose diária, as previstas podem ser zero com dose registrada
+           — trocou de remédio e ainda não registrou o novo (ver
+           `inicioDoDiario`) —, e "0 de 0 doses previstas" é conta sem
+           pergunta (01/10/2026). Sem previstas, sem nota. */
+        nota={semAplicacao || (diaria && !constancia.previstas)
           ? undefined
           : K().constanciaNota(constancia.feitas, constancia.previstas, constancia.semanas)}
       >
@@ -272,26 +373,48 @@ export default function Aplicacoes() {
                 <Txt v="micro" c={c.tx4}>{d}</Txt>
               </View>
             ))}
-            {cal.map((cell, i) => (
-              <View key={i} style={{ width: '14.28%', alignItems: 'center', paddingVertical: 3 }}>
+            {cal.map((cell, i) => {
+              /* Na dose diária não há "próxima" tracejada: seria sempre
+                 amanhã. Um dia marcado para registrar fica cheio, na cor de
+                 ação — diferente do lavado de quem já tem dose. */
+              const planned = cell.planned && !diaria;
+              const marcado = marcados.includes(cell.t);
+              const casa = (
                 <View style={{
                   width: 30, height: 30, borderRadius: 10, alignItems: 'center', justifyContent: 'center',
-                  backgroundColor: cell.applied ? c.accentWeak : 'transparent',
-                  borderWidth: cell.applied || cell.planned || cell.today ? 1.2 : 0,
-                  borderColor: cell.applied ? c.accentLine : cell.planned ? c.tx4 : c.accent2,
-                  borderStyle: cell.planned ? 'dashed' : 'solid',
+                  backgroundColor: marcado ? c.accent : cell.applied ? c.accentWeak : 'transparent',
+                  borderWidth: marcado ? 0 : cell.applied || planned || cell.today ? 1.2 : 0,
+                  borderColor: cell.applied ? c.accentLine : planned ? c.tx4 : c.accent2,
+                  borderStyle: planned ? 'dashed' : 'solid',
                 }}>
-                  <Txt v="micro" c={cell.applied ? c.accent : cell.today ? c.accent2 : c.tx3}>{cell.day}</Txt>
+                  <Txt v="micro" c={marcado ? c.accentInk : cell.applied ? c.accent : cell.today ? c.accent2 : c.tx3}>{cell.day}</Txt>
                 </View>
-              </View>
-            ))}
+              );
+              return marcavel(cell) ? (
+                <Pressable
+                  key={i}
+                  onPress={() => alternar(cell.t)}
+                  hitSlop={2}
+                  accessibilityRole="checkbox"
+                  accessibilityState={{ checked: marcado }}
+                  accessibilityLabel={maiuscula(dataComDiaDaSemana(new Date(cell.t)))}
+                  style={({ pressed }) => [{ width: '14.28%', alignItems: 'center', paddingVertical: 3, opacity: pressed ? 0.6 : 1 }]}
+                >
+                  {casa}
+                </Pressable>
+              ) : (
+                <View key={i} style={{ width: '14.28%', alignItems: 'center', paddingVertical: 3 }}>
+                  {casa}
+                </View>
+              );
+            })}
           </Row>
           <Row gap={16} style={{ marginTop: 10 }}>
             <Row gap={5}>
               <View style={{ width: 10, height: 10, borderRadius: 3, backgroundColor: c.accentWeak, borderWidth: 1, borderColor: c.accentLine }} />
               <Txt v="micro" c={c.tx3}>{K().aplicada}</Txt>
             </Row>
-            {comCiclo ? (
+            {comCiclo && !diaria ? (
               <Row gap={5}>
                 <View style={{ width: 10, height: 10, borderRadius: 3, borderWidth: 1, borderColor: c.tx4, borderStyle: 'dashed' }} />
                 <Txt v="micro" c={c.tx3}>{K().proxima}</Txt>
@@ -301,6 +424,22 @@ export default function Aplicacoes() {
           <Txt v="micro" c={c.tx3} style={{ marginTop: 10, lineHeight: 16 }}>
             {K().semCulpa}
           </Txt>
+          {/* Os dias esquecidos, de uma vez — só na dose diária (ver o
+              bloco "A DOSE DIÁRIA NESTA TELA"). Sem dia marcado, a dica;
+              com algum, a confirmação, que diz o que vai ser gravado. */}
+          {marcados.length ? (
+            <View style={{ marginTop: 14, gap: 8 }}>
+              <Botao label={K().registrarDias(marcados.length)} onPress={registrarMarcados} />
+              <Botao label={K().desmarcar} tom="fantasma" onPress={() => setSelecao([])} />
+              <Txt v="micro" c={c.tx3} style={{ lineHeight: 16 }}>
+                {K().marcarDiasNota(injetavel)}
+              </Txt>
+            </View>
+          ) : temMarcavel ? (
+            <Txt v="micro" c={c.tx2} style={{ marginTop: 8, lineHeight: 16 }}>
+              {K().marcarDias}
+            </Txt>
+          ) : null}
         </View>
       </Bloco>
       )}
@@ -311,7 +450,8 @@ export default function Aplicacoes() {
         <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: 16 }, shadowCard(c)]}>
           <AreaCurve pts={phPts} height={130} marker={mkIdx} id="ph" />
           <Txt v="caption" c={c.tx3} style={{ marginTop: 8, lineHeight: 18 }}>
-            {K().nivelTexto(
+            {/* sem o "ponto mais baixo antes da próxima dose" na dose diária */}
+            {(diaria ? K().nivelTextoDiario : K().nivelTexto)(
               T.comum.noMeio(nomeDaMolecula(med.mol)),
               med.hl >= 1 ? K().meiaVidaDias(med.hl) : K().meiaVidaHoras,
             )}
@@ -336,7 +476,12 @@ export default function Aplicacoes() {
         <Cartao>
           {/* ⚠️ A PRÓXIMA SEGUE A FORMA DE AGORA (01/10/2026): seringa e
               local sugerido para quem injeta; comprimido e só a data para
-              quem toma. Era a seringa e o local para todo mundo. */}
+              quem toma. Era a seringa e o local para todo mundo.
+
+              ⚠️ E NÃO EXISTE NA DOSE DIÁRIA (01/10/2026, parte B1): seria
+              "amanhã" no topo de todo histórico. A dose de hoje está no
+              cartão do alto. */}
+          {!diaria ? (
           <Row gap={12} style={{ paddingHorizontal: 16, paddingVertical: 13 }}>
             <View style={{
               width: 30, height: 30, borderRadius: 15, borderWidth: 1.4, borderColor: c.accent2,
@@ -351,6 +496,7 @@ export default function Aplicacoes() {
               </Txt>
             </View>
           </Row>
+          ) : null}
           {S.injections.slice().reverse().map((i: any) => {
             /* ⚠️ O LOCAL PELA DOSE, E NÃO O GRAVADO (01/10/2026). Até esta
                data o registro gravava um local inventado em cada

@@ -74,6 +74,24 @@ export const tratamento = {
     `Registra ${oRecipiente} y contamos las dosis que quedan.`,
   localNaoInformado: 'Lugar no informado',
 
+  /* ⚠️ La dosis de hoy, solo para la dosis diaria (01/10/2026, parte B1) —
+     ver ../pt-BR/tratamento.ts. El botón es la única frase en primera
+     persona, y sigue la forma. Nunca "pendiente": lo que sabemos es que no
+     llegó el registro. "A la 1:05", y no "a las": la hora en singular. */
+  doseDeHoje: {
+    titulo: 'Dosis de hoy',
+    chapeu: 'DOSIS DE HOY',
+    registrarHoje: (injetavel: boolean): string => (injetavel ? 'Me la apliqué hoy' : 'La tomé hoy'),
+    feitaAs: (hora: string) => `Hecha ${/^1:/.test(hora) ? 'a la' : 'a las'} ${hora}`,
+    aindaNaoRegistrada: 'Aún sin registrar',
+    pastilhaFeita: (hora: string) => `Dosis de hoy hecha ${/^1:/.test(hora) ? 'a la' : 'a las'} ${hora}`,
+    pastilhaAindaNao: 'Dosis de hoy aún sin registrar',
+    mudar: 'Cambiar',
+    outraHoje: (hora: string) => `Ya registraste una dosis hoy, ${/^1:/.test(hora) ? 'a la' : 'a las'} ${hora}. ¿Registrar otra?`,
+    outraSim: 'Registrar otra',
+    cancelar: 'Cancelar',
+  },
+
   /* ⚠️ EL LADO VA ABREVIADO Y ENTRE PARÉNTESIS porque estos rótulos
      aparecen dentro de líneas cortas — historial, sugerencia del día,
      resumen de la semana. "Abdomen lado izquierdo" no cabe en ninguna. */
@@ -203,6 +221,12 @@ export const tratamento = {
   telaAplicacoes: {
     aplicada: 'registrada',
     semCulpa: 'Sin culpa por un día perdido — lo que cuenta es retomar. Puedes registrar una dosis anterior en cualquier momento, en el botón de abajo.',
+    /* varios días a la vez, solo en la dosis diaria (ver ../pt-BR) */
+    marcarDias: '¿Olvidaste registrar algún día? Toca los días vacíos para marcar esas dosis de una vez.',
+    registrarDias: (n: number) => (n === 1 ? 'Registrar la dosis de 1 día' : `Registrar las dosis de ${n} días`),
+    marcarDiasNota: (injetavel: boolean) =>
+      `Cada día queda con la dosis que usabas ese día${injetavel ? ', sin el lugar' : ''}.`,
+    desmarcar: 'Desmarcar',
     titulo: 'Dosis',
     registrar: 'Registrar dosis',
     lead: (med: string, molecula: string, cadencia: string) => `${med} · ${molecula} · ${cadencia}`,
@@ -236,6 +260,9 @@ export const tratamento = {
     nivelNoCorpo: 'Nivel en el cuerpo',
     nivelTexto: (molecula: string, meiaVida: string) =>
       `Estimación del nivel de ${molecula} en el cuerpo, con una vida media de ${meiaVida}. El punto más bajo, antes de la próxima dosis, suele ser cuando el hambre aumenta.`,
+    /* dosis diaria: no hay punto bajo que esperar (ver ../pt-BR) */
+    nivelTextoDiario: (molecula: string, meiaVida: string) =>
+      `Estimación del nivel de ${molecula} en el cuerpo, con una vida media de ${meiaVida}. Con una dosis al día, se mantiene en un nivel parecido de un día a otro.`,
     meiaVidaDias: (dias: number) => `${dias} días`,
     meiaVidaHoras: 'cerca de 13 horas',
 
@@ -379,6 +406,15 @@ export const tratamento = {
     doses: (n: number) => (n === 1 ? '1 dosis' : `${n} dosis`),
     registraJunto: (oRecipiente: string, total: number, recipiente: string) =>
       `Registramos ${oRecipiente} junto con esta dosis (${total} dosis por ${recipiente}) y empezamos a contar las que quedan.`,
+
+    /* Una segunda dosis el mismo día pide confirmación (dosis diaria, parte
+       B1). La hora solo aparece si es de hoy: un día pasado se guarda al
+       mediodía. */
+    jaHaNoDia: (hora: string | null) =>
+      (hora ? `Ya hay una dosis registrada hoy, ${/^1:/.test(hora) ? 'a la' : 'a las'} ${hora}.` : 'Ya hay una dosis registrada ese día.'),
+    duplaTexto: 'Si de verdad fue otra dosis, regístrala: queda en el historial como la segunda del día. Si no, solo cambia el día.',
+    registrarMaisUma: 'Registrar otra dosis',
+    trocarODia: 'Cambiar el día',
   },
   telaTreino: {
     titulo: 'Entrenamiento',

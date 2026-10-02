@@ -46,6 +46,14 @@ export const etapa = {
     { head: 'Hunger may come back a little.', body: 'Near the end of the cycle, it’s expected for appetite to return a bit. That’s part of it — and it’s why your next dose has a set day.', q: 'Why does hunger come back before the next dose?' },
     { head: 'One week of treatment.', body: 'You’ve completed your first week. The check-ins from these days are what show how your body responded, and what’s worth bringing to your appointment.', q: 'How did my first week go?' },
   ],
+  /* ⚠️ Day six for a daily dose (01/10/2026) — see ../pt-BR/etapa.ts. The
+     one above is about the weekly cycle; with one dose a day there's no
+     end of cycle for hunger to wait for. */
+  primeiraDiaSeisDiaria: {
+    head: 'No highs and lows across the week.',
+    body: 'With one dose a day, the medication stays at a similar level from one day to the next — hunger has no set day to come back. If it shows up, your check-in is the place to note it.',
+    q: 'How does a daily medication work?',
+  },
 
   /* ---------- 4. maintenance ---------- */
   manutencaoChapeu: 'MAINTENANCE',

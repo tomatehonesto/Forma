@@ -1,5 +1,5 @@
 import type { State } from './seed';
-import { timelineWeeks, lastInjection } from './derive';
+import { timelineWeeks, lastInjection, doseDiaria, diasComDoseNaSemana } from './derive';
 import { conquistas, type Conquista } from './conquistas';
 import { DAY, diffDays, now, startOfDay } from './time';
 
@@ -25,17 +25,46 @@ import { DAY, diffDays, now, startOfDay } from './time';
    ganha cartão — "0 check-ins" seria cobrança, e não resumo. */
 const DIAS_DO_RESUMO = 2;
 
-export type ResumoDaSemana = { semana: number; deltaPeso: string | null; resumo: string };
+export type ResumoDaSemana = {
+  semana: number; deltaPeso: string | null; resumo: string;
+  /** só na dose diária: "6 de 7 doses" (ver `semanaQuePassou`) */
+  doses?: string;
+};
 
+/* ⚠️ NA DOSE DIÁRIA, NA VIRADA DA SEMANA DO TRATAMENTO, E NÃO DEPOIS DE
+   CADA DOSE (01/10/2026, decisão do dono — parte B2 de
+   docs/superpowers/specs/2026-10-01-oral-e-diario-design.md). Com dose
+   todo dia, "logo depois da dose" é sempre, e o slide "Sua semana N" ficava
+   na Home para sempre, falando de uma "semana" de um dia. A semana de quem
+   toma todo dia é o bloco de 7 dias do tratamento (`timelineWeeks`): o
+   resumo aparece nos dois primeiros dias de um bloco novo, falando do que
+   acabou de fechar — a mesma janela de dois dias, contada da virada. */
 export function semanaQuePassou(S: State): ResumoDaSemana | null {
   const ultima = lastInjection(S);
   if (!ultima) return null;
-  const desde = diffDays(now(), startOfDay(new Date(ultima.t)));
+  const desde = doseDiaria(S)
+    ? diffDays(now(), new Date(diasComDoseNaSemana(S).ini))
+    : diffDays(now(), startOfDay(new Date(ultima.t)));
   if (desde < 0 || desde >= DIAS_DO_RESUMO) return null;
   /* a primeira é a semana que está começando; a segunda, a que fechou */
   const w = timelineWeeks(S)[1];
   if (!w || (!w.deltaPeso && !w.resumo)) return null;
-  return { semana: w.semana, deltaPeso: w.deltaPeso, resumo: w.resumo };
+  /* ⚠️ NA DOSE DIÁRIA, SÓ A SEMANA QUE TEVE ALGUMA COISA (01/10/2026,
+     achado da revisão). O bloco do diário sempre tem resumo — a frase da
+     semana vazia —, e o teste de cima nunca o barrava: a cada virada de
+     semana a Home abria "Sua semana N · Nenhuma dose registrada · Sem
+     registros nesta semana", inclusive para quem parou o remédio há
+     meses. Fica a semana com uma dose, um registro ou uma variação de
+     peso. Para quem toma por semana, o teste de sempre. */
+  if (doseDiaria(S) && !((w.doses?.feitos ?? 0) > 0 || w.eventos.length > 0 || w.deltaPeso)) return null;
+  /* Na dose diária, a semana que fechou diz também quantos dias tiveram
+     dose — "6 de 7 doses", a mesma contagem do cabeçalho dela na Jornada
+     (01/10/2026, parte B2). O campo só existe quando há o que contar: a
+     semana semanal sai como sempre saiu. */
+  return {
+    semana: w.semana, deltaPeso: w.deltaPeso, resumo: w.resumo,
+    ...(w.dosesTexto ? { doses: w.dosesTexto } : {}),
+  };
 }
 
 /* ------------------------------------------------------------------ */

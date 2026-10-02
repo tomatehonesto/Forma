@@ -120,6 +120,8 @@ export const home = {
     /* ⚠️ LA SEMANA VACÍA TIENE FRASE PROPIA, y no un espacio en blanco: una
        semana sin registros ocurrió, y su capítulo existe. */
     semRegistros: 'Sin registros en esta semana',
+    /* dosis diaria, una semana solo con dosis (ver ../pt-BR) */
+    semOutrosRegistros: 'Ningún otro registro en esta semana',
 
     hidratacao: 'Hidratación',
     proteina: 'Proteína',
@@ -131,6 +133,12 @@ export const home = {
     minutos: (quanto: number) => `${quanto} min`,
     deltaGramas: (quanto: string) => `${quanto} g`,
     deltaMinutos: (quanto: string) => `${quanto} min`,
+
+    /* ⚠️ El conteo de la semana con dosis diaria (01/10/2026) — ver
+       ../pt-BR/home.ts. Los días cuentan hasta hoy, y hoy solo después de
+       su dosis; el cero tiene frase propia: "0 de 4 dosis" suena a reproche. */
+    dosesDaSemana: (feitas: number, dias: number) =>
+      (feitas === 0 ? 'Ninguna dosis registrada' : `${feitas} de ${dias} dosis`),
   },
 
   mudancas: {
@@ -189,6 +197,9 @@ export const home = {
       `${feitos} de ${dias} ${dias === 1 ? 'día' : 'días'} con check-in · ${aplicadas} de ${vividas} ${vividas === 1 ? 'semana' : 'semanas'} con dosis`,
     diasComCheckinSo: (feitos: number, dias: number) =>
       `${feitos} de ${dias} ${dias === 1 ? 'día' : 'días'} con check-in`,
+    /* ⚠️ La línea del panel con dosis diaria (01/10/2026) — ver ../pt-BR/home.ts. */
+    diasComCheckinEDose: (feitos: number, dias: number, comDose: number, diasDaSemana: number) =>
+      `${feitos} de ${dias} ${dias === 1 ? 'día' : 'días'} con check-in · ${comDose} de ${diasDaSemana} ${diasDaSemana === 1 ? 'día' : 'días'} con dosis`,
     primeiraDose: 'Primera dosis',
     primeiraDoseTexto: 'El ciclo empieza a contar desde la primera dosis que registres.',
     semanaASemana: 'Semana a semana. Toca para ver qué marcó cada ciclo.',

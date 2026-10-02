@@ -58,6 +58,36 @@ export const ciclo = {
      sleeping well changes the whole day of someone in treatment. */
   dormiuBem: (resto: string) => `You slept well — your body tends to respond better today. ${resto}`,
 
+  /* ---------- the daily dose: a one-phase cycle (01/10/2026) ----------
+     ⚠️ Reasons in ../pt-BR/ciclo.ts. With a dose every day the level
+     stays about the same from one day to the next — no climb, no peak, no
+     trough — so the five steps below don't apply, and the Home rotates
+     these three notes instead. None of them teaches how to take the
+     medication (fasting, water, timing): that's clinical, and stays in
+     the AI conversation. "With one dose a day", never "taken": Saxenda is
+     injected, and these lines don't know the form. */
+  faseDiariaLabel: 'Daily dose',
+  faseDiariaRange: 'Every day',
+  faseDiariaHint: 'With a dose every day, the effect stays steady.',
+  diariaQ: 'How does a daily medication work?',
+  diarios: [
+    {
+      head: 'With a dose every day, the effect stays steady.',
+      body: 'With one dose a day, the medication stays at a similar level from one day to the next — hunger and nausea, when they show up, don’t follow a set day of the week.',
+      q: 'How does a daily medication work?',
+    },
+    {
+      head: 'Consistency is what keeps the level steady.',
+      body: 'Each dose you log here fills in your treatment week, and that run of days is what goes into the summary for your appointment.',
+      q: 'Why is the dose every day?',
+    },
+    {
+      head: 'With the effect steady, your plate shapes the day.',
+      body: 'Starting with protein and keeping water up tend to hold hunger off better between meals.',
+      q: 'How should I build my meals?',
+    },
+  ],
+
   /* ---------- the five steps of the stepper ----------
 
      ⚠️ FIVE HERE AND FOUR BELOW, on purpose. This answers "where am I

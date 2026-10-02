@@ -1,7 +1,7 @@
 import type { State } from './seed';
 import {
   M, temDose, doseDoPerfil, curWeight, startWeight, lostKg, lostPct, lastInjection,
-  nextInjectionDate, adesao, cadenciaDias, aguaDoDia, sintomasEm, clinicaConectada,
+  nextInjectionDate, adesao, adesaoSemConta, cadenciaDias, aguaDoDia, sintomasEm, clinicaConectada,
   temAcompanhamento,
 } from './derive';
 import { ENERGIA, FOME, HUMOR, SINTOMAS_LIDOS, grauDoSintoma, paraTela } from './escalas';
@@ -123,7 +123,8 @@ export function resumoDaJornada(S: State): string {
     med && P.med !== 'indefinido' ? viaDoTratamento(S) : null,
     med && P.med !== 'indefinido' ? `Frequência: ${cadenciaDias(S) === 1 ? 'diária' : cadenciaDias(S) === 7 ? 'semanal' : `a cada ${cadenciaDias(S)} dias`}` : null,
     temDose(S) ? `Dose atual no perfil: ${doseDoPerfil(S)}` : 'Dose: ainda não informada',
-    injs.length ? `Doses registradas: ${injs.length}${injs.length >= 2 ? ` (adesão ${adesao(S)}%)` : ''}` : 'Nenhuma dose registrada ainda',
+    /* sem dia a contar na dose diária, sem a adesão — e não "adesão 0%" (ver `adesaoSemConta`) */
+    injs.length ? `Doses registradas: ${injs.length}${injs.length >= 2 && !adesaoSemConta(S) ? ` (adesão ${adesao(S)}%)` : ''}` : 'Nenhuma dose registrada ainda',
     mudancas.length > 1 ? `Doses ao longo do tempo (data do primeiro registro em cada dose): ${mudancas.join('; ')}` : null,
     ultima ? `Última dose: ${data(ultima.t)} (${haQuanto(ultima.t)})${ultima.dose != null ? `, ${num(ultima.dose, 2)} ${med?.unit ?? 'mg'}` : ''}` : null,
     ultima ? `Próxima dose prevista: ${data(+nextInjectionDate(S))}` : null,

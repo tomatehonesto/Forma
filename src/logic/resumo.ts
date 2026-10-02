@@ -2,7 +2,7 @@ import { T, NOMES_DO_RESUMO } from '../textos';
 import { nomeDaMolecula } from './formas';
 import type { State } from './seed';
 import {
-  M, cadenciaCurta, curWeight, dosesPrevistas, examLast, journeyDay,
+  M, cadenciaCurta, curWeight, dosesPrevistas, dosesFeitas, examLast, journeyDay,
   lostKg, lostPct, mediaDe, notasAbertas, respondido, variacaoDe, temEvolucao, doseDoPerfil, nomeDoMarcador, type Nota,
 } from './derive';
 import { fmtDate, diffDays, now, nf, kg, startOfDay } from './time';
@@ -108,7 +108,18 @@ export function resumoDoTratamento(S: State): SecaoDoResumo[] {
            pontualidade, que esta conta não mede: quem aplicou as dez doses
            sempre com três dias de atraso também dá cem por cento. "10 de
            11 previstas" diz o que a conta de fato sabe. */
-        { k: K.aplicacoes, v: dosesPrevistas(S) ? K.aplicacoesValor(S.injections.length, dosesPrevistas(S)) : K.aplicacoesNenhuma },
+        /* ⚠️ AS FEITAS SÃO AS DE `dosesFeitas` (01/10/2026, achado da
+           revisão): na dose diária as previstas passaram a ser os dias do
+           regime diário, e o número de registros contra elas daria "22 de
+           21" a quem tomou duas no mesmo dia, ou contaria a caneta de
+           antes da troca. No semanal, os registros, como sempre. */
+        /* ⚠️ "NENHUMA" SÓ SEM DOSE NENHUMA (01/10/2026, achado da revisão):
+           quem trocou de Mounjaro para Rybelsus e ainda não registrou o
+           comprimido tem zero previstas no regime de agora — e o documento
+           dizia ao médico "Nenhuma registrada" com as canetas no diário. Aí
+           vai a contagem, sem um "previstas" que não existe. */
+        { k: K.aplicacoes, v: dosesPrevistas(S) ? K.aplicacoesValor(dosesFeitas(S), dosesPrevistas(S))
+          : ((S as any).injections ?? []).length ? K.aplicacoesRegistradas(((S as any).injections ?? []).length) : K.aplicacoesNenhuma },
       ],
     },
     {

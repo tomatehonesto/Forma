@@ -343,11 +343,15 @@ export default function Registrar() {
           </Row>
 
           <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, paddingHorizontal: 16 }}>
-            {/* peso é sempre a primeira linha, então todas as seguintes
-                vêm precedidas de divisor */}
-            {completos.map((it) => (
+            {/* ⚠️ O DIVISOR VAI ENTRE AS LINHAS, e não antes de cada uma
+                (02/10/2026, pedido do dono). O comentário dizia que o peso
+                era sempre a primeira, e por isso todas vinham precedidas de
+                divisor — mas a dose passou para o topo da lista, e o fio
+                ficou solto em cima dela, colado à borda do cartão. A regra
+                agora é pela posição, e não por quem é o primeiro. */}
+            {completos.map((it, i) => (
               <React.Fragment key={it.titulo}>
-                <Divider />
+                {i > 0 ? <Divider /> : null}
                 <Pressable onPress={irPara(it.to!)} style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}>
                   <Row style={{ paddingVertical: 14 }}>
                     {/* O ÍCONE SOLTO, como em toda lista do app. A pastilha

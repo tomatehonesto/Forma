@@ -47,6 +47,13 @@ export const conquistas = {
   doses: 'Doses',
   dosesDesc: (a: number) => `${p(a, 'dose')} registrada${a === 1 ? '' : 's'}`,
   dosesFalta: (r: number) => `${v(r, 'Falta', 'Faltam')} ${p(r, 'dose')}`,
+  /* ⚠️ A TRILHA DE QUEM TOMA TODO DIA CONTA DIAS COM DOSE (01/10/2026,
+     decisão do dono — parte B2 de docs/superpowers/specs/2026-10-01-oral-e-diario-design.md):
+     degraus de 7, 30, 90, 180 e 365 dias, e duas doses no mesmo dia são um
+     dia. "Dias com dose", e não "doses": é o que a trilha mede, e é a mesma
+     palavra do painel da Jornada. */
+  dosesDiasDesc: (a: number) => `${p(a, 'dia')} com dose`,
+  dosesDiasFalta: (r: number) => `${v(r, 'Falta', 'Faltam')} ${p(r, 'dia')} com dose`,
 
   tempo: 'Tempo de tratamento',
   /* Abaixo de um ano conta em meses, e a partir dele em anos: "12 meses"

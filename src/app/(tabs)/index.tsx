@@ -19,9 +19,10 @@ import {
   type DailyTarget,
   doseDoPerfil, temDose,
   diasAteAplicar,
+  doseDiaria, doseDeHoje, dosesNoDia, gravarDose, faltaNaDose, medComDose, semanaDoTratamentoEm,
 } from '../../logic/derive';
-import { now, nf, fmtDate, diasDaSemana, quandoEm, diffDays, maiuscula } from '../../logic/time';
-import { FORMAS, formaDe, oA, noNa } from '../../logic/formas';
+import { now, nf, fmtDate, diasDaSemana, quandoEm, diffDays, maiuscula, fmtTime, doseTxt } from '../../logic/time';
+import { FORMAS, formaDe, oA, noNa, injetavelDe, localDaDose, remedioDaDose } from '../../logic/formas';
 import { Txt, Row, Card, SectionHead, ListRow, Metric, Retrato, Rolagem } from '../../ui/kit';
 import { Icon } from '../../ui/Icon';
 import { AreaCurve } from '../../ui/charts';
@@ -224,6 +225,75 @@ export default function Home() {
      todos; o resto vem daqui. */
   const vocab = FORMAS()[forma];
 
+  /* ============================================================
+     A DOSE DE HOJE — o hábito do dia de quem toma todo dia
+     (01/10/2026, parte B1 de docs/superpowers/specs/2026-10-01-oral-e-diario-design.md)
+
+     ⚠️⚠️ PARA QUEM TOMA TODO DIA, A DOSE É UM TOQUE, COMO O CHECK-IN
+     (decisão do dono). E mora onde o check-in mora: na faixa de vidro,
+     logo abaixo dele, nos mesmos dois estados — o convite ("Tomei hoje" /
+     "Apliquei hoje") e o comprovante ("Feita às 7:12"). Nada é presumido:
+     sem o toque, a dose de hoje não existe para conta nenhuma.
+
+     O toque grava a dose do perfil, o remédio de agora e a HORA REAL — e,
+     na caneta diária, o local sugerido do rodízio. Quem quer outra dose,
+     outro dia ou outro local toca em "Mudar", que abre a folha inteira.
+     Quando falta alguma coisa que a folha pergunta (a dose, ou a caneta
+     que ainda não foi registrada), o botão leva à folha em vez de gravar
+     pela metade.
+
+     ⚠️ E O QUE ERA DO CICLO SEMANAL SAI DO CARROSSEL para esta pessoa: a
+     contagem regressiva da próxima dose (seria "amanhã" todo dia) e o
+     "a dose de ontem não está registrada" (seria a Home inteira cobrando
+     um dia esquecido, todo dia). O dia esquecido se marca na grade de
+     /aplicacoes, vários de uma vez. O "vale" da fome e a janela do enjoo
+     já não nascem na lógica (logic/derive, `pharmaSeries` e
+     `janelaDoEnjoo`), e por isso não deixam slide vazio.
+
+     Só depois da primeira dose (`temCiclo`): antes dela, quem fala da
+     primeira dose é a mensagem do dia, e "Tomei hoje" na Home de quem
+     ainda espera a receita seria cobrança.
+     ============================================================ */
+  const diaria = doseDiaria(S);
+  const comDoseDoDia = diaria && temCiclo(S);
+  const hojeDose = doseDeHoje(S);
+  const DH = T.tratamento.doseDeHoje;
+  /* A segunda dose do dia pede confirmação — ver `registrarHoje`. */
+  const [confirmandoOutra, setConfirmandoOutra] = useState(false);
+  const ultimaDeHoje = hojeDose.feita ? dosesNoDia(S, +now()).slice(-1)[0] : null;
+  /* A linha de baixo: o que o toque vai gravar, ou o que foi gravado —
+     com o remédio e o local DA DOSE, como em todo lugar (logic/formas). */
+  const linhaDaDose = ultimaDeHoje
+    ? [
+      `${remedioDaDose(S, ultimaDeHoje).label} ${doseTxt(ultimaDeHoje.dose)} ${remedioDaDose(S, ultimaDeHoje).unit}`,
+      localDaDose(S, ultimaDeHoje) ? siteLabel(localDaDose(S, ultimaDeHoje)) : null,
+    ].filter(Boolean).join(' · ')
+    : [medComDose(S), vocab.injetavel ? siteLabel(nextSite(S)) : null].filter(Boolean).join(' · ');
+
+  /* ⚠️ O ESTADO É LIDO NA HORA DO TOQUE, e não o do desenho. Dois toques
+     seguidos chegam antes de a tela se redesenhar, e o segundo veria "sem
+     dose hoje" e gravaria a dose dobrada sem perguntar — o risco que a
+     confirmação existe para evitar. */
+  const registrarHoje = (mesmoAssim = false) => {
+    const atual = useStore.getState().S;
+    if (faltaNaDose(atual, { dose: (atual.profile as any).dose, usadasAntes: null }).length) {
+      router.push('/aplicacao' as any);
+      return;
+    }
+    if (!mesmoAssim && dosesNoDia(atual, +now()).length) {
+      setConfirmandoOutra(true);
+      return;
+    }
+    setConfirmandoOutra(false);
+    update((s: any) => {
+      gravarDose(s, {
+        t: +now(), med: s.profile.med, dose: s.profile.dose,
+        /* local só na dose injetada — a mesma regra de app/aplicacao */
+        site: injetavelDe(s) ? nextSite(s) : '', note: '',
+      });
+    });
+  };
+
   /* Carrossel do hero — as leituras do dia, todas com dado real.
 
      ⚠️ QUANTOS SLIDES É CONSEQUÊNCIA, NÃO DECISÃO. Cada entrada tem a
@@ -244,8 +314,11 @@ export default function Home() {
        segunda linha dá as duas saídas sem escolher uma.
 
        ⚠️ O BOTÃO É O TÍTULO DA FOLHA QUE ELE ABRE ("Registrar dose"), e
-       não um texto próprio — eram dois nomes para o mesmo lugar. */
-    ...(atraso >= 1 ? [{
+       não um texto próprio — eram dois nomes para o mesmo lugar.
+
+       ⚠️ NÃO NA DOSE DIÁRIA (01/10/2026, parte B1): ver "A DOSE DE HOJE",
+       acima. Cada dia sem registro virava o primeiro slide da Home. */
+    ...(atraso >= 1 && !diaria ? [{
       over: K().semRegistro,
       title: atraso === 1 ? K().semRegistroOntem : K().semRegistroDias(atraso),
       body: K().semRegistroCorpo(vocab.injetavel),
@@ -308,7 +381,9 @@ export default function Home() {
     }] : semanaPassada ? [{
       over: K().resumoChapeu,
       title: K().resumoTitulo(semanaPassada.semana),
-      body: [semanaPassada.deltaPeso ? K().resumoPeso(semanaPassada.deltaPeso) : null, semanaPassada.resumo || null]
+      /* na dose diária, a semana do tratamento que fechou abre com quantos
+         dias tiveram dose (logic/destaques, 01/10/2026) */
+      body: [semanaPassada.doses ?? null, semanaPassada.deltaPeso ? K().resumoPeso(semanaPassada.deltaPeso) : null, semanaPassada.resumo || null]
         .filter(Boolean).join(' · '),
       cta: K().resumoCta, to: `/leitura?s=${semanaPassada.semana}`,
     }] : []),
@@ -339,8 +414,12 @@ export default function Home() {
        ⚠️ E SÓ COM CICLO (`temCiclo`). Sem dose registrada a data é
        hoje por recuo, e o cartão dizia "Hoje é dia de aplicar sua dose"
        logo depois de um que dizia "Sua primeira aplicação ainda está por
-       vir". A primeira não tem data, e quem fala dela é o destaque do dia. */
-    ...(temCiclo(S) && atraso < 1 ? [{
+       vir". A primeira não tem data, e quem fala dela é o destaque do dia.
+
+       ⚠️ E NÃO NA DOSE DIÁRIA (01/10/2026, parte B1): a próxima seria
+       "amanhã" todo dia. Para quem toma todo dia, a dose de hoje tem o
+       lugar dela na faixa do check-in. */
+    ...(temCiclo(S) && atraso < 1 && !diaria ? [{
       over: K().proximaAplicacao,
       /* ⚠️ O REMÉDIO NÃO É O SUJEITO DA FRASE. "Mounjaro é hoje" trata a
          caixinha como se ela tivesse agenda, e obriga quem lê a traduzir
@@ -612,8 +691,12 @@ export default function Home() {
               <Perfil tam={40} />
               <View style={{ flex: 1, marginLeft: 16 }}>
                 <Txt v="title" c={c.onHero}>{greet}, <Txt v="h2" c={c.onHero}>{first}</Txt></Txt>
+                {/* Na dose diária, a semana pelo relógio, como o painel da
+                    Jornada e os blocos de "Seu tratamento" (01/10/2026 — ver
+                    o painel, em app/(tabs)/jornada): `protocol.week` só se
+                    refaz quando o aplicativo abre. */}
                 <Txt v="caption" c={c.onHero2} style={{ marginTop: 2 }}>
-                  {dia.antes ? dia.texto : K().linhaDoDia(dia.texto, S.protocol.week)}
+                  {dia.antes ? dia.texto : K().linhaDoDia(dia.texto, diaria ? semanaDoTratamentoEm(S, +now()) : S.protocol.week)}
                 </Txt>
               </View>
               <Sino tam={40} claro />
@@ -735,12 +818,16 @@ export default function Home() {
               arredondados. Os 60 de padding embaixo são os 36px que a
               folha clara vai cobrir (no Figma a faixa tem 128 de altura
               e some por baixo do bloco branco). */}
-          <Row style={{
+          {/* ⚠️ A FAIXA VIROU UMA PILHA (01/10/2026): a fileira do check-in
+              e, para quem toma todo dia, a da dose de hoje embaixo dela.
+              Para quem toma por semana ela é a mesma fileira de antes, só
+              que dentro de uma caixa que não desenha nada. */}
+          <View style={{
             marginTop: 40, paddingHorizontal: PAD, paddingTop: 24, paddingBottom: 60,
             backgroundColor: 'rgba(151,151,151,0.20)',
             borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg,
-            alignItems: 'center',
           }}>
+          <Row style={{ alignItems: 'center' }}>
             {/* Dois estados, e o rótulo diz qual é: "Fazer check-in" é
                 convite, "Check-in feito" é comprovante. Um rótulo só —
                 "Check-in" — deixa a pessoa sem saber se já registrou hoje,
@@ -773,6 +860,79 @@ export default function Home() {
                 : <Txt v="body" c={c.onHero} style={{ width: 130, textAlign: 'right' }}>{K().checkinUmMinuto}</Txt>}
             </Row>
           </Row>
+
+          {/* ---- a dose de hoje, só na dose diária (ver "A DOSE DE HOJE") ----
+
+              ⚠️ O MESMO DESENHO DO CHECK-IN, UM TOM ABAIXO. A pastilha do
+              convite é branca, e não lima: duas pastilhas lima empilhadas
+              disputariam o mesmo "faça isto", e lima é a cor do alcançado.
+              Feita, ela vira vidro com o visto em lima — o comprovante,
+              como o "Check-in feito".
+
+              ⚠️ A PASTILHA FEITA CONTINUA SENDO BOTÃO, como a do
+              check-in, e o toque pergunta antes de gravar outra: pode ter
+              sido mesmo uma segunda dose, e ela precisa entrar. Mas um
+              toque sem querer não pode virar dose dobrada no histórico. */}
+          {comDoseDoDia ? (
+            <View style={{ marginTop: 18, paddingTop: 18, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.onHeroLine }}>
+              {confirmandoOutra && hojeDose.feita && hojeDose.t != null ? (
+                <View style={{ gap: 12 }}>
+                  <Txt v="body" c={c.onHero}>{DH.outraHoje(fmtTime(new Date(hojeDose.t)))}</Txt>
+                  <Row gap={18}>
+                    <Pressable
+                      onPress={() => registrarHoje(true)}
+                      accessibilityRole="button"
+                      style={({ pressed }) => [{ transform: [{ scale: pressed ? 0.96 : 1 }] }]}
+                    >
+                      <Row style={{ backgroundColor: c.onHero, borderRadius: radius.pill, paddingHorizontal: 20, paddingVertical: 11 }}>
+                        <Txt v="body" c={c.limeInk}>{DH.outraSim}</Txt>
+                      </Row>
+                    </Pressable>
+                    <Pressable onPress={() => setConfirmandoOutra(false)} hitSlop={10} accessibilityRole="button">
+                      <Txt v="body" c={c.onHero2}>{DH.cancelar}</Txt>
+                    </Pressable>
+                  </Row>
+                </View>
+              ) : (
+                <Row style={{ alignItems: 'center' }}>
+                  <Pressable
+                    onPress={() => registrarHoje()}
+                    accessibilityRole="button"
+                    style={({ pressed }) => [{ transform: [{ scale: pressed ? 0.96 : 1 }] }]}
+                  >
+                    {hojeDose.feita && hojeDose.t != null ? (
+                      <Row gap={8} style={{
+                        backgroundColor: c.onHeroWeak, borderWidth: 1, borderColor: c.onHeroLine,
+                        borderRadius: radius.pill, paddingHorizontal: 20, paddingVertical: 10,
+                      }}>
+                        <Icon name="check" size={17} color={c.lime} sw={2.4} />
+                        <Txt v="body" c={c.onHero}>{DH.feitaAs(fmtTime(new Date(hojeDose.t)))}</Txt>
+                      </Row>
+                    ) : (
+                      <Row gap={8} style={{ backgroundColor: c.onHero, borderRadius: radius.pill, paddingHorizontal: 20, paddingVertical: 11 }}>
+                        <Icon name={vocab.icone} size={17} color={c.limeInk} sw={2} />
+                        <Txt v="body" c={c.limeInk}>{DH.registrarHoje(vocab.injetavel)}</Txt>
+                      </Row>
+                    )}
+                  </Pressable>
+                  <View style={{ flex: 1, marginLeft: 14, alignItems: 'flex-end' }}>
+                    <Txt v="body" c={c.onHero} style={{ textAlign: 'right' }}>{DH.titulo}</Txt>
+                    <Txt v="caption" c={c.onHero2} style={{ textAlign: 'right', marginTop: 2 }}>{linhaDaDose}</Txt>
+                    {/* "Mudar" só antes do toque: depois, a dose de hoje já
+                        foi gravada, e trocar uma dose gravada não é coisa
+                        que a casa faça (ver a nota do histórico, em
+                        app/aplicacoes). */}
+                    {!hojeDose.feita ? (
+                      <Pressable onPress={go('/aplicacao')} hitSlop={10} accessibilityRole="button" style={({ pressed }) => [{ marginTop: 4, opacity: pressed ? 0.6 : 1 }]}>
+                        <Txt v="caption" c={c.lime}>{DH.mudar}</Txt>
+                      </Pressable>
+                    ) : null}
+                  </View>
+                </Row>
+              )}
+            </View>
+          ) : null}
+          </View>
         </View>
 
         {/* ================= FOLHA ================= */}

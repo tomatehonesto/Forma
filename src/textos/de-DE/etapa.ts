@@ -69,6 +69,14 @@ export const etapa = {
     { head: 'Der Hunger kann etwas zurückkommen.', body: 'Gegen Ende des Zyklus ist es normal, dass der Appetit etwas zurückkehrt. Das gehört dazu – und deshalb hat die nächste Dosis einen festen Tag.', q: 'Warum kommt der Hunger vor der nächsten Dosis zurück?' },
     { head: 'Eine Woche Behandlung.', body: 'Du hast deine erste Woche geschafft. Die Check-ins dieser Tage zeigen, wie dein Körper reagiert hat – und was du zum Termin mitnehmen kannst.', q: 'Wie war meine erste Woche?' },
   ],
+  /* ⚠️ Der sechste Tag bei täglicher Dosis (01/10/2026) – siehe
+     ../pt-BR/etapa.ts. Der obige spricht vom Wochenzyklus; mit einer Dosis
+     pro Tag gibt es kein Zyklusende, auf das der Hunger warten würde. */
+  primeiraDiaSeisDiaria: {
+    head: 'Kein Auf und Ab über die Woche.',
+    body: 'Mit einer Dosis pro Tag bleibt das Medikament von Tag zu Tag auf einem ähnlichen Spiegel – der Hunger hat keinen festen Tag, an dem er zurückkommt. Wenn er auftaucht, ist der Check-in der Ort, um ihn festzuhalten.',
+    q: 'Wie wirkt ein tägliches Medikament?',
+  },
 
   /* ---------- 4. Erhaltung ---------- */
   manutencaoChapeu: 'ERHALTUNG',

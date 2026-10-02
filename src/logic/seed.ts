@@ -9,7 +9,7 @@ import { marcarComoVistas, conquistas, feitas } from './conquistas';
 import { formaDe } from './formas';
 import type { Notificacao, FaseDoCiclo } from './notificacoes';
 import { PALETAS } from '../theme';
-import type { Forma } from './meds';
+import { doseDiaria, type Forma } from './meds';
 import type { Sistema } from './medidas';
 import type { Local } from './local';
 import { LEITURA_DAS_PERGUNTAS } from './consentimento';
@@ -842,8 +842,13 @@ export function comNotificacoesDeExemplo(S: State): State {
   }
 
   /* a manchete do ciclo de hoje, às oito — ou agora, se ainda não deu.
-     Sem aplicação não há ciclo, e a manchete não inventa um. */
-  if (ultima) {
+     Sem aplicação não há ciclo, e a manchete não inventa um.
+
+     ⚠️ E NA DOSE DIÁRIA NÃO HÁ MANCHETE DE FASE (01/10/2026, parte B1): a
+     lista de avisos guardaria "O efeito começa a subir nas próximas
+     horas" todo dia, e as fases semanais saíram de quem toma todo dia
+     (ver `doseCycle`, em derive). */
+  if (ultima && !doseDiaria(S as any)) {
     lista.push({
       t: Math.min(+now(), +startOfDay(now()) + 8 * HORA),
       tipo: 'ciclo', fase: doseCycle(S).phase.key as FaseDoCiclo,
@@ -881,6 +886,24 @@ export function comNotificacoesDeExemplo(S: State): State {
 }
 
 /* migra estados salvos antes das novas áreas (mutação in-place). */
+/** Cria, uma vez, a marca d'água da escada diária de doses no nível de
+    agora — e não toca em mais nada (ver o comentário em ensureDefaults).
+
+    ⚠️ RODA TAMBÉM EM TODA GRAVAÇÃO (store.update), e não só ao abrir o app
+    (01/10/2026, achado da revisão): quem trocava de caneta semanal para
+    Saxenda ou Rybelsus com o app aberto ficava sem a marca até reabrir, e a
+    tela cheia de conquista abria na hora, comemorando os degraus de uma
+    escada que acabara de aparecer. Ela só age quando a marca falta, então
+    não engole comemoração nenhuma depois de criada. */
+export function iniciarMarcaDaEscadaDiaria(S: any) {
+  if (!S?.profile?.med || !doseDiaria(S)) return;
+  if (!S.vistoEmConquistas) S.vistoEmConquistas = {};
+  const visto = S.vistoEmConquistas as Record<string, number>;
+  if (visto['doses:diaria'] != null) return;
+  const doses = conquistas(S).find((q) => q.id === 'doses');
+  if (doses) visto['doses:diaria'] = doses.nivel;
+}
+
 export function ensureDefaults(S: any) {
   /* OS QUATRO INTERRUPTORES VIRAM UMA LISTA DE ALERTAS.
 
@@ -922,6 +945,20 @@ export function ensureDefaults(S: any) {
      Só na primeira vez: depois disso quem escreve é a tela de conquista
      alcançada, quando a pessoa a fecha. */
   if (!(S as any).vistoEmConquistas) { (S as any).vistoEmConquistas = {}; marcarComoVistas(S); }
+  /* ⚠️ A TRILHA DE DOSES DE QUEM TOMA TODO DIA TROCOU DE DEGRAUS
+     (01/10/2026, parte B2): eram os semanais (1, 4, 12, 26, 52, 104), e
+     agora são de dias (7, 30, 90, 180, 365). A escada diária tem marca
+     d'água própria, 'doses:diaria' (ver `chaveDaMarca`, em conquistas), e
+     ela nasce aqui, UMA VEZ, no nível de agora — o mesmo motivo de a marca
+     inteira nascer no nível atual: quem já toma Rybelsus há três meses não
+     pode abrir o aplicativo e ver comemorados de uma vez os degraus de uma
+     escada que acabou de aparecer.
+
+     ⚠️⚠️ E `visto.doses` NÃO É TOCADO (01/10/2026, achado da revisão). Esta
+     linha o baixava até o nível diário, e quem voltava para a caneta
+     semanal via os degraus semanais já vistos comemorados de novo. A
+     marca semanal fica com o que a pessoa viu na escada semanal. */
+  iniciarMarcaDaEscadaDiaria(S);
   /* AS INTEGRAÇÕES QUE SAÍRAM DO CATÁLOGO SAEM DO ESTADO. Google Fit
      fechou para novos cadastros; "balança inteligente" e "smartwatch"
      nunca foram serviços, e sim aparelhos que escrevem no app de saúde do

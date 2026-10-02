@@ -4,7 +4,7 @@ import { useAurora } from '../ui/aurora';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
-  clinicaConectada, historicoDeProtocolos, marcarTarefa, nextInjectionDate, protocoloDaSemana, temCiclo,
+  clinicaConectada, historicoDeProtocolos, marcarTarefa, nextInjectionDate, protocoloDaSemana, temCiclo, doseDiaria,
 } from '../logic/derive';
 import { fmtPeriodo, relDay } from '../logic/time';
 import { Txt, Row, Chevron } from '../ui/kit';
@@ -110,10 +110,15 @@ export default function Protocolos() {
            mesma frase que diz o quanto. */
         /* A data da aplicação só com ciclo: sem aplicação registrada, ela
            seria "hoje" por recuo (ver `temCiclo`, em derive). */
+        /* ⚠️ E SEM ELA NA DOSE DIÁRIA (01/10/2026, parte B1 de
+           docs/superpowers/specs/2026-10-01-oral-e-diario-design.md): a
+           próxima seria "dose amanhã" todo dia — a contagem regressiva
+           que sai para quem toma todo dia. A dose entra na lista como a
+           tarefa "Dose todo dia", contada em dias (`protocoloDaSemana`). */
         linha={[
           K().semanaN(p.semana),
           faltam === 0 ? K().tudoCumprido : K().cumpridasDeTotal(p.feitas, p.total),
-          temCiclo(S) ? K().aplicacaoEm(relDay(nextInjectionDate(S))) : null,
+          temCiclo(S) && !doseDiaria(S) ? K().aplicacaoEm(relDay(nextInjectionDate(S))) : null,
         ].filter(Boolean).join(' · ')}
         pct={p.pct}
       >

@@ -143,6 +143,9 @@ export const rotina = {
 
     aplicacaoUma: 'Dosis der Woche',
     aplicacaoVarias: (quantas: number) => `${quantas} Dosen in der Woche`,
+    /* ⚠️ Bei täglicher Dosis (01/10/2026): gezählt in Tagen mit Dosis,
+       wie die Trinkzeile. Siehe ../pt-BR/rotina.ts. */
+    aplicacaoTodoDia: 'Jeden Tag eine Dosis',
     origemAplicacao: 'Dosen',
 
     /* Was in jeder Aufgabe gezählt wird. „1 von 1 Tag“ beschreibt keine

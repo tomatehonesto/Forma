@@ -42,6 +42,10 @@ export const conquistas = {
   doses: 'Dosis',
   dosesDesc: (a: number) => `${p(a, 'dosis', 'dosis')} registrada${a === 1 ? '' : 's'}`,
   dosesFalta: (r: number) => `${v(r, 'Falta', 'Faltan')} ${p(r, 'dosis', 'dosis')}`,
+  /* ⚠️ Con dosis diaria, la trayectoria cuenta DÍAS con dosis (01/10/2026)
+     — niveles de 7, 30, 90, 180 y 365 días. Ver ../pt-BR/conquistas.ts. */
+  dosesDiasDesc: (a: number) => `${p(a, 'día')} con dosis`,
+  dosesDiasFalta: (r: number) => `${v(r, 'Falta', 'Faltan')} ${p(r, 'día')} con dosis`,
 
   tempo: 'Tiempo de tratamiento',
   /* Abajo de un año cuenta en meses, y a partir de ahí en años: "12 meses"

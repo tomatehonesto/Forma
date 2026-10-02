@@ -146,6 +146,10 @@ export const rotina = {
        formas. O ícone da tarefa é que segue a forma, em logic/derive. */
     aplicacaoUma: 'Dose da semana',
     aplicacaoVarias: (quantas: number) => `${quantas} doses na semana`,
+    /* ⚠️ A TAREFA DE QUEM TOMA TODO DIA (01/10/2026, parte B1): "Dose
+       todo dia", contada em dias com dose — como "Beber 2 L todo dia". Era
+       "Dose da semana", cumprida com a dose de segunda. */
+    aplicacaoTodoDia: 'Dose todo dia',
     origemAplicacao: 'Doses',
 
     /* O que se conta em cada tarefa. "1 de 1 dia" não descreve uma

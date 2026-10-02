@@ -109,6 +109,9 @@ export const rotina = {
 
     aplicacaoUma: 'This week’s dose',
     aplicacaoVarias: (quantas: number) => `${quantas} doses this week`,
+    /* ⚠️ For a daily dose (01/10/2026): counted in days with a dose, like
+       the water line. See ../pt-BR/rotina.ts. */
+    aplicacaoTodoDia: 'A dose every day',
     origemAplicacao: 'Doses',
 
     unidadeDia: ['day', 'days'] as [string, string],

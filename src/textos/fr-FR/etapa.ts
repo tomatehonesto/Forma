@@ -69,6 +69,14 @@ export const etapa = {
     { head: 'La faim peut revenir un peu.', body: 'Vers la fin du cycle, il est normal que l’appétit revienne un peu. Cela fait partie du traitement, et c’est pour cela que la prochaine dose a un jour fixe.', q: 'Pourquoi la faim revient-elle avant la prochaine dose ?' },
     { head: 'Une semaine de traitement.', body: 'Vous avez terminé votre première semaine. Ce sont les check-ins de ces jours qui montrent comment votre corps a réagi, et ce qu’il vaut la peine d’apporter en consultation.', q: 'Comment s’est passée ma première semaine ?' },
   ],
+  /* ⚠️ Le sixième jour d’une dose quotidienne (01/10/2026) — voir
+     ../pt-BR/etapa.ts. Celui du dessus parle du cycle hebdomadaire ; avec
+     une dose par jour, il n’y a pas de fin de cycle que la faim attendrait. */
+  primeiraDiaSeisDiaria: {
+    head: 'Pas de hauts et de bas dans la semaine.',
+    body: 'Avec une dose par jour, le médicament reste à un niveau semblable d’un jour à l’autre — la faim n’a pas de jour fixe pour revenir. Si elle apparaît, le check-in est l’endroit pour le noter.',
+    q: 'Comment fonctionne un médicament quotidien ?',
+  },
 
   manutencaoChapeu: 'ENTRETIEN',
   /* ⚠️ LA PROVENANCE ENTRE DANS LA PHRASE, TOUJOURS. « La fourchette que

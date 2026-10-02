@@ -93,6 +93,24 @@ export const tratamento = {
     `Registra ${oRecipiente} e contiamo le dosi rimaste.`,
   localNaoInformado: 'Zona non indicata',
 
+  /* ⚠️ La dose di oggi, solo per la dose quotidiana (01/10/2026, parte B1)
+     — vedi ../pt-BR/tratamento.ts. Il pulsante è l’unica frase in prima
+     persona, e segue la forma. Mai «in sospeso»: sappiamo solo che non è
+     arrivata la registrazione. «All’1:05», e non «alle»: l’una è singolare. */
+  doseDeHoje: {
+    titulo: 'Dose di oggi',
+    chapeu: 'DOSE DI OGGI',
+    registrarHoje: (injetavel: boolean): string => (injetavel ? 'L’ho fatta oggi' : 'L’ho presa oggi'),
+    feitaAs: (hora: string) => `Fatta ${/^1:/.test(hora) ? 'all’' : 'alle '}${hora}`,
+    aindaNaoRegistrada: 'Non ancora registrata',
+    pastilhaFeita: (hora: string) => `Dose di oggi fatta ${/^1:/.test(hora) ? 'all’' : 'alle '}${hora}`,
+    pastilhaAindaNao: 'Dose di oggi non ancora registrata',
+    mudar: 'Cambia',
+    outraHoje: (hora: string) => `Hai già registrato una dose oggi, ${/^1:/.test(hora) ? 'all’' : 'alle '}${hora}. Registrarne un’altra?`,
+    outraSim: 'Registrane un’altra',
+    cancelar: 'Annulla',
+  },
+
   /* ============================================================
      LE ZONE DELLA PUNTURA
 
@@ -278,6 +296,12 @@ export const tratamento = {
        casella rossa in un calendario di farmaci è l'app che rimprovera
        chi ha già pagato. */
     semCulpa: 'Niente sensi di colpa per un giorno saltato — quello che conta è riprendere. Puoi registrare una dose precedente in qualsiasi momento, con il pulsante qui sotto.',
+    /* più giorni insieme, solo per la dose quotidiana (vedi ../pt-BR) */
+    marcarDias: 'Hai dimenticato di registrare qualche giorno? Tocca i giorni vuoti per segnare quelle dosi tutte insieme.',
+    registrarDias: (n: number) => (n === 1 ? 'Registra la dose di 1 giorno' : `Registra le dosi di ${n} giorni`),
+    marcarDiasNota: (injetavel: boolean) =>
+      `Ogni giorno viene registrato con la dose che usavi quel giorno${injetavel ? ', senza la zona' : ''}.`,
+    desmarcar: 'Deseleziona',
     titulo: 'Dosi',
     registrar: 'Registra la dose',
     /* I tre arrivano pronti: la marca, il principio attivo e la cadenza. */
@@ -318,6 +342,9 @@ export const tratamento = {
     nivelNoCorpo: 'Livello nel corpo',
     nivelTexto: (molecula: string, meiaVida: string) =>
       `Stima della quantità di ${molecula} nel tuo corpo, con un’emivita di ${meiaVida}. Il punto più basso, prima della dose successiva, è di solito quando la fame aumenta.`,
+    /* dose quotidiana: nessun punto basso da aspettare (vedi ../pt-BR) */
+    nivelTextoDiario: (molecula: string, meiaVida: string) =>
+      `Stima della quantità di ${molecula} nel tuo corpo, con un’emivita di ${meiaVida}. Con una dose al giorno, resta su un livello simile da un giorno all’altro.`,
     meiaVidaDias: (dias: number) => `${dias} giorni`,
     meiaVidaHoras: 'circa 13 ore',
 
@@ -510,6 +537,15 @@ export const tratamento = {
     doses: (n: number) => (n === 1 ? '1 dose' : `${n} dosi`),
     registraJunto: (oRecipiente: string, total: number, recipiente: string) =>
       `Registriamo ${oRecipiente} insieme a questa dose (${total} dosi per ${recipiente}) e iniziamo a contare quelle rimaste.`,
+
+    /* Una seconda dose nello stesso giorno chiede conferma (dose
+       quotidiana, parte B1). L’ora solo se è di oggi: un giorno passato
+       viene registrato a mezzogiorno. */
+    jaHaNoDia: (hora: string | null) =>
+      (hora ? `C’è già una dose registrata oggi, ${/^1:/.test(hora) ? 'all’' : 'alle '}${hora}.` : 'C’è già una dose registrata in questo giorno.'),
+    duplaTexto: 'Se era davvero un’altra dose, registrala: resta nello storico come la seconda del giorno. Altrimenti basta cambiare giorno.',
+    registrarMaisUma: 'Registra un’altra dose',
+    trocarODia: 'Cambia giorno',
   },
 
   /* ============================================================

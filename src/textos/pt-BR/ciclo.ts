@@ -75,6 +75,53 @@ export const ciclo = {
   dormiuBem: (resto: string) => `Você dormiu bem — seu corpo tende a responder melhor hoje. ${resto}`,
 
   /* ============================================================
+     A DOSE DIÁRIA — o ciclo de uma fase só (01/10/2026)
+
+     ⚠️ QUEM TOMA TODO DIA NÃO ATRAVESSA AS CINCO ETAPAS DE BAIXO. Com uma
+     dose por dia, o remédio fica num nível parecido de um dia para o outro:
+     não há subida no dia da dose, nem pico, nem vale antes da próxima.
+     Lidas por quem toma Rybelsus ou Saxenda, as cinco diziam todo dia "o
+     efeito começa a subir nas próximas horas", que é falso. Para essa
+     pessoa o ciclo tem uma fase só, e a Home reveza os três recados
+     abaixo. Ver docs/superpowers/specs/2026-10-01-oral-e-diario-design.md,
+     parte B1.
+
+     ⚠️ E NENHUMA FRASE DAQUI ENSINA A TOMAR — jejum, água, horário. É
+     instrução clínica, e por decisão do dono ela fica na conversa com a
+     IA, que tem a base clínica, até haver revisor. Estas dizem o que o
+     nível estável quer dizer para o dia e o que costuma ajudar, como as
+     irmãs de cima: nenhuma manda.
+     ============================================================ */
+  faseDiariaLabel: 'Dose diária',
+  faseDiariaRange: 'Todo dia',
+  faseDiariaHint: 'Com a dose todo dia, o efeito fica estável.',
+  diariaQ: 'Como funciona o remédio de todo dia?',
+
+  /* Um por dia, em revezamento: sem fase para ler, uma frase fixa viraria
+     papel de parede no terceiro dia. Nenhum fala da dose de hoje — quem
+     fala dela é o cartão "Dose de hoje", ao lado. */
+  diarios: [
+    {
+      head: 'Com a dose todo dia, o efeito fica estável.',
+      /* ⚠️ "COM UMA DOSE POR DIA", E NÃO "TOMADO TODO DIA": o Saxenda é
+         aplicado, e o verbo é a única palavra que segue a forma (decisão
+         do dono, parte A). Estas frases não recebem a forma. */
+      body: 'Com uma dose por dia, o remédio fica num nível parecido de um dia para o outro — a fome e o enjoo, quando aparecem, não seguem um dia marcado da semana.',
+      q: 'Como funciona o remédio de todo dia?',
+    },
+    {
+      head: 'A constância é o que mantém o nível estável.',
+      body: 'Cada dose registrada aqui completa a sua semana de tratamento, e é essa sequência que vai para o resumo da consulta.',
+      q: 'Por que a dose é todo dia?',
+    },
+    {
+      head: 'Com o efeito estável, o prato muda o dia.',
+      body: 'Começar pela proteína e manter a água em dia costumam segurar melhor a fome entre as refeições.',
+      q: 'Como montar minhas refeições?',
+    },
+  ] as { head: string; body: string; q: string }[],
+
+  /* ============================================================
      AS CINCO ETAPAS — o stepper do ciclo
 
      ⚠️ SÃO CINCO AQUI E QUATRO LOGO ABAIXO, e é de propósito. Esta é a

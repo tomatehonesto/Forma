@@ -1,5 +1,5 @@
 import type { State } from './seed';
-import { M, temDose, doseDoPerfil, adesao, aguaDoDia, sintomasEm, clinicaConectada, temAcompanhamento, milestones, timelineEvents, comSinal, marcoQueEhEvento, type WeekMetric } from './derive';
+import { M, temDose, doseDoPerfil, doseDiaria, adesao, adesaoSemConta, aguaDoDia, sintomasEm, clinicaConectada, temAcompanhamento, milestones, timelineEvents, comSinal, marcoQueEhEvento, type WeekMetric } from './derive';
 import { paraTela } from './escalas';
 import { pesoTxt, aguaTxt, aguaNoPasso, sistemaDe } from './medidas';
 import { localAtual } from './local';
@@ -76,7 +76,8 @@ export function resumoDaSemana(S: State, agora: Date = now()): string {
     aplicacoes.length
       ? `Doses na semana: ${aplicacoes.map((a) => `${data(a.t)}${a.dose != null ? ` ${num(a.dose, 2)} ${med?.unit ?? 'mg'}` : ''}`).join('; ')}`
       : 'Nenhuma dose registrada na semana',
-    ((S as any).injections ?? []).length >= 2 ? `Adesão desde o início: ${adesao(S)}%` : null,
+    /* sem dia a contar na dose diária, sem a linha — e não "0%" (ver `adesaoSemConta`) */
+    ((S as any).injections ?? []).length >= 2 && !adesaoSemConta(S) ? `Adesão desde o início: ${adesao(S)}%` : null,
   ]));
 
   const todosPesos = (((S as any).weights ?? []) as any[]).filter((w) => w.t < ate).sort((a, b) => a.t - b.t);
@@ -282,9 +283,15 @@ export function janelaDoCiclo<W extends { t: number }>(semanas: W[], w: W) {
 
     ⚠️ SÓ COM 4 DIAS OU MAIS, ou nulo — e aí a tela fica na semana de
     segunda a domingo. Com medicação diária (Saxenda, Victoza, Rybelsus),
-    cada aplicação abre um "ciclo" de um dia, e o Insights abria o resumo
+    cada aplicação abria um "ciclo" de um dia, e o Insights abria o resumo
     de um domingo só (achado da revisão de 01/10/2026). Com aplicação
-    semanal, um dos dois ciclos que dividem a semana sempre tem 4. */
+    semanal, um dos dois ciclos que dividem a semana sempre tem 4.
+
+    ⚠️ E DESDE A PARTE B2 (01/10/2026) A DOSE DIÁRIA TAMBÉM TEM CICLOS DE
+    SETE DIAS: os blocos da semana do tratamento (`timelineWeeks`, em
+    derive). Um dos dois blocos que dividem a semana de segunda a domingo
+    sempre tem 4 dias, e o resumo do diário passa a abrir a semana do
+    tratamento, como o da caneta. */
 export function cicloQueCobre<W extends { t: number }>(semanas: W[], segunda: number): W | null {
   const seg = +startOfDay(segunda + 12 * 3600e3);
   let melhor: W | null = null;
@@ -312,7 +319,11 @@ export const eventosDoPeriodo = (S: State, ini: number, fim: number) =>
     como nome de token; quem desenha resolve. */
 export function destaquesDaSemana(S: State, semana: number) {
   const de = +startOfDay(semana + 12 * 3600e3);
-  return destaquesDoPeriodo(S, de, noCalendario(de, 7), true);
+  /* ⚠️ SEM A LINHA DE CADA DOSE NA DOSE DIÁRIA (01/10/2026, achado da
+     revisão): sete comprimidos viravam sete linhas iguais em "o que marcou
+     a semana" — rotina, e não acontecimento. A dose nova continua, pelo
+     marco "dose ajustada". O semanal fica como era. */
+  return destaquesDoPeriodo(S, de, noCalendario(de, 7), !doseDiaria(S));
 }
 
 export function destaquesDoPeriodo(S: State, de: number, ate: number, comAplicacao: boolean): { k: string; ic: string; cor: string; titulo: string; sub: string }[] {

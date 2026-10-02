@@ -69,6 +69,36 @@ export const ciclo = {
      traitement. */
   dormiuBem: (resto: string) => `Vous avez bien dormi — votre corps a tendance à mieux répondre aujourd’hui. ${resto}`,
 
+  /* ---------- la dose quotidienne : un cycle à une seule phase (01/10/2026) ----------
+     ⚠️ Les raisons sont dans ../pt-BR/ciclo.ts. Avec une dose par jour, le
+     niveau reste semblable d’un jour à l’autre — pas de montée, pas de
+     pic, pas de creux —, donc les cinq étapes ci-dessous ne s’appliquent
+     pas, et l’accueil alterne ces trois messages. Aucun n’explique comment
+     prendre le médicament (à jeun, eau, horaire) : c’est clinique, et cela
+     reste dans la conversation avec l’IA. « Avec une dose par jour », jamais
+     « pris » : Saxenda s’injecte, et ces phrases ne connaissent pas la forme. */
+  faseDiariaLabel: 'Dose quotidienne',
+  faseDiariaRange: 'Chaque jour',
+  faseDiariaHint: 'Avec une dose chaque jour, l’effet reste stable.',
+  diariaQ: 'Comment fonctionne un médicament quotidien ?',
+  diarios: [
+    {
+      head: 'Avec une dose chaque jour, l’effet reste stable.',
+      body: 'Avec une dose par jour, le médicament reste à un niveau semblable d’un jour à l’autre — la faim et la nausée, quand elles apparaissent, ne suivent pas un jour précis de la semaine.',
+      q: 'Comment fonctionne un médicament quotidien ?',
+    },
+    {
+      head: 'C’est la régularité qui garde le niveau stable.',
+      body: 'Chaque dose notée ici complète votre semaine de traitement, et c’est cette suite de jours qui part dans le résumé pour la consultation.',
+      q: 'Pourquoi la dose est-elle quotidienne ?',
+    },
+    {
+      head: 'Avec un effet stable, c’est l’assiette qui fait la journée.',
+      body: 'Commencer par les protéines et garder l’eau à jour aident en général à mieux tenir la faim entre les repas.',
+      q: 'Comment composer mes repas ?',
+    },
+  ],
+
   /* ⚠️ CINQ ICI ET QUATRE PLUS BAS, et c'est voulu. Ceci répond à « où
      j'en suis MAINTENANT » ; la table du bas répond à « comment est le
      cycle entier », et là cinq lignes, c'est une de plus que ce qui tient

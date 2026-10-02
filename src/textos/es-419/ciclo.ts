@@ -51,6 +51,36 @@ export const ciclo = {
      dormir bien cambia el día entero de quien está en tratamiento. */
   dormiuBem: (resto: string) => `Dormiste bien — tu cuerpo tiende a responder mejor hoy. ${resto}`,
 
+  /* ---------- la dosis diaria: un ciclo de una sola fase (01/10/2026) ----------
+     ⚠️ Las razones están en ../pt-BR/ciclo.ts. Con una dosis por día el
+     nivel queda parecido de un día a otro — sin subida, sin pico, sin
+     valle —, así que las cinco etapas de abajo no aplican, y la Home
+     alterna estas tres notas. Ninguna enseña cómo tomar el medicamento
+     (ayuno, agua, horario): eso es clínico y queda en la conversación con
+     la IA. "Con una dosis por día", nunca "tomado": Saxenda se inyecta, y
+     estas frases no conocen la forma. */
+  faseDiariaLabel: 'Dosis diaria',
+  faseDiariaRange: 'Todos los días',
+  faseDiariaHint: 'Con la dosis todos los días, el efecto se mantiene estable.',
+  diariaQ: '¿Cómo funciona el medicamento de todos los días?',
+  diarios: [
+    {
+      head: 'Con la dosis todos los días, el efecto se mantiene estable.',
+      body: 'Con una dosis por día, el medicamento queda en un nivel parecido de un día a otro — el hambre y las náuseas, cuando aparecen, no siguen un día fijo de la semana.',
+      q: '¿Cómo funciona el medicamento de todos los días?',
+    },
+    {
+      head: 'La constancia es lo que mantiene el nivel estable.',
+      body: 'Cada dosis que registras aquí completa tu semana de tratamiento, y esa secuencia es la que va al resumen para la consulta.',
+      q: '¿Por qué la dosis es todos los días?',
+    },
+    {
+      head: 'Con el efecto estable, el plato cambia el día.',
+      body: 'Empezar por la proteína y mantener el agua al día suelen contener mejor el hambre entre comidas.',
+      q: '¿Cómo armo mis comidas?',
+    },
+  ],
+
   /* ⚠️ SON CINCO AQUÍ Y CUATRO MÁS ABAJO, y es a propósito. Esta es la
      pregunta "en qué punto estoy AHORA"; la tabla de abajo responde "cómo
      es el ciclo entero", y ahí cinco líneas es una más de las que caben en

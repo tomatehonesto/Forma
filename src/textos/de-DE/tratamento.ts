@@ -79,6 +79,24 @@ export const tratamento = {
     `${oRecipiente.charAt(0).toUpperCase()}${oRecipiente.slice(1)} ist noch nicht eingetragen — mit dem Eintrag zählen wir die restlichen Dosen.`,
   localNaoInformado: 'Stelle nicht angegeben',
 
+  /* ⚠️ Die heutige Dosis, nur bei täglicher Dosis (01/10/2026, Teil B1) —
+     siehe ../pt-BR/tratamento.ts. Der Knopf ist der einzige Satz in der
+     ersten Person und folgt der Form. Nie „ausstehend“: Wir wissen nur,
+     dass nichts eingetragen wurde. */
+  doseDeHoje: {
+    titulo: 'Heutige Dosis',
+    chapeu: 'HEUTIGE DOSIS',
+    registrarHoje: (injetavel: boolean): string => (injetavel ? 'Heute gespritzt' : 'Heute eingenommen'),
+    feitaAs: (hora: string) => `Um ${hora} erledigt`,
+    aindaNaoRegistrada: 'Noch nicht eingetragen',
+    pastilhaFeita: (hora: string) => `Heutige Dosis um ${hora} erledigt`,
+    pastilhaAindaNao: 'Heutige Dosis noch nicht eingetragen',
+    mudar: 'Ändern',
+    outraHoje: (hora: string) => `Du hast heute schon eine Dosis eingetragen, um ${hora}. Noch eine eintragen?`,
+    outraSim: 'Noch eine eintragen',
+    cancelar: 'Abbrechen',
+  },
+
   /* ⚠️ DIE SEITE KOMMT ABGEKÜRZT UND IN KLAMMERN, weil diese Etiketten in
      kurzen Zeilen stehen — Verlauf, Vorschlag des Tages, Wochenübersicht.
      „Bauch linke Seite“ passt in keine davon. */
@@ -237,6 +255,12 @@ export const tratamento = {
   telaAplicacoes: {
     aplicada: 'eingetragen',
     semCulpa: 'Kein schlechtes Gewissen wegen eines verpassten Tages — wichtig ist, wieder einzusteigen. Du kannst eine frühere Dosis jederzeit nachtragen, mit dem Knopf unten.',
+    /* mehrere Tage auf einmal, nur bei täglicher Dosis (siehe ../pt-BR) */
+    marcarDias: 'Einen Tag vergessen? Tipp auf die leeren Tage, um diese Dosen auf einmal nachzutragen.',
+    registrarDias: (n: number) => (n === 1 ? 'Dosis für 1 Tag eintragen' : `Dosen für ${n} Tage eintragen`),
+    marcarDiasNota: (injetavel: boolean) =>
+      `Jeder Tag wird mit der Dosis eingetragen, die an diesem Tag galt${injetavel ? ', ohne Stelle' : ''}.`,
+    desmarcar: 'Auswahl aufheben',
     titulo: 'Dosen',
     registrar: 'Dosis eintragen',
     lead: (med: string, molecula: string, cadencia: string) => `${med} · ${molecula} · ${cadencia}`,
@@ -276,6 +300,9 @@ export const tratamento = {
     nivelNoCorpo: 'Spiegel im Körper',
     nivelTexto: (molecula: string, meiaVida: string) =>
       `Geschätzte Menge ${molecula} im Körper, bei einer Halbwertszeit von ${meiaVida}. Der tiefste Punkt, kurz vor der nächsten Dosis, ist meist dann, wenn der Hunger zunimmt.`,
+    /* tägliche Dosis: kein Tiefpunkt, auf den man wartet (siehe ../pt-BR) */
+    nivelTextoDiario: (molecula: string, meiaVida: string) =>
+      `Geschätzte Menge ${molecula} im Körper, bei einer Halbwertszeit von ${meiaVida}. Mit einer Dosis pro Tag bleibt sie von einem Tag zum nächsten auf ähnlichem Niveau.`,
     meiaVidaDias: (dias: number) => `${dias} Tagen`,
     meiaVidaHoras: 'rund 13 Stunden',
 
@@ -440,6 +467,15 @@ export const tratamento = {
     /* Der Behälter steht hier im Nominativ — `oA` liefert nur den (siehe formas). */
     registraJunto: (oRecipiente: string, total: number, recipiente: string) =>
       `${oRecipiente.charAt(0).toUpperCase()}${oRecipiente.slice(1)} wird mit dieser Dosis eingetragen (${total} Dosen pro ${recipiente}), und ab jetzt zählen wir, wie viele bleiben.`,
+
+    /* Eine zweite Dosis am selben Tag fragt nach (tägliche Dosis, Teil
+       B1). Die Uhrzeit nur für heute: Ein vergangener Tag wird mittags
+       eingetragen. */
+    jaHaNoDia: (hora: string | null) =>
+      (hora ? `Heute ist schon eine Dosis eingetragen, um ${hora}.` : 'An diesem Tag ist schon eine Dosis eingetragen.'),
+    duplaTexto: 'Wenn es wirklich eine weitere Dosis war, trag sie ein — sie steht dann als zweite des Tages im Verlauf. Wenn nicht, wähl einfach einen anderen Tag.',
+    registrarMaisUma: 'Weitere Dosis eintragen',
+    trocarODia: 'Anderen Tag wählen',
   },
   telaTreino: {
     titulo: 'Einheit',

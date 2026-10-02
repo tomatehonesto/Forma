@@ -33,6 +33,8 @@ export const resumo = {
   aplicacoes: 'Doses',
   aplicacoesValor: (feitas: number, previstas: number) => `${feitas} sur ${previstas} prévues`,
   aplicacoesNenhuma: 'Aucune enregistrée',
+  /* doses registradas sem um "previstas" a comparar (quem trocou e ainda não registrou o regime de agora) */
+  aplicacoesRegistradas: (n: number): string => `${n} ${n === 1 ? 'enregistrée' : 'enregistrées'}`,
 
   peso: 'Poids',
   inicioAtual: 'Début → actuel',

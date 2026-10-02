@@ -1,8 +1,8 @@
 import React from 'react';
 import { View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, Redirect } from 'expo-router';
 import { useStore } from '../logic/store';
-import { cicloFases, M } from '../logic/derive';
+import { cicloFases, M, doseDiaria } from '../logic/derive';
 import { dataComDiaDaSemana } from '../logic/time';
 import { FORMAS, formaDe, injetavelDe, nomeDaMolecula } from '../logic/formas';
 import { T } from '../textos';
@@ -32,10 +32,28 @@ const K = () => T.ciclo.tela;
    e curva de previsão — quatro instrumentos para dizer uma coisa só. Uma
    barra e quatro linhas dizem o mesmo e sobra tela para o conteúdo, que é
    o que a pessoa veio ler.
+
+   ⚠️⚠️ NÃO É TELA DE QUEM TOMA TODO DIA (01/10/2026, parte B1 de
+   docs/superpowers/specs/2026-10-01-oral-e-diario-design.md). As quatro
+   fases são de um ciclo SEMANAL — sobe, estabiliza, cede até a próxima
+   dose —, e com uma dose por dia o remédio fica num nível parecido de um
+   dia para o outro: a tela diria todo dia "Dia 1 depois da dose", com a
+   subida aberta como "agora" e a descida "em 4 dias", que nunca chega. As
+   portas para cá somem para essa pessoa (a fileira e a faixa da Jornada, a
+   linha "Ciclo da dose" de /aplicacoes); quem chegar mesmo assim — um
+   link antigo, o histórico do navegador — vai para a tela das doses, que
+   é o assunto dela.
    ============================================================ */
 
 
 export default function Ciclo() {
+  const S = useStore((s) => s.S);
+  const diaria = doseDiaria(S);
+  if (diaria) return <Redirect href={'/aplicacoes' as any} />;
+  return <CicloSemanal />;
+}
+
+function CicloSemanal() {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
   const router = useRouter();

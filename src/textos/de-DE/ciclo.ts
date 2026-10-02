@@ -76,6 +76,37 @@ export const ciclo = {
      zu schlafen den ganzen Tag derer ändert, die in Behandlung sind. */
   dormiuBem: (resto: string) => `Du hast gut geschlafen — dein Körper spricht heute meist besser an. ${resto}`,
 
+  /* ---------- die tägliche Dosis: ein Zyklus mit nur einer Phase (01/10/2026) ----------
+     ⚠️ Die Gründe stehen in ../pt-BR/ciclo.ts. Mit einer Dosis pro Tag
+     bleibt der Spiegel von Tag zu Tag ähnlich — kein Anstieg, kein
+     Höhepunkt, kein Tief —, also gelten die fünf Etappen unten nicht, und
+     die Startseite wechselt zwischen diesen drei Hinweisen. Keiner erklärt,
+     wie man das Medikament nimmt (nüchtern, Wasser, Uhrzeit): Das ist
+     klinisch und bleibt im Gespräch mit der KI. „Mit einer Dosis pro Tag“,
+     nie „eingenommen“: Saxenda wird gespritzt, und diese Sätze kennen die
+     Form nicht. */
+  faseDiariaLabel: 'Tägliche Dosis',
+  faseDiariaRange: 'Jeden Tag',
+  faseDiariaHint: 'Mit einer Dosis jeden Tag bleibt die Wirkung gleichmäßig.',
+  diariaQ: 'Wie wirkt ein tägliches Medikament?',
+  diarios: [
+    {
+      head: 'Mit einer Dosis jeden Tag bleibt die Wirkung gleichmäßig.',
+      body: 'Mit einer Dosis pro Tag bleibt das Medikament von Tag zu Tag auf einem ähnlichen Spiegel — Hunger und Übelkeit, wenn sie auftreten, folgen keinem festen Wochentag.',
+      q: 'Wie wirkt ein tägliches Medikament?',
+    },
+    {
+      head: 'Regelmäßigkeit hält den Spiegel gleichmäßig.',
+      body: 'Jede Dosis, die du hier einträgst, macht deine Behandlungswoche vollständiger — und genau diese Folge von Tagen geht in die Zusammenfassung für deinen Termin.',
+      q: 'Warum ist die Dosis jeden Tag?',
+    },
+    {
+      head: 'Bei gleichmäßiger Wirkung macht dein Teller den Tag.',
+      body: 'Mit Eiweiß anzufangen und genug zu trinken hält den Hunger zwischen den Mahlzeiten meist besser in Schach.',
+      q: 'Wie stelle ich meine Mahlzeiten zusammen?',
+    },
+  ],
+
   /* ============================================================
      DIE FÜNF ETAPPEN — der Fortschrittsbalken des Zyklus
 

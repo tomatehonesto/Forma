@@ -1,5 +1,5 @@
 import type { State } from '../seed';
-import { aguaDoDia } from '../derive';
+import { aguaDoDia, doseDiaria } from '../derive';
 import { paraTela, grauDoSintoma } from '../escalas';
 import { startOfDay, now } from '../time';
 import { alimentacao as alimPt } from '../../textos/pt-BR/alimentacao';
@@ -76,7 +76,13 @@ export function diasDaJanela(S: State, agora: Date = now()): Dia[] {
   const checkins = ((S as any).checkins ?? []) as any[];
   const refeicoes = ((S as any).meals ?? []) as any[];
   const aplicacoes = (((S as any).injections ?? []) as any[]).map((i) => +startOfDay(i.t));
-  const temAplicacoes = aplicacoes.length > 0;
+  /* ⚠️ NA DOSE DIÁRIA, "UM OU DOIS DIAS DEPOIS DA DOSE" É TODO DIA
+     (01/10/2026, parte B1 de docs/superpowers/specs/2026-10-01-oral-e-diario-design.md).
+     No semanal, dois de sete dias são "com"; no diário seriam todos — ou,
+     pior, só os dias seguintes a um esquecimento seriam "sem", e o detector
+     de hábitos cruzaria a fome e o humor com o esquecimento chamando isso
+     de efeito da dose. Nulo é "não se aplica": o par não é montado. */
+  const temAplicacoes = aplicacoes.length > 0 && !doseDiaria(S);
 
   const dias: Dia[] = [];
   /* Os dias pelo calendário, e não de 24 em 24 horas (ver noCalendario). */

@@ -153,6 +153,10 @@ export const home = {
     /* ⚠️ SEMANA VAZIA TEM FRASE PRÓPRIA, e não um espaço em branco: uma
        semana sem registro aconteceu, e o capítulo dela existe. */
     semRegistros: 'Sem registros nesta semana',
+    /* ⚠️ A SEMANA DE QUEM TOMA TODO DIA QUE SÓ TEVE DOSE (01/10/2026, achado
+       da revisão): o cabeçalho já conta as doses ("7 de 7 doses"), e "Sem
+       registros" logo abaixo negava o que ele acabou de afirmar. */
+    semOutrosRegistros: 'Nenhum outro registro nesta semana',
 
     /* Os destaques numéricos do ciclo. */
     hidratacao: 'Hidratação',
@@ -165,6 +169,16 @@ export const home = {
     minutos: (quanto: number) => `${quanto} min`,
     deltaGramas: (quanto: string) => `${quanto} g`,
     deltaMinutos: (quanto: string) => `${quanto} min`,
+
+    /* ⚠️ A CONTAGEM DA SEMANA DE QUEM TOMA TODO DIA (01/10/2026, parte B2
+       de docs/superpowers/specs/2026-10-01-oral-e-diario-design.md): no
+       cabeçalho de cada semana, "6 de 7 doses", ao lado do remédio. Os
+       dias contam até hoje — e hoje só depois da dose dele —, por isso o
+       segundo número pode ser menor que sete. E O ZERO TEM FRASE PRÓPRIA:
+       "0 de 4 doses" lê como cobrança, e o que sabemos é só que nenhuma
+       foi registrada — a mesma regra do "SEM REGISTRO" da Home. */
+    dosesDaSemana: (feitas: number, dias: number) =>
+      (feitas === 0 ? 'Nenhuma dose registrada' : `${feitas} de ${dias} ${dias === 1 ? 'dose' : 'doses'}`),
   },
 
   /* ============================================================
@@ -258,6 +272,14 @@ export const home = {
        registrado. */
     diasComCheckinSo: (feitos: number, dias: number) =>
       `${feitos} de ${dias} ${dias === 1 ? 'dia' : 'dias'} com check-in`,
+    /* ⚠️ A LINHA DE QUEM TOMA TODO DIA (01/10/2026, parte B2): a semana de
+       dose é a do tratamento — a do "SEMANA N" logo acima —, e conta DIAS
+       com dose: "5 de 7 dias com dose", e não "1 de 1 semana com dose" a
+       quem esqueceu metade dos dias. Os números de dose saem de
+       `diasComDoseNaSemana` (logic/derive); com zero dias a contar (o
+       primeiro dia da semana, antes da dose), vale a linha de cima. */
+    diasComCheckinEDose: (feitos: number, dias: number, comDose: number, diasDaSemana: number) =>
+      `${feitos} de ${dias} ${dias === 1 ? 'dia' : 'dias'} com check-in · ${comDose} de ${diasDaSemana} ${diasDaSemana === 1 ? 'dia' : 'dias'} com dose`,
     /* A faixa da fase, antes de haver fase: de onde o ciclo vai contar. */
     primeiraDose: 'Primeira dose',
     primeiraDoseTexto: 'O ciclo começa a contar da primeira dose que você registrar.',

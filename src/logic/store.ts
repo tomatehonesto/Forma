@@ -1,7 +1,7 @@
 /* Store — zustand + persistência AsyncStorage (equivale ao load/save/localStorage do protótipo). */
 import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { buildSeed, comNotificacoesDeExemplo, estadoVazio, ensureDefaults, type State, type Tema } from './seed';
+import { buildSeed, comNotificacoesDeExemplo, estadoVazio, ensureDefaults, iniciarMarcaDaEscadaDiaria, type State, type Tema } from './seed';
 import { fingirModo, modoFingido, marcarPreviaDeIdioma, type Modo } from './modo';
 import { trocarLocal, type Local } from './local';
 import { carimbar } from './identidade';
@@ -208,6 +208,9 @@ export const useStore = create<Store>((set, get) => ({
     /* O item novo ganha a sua identidade aqui, na hora — nenhuma tela
        precisa saber que ela existe. Ver logic/identidade. */
     carimbar(s);
+    /* Trocou para um remédio diário com o app aberto: a escada diária de
+       doses nasce já vista no nível de agora (ver seed). */
+    iniciarMarcaDaEscadaDiaria(s);
     if (!modoFingido()) AsyncStorage.setItem(KEY, JSON.stringify(s)).catch(() => {});
     set({ S: s });
   },

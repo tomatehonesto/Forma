@@ -39,6 +39,8 @@ export const resumo = {
   /* Sem dose prevista, a conta não tem pergunta: "0 de 0 previstas" saía
      no documento que vai para o médico. */
   aplicacoesNenhuma: 'Nenhuma registrada',
+  /* doses registradas sem um "previstas" a comparar (quem trocou e ainda não registrou o regime de agora) */
+  aplicacoesRegistradas: (n: number): string => `${n} ${n === 1 ? 'registrada' : 'registradas'}`,
 
   /* ---------------- peso ---------------- */
   peso: 'Peso',

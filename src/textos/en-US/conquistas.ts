@@ -38,6 +38,10 @@ export const conquistas = {
   doses: 'Doses',
   dosesDesc: (a: number) => `${p(a, 'dose')} logged`,
   dosesFalta: (r: number) => `${p(r, 'dose')} to go`,
+  /* ⚠️ For a daily dose the track counts DAYS with a dose (01/10/2026) —
+     levels of 7, 30, 90, 180 and 365 days. See ../pt-BR/conquistas.ts. */
+  dosesDiasDesc: (a: number) => `${p(a, 'day')} with a dose`,
+  dosesDiasFalta: (r: number) => `${p(r, 'day')} with a dose to go`,
 
   tempo: 'Time in treatment',
   /* Under a year it counts in months, from there in years: "12 months"

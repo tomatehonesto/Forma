@@ -12,6 +12,7 @@ import {
   waterMlToday, litros, checkinToday, protocoloDaSemana, weekGrid, last7Days, M,
   sintomasDaSemana, diasDeSintomas, type Change, type TLEvent, type TLKind, type WeekMetric,
   diasAteAplicar, semanasDaGrade, temCiclo, diaDoTratamento, temHistoria,
+  doseDiaria, temFasesDoCiclo, diasComDoseNaSemana, semanaDoTratamentoEm,
 } from '../../logic/derive';
 import { now, fmtDate, relDay, nf, quandoEm, startOfDay } from '../../logic/time';
 import { destaquesDoPeriodo } from '../../logic/resumoDaSemana';
@@ -111,6 +112,42 @@ function Painel() {
   const comCiclo = temCiclo(S);
   const dia = diaDoTratamento(S);
 
+  /* ============================================================
+     O PAINEL DE QUEM TOMA TODO DIA (01/10/2026, partes B1 e B2 de
+     docs/superpowers/specs/2026-10-01-oral-e-diario-design.md)
+
+     ⚠️ A CONSTÂNCIA É DE DIAS, E NÃO DE SEMANAS. "4 de 4 semanas com
+     dose" contava como cumprida a semana com um comprimido em sete — e
+     afirmava isso a quem tinha perdido vinte de vinte e oito doses. Para
+     quem toma todo dia a linha diz quantos dias DESTA SEMANA DO
+     TRATAMENTO tiveram dose ("5 de 7 dias com dose"): a semana do
+     "SEMANA N" logo acima, a mesma dos blocos de "Seu tratamento". Os dias
+     contam até hoje, e hoje só depois da dose dele (`diasComDoseNaSemana`);
+     no primeiro dia de uma semana, antes da dose, não há o que contar, e
+     a linha fala só do check-in.
+
+     ⚠️ O NÚMERO DA SEMANA É O DE AGORA, e não o `protocol.week` gravado:
+     aquele só se refaz quando o aplicativo abre (logic/seed), e os blocos
+     de "Seu tratamento" contam pelo relógio. Na virada da semana com o
+     aplicativo aberto, o painel diria "SEMANA 4" em cima de um bloco
+     "Semana 5". Para quem toma por semana, o mesmo de sempre.
+
+     ⚠️ E O CICLO SEMANAL SAI: a faixa da fase ("Dia 1 depois da dose",
+     todo dia), a porta para /ciclo e o "dose amanhã" da fileira, que
+     seria a contagem regressiva de todo dia. A faixa de quem ainda não
+     registrou a primeira dose fica — ela é o convite, e não uma fase. */
+  const diaria = doseDiaria(S);
+  const fases = temFasesDoCiclo(S);
+  const semanaDoPainel = diaria ? semanaDoTratamentoEm(S, +now()) : r.semana;
+  const doDiario = diaria && comCiclo ? diasComDoseNaSemana(S) : null;
+  const linhaDosDias = doDiario
+    ? (doDiario.dias > 0
+      ? K().diasComCheckinEDose(feitos, diasVividos, doDiario.feitos, doDiario.dias)
+      : K().diasComCheckinSo(feitos, diasVividos))
+    : comCiclo ? K().diasComCheckin(feitos, diasVividos, aplicadas, vividas) : K().diasComCheckinSo(feitos, diasVividos);
+  /* A faixa: a da fase, só no ciclo semanal; a do convite, sem ciclo. */
+  const mostraFaixa = !comCiclo || fases;
+
   return (
     /* Sobe até o topo da tela: o rótulo da aba já diz "Jornada", então o
        espaço vira conteúdo. A safe area entra como padding interno.
@@ -129,7 +166,7 @@ function Painel() {
       {/* Antes da primeira dose não há semana nem dia de tratamento: a
           linha diz o mesmo que a Home diz embaixo do nome. */}
       <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 1.2 }}>
-        {dia.antes ? dia.texto.toUpperCase() : K().semanaEDia(r.semana, r.dia)}
+        {dia.antes ? dia.texto.toUpperCase() : K().semanaEDia(semanaDoPainel, r.dia)}
       </Txt>
 
       <Row style={{ alignItems: 'center', marginTop: 12 }}>
@@ -242,14 +279,21 @@ function Painel() {
           dia, e ainda dá tempo.
 
           O ciclo da dose não sumiu do app: ele continua em /ciclo, que é
-          para onde este bloco leva. */}
-      <Pressable onPress={() => router.push('/ciclo' as any)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
+          para onde este bloco leva.
+
+          ⚠️ MENOS NA DOSE DIÁRIA (01/10/2026): sem cinco fases a contar, o
+          bloco não leva a lugar nenhum — cada dia continua abrindo o seu. */}
+      <Pressable
+        onPress={() => router.push('/ciclo' as any)}
+        disabled={diaria}
+        style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
+      >
         <View style={{ marginTop: 40 }}>
           <Row style={{ justifyContent: 'space-between' }}>
             <Txt v="micro" c={c.onHero2} style={{ letterSpacing: 1 }}>
               {K().ultimos7}
             </Txt>
-            {comCiclo ? (
+            {comCiclo && !diaria ? (
               <Txt v="tag" c={c.onHero}>
                 {K().doseEm(quandoEm(ndDays).label)}
               </Txt>
@@ -301,7 +345,7 @@ function Painel() {
           </Row>
 
           <Txt v="caption" c={c.onHero} style={{ marginTop: 8 }}>
-            {comCiclo ? K().diasComCheckin(feitos, diasVividos, aplicadas, vividas) : K().diasComCheckinSo(feitos, diasVividos)}
+            {linhaDosDias}
           </Txt>
         </View>
       </Pressable>
@@ -321,6 +365,11 @@ function Painel() {
           ela. */}
       {/* Sem ciclo não há fase: a faixa diz de onde ele vai começar a
           contar, e o toque leva ao registro da primeira dose. */}
+      {/* ⚠️ NA DOSE DIÁRIA COM DOSE REGISTRADA, A FAIXA NÃO EXISTE
+          (01/10/2026, parte B1): a fase seria a mesma todo dia e a porta
+          levaria a /ciclo, que é de uma semana. O pé do painel guarda o
+          mesmo respiro que ela deixava embaixo. */}
+      {mostraFaixa ? (
       <Pressable
         onPress={() => router.push((comCiclo ? '/ciclo' : '/aplicacao') as any)}
         style={({ pressed }) => [{ opacity: pressed ? 0.75 : 1, marginTop: 22, marginBottom: 26 }]}
@@ -336,6 +385,7 @@ function Painel() {
           <Icon name="chev" size={15} color={c.onHero2} sw={2} />
         </Row>
       </Pressable>
+      ) : <View style={{ height: 26 }} />}
 
     </View>
   );
@@ -441,8 +491,14 @@ function Semana({ w, proxT, filtro, aberto, onToggle }: { w: any; proxT: number;
           </View>
         )}
       </Row>
+      {/* ⚠️ NA DOSE DIÁRIA, O CABEÇALHO CONTA OS DIAS COM DOSE (01/10/2026,
+          parte B2): a semana é um bloco de 7 dias do tratamento, e a linha
+          diz "6 de 7 doses · Rybelsus 7 mg" no lugar de "dose · local" —
+          que seriam sete (logic/derive, `timelineWeeks`). A contagem só
+          existe no bloco diário; na semana semanal, e na semana de caneta
+          de quem trocou para o comprimido, a linha é a de sempre. */}
       <Txt v="caption" c={c.tx3} style={{ marginTop: 5 }}>
-        {filtro ? fmtDate(new Date(w.t)) : [w.dose, w.site].filter(Boolean).join(' · ')}
+        {filtro ? fmtDate(new Date(w.t)) : [w.dosesTexto, w.dose, w.site].filter(Boolean).join(' · ')}
       </Txt>
       {!filtro && <Txt v="caption" c={c.tx4} style={{ marginTop: 3 }} numberOfLines={1}>{w.resumo}</Txt>}
     </>

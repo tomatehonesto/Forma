@@ -1,9 +1,9 @@
 /* Seletores / cálculos determinísticos — porta verbatim (S passa como parâmetro). */
 import {
   DAY, startOfDay, now, daysAgo, addDays, diffDays, fmtDate, hm, diasDaSemana, nf, kg, relDay,
-  doseTxt, MO_LONG, semanaDoTratamento, quandoEm, dataLonga, kgTxt, maiuscula,
+  doseTxt, MO_LONG, semanaDoTratamento, quandoEm, dataLonga, kgTxt, maiuscula, fmtTime,
 } from './time';
-import { MEDS, CADENCE_DAYS, SHELF_DAYS } from './meds';
+import { MEDS, SHELF_DAYS, cadenciaDoPerfil, doseDiaria } from './meds';
 import { numeroEnxuto, primeiroDiaDaSemana } from './local';
 import {
   FORMAS, formaDe, oA, noNa, nomeDaMolecula, injetavelDe, iconeDaDose, iconeDeDose, localDaDose, remedioDaDose,
@@ -224,7 +224,259 @@ export const goalProgress = (S: State) => {
   if (!caminho) return 0;
   return Math.max(0, Math.min(100, ((startWeight(S) - curWeight(S)) / caminho) * 100));
 };
-export const lastInjection = (S: State) => (S.injections.length ? S.injections[S.injections.length - 1] : null);
+/* ⚠️⚠️ A ÚLTIMA DOSE É A DE DATA MAIS RECENTE, E NÃO A ÚLTIMA DA LISTA
+   (01/10/2026, conserto que vale para todos — parte B1 de
+   docs/superpowers/specs/2026-10-01-oral-e-diario-design.md).
+
+   Era `S.injections[length - 1]`, e a lista só fica em ordem de data por
+   sorte: o registro faz `push`, e a folha deixa escolher o dia. Quem
+   lembrava hoje da dose de anteontem e a registrava passava a ter, como
+   "última", uma dose de dois dias atrás — a próxima dose voltava dois
+   dias, o ciclo da Home andava para trás, e o registro ainda trocava a
+   dose do perfil pela daquele dia. E a sincronia insere pela data
+   (traducao, `inserirPeloMomento`): dois aparelhos podiam discordar da
+   próxima dose da mesma pessoa.
+
+   No empate de instante vale a registrada por último, que era o que a
+   leitura antiga devolvia. */
+export const lastInjection = (S: State): State['injections'][number] | null => {
+  let ultima: State['injections'][number] | null = null;
+  for (const i of S.injections ?? []) if (!ultima || i.t >= ultima.t) ultima = i;
+  return ultima;
+};
+
+/** As doses em ordem de data, da mais antiga à mais nova — uma cópia: a
+    lista guardada fica como está. */
+export const dosesEmOrdem = (S: State): any[] =>
+  ((S.injections ?? []) as any[]).slice().sort((a, b) => a.t - b.t);
+
+/* ⚠️ A DOSE DO PERFIL SÓ ANDA COM A DOSE MAIS NOVA (01/10/2026). O registro
+   escrevia `profile.dose = dose` em todo salvar, inclusive no retroativo:
+   quem anotava hoje a dose de 3 mg de duas semanas atrás, já em 7 mg,
+   voltava a "estar" em 3 mg — e a próxima dose, o lembrete e o resumo do
+   médico iam junto. Quem grava uma dose pergunta isto antes. */
+/** Uma dose com este instante passaria a ser a mais recente do diário? */
+export const seriaAMaisRecente = (S: State, t: number) =>
+  !((S.injections ?? []) as any[]).some((i) => i.t > t);
+
+/* ⚠️ GRAVAR UMA DOSE É ISTO, E NÃO UM `push` (01/10/2026). A dose entra no
+   lugar da data dela — a mesma ordem em que a sincronia a poria
+   (traducao, 'antigo-primeiro') —, e a dose do perfil só muda quando a
+   nova é a mais recente. Recebe o estado que o `update` da loja entrega,
+   já copiado; quem chama monta a dose inteira (instante, `med`, dose,
+   local quando é injetada). */
+export function gravarDose(s: State, dose: { t: number; dose: number; [k: string]: unknown }) {
+  const lista = ((s as any).injections ?? ((s as any).injections = [])) as any[];
+  const maisNova = seriaAMaisRecente(s, dose.t);
+  const i = lista.findIndex((x) => typeof x?.t === 'number' && x.t > dose.t);
+  if (i < 0) lista.push(dose);
+  else lista.splice(i, 0, dose);
+  if (maisNova) (s.profile as any).dose = dose.dose;
+}
+
+/** O remédio e a dose que estavam em uso no dia `d` (00h): os da dose
+    registrada mais próxima antes dele; sem nenhuma antes, os da primeira
+    depois; sem dose nenhuma, os do perfil.
+
+    ⚠️ É O QUE UM DIA ESQUECIDO RECEBE (01/10/2026, achado da revisão). A
+    grade de /aplicacoes marcava vários dias de uma vez com a dose do
+    PERFIL — a de hoje —, e quem subiu de 3 para 7 mg ontem gravava 7 mg em
+    toda a semana passada: um degrau de titulação que não houve, ou o
+    remédio novo em dias do antigo. */
+export function doseEmUsoNoDia(S: State, d: number): { med: string; dose: number } {
+  /* ⚠️ NO DIÁRIO, SÓ AS DOSES DIÁRIAS (01/10/2026, achado da revisão): quem
+     trocou de Mounjaro para Rybelsus e marcava um dia esquecido logo depois
+     da troca ganhava uma injeção da caneta semanal — que nenhuma conta do
+     diário enxerga. O dia esquecido de agora é um comprimido do regime de
+     agora; sem dose diária registrada ainda, a do perfil. */
+  const injs = doseDiaria(S) ? dosesEmOrdem(S).filter((i) => diariaNaDose(S, i)) : dosesEmOrdem(S);
+  const dia = (t: number) => +startOfDay(new Date(t));
+  const ref = [...injs].reverse().find((i) => dia(i.t) <= d) ?? injs.find((i) => dia(i.t) > d) ?? null;
+  return { med: ref?.med || S.profile.med, dose: ref?.dose ?? (S.profile as any).dose };
+}
+
+/** As doses registradas no dia de `t` (00h a 00h), em ordem de hora. Uma
+    segunda dose no mesmo dia pede confirmação na tela (risco de dose
+    dobrada, parte B1) — é por esta lista que ela sabe. */
+export const dosesNoDia = (S: State, t: number): any[] => {
+  const dia = +startOfDay(new Date(t));
+  return dosesEmOrdem(S).filter((i) => +startOfDay(new Date(i.t)) === dia);
+};
+
+/* ============================================================
+   A DOSE DIÁRIA — o hábito do dia e a semana do tratamento
+   (01/10/2026, parte B de docs/superpowers/specs/2026-10-01-oral-e-diario-design.md)
+
+   `doseDiaria` mora em meds (ver lá por quê) e sai daqui também, para as
+   telas importarem do mesmo lugar de sempre. É a pergunta que guarda
+   TODA mudança desta parte: quem toma por semana não vê nada mudar.
+
+   As decisões do dono que este bloco implementa:
+
+   · A DOSE DE HOJE É UM TOQUE, como o check-in. Nada é presumido: a dose
+     que não foi registrada não existe para conta nenhuma, e a constância
+     é de DIAS com dose registrada — duas doses no mesmo dia são um dia.
+
+   · A SEMANA DE QUEM TOMA TODO DIA É A DO TRATAMENTO: blocos de 7 dias
+     contados do início, a mesma régua do painel da Jornada ("SEMANA N ·
+     DIA D" — `S.protocol.week`, que é `semanaDoTratamento(agora,
+     startT)`, e `journeyDay`). Para o semanal a semana continua indo de
+     uma dose à outra; para o diário isso daria uma "semana" por dia.
+   ============================================================ */
+export { doseDiaria };
+
+/** O dia (00h) em que a semana 1 do tratamento começa — a régua do painel
+    (`startT`). Sem início gravado, o dia da primeira dose; sem as duas,
+    nulo. */
+export function inicioDoTratamento(S: State): number | null {
+  const st = S.profile?.startT;
+  if (st) return +startOfDay(new Date(st));
+  const primeira = dosesEmOrdem(S)[0];
+  return primeira ? +startOfDay(new Date(primeira.t)) : null;
+}
+
+/** A semana do tratamento (1, 2, 3…) em que cai o instante `t` — a mesma
+    conta de `semanaDoTratamento`, sobre a mesma âncora do painel. */
+export const semanaDoTratamentoEm = (S: State, t: number) => {
+  const ini = inicioDoTratamento(S);
+  return ini == null ? 1 : semanaDoTratamento(t, ini);
+};
+
+/* O dia `k` dias depois de `t`, às 00h, contado pelo CALENDÁRIO — e não
+   somando 24 horas, pelo motivo de `noCalendario` (descobertasDaSemana/
+   dias): onde há horário de verão, a soma cai às 23h da véspera e a
+   semana começa no dia errado. */
+const diaDoCalendario = (t: number, k: number) => {
+  const d = new Date(t);
+  return +new Date(d.getFullYear(), d.getMonth(), d.getDate() + k);
+};
+
+/** A janela da semana `n` do tratamento: `ini` às 00h e `fim` exclusivo,
+    sete dias depois.
+
+    ⚠️ A SEMANA 1 PODE COMEÇAR ANTES DO INÍCIO. `semanaDoTratamento` nunca
+    devolve menos de 1, então uma dose registrada antes do `startT` (a
+    data que a pessoa contou e uma dose retroativa de antes dela) cai na
+    semana 1 — e a janela da semana 1 se estende até ela, para nenhuma dose
+    ficar fora de semana nenhuma. */
+export function janelaDaSemanaDoTratamento(S: State, n: number): { ini: number; fim: number } {
+  const ancora = inicioDoTratamento(S) ?? +startOfDay(now());
+  let ini = diaDoCalendario(ancora, (n - 1) * 7);
+  if (n <= 1) {
+    const primeira = dosesEmOrdem(S)[0];
+    if (primeira) ini = Math.min(ini, +startOfDay(new Date(primeira.t)));
+  }
+  return { ini, fim: diaDoCalendario(ancora, n * 7) };
+}
+
+/** Os dias (00h) com pelo menos uma dose registrada, sem repetir. */
+export const diasComDose = (S: State): number[] =>
+  [...new Set(((S.injections ?? []) as any[]).map((i) => +startOfDay(new Date(i.t))))].sort((a, b) => a - b);
+
+/* ⚠️ QUANTOS DIAS DE UMA JANELA CONTAM, e hoje só conta depois da dose.
+
+   Os dias contam até hoje, e não até o fim da semana: "2 de 7" na terça
+   cobraria cinco dias que ainda não chegaram. E o próprio HOJE só entra
+   quando a dose dele já foi registrada — às oito da manhã, antes do
+   comprimido, "3 de 4 doses" afirmaria uma dose perdida num dia que ainda
+   não acabou. Depois do toque, entra: "4 de 4". A mesma regra serve ao
+   painel da Jornada e ao cabeçalho de cada semana, para os dois números
+   nunca discordarem sobre a mesma semana.
+
+   ⚠️⚠️ E A CONTA COMEÇA NO REGIME DIÁRIO DE AGORA, e não no começo da
+   janela (01/10/2026, achado da revisão). Contava de `ini`, e todo dia
+   antes da primeira dose diária virava dose perdida: quem já tinha
+   começado e entrou no aplicativo na quarta lia "1 de 4" na primeira
+   semana; quem esperou a receita depois do `startT`, "1 de 7"; quem trocou
+   a caneta semanal pelo comprimido na sexta, "2 de 7" — os dias da caneta
+   cobrados como comprimido esquecido. Os dias antes de `inicioDoDiario`
+   não são devidos nem feitos; quando o regime começa depois da janela,
+   `dias` é zero, e o painel volta para a linha só do check-in. */
+function contagemDaJanela(S: State, ini: number, fim: number) {
+  const desde = inicioDoDiario(S);
+  if (desde == null) return { feitos: 0, dias: 0 };
+  const de = Math.max(ini, desde);
+  const hoje = +startOfDay(now());
+  const com = new Set(diasComDose(S).filter((d) => d >= de && d < fim));
+  const ultimoDia = Math.min(diaDoCalendario(fim, -1), com.has(hoje) ? hoje : diaDoCalendario(hoje, -1));
+  let dias = 0;
+  for (let d = de; d <= ultimoDia; d = diaDoCalendario(d, 1)) dias++;
+  const feitos = [...com].filter((d) => d <= ultimoDia).length;
+  return { feitos, dias };
+}
+
+/* A dose foi de um remédio diário? Pela dose, como a forma (logic/formas):
+   a do remédio de agora segue a cadência do perfil, que pode ter
+   `intervalo`; a de outro remédio, o catálogo. Morava dentro de
+   `semanasDoDiario` e subiu para cá (01/10/2026): a contagem dos dias
+   também precisa dela, para saber onde o regime diário começou. */
+const diariaNaDose = (S: State, d: any) =>
+  (!d?.med || d.med === S.profile.med ? doseDiaria(S) : MEDS[d.med]?.cad === 'daily');
+/** A dose registrada é de um regime diário? (pelo remédio dela; ver diariaNaDose) */
+export const doseEhDiaria = diariaNaDose;
+
+/** O dia (00h) em que começou o regime diário de agora: a primeira dose
+    diária depois da última dose que não era diária — sem troca de remédio,
+    a primeira dose registrada (a do cadastro, para quem já tinha
+    começado). Nulo quando a dose mais nova não é diária (trocou de
+    remédio e ainda não registrou o novo) ou quando não há dose.
+
+    ⚠️ E NUNCA ANTES DA ENTRADA NO APLICATIVO — a regra de `last7Days`: o
+    aceite do cadastro, ou o primeiro registro se ele vier antes. Hoje ela
+    não morde, porque a primeira dose é um registro e a entrada nunca vem
+    depois dela; fica escrita para as duas regras não se separarem no dia
+    em que uma delas mudar (01/10/2026, achado da revisão). */
+export function inicioDoDiario(S: State): number | null {
+  const injs = dosesEmOrdem(S);
+  let k = injs.length;
+  for (let i = injs.length - 1; i >= 0 && diariaNaDose(S, injs[i]); i--) k = i;
+  if (k >= injs.length) return null;
+  const regime = +startOfDay(new Date(injs[k].t));
+  const aceite = (S.profile as any)?.consentimento?.em;
+  if (typeof aceite !== 'number') return regime;
+  const primeiro = Math.min(
+    ...((S.checkins ?? []) as any[]).map((c) => +startOfDay(new Date(c.t))),
+    ...injs.map((i) => +startOfDay(new Date(i.t))),
+  );
+  return Math.max(regime, Math.min(+startOfDay(new Date(aceite)), primeiro));
+}
+
+/** Os dias do regime diário até hoje — com hoje só depois da dose dele, a
+    regra de `contagemDaJanela`. É a constância de quem toma todo dia: a
+    adesão, a pastilha de Cuidado e o resumo médico contam por aqui. */
+export function diasDoDiario(S: State): { feitos: number; dias: number } {
+  const desde = inicioDoDiario(S);
+  if (desde == null) return { feitos: 0, dias: 0 };
+  return contagemDaJanela(S, desde, diaDoCalendario(+startOfDay(now()), 1));
+}
+
+/** A semana do tratamento de hoje, para o painel da Jornada ("5 de 7 dias
+    com dose"): o número da semana, os dias com dose e os dias que contam
+    — até hoje, com hoje só depois da dose dele (ver `contagemDaJanela`).
+    `dias` é zero no primeiro dia da semana antes da primeira dose dela,
+    e quando não há regime diário a contar (`inicioDoDiario` nulo): não há
+    nada a contar ainda. */
+export function diasComDoseNaSemana(S: State): { semana: number; feitos: number; dias: number; ini: number; fim: number } {
+  const semana = semanaDoTratamentoEm(S, +now());
+  const { ini, fim } = janelaDaSemanaDoTratamento(S, semana);
+  return { semana, ...contagemDaJanela(S, ini, fim), ini, fim };
+}
+
+/** A dose de hoje, para o cartão "Dose de hoje" da Home: se já foi
+    registrada, quando e qual. Com mais de uma no dia, a última — e
+    `quantas` diz quantas foram (a segunda pede confirmação na tela). */
+export function doseDeHoje(S: State): { feita: boolean; t?: number; dose?: number; quantas: number } {
+  const hoje = dosesNoDia(S, +now());
+  const ult = hoje[hoje.length - 1];
+  return ult ? { feita: true, t: ult.t, dose: ult.dose, quantas: hoje.length } : { feita: false, quantas: 0 };
+}
+
+/** O que foi construído em cima de um ciclo SEMANAL de nível do remédio —
+    as cinco fases, o "vale" da fome, a janela do enjoo, o padrão do ciclo
+    nos sintomas — vale para esta pessoa? Só com ciclo (dose definida e uma
+    dose registrada) e sem dose diária: o remédio diário fica em nível
+    estável, e esses achados inventariam um padrão (parte B1). */
+export const temFasesDoCiclo = (S: State) => temCiclo(S) && !doseDiaria(S);
 
 /* ============================================================
    HÁ UM CICLO A CONTAR?
@@ -284,10 +536,10 @@ export const temRitmo = (S: State) => {
    direto. Sem isto a resposta seria lida na tela do cadastro e jogada
    fora — que é exatamente o defeito que o "Quando" da tela de aplicação
    já teve. */
-export const cadenciaDias = (S: State) => {
-  const i = (S.profile as any).intervalo;
-  return typeof i === 'number' && i > 0 ? i : CADENCE_DAYS(S.profile.med);
-};
+/* ⚠️ A REGRA DESCEU PARA O CATÁLOGO (01/10/2026): `cadenciaDoPerfil`, em
+   meds, para a pergunta "é dose diária?" ter uma resposta só — a trilha de
+   doses das conquistas também a faz, e não pode importar este arquivo. */
+export const cadenciaDias = (S: State) => cadenciaDoPerfil(S.profile as any);
 
 /** A idade, contada da data de nascimento — inclusive se já fez anos. */
 export const idadeDe = (S: State) => {
@@ -330,6 +582,11 @@ export const cadenciaCurta = (S: State) => {
 
 export function nextInjectionDate(S: State) {
   const li = lastInjection(S); if (!li) return startOfDay(now());
+  /* ⚠️ NA DOSE DIÁRIA, AMANHÃ PELO CALENDÁRIO (01/10/2026, achado da
+     revisão). `addDays` soma 24 h, e a dose do dia em que o relógio volta
+     uma hora (25/10 em Berlim) tinha a "próxima" às 23h do mesmo dia — e
+     `diasAteAplicar` dizia que ela era hoje. O semanal fica como era. */
+  if (doseDiaria(S)) return new Date(diaDoCalendario(+startOfDay(new Date(li.t)), cadenciaDias(S)));
   return addDays(startOfDay(new Date(li.t)), cadenciaDias(S));
 }
 /* QUANTAS DOSES O TRATAMENTO PREVIA ATÉ HOJE.
@@ -355,18 +612,54 @@ export function nextInjectionDate(S: State) {
    outra ponta.
 
    Sem nenhuma aplicação não há régua: zero, e não um. */
+/* ⚠️⚠️ NA DOSE DIÁRIA, AS PREVISTAS SÃO OS DIAS DO REGIME DIÁRIO, COM HOJE
+   SÓ DEPOIS DA DOSE DELE (01/10/2026, achado da revisão). A conta de
+   cima cobrava o dia de hoje desde a meia-noite: às oito da manhã, antes
+   do comprimido, a pastilha de Cuidado dizia "20 de 21 doses" a quem não
+   tinha perdido nenhuma — todo santo dia —, enquanto o painel da Jornada,
+   na mesma hora, dizia "7 de 7". E contava da primeira dose de todas, e
+   não do começo do regime diário: quem trocou a caneta pelo comprimido
+   devia um comprimido por dia de caneta. Agora é `diasDoDiario`, a mesma
+   régua do painel e dos blocos. O semanal fica como era. */
 export const dosesPrevistas = (S: State) => {
+  if (doseDiaria(S)) return diasDoDiario(S).dias;
   const injs = (S.injections as any[]) ?? [];
   if (!injs.length) return 0;
   const primeira = Math.min(...injs.map((i) => i.t));
   return Math.floor(diffDays(now(), new Date(primeira)) / cadenciaDias(S)) + 1;
 };
 
+/** As doses feitas que se põem contra `dosesPrevistas` — o numerador da
+    adesão, da pastilha de Cuidado e do resumo médico, numa função só para
+    os três não voltarem a discordar.
+
+    ⚠️ NA DOSE DIÁRIA, A CONTA É DE DIAS COM DOSE (01/10/2026, decisão do
+    dono — parte B1). Duas doses registradas no mesmo dia são um dia, e
+    não dois: contadas como doses, uma dose dobrada por engano tapava o
+    buraco de um dia esquecido e a adesão saía maior do que a verdade. E
+    são os dias do mesmo período das previstas (`diasDoDiario`): uma dose
+    da caneta de antes da troca não é um dia de comprimido, e a dose de
+    hoje só entra junto com o dia de hoje. */
+export const dosesFeitas = (S: State) =>
+  (doseDiaria(S) ? diasDoDiario(S).feitos : ((S.injections ?? []) as any[]).length);
+
 export function adesao(S: State) {
   const previstas = dosesPrevistas(S);
   if (!previstas) return 0;
-  return Math.max(0, Math.min(100, Math.round((S.injections.length / previstas) * 100)));
+  return Math.max(0, Math.min(100, Math.round((dosesFeitas(S) / previstas) * 100)));
 }
+
+/** Na dose diária, não há dia a contar — trocou de remédio e ainda não
+    registrou o novo (ver `inicioDoDiario`).
+
+    ⚠️ COM DOSE REGISTRADA E ZERO PREVISTAS (01/10/2026, achado da revisão):
+    no semanal isso não acontece — havendo dose, há previsão —, e por isso
+    quem lê a adesão só perguntava "há dose?". No diário, a dose da caneta
+    de antes da troca existe e não conta, e `adesao` devolve zero: o
+    retrato dizia "Você manteve 0% das doses em dia" e o radar elegia a
+    adesão como o eixo mais fraco de quem ainda nem tomou o primeiro
+    comprimido. Quem escreve a adesão pergunta isto também. */
+export const adesaoSemConta = (S: State) => doseDiaria(S) && !dosesPrevistas(S);
 /* O REGISTRO DO DIA e o CHECK-IN FEITO são duas perguntas diferentes.
 
    `checkinToday` devolve o registro de hoje — a linha onde moram a água,
@@ -458,7 +751,7 @@ export function radar(S: State): EixoDoRadar[] {
   /* Sem ciclo não há adesão a medir: zero aqui seria o eixo mais fraco de
      quem ainda não começou, e a leitura do equilíbrio a mandaria "melhorar
      a adesão" de um tratamento que não existe. */
-  põe('adesao', temCiclo(S) ? adesao(S) : null);
+  põe('adesao', temCiclo(S) && !adesaoSemConta(S) ? adesao(S) : null);
   return eixos;
 }
 
@@ -497,8 +790,14 @@ export function pharmaSeries(S: State) {
 
      `trough` já era `| null` no tipo, e `hungerForecast` já devolvia null
      quando ele falta. O que faltava era ele faltar. */
+  /* ⚠️ E NA DOSE DIÁRIA NÃO HÁ VALE (01/10/2026, parte B1). A série ia de
+     hoje até amanhã em passos de doze horas, normalizada pelo máximo — e
+     por isso sempre elegia um "ponto mais baixo" de diferença ínfima. A
+     Home avisava todo dia "a fome tende a apertar hoje… pouco antes da
+     próxima dose" a quem toma um remédio que fica em nível estável. A
+     curva continua (a tela de doses a desenha); o vale é que não existe. */
   const nd = +nextInjectionDate(S); let trough: { t: number; v: number; n: number } | null = null;
-  if (max > 0) for (const p of pts) { if (p.t >= +startOfDay(now()) && p.t <= nd) { if (!trough || p.n < trough.n) trough = p; } }
+  if (max > 0 && !doseDiaria(S)) for (const p of pts) { if (p.t >= +startOfDay(now()) && p.t <= nd) { if (!trough || p.n < trough.n) trough = p; } }
   return { pts, trough, nextDose: nd };
 }
 export function hungerForecast(S: State) {
@@ -893,7 +1192,10 @@ export function rodizioDeLocais(S: State): LocalDoRodizio[] {
    `localDaDose`: o local inventado de um comprimido antigo não conta como
    "usado" (01/10/2026). */
 export function nextSite(S: State) {
-  const used = S.injections.slice(-3).map((i: any) => localDaDose(S, i));
+  /* As três MAIS RECENTES pela data, e não as três do fim da lista: uma
+     dose registrada fora de ordem (retroativa) não é a última usada
+     (01/10/2026 — ver `lastInjection`). */
+  const used = dosesEmOrdem(S).slice(-3).map((i: any) => localDaDose(S, i));
   const all = ['abd-e', 'abd-d', 'coxa-e', 'coxa-d', 'braco-e', 'braco-d'];
   return all.find((s) => !used.includes(s)) || all[0];
 }
@@ -907,7 +1209,14 @@ export function injGrade(S: State) {
   const applied = new Set(S.injections.map((i: any) => +startOfDay(new Date(i.t))));
   const nd = +startOfDay(nextInjectionDate(S)), today = +startOfDay(now());
   const comCiclo = temCiclo(S);
-  const anchor = new Date(Math.max(nd, today));
+  /* ⚠️ NA DOSE DIÁRIA, A GRADE SE ANCORA EM HOJE (01/10/2026, achado da
+     revisão). A âncora é a próxima dose quando ela está adiante, para a
+     "próxima" tracejada caber na grade — e na dose diária a próxima é
+     sempre amanhã. No último dia da semana, o toque da dose de hoje
+     empurrava a grade uma fileira inteira para frente: sete casas futuras
+     vazias, a semana mais velha fora da tela e da conta da constância.
+     Sem "próxima" a desenhar (aplicacoes), hoje basta. */
+  const anchor = new Date(doseDiaria(S) ? today : Math.max(nd, today));
   /* ⚠️ A GRADE TERMINA NO ÚLTIMO DIA DA SEMANA DE QUEM LÊ, e terminava
      sempre no sábado. Onde a semana começa na segunda, o fim é o
      domingo. O cabeçalho da grade, em aplicacoes, é `ordemDaSemana`: os
@@ -922,11 +1231,14 @@ export function injGrade(S: State) {
   const noDia = (k: number) => new Date(anchor.getFullYear(), anchor.getMonth(), anchor.getDate() + k);
   const fim = (ultimoDia - anchor.getDay() + 7) % 7;
   const dias = SEMANAS_DA_GRADE * 7;
-  const cells: { day: number; applied: boolean; planned: boolean; today: boolean }[] = [];
+  /* `t` é o dia da casa (00h): a grade de /aplicacoes deixa quem toma
+     todo dia marcar vários dias esquecidos de uma vez, e cada toque
+     precisa saber de que dia ele é (01/10/2026, parte B1). */
+  const cells: { day: number; t: number; applied: boolean; planned: boolean; today: boolean }[] = [];
   for (let i = dias - 1; i >= 0; i--) {
     const d = noDia(fim - i); const key = +d;
     /* Sem ciclo não há próxima: `nd` é hoje por recuo (ver `temCiclo`). */
-    cells.push({ day: d.getDate(), applied: applied.has(key), planned: comCiclo && key === nd && key >= today, today: key === today });
+    cells.push({ day: d.getDate(), t: key, applied: applied.has(key), planned: comCiclo && key === nd && key >= today, today: key === today });
   }
   return { cells, de: +noDia(fim - (dias - 1)), semanas: SEMANAS_DA_GRADE };
 }
@@ -946,6 +1258,18 @@ export const injCalendar = (S: State) => injGrade(S).cells;
    encaixes da cadência que caem dentro da janela e já passaram. */
 export function constanciaDaGrade(S: State) {
   const { cells, de, semanas } = injGrade(S);
+  /* ⚠️ NA DOSE DIÁRIA, OS DIAS DO REGIME DIÁRIO DENTRO DA GRADE, COM HOJE
+     SÓ DEPOIS DA DOSE DELE (01/10/2026, achado da revisão) — a régua de
+     `diasDoDiario`, cortada no começo da grade. Os encaixes da cadência
+     cobravam hoje desde a meia-noite ("20 de 21" toda manhã, antes do
+     comprimido) e contavam do primeiro registro de todos. As feitas
+     deixam de ser as casas acesas só para quem trocou de remédio: a dose
+     da caneta de antes da troca continua acesa na grade, e não é um dia
+     de comprimido. O semanal fica como era. */
+  if (doseDiaria(S)) {
+    const c = contagemDaJanela(S, de, diaDoCalendario(+startOfDay(now()), 1));
+    return { feitas: c.feitos, previstas: c.dias, semanas };
+  }
   const feitas = cells.filter((c) => c.applied).length;
   const injs = (S.injections as any[]) ?? [];
   if (!injs.length) return { feitas, previstas: 0, semanas };
@@ -1396,6 +1720,18 @@ export function doseCycle(S: State) {
      frase, mesmo destino —, e duas cópias divergem na primeira vez que
      alguém melhorar uma delas. */
   const F = T.ciclo;
+  /* ⚠️⚠️ NA DOSE DIÁRIA NÃO HÁ CINCO FASES (01/10/2026, parte B1). Com
+     cadência 1, `dayIn` era sempre 1 e a fase, sempre a da dose: a Home
+     dizia todo dia "o efeito começa a subir nas próximas horas", que é
+     falso para um remédio que fica em nível estável, e a faixa da Jornada
+     repetia o mesmo. Para o diário o ciclo tem UMA fase, a do nível
+     estável — a mesma forma de devolução, para nenhuma tela quebrar, e
+     nenhuma frase sobre subida, pico ou vale. Quem quer saber se as
+     fases semanais valem pergunta `temFasesDoCiclo`. */
+  if (doseDiaria(S)) {
+    const diaria: Phase = { key: 'diaria', label: F.faseDiariaLabel, ic: iconeDaDose(S), range: F.faseDiariaRange, hint: F.faseDiariaHint, q: F.diariaQ };
+    return { dayIn: 1, total: 1, phases: [diaria], idx: 0, phase: diaria, nextDose: nextInjectionDate(S) };
+  }
   /* O ícone da fase da dose segue a forma: seringa ou comprimido
      (01/10/2026). Os textos da fase moram em textos/ciclo. */
   const phases: Phase[] = [
@@ -1438,8 +1774,25 @@ export function todayBrief(S: State) {
      regressiva de um prazo — sete do quê, e o que acontece quando chegar?
      A cadência é do medicamento, não uma meta a cumprir. "Da dose" diz a
      mesma posição e nomeia o relógio que a está medindo. */
-  const chapeu = comCiclo ? T.ciclo.chapeuDia(cyc.dayIn) : T.ciclo.chapeuSemCiclo;
+  /* ⚠️ NA DOSE DIÁRIA NÃO HÁ "DIA N DEPOIS DA DOSE" (01/10/2026, parte
+     B1): seria "DIA 1" todos os dias, para sempre. O chapéu é o de quem
+     não tem ciclo semanal a contar. */
+  const chapeu = comCiclo && !doseDiaria(S) ? T.ciclo.chapeuDia(cyc.dayIn) : T.ciclo.chapeuSemCiclo;
   switch (cyc.phase.key) {
+    case 'diaria': {
+      /* ⚠️ TRÊS RECADOS QUE SE REVEZAM, um por dia, e não um só. Sem as
+         cinco fases a mensagem do dia não tem posição para ler, e uma
+         frase fixa viraria papel de parede no terceiro dia — o motivo de
+         o platô ter prazo (logic/etapa). A ordem é a do dia do tratamento:
+         mesmo dia, mesmo recado. Nenhum fala da dose de hoje: quem fala
+         dela é o cartão "Dose de hoje", logo ao lado. */
+      const recados = T.ciclo.diarios;
+      const r = recados[(((journeyDay(S) - 1) % recados.length) + recados.length) % recados.length];
+      head = r.head;
+      body = r.body;
+      q = r.q;
+      break;
+    }
     case 'aplic':
       /* ⚠️ NÃO ANUNCIA QUE HOJE É DIA DE APLICAR: o slide seguinte da Home
          é inteiro sobre isso, com a dose e o local. Dois slides seguidos
@@ -1601,6 +1954,13 @@ export function diaFracoDeAgua(S: State) {
 /** A janela de enjoo depois da aplicação: quanto ele pesa nos dois
     primeiros dias contra o resto do ciclo. */
 export function janelaDoEnjoo(S: State) {
+  /* ⚠️ SÓ NO CICLO SEMANAL (01/10/2026, parte B1). Com dose todo dia, "os
+     dois primeiros dias depois da dose" são todos os dias, e o resto do
+     ciclo não existe — ou existe só nos dias esquecidos, e aí o achado
+     comparava o enjoo de quem tomou com o de quem esqueceu e chamava isso
+     de "janela de 48 h". Ele alimenta o cruzamento, a antecipação da Home
+     e o recado da dose nova (etapa), e os três se calam juntos. */
+  if (doseDiaria(S)) return null;
   const diasInj = (S.injections as any[]).map((i) => +startOfDay(new Date(i.t)));
   if (!diasInj.length) return null;
   const desde = (c: any) => {
@@ -1887,13 +2247,19 @@ export function patterns(S: State): Pattern[] {
      quem injeta e para quem toma comprimido, e o substantivo de todos é
      "dose" — ver docs/superpowers/specs/2026-10-01-oral-e-diario-design.md.
      Só o ícone segue a forma. */
+  /* ⚠️ AS DOSES SÃO AS DE `dosesFeitas` (01/10/2026, achado da revisão):
+     na dose diária, os dias com dose do regime diário, a mesma conta da
+     porcentagem ao lado — e "três" passa a ser três dias contados, e não
+     três registros quaisquer (a caneta de antes da troca dava "0%"). No
+     semanal, os registros, como sempre. */
   const D = T.cruzamentos.adesao;
-  if (S.injections.length >= 3) out.push({
+  const feitas = dosesFeitas(S);
+  if (feitas >= 3) out.push({
     ...daCategoria('aplicacoes'), ic: iconeDaDose(S), cor: 'accent2', surpresa: 0,
     titulo: ade >= 100 ? D.tituloPerfeita : D.titulo(ade),
-    texto: D.texto(S.injections.length, ade >= 90 ? D.textoQuaseTodas : D.textoComAtrasos),
+    texto: D.texto(feitas, ade >= 90 ? D.textoQuaseTodas : D.textoComAtrasos),
     q: D.q,
-    evid: D.evid(ade, S.injections.length),
+    evid: D.evid(ade, feitas),
     significa: ade >= 90 ? D.significaAlta : D.significaBaixa,
   });
 
@@ -1995,7 +2361,9 @@ const EIXO_DIA: Record<string, (c: any, S: State) => number | null> = {
   exercicio: (c) => ((c.exerc || 0) > 0 ? 100 : 0),
   proteina: (c) => Math.min(100, c.prot || 0),
   saciedade: (c) => (respondido(c, 'fome') ? (10 - c.fome) * 10 : null),
-  adesao: (_c, S) => adesao(S),
+  /* sem dia a contar na dose diária, o eixo fica sem valor, e não em zero
+     (ver `adesaoSemConta`) */
+  adesao: (_c, S) => (adesaoSemConta(S) ? null : adesao(S)),
 };
 
 export function balanceSeries(S: State, eixo: string, n = 8) {
@@ -2092,7 +2460,16 @@ export function sintomasEm(cs: any[]): SintomaLido[] {
    aplicar. Um dia respondido SEM o sintoma entra como zero e não sai da
    conta — o vale é metade do achado, e tirá-lo faria a média subir
    justamente nos dias em que o sintoma não apareceu. */
-export function sintomaNoCiclo(S: State, id = 'nausea') {
+export function sintomaNoCiclo(S: State, id = 'nausea'): { dia: number; dias: number; media: number | null }[] {
+  /* ⚠️ NA DOSE DIÁRIA NÃO HÁ CICLO A PERCORRER (01/10/2026, parte B1).
+     Com cadência 1 havia um balde só, o do dia da dose: depois de dez dias
+     respondidos, o mais alto e o mais baixo eram o mesmo, e a tela de
+     sintomas AFIRMAVA "o enjoo aparece parecido ao longo de todo o ciclo
+     — ele não está seguindo a dose", com uma barra só rotulada "dose". É
+     uma frase de fato que a pessoa leva para a consulta, sobre um padrão
+     que não tem como existir. Lista vazia: a tela já some com o bloco
+     quando não há dia contado. */
+  if (doseDiaria(S)) return [];
   const cad = cadenciaDias(S);
   const baldes = Array.from({ length: cad }, (_, dia) => ({ dia, dias: 0, soma: 0 }));
   const injs = (S.injections as any[]).map((i) => +startOfDay(new Date(i.t))).sort((a, b) => a - b);
@@ -2127,6 +2504,9 @@ export type PadraoDoCiclo =
   | { pode: false; motivo: 'poucos' | 'parecido' };
 
 export function padraoDoCiclo(S: State, id = 'nausea'): PadraoDoCiclo {
+  /* Sem ciclo semanal, nada a afirmar — e "poucos", e não "parecido": o
+     segundo é uma resposta sobre a pessoa (ver `sintomaNoCiclo`). */
+  if (doseDiaria(S)) return { pode: false, motivo: 'poucos' };
   const baldes = sintomaNoCiclo(S, id);
   const com = baldes.filter((b) => b.media != null) as { dia: number; dias: number; media: number }[];
   const total = com.reduce((a, b) => a + b.dias, 0);
@@ -2542,7 +2922,10 @@ export function libraryPicks(S: State): Leitura[] {
   /* ⚠️ AS DUAS LEITURAS DO CICLO SÓ COM CICLO. Sem aplicação registrada, o
      recuo de `nextInjectionDate` fazia `dia` valer a cadência inteira, e o
      motivo da leitura dizia "Você aplicou há 7 dias" a quem nunca aplicou. */
-  const comCiclo = temCiclo(S);
+  /* ⚠️ E SÓ COM O CICLO SEMANAL (01/10/2026, parte B1): para quem toma todo
+     dia, "Você aplicou há 1 dia" e a leitura dos primeiros dias depois da
+     dose apareceriam todo santo dia. */
+  const comCiclo = temFasesDoCiclo(S);
 
   if (comCiclo && (cyc.phase.key === 'retorno' || cyc.phase.key === 'pre')) {
     out.push({ motivo: L.fomeMotivo(dia), titulo: L.fomeTitulo, desc: L.fomeDesc(T.comum.noMeio(nomeDaMolecula(m.mol))), ic: 'drop2', min: 3 });
@@ -2624,7 +3007,10 @@ export function companionSuggestions(S: State): string[] {
      fase que `doseCycle` devolve é recuo, e "O que esperar depois da
      aplicação?" aparecia para quem nunca aplicou. Antes da primeira, a
      pergunta é sobre ela. */
-  if (temCiclo(S)) {
+  /* ⚠️ A FASE SÓ FALA NO CICLO SEMANAL (01/10/2026, parte B1): na dose
+     diária a fase seria "a da dose" todo dia, e "O que esperar depois da
+     aplicação?" viraria a primeira pergunta de sempre. */
+  if (temFasesDoCiclo(S)) {
     if (cyc.phase.key === 'retorno' || cyc.phase.key === 'pre') out.push(P.maisFome);
     else if (cyc.phase.key === 'pico') out.push(P.semFome);
     else if (cyc.phase.key === 'aplic') out.push(P.depoisDaAplicacao);
@@ -2638,7 +3024,8 @@ export function companionSuggestions(S: State): string[] {
   else if (cs.slice(-5).some((c) => (c.nausea ?? 0) >= 3)) out.push(P.porQueEnjoo);
   /* Trocar o dia da aplicação pede um dia de aplicação — sem ciclo, `nd` é
      zero por recuo, e a sugestão aparecia para quem ainda não começou. */
-  if (temCiclo(S) && nd <= 2) out.push(P.trocarODia);
+  /* E não há dia de dose a trocar para quem toma todo dia (01/10/2026). */
+  if (temFasesDoCiclo(S) && nd <= 2) out.push(P.trocarODia);
 
   /* A consulta, quando está perto — nas duas semanas antes dela. */
   if (temConsulta(S)) {
@@ -2727,7 +3114,9 @@ export function recommendations(S: State): Reco[] {
       to: '/medir-agua',
     });
   }
-  if (cyc.phase.key === 'retorno' || cyc.phase.key === 'pre') {
+  /* A fase só vale no ciclo semanal; a dose diária tem uma fase só, e
+     nenhuma delas é a da fome voltando (01/10/2026). */
+  if (!doseDiaria(S) && (cyc.phase.key === 'retorno' || cyc.phase.key === 'pre')) {
     out.push({
       emDias: 0, ic: 'leaf', texto: E.proteina,
       porque: E.proteinaPorque,
@@ -2749,7 +3138,11 @@ export function recommendations(S: State): Reco[] {
      escolha o local" para quem toma Rybelsus — uma pergunta que não existe
      para uma dose que não se injeta. O texto e o porquê recebem
      `injetavel`; o prazo continua o mesmo (a cadência é a parte B). */
-  if (temCiclo(S) && nd >= 0 && nd <= 3) {
+  /* ⚠️ E NÃO PARA A DOSE DIÁRIA (01/10/2026, parte B1): com cadência 1 a
+     dose está sempre a zero ou um dia, e "a aplicação da semana está
+     chegando" entraria na lista todos os dias. A dose de hoje tem o cartão
+     dela na Home. */
+  if (temFasesDoCiclo(S) && nd >= 0 && nd <= 3) {
     const injetavel = injetavelDe(S);
     out.push({
       emDias: nd, ic: iconeDaDose(S),
@@ -3191,6 +3584,22 @@ export type JourneyWeek = {
   mudouDose: boolean;
   /** o que os números daquele ciclo dizem, comparados com o anterior */
   metricas: WeekMetric[];
+  /* ⚠️ OS CAMPOS ABAIXO SÓ EXISTEM NA DOSE DIÁRIA (01/10/2026, parte B2),
+     e são opcionais para o semanal continuar exatamente como era. Na dose
+     diária a semana é um bloco de 7 dias do tratamento — `t` é o primeiro
+     dia dele, e não uma dose —, e o cabeçalho troca "dose · local" por
+     "6 de 7 doses · Rybelsus 7 mg". */
+  /** a semana é um bloco de 7 dias do tratamento (dose diária) */
+  diaria?: boolean;
+  /** o fim do bloco, exclusivo (00h do primeiro dia da semana seguinte) */
+  fim?: number;
+  /** dias com dose e dias que contam — até hoje, com hoje só depois da
+      dose dele (ver `contagemDaJanela`); nulo quando o remédio daquela
+      semana não era diário (quem trocou de uma caneta semanal) */
+  doses?: { feitos: number; dias: number } | null;
+  /** a contagem já escrita — "6 de 7 doses"; vazia quando não há o que
+      contar (o primeiro dia antes da dose, ou a semana de caneta semanal) */
+  dosesTexto?: string;
 };
 
 /* ⚠️ "SEU TRATAMENTO" ESPERA A PRIMEIRA SEMANA (28/09/2026, pedido do dono).
@@ -3198,9 +3607,22 @@ export type JourneyWeek = {
    peso do cadastro —, com filtros e "ver tudo" em volta dela: a moldura
    de um diário que ainda não começou. Ela aparece quando há uma semana
    para contar: uma semana de dose fechada (a segunda aplicação), ou sete
-   dias de aplicativo com algum registro além do que o cadastro trouxe. */
+   dias de aplicativo com algum registro além do que o cadastro trouxe.
+
+   ⚠️ NA DOSE DIÁRIA, "UMA SEMANA DE DOSE FECHADA" É UMA SEMANA DO
+   TRATAMENTO QUE JÁ ACABOU (01/10/2026, parte B2). A segunda dose chega
+   no segundo dia, e a seção abria com uma semana de dois dias.
+
+   ⚠️ E A SEMANA FECHADA É A DO REGIME DIÁRIO DE AGORA (01/10/2026, achado
+   da revisão): contava da primeira dose de todas, e quem trocou a caneta
+   semanal pelo comprimido ontem já "tinha" uma semana diária fechada — a
+   da caneta. Conta de `inicioDoDiario`, o mesmo começo dos dias que o
+   painel e os blocos contam. */
 export function temHistoria(S: State): boolean {
-  if (((S.injections ?? []) as any[]).length >= 2) return true;
+  if (doseDiaria(S)) {
+    const inicio = inicioDoDiario(S);
+    if (inicio != null && semanaDoTratamentoEm(S, +now()) > semanaDoTratamentoEm(S, inicio)) return true;
+  } else if (((S.injections ?? []) as any[]).length >= 2) return true;
   const nasceu = (S.profile as any)?.consentimento?.em ?? S.profile.startT;
   if (!nasceu || diffDays(now(), new Date(nasceu)) < 7) return false;
   return ((S.checkins ?? []) as any[]).some(respostaNoDia)
@@ -3210,8 +3632,103 @@ export function temHistoria(S: State): boolean {
     || ((S.injections ?? []) as any[]).some((i) => i.origem !== 'cadastro');
 }
 
+/* ------------------------------------------------------------------
+   AS PEÇAS DE UMA SEMANA, para os dois jeitos de cortar o tratamento
+
+   ⚠️ SAÍRAM DE DENTRO DE `timelineWeeks` SEM MUDAR UMA LINHA (01/10/2026):
+   a semana de dose a dose (semanal) e o bloco de 7 dias do tratamento
+   (diária) contam o peso, os registros e os números do mesmo jeito — só a
+   janela muda. Duas cópias dessas contas seriam duas semanas diferentes
+   para a mesma pessoa no dia em que ela trocasse de remédio.
+   ------------------------------------------------------------------ */
+
+/** Médias do período — o que o corpo recebeu naquela semana. */
+function mediasDoPeriodo(S: State, ini: number, fim: number) {
+  const cs = (S.checkins as any[]).filter((x) => x.t >= ini && x.t < fim);
+  if (!cs.length) return null;
+  const med2 = (k: string) => cs.reduce((s: number, x: any) => s + (x[k] || 0), 0) / cs.length;
+  return { agua: (med2('agua') * CUP_ML) / 1000, prot: med2('prot'), exerc: cs.reduce((s: number, x: any) => s + (x.exerc || 0), 0) };
+}
+type MediasDoPeriodo = ReturnType<typeof mediasDoPeriodo>;
+
+/** A variação de peso dentro do período — o que a semana rendeu. */
+function deltaPesoDoPeriodo(S: State, inicio: number, fim: number): string | null {
+  const pesos = (S.weights as any[]).filter((w) => {
+    const d = +startOfDay(new Date(w.t));
+    return d >= inicio && d < fim;
+  });
+  const anteriores = (S.weights as any[]).filter((w) => +startOfDay(new Date(w.t)) < inicio);
+  const base = anteriores.length ? anteriores[anteriores.length - 1].kg : null;
+  let deltaPeso: string | null = null;
+  if (base != null && pesos.length) {
+    const d = pesos[pesos.length - 1].kg - base;
+    /* Zero não tem sinal: "−0,0 kg" afirmava uma queda que não houve. */
+    deltaPeso = Math.abs(d) < 0.05 ? pesoTxt(S, 0) : `${d < 0 ? '−' : '+'}${pesoTxt(S, Math.abs(d))}`;
+  }
+  return deltaPeso;
+}
+
+/** Resumo por tipo — é o que a semana rendeu, não a lista do que houve.
+    Vazio quando não houve registro; quem monta a semana põe a frase. */
+function resumoDoPeriodo(eventos: TLEvent[]): string {
+  const contagem: Partial<Record<TLKind, number>> = {};
+  for (const e of eventos) contagem[e.kind] = (contagem[e.kind] || 0) + 1;
+  const W = T.home.semana;
+  const nome: Partial<Record<TLKind, [string, string]>> = {
+    checkin: W.checkin, peso: W.peso, refeicao: W.refeicao,
+    exercicio: W.exercicio, consulta: W.consulta, exame: W.exame,
+  };
+  return (Object.keys(contagem) as TLKind[])
+    .map((k) => {
+      const n = contagem[k]!;
+      const rotulo = T.comum.noMeio(TL_LABEL()[k]);
+      const [s, p] = nome[k] ?? [rotulo, rotulo];
+      return W.contagem(n, n === 1 ? s : p);
+    })
+    .join(' · ');
+}
+
+/** Destaques numéricos do período. Cada um traz a variação contra a
+    semana anterior — é a comparação que transforma número em informação. */
+function metricasDoPeriodo(S: State, deltaPeso: string | null, at: MediasDoPeriodo, ant: MediasDoPeriodo): WeekMetric[] {
+  const W = T.home.semana;
+  const metricas: WeekMetric[] = [];
+  if (deltaPeso) metricas.push({
+    ic: 'scale', label: W.pesoMetrica, valor: deltaPeso, delta: null, good: deltaPeso.startsWith('−'),
+  });
+  if (at) {
+    /* ⚠️ NA UNIDADE DA PESSOA, e era litro para todo mundo: o texto
+       tinha o "L" escrito, e quem usa onças lia litros só aqui. Cada
+       média vai ao passo em que é escrita (aguaNoPasso), e a variação
+       sai da diferença dos valores escritos — com o zero sem sinal. */
+    const agua = aguaNoPasso(S, at.agua * 1000);
+    const dAgua = ant?.agua == null ? null : agua - aguaNoPasso(S, ant.agua * 1000);
+    metricas.push({
+      ic: 'water', label: W.hidratacao, valor: W.aguaPorDia(aguaTxt(S, agua)),
+      delta: dAgua == null ? null : comSinal(dAgua, (v) => aguaTxt(S, v)),
+      good: dAgua == null || dAgua >= 0,
+    });
+    const dProt = ant ? Math.round(at.prot) - Math.round(ant.prot) : null;
+    metricas.push({
+      ic: 'leaf', label: W.proteina, valor: W.gramasPorDia(Math.round(at.prot)),
+      delta: dProt == null ? null : W.deltaGramas(comSinal(dProt, String)),
+      good: dProt == null || dProt >= 0,
+    });
+    const dExerc = ant ? at.exerc - ant.exerc : null;
+    metricas.push({
+      ic: 'dumbbell', label: W.exercicioMetrica, valor: W.minutos(at.exerc),
+      delta: dExerc == null ? null : W.deltaMinutos(comSinal(dExerc, String)),
+      good: dExerc == null || dExerc >= 0,
+    });
+  }
+  return metricas;
+}
+
 export function timelineWeeks(S: State): JourneyWeek[] {
   const evs = timelineEvents(S);
+  /* ⚠️ NA DOSE DIÁRIA, A SEMANA É A DO TRATAMENTO (01/10/2026, decisão do
+     dono — parte B2). Ver `semanasDoDiario`, logo abaixo. */
+  if (doseDiaria(S)) return semanasDoDiario(S, evs);
   const injs = (S.injections as any[]).slice().sort((a, b) => a.t - b.t);
   const out: JourneyWeek[] = [];
 
@@ -3221,10 +3738,7 @@ export function timelineWeeks(S: State): JourneyWeek[] {
   const janela = (i: number) => {
     const ini = +startOfDay(new Date(injs[i].t));
     const fim = i + 1 < injs.length ? +startOfDay(new Date(injs[i + 1].t)) : Infinity;
-    const cs = (S.checkins as any[]).filter((x) => x.t >= ini && x.t < fim);
-    if (!cs.length) return null;
-    const med2 = (k: string) => cs.reduce((s: number, x: any) => s + (x[k] || 0), 0) / cs.length;
-    return { agua: (med2('agua') * CUP_ML) / 1000, prot: med2('prot'), exerc: cs.reduce((s: number, x: any) => s + (x.exerc || 0), 0) };
+    return mediasDoPeriodo(S, ini, fim);
   };
   const stats = injs.map((_, i) => janela(i));
   /* ⚠️ QUEM JÁ TINHA COMEÇADO NÃO ESTÁ NA SEMANA 1. A primeira aplicação
@@ -3241,68 +3755,9 @@ export function timelineWeeks(S: State): JourneyWeek[] {
     const eventos = evs.filter((e) => e.day >= inicio && e.day < fim && e.kind !== 'aplicacao');
 
     // variação de peso dentro do ciclo — o que a semana rendeu
-    const pesos = (S.weights as any[]).filter((w) => {
-      const d = +startOfDay(new Date(w.t));
-      return d >= inicio && d < fim;
-    });
-    const anteriores = (S.weights as any[]).filter((w) => +startOfDay(new Date(w.t)) < inicio);
-    const base = anteriores.length ? anteriores[anteriores.length - 1].kg : null;
-    let deltaPeso: string | null = null;
-    if (base != null && pesos.length) {
-      const d = pesos[pesos.length - 1].kg - base;
-      /* Zero não tem sinal: "−0,0 kg" afirmava uma queda que não houve. */
-      deltaPeso = Math.abs(d) < 0.05 ? pesoTxt(S, 0) : `${d < 0 ? '−' : '+'}${pesoTxt(S, Math.abs(d))}`;
-    }
-
-    /* resumo por tipo — é o que a semana rendeu, não a lista do que houve */
-    const contagem: Partial<Record<TLKind, number>> = {};
-    for (const e of eventos) contagem[e.kind] = (contagem[e.kind] || 0) + 1;
-    const W = T.home.semana;
-    const nome: Partial<Record<TLKind, [string, string]>> = {
-      checkin: W.checkin, peso: W.peso, refeicao: W.refeicao,
-      exercicio: W.exercicio, consulta: W.consulta, exame: W.exame,
-    };
-    const resumo = (Object.keys(contagem) as TLKind[])
-      .map((k) => {
-        const n = contagem[k]!;
-        const rotulo = T.comum.noMeio(TL_LABEL()[k]);
-        const [s, p] = nome[k] ?? [rotulo, rotulo];
-        return W.contagem(n, n === 1 ? s : p);
-      })
-      .join(' · ');
-
-    /* Destaques numéricos do ciclo. Cada um traz a variação contra a semana
-       anterior — é a comparação que transforma número em informação. */
-    const at = stats[i], ant = i > 0 ? stats[i - 1] : null;
-    const metricas: WeekMetric[] = [];
-    if (deltaPeso) metricas.push({
-      ic: 'scale', label: W.pesoMetrica, valor: deltaPeso, delta: null, good: deltaPeso.startsWith('−'),
-    });
-    if (at) {
-      /* ⚠️ NA UNIDADE DA PESSOA, e era litro para todo mundo: o texto
-         tinha o "L" escrito, e quem usa onças lia litros só aqui. Cada
-         média vai ao passo em que é escrita (aguaNoPasso), e a variação
-         sai da diferença dos valores escritos — com o zero sem sinal. */
-      const agua = aguaNoPasso(S, at.agua * 1000);
-      const dAgua = ant?.agua == null ? null : agua - aguaNoPasso(S, ant.agua * 1000);
-      metricas.push({
-        ic: 'water', label: W.hidratacao, valor: W.aguaPorDia(aguaTxt(S, agua)),
-        delta: dAgua == null ? null : comSinal(dAgua, (v) => aguaTxt(S, v)),
-        good: dAgua == null || dAgua >= 0,
-      });
-      const dProt = ant ? Math.round(at.prot) - Math.round(ant.prot) : null;
-      metricas.push({
-        ic: 'leaf', label: W.proteina, valor: W.gramasPorDia(Math.round(at.prot)),
-        delta: dProt == null ? null : W.deltaGramas(comSinal(dProt, String)),
-        good: dProt == null || dProt >= 0,
-      });
-      const dExerc = ant ? at.exerc - ant.exerc : null;
-      metricas.push({
-        ic: 'dumbbell', label: W.exercicioMetrica, valor: W.minutos(at.exerc),
-        delta: dExerc == null ? null : W.deltaMinutos(comSinal(dExerc, String)),
-        good: dExerc == null || dExerc >= 0,
-      });
-    }
+    const deltaPeso = deltaPesoDoPeriodo(S, inicio, fim);
+    const resumo = resumoDoPeriodo(eventos);
+    const metricas = metricasDoPeriodo(S, deltaPeso, stats[i], i > 0 ? stats[i - 1] : null);
 
     /* ⚠️ O REMÉDIO É O DA DOSE, e não o do perfil (01/10/2026): quem
        trocou de remédio via as semanas antigas com o nome do novo. E a
@@ -3316,9 +3771,94 @@ export function timelineWeeks(S: State): JourneyWeek[] {
       /* O local pela dose: o de um comprimido não existe (logic/formas). */
       site: localDaDose(S, injs[i]) ? siteLabel(localDaDose(S, injs[i])) : '',
       eventos, deltaPeso,
-      resumo: resumo || W.semRegistros,
+      resumo: resumo || T.home.semana.semRegistros,
       mudouDose: i > 0 && !trocou && injs[i].dose !== injs[i - 1].dose,
       metricas,
+    });
+  }
+  return out;
+}
+
+/* ============================================================
+   A SEMANA DE QUEM TOMA TODO DIA (01/10/2026, decisão do dono — parte B2
+   de docs/superpowers/specs/2026-10-01-oral-e-diario-design.md)
+
+   ⚠️⚠️ ERA UMA "SEMANA" POR DOSE. Com a dose todo dia, `timelineWeeks`
+   abria um capítulo por dia e o numerava como semana — "Semana 90",
+   "Semana 89"…, de um dia cada —, e o resumo da semana, a Home e o
+   Insights abriam esses capítulos de um dia.
+
+   Agora a semana é o BLOCO DE 7 DIAS DO TRATAMENTO, contado do início: a
+   mesma régua do painel da Jornada ("SEMANA N · DIA D"), com o mesmo
+   número. Cada bloco vai do primeiro bloco com dose até o de hoje, do
+   mais novo ao mais velho, com o que a semana semanal já tinha — o peso,
+   os registros, os números contra a semana anterior — e, no lugar de
+   "dose · local", quantos dias tiveram dose e o remédio daquela semana.
+
+   · A DOSE NÃO É EVENTO DA SEMANA. Sete doses viraram sete linhas
+     iguais; o cabeçalho já as conta.
+   · SEMANA SEM DOSE CONTINUA NA LISTA, do mesmo tamanho que as outras,
+     como a semana sem registro (home.telaHistorico.semanasVaziasTexto).
+   · NADA É PRESUMIDO: a dose que não foi registrada não conta, e hoje só
+     conta depois da dose de hoje (ver `contagemDaJanela`).
+   · QUEM TROCOU DE UMA CANETA SEMANAL PARA O COMPRIMIDO vê os blocos da
+     caneta com a dose e o local de cada uma, e sem a contagem: "1 de 7
+     doses" diria que faltaram seis a quem nunca devia tomar sete.
+   ============================================================ */
+function semanasDoDiario(S: State, evs: TLEvent[]): JourneyWeek[] {
+  const injs = dosesEmOrdem(S);
+  if (!injs.length) return [];
+  const W = T.home.semana;
+  const primeira = semanaDoTratamentoEm(S, injs[0].t);
+  /* Até a semana de hoje — ou a da dose mais nova, se alguma estiver
+     adiante (um relógio de aparelho errado não pode sumir com ela). */
+  const ultima = Math.max(semanaDoTratamentoEm(S, +now()), semanaDoTratamentoEm(S, injs[injs.length - 1].t));
+  const blocos: { n: number; ini: number; fim: number }[] = [];
+  for (let n = primeira; n <= ultima; n++) blocos.push({ n, ...janelaDaSemanaDoTratamento(S, n) });
+  const stats = blocos.map((b) => mediasDoPeriodo(S, b.ini, b.fim));
+  const diaDe = (t: number) => +startOfDay(new Date(t));
+
+  const out: JourneyWeek[] = [];
+  for (let k = blocos.length - 1; k >= 0; k--) {
+    const { n, ini, fim } = blocos[k];
+    const eventos = evs.filter((e) => e.day >= ini && e.day < fim && e.kind !== 'aplicacao');
+    const deltaPeso = deltaPesoDoPeriodo(S, ini, fim);
+    const resumo = resumoDoPeriodo(eventos);
+    const metricas = metricasDoPeriodo(S, deltaPeso, stats[k], k > 0 ? stats[k - 1] : null);
+
+    const doBloco = injs.filter((i) => diaDe(i.t) >= ini && diaDe(i.t) < fim);
+    /* O remédio da semana é o da dose mais nova dela; numa semana sem dose,
+       o da última dose antes dela — é ele que diz se havia o que contar. */
+    const ref = doBloco[doBloco.length - 1] ?? null;
+    const antes = ref ?? [...injs].reverse().find((i) => diaDe(i.t) < ini) ?? null;
+    const rem = ref ? remedioDaDose(S, ref) : null;
+    /* A dose mudou DENTRO da semana: entre duas doses seguidas do mesmo
+       remédio, a de depois caindo nela. A troca de remédio não é ajuste —
+       a mesma regra da semana semanal. */
+    const mudouDose = doBloco.some((cur) => {
+      const prev = injs[injs.indexOf(cur) - 1];
+      return !!prev && remedioDaDose(S, prev) === remedioDaDose(S, cur) && prev.dose !== cur.dose;
+    });
+    const diaria = diariaNaDose(S, antes);
+    const doses = diaria ? contagemDaJanela(S, ini, fim) : null;
+    out.push({
+      semana: n, t: ini, fim,
+      dose: ref && rem ? `${rem.label} ${doseTxt(ref.dose)} ${rem.unit}` : '',
+      /* Na semana diária, o local não vai no cabeçalho: seriam sete. A
+         semana de caneta semanal de quem trocou mantém o da dose dela. */
+      site: !diaria && ref && localDaDose(S, ref) ? siteLabel(localDaDose(S, ref)) : '',
+      eventos, deltaPeso,
+      /* ⚠️ "NENHUM OUTRO REGISTRO" QUANDO A SEMANA TEVE DOSE (01/10/2026,
+         achado da revisão). As doses saem dos eventos — o cabeçalho as
+         conta —, e a semana de sete comprimidos sem check-in nenhum dizia
+         "7 de 7 doses · Sem registros nesta semana": a mesma linha
+         afirmando e negando que houve registro. */
+      resumo: resumo || (doBloco.length ? W.semOutrosRegistros : W.semRegistros),
+      mudouDose,
+      metricas,
+      diaria: true,
+      doses,
+      dosesTexto: doses && doses.dias > 0 ? W.dosesDaSemana(doses.feitos, doses.dias) : '',
     });
   }
   return out;
@@ -4354,6 +4894,9 @@ const MEDIDAS: Record<string, (S: State, alvo: number) => {
   texto: string; feito: number; origem: string; para: string; ic: string;
   /** o que se conta, quando não são dias — "1 de 1 dia" não descreve uma injeção */
   unidade?: [string, string];
+  /** o alvo que vale de fato, quando a medida sabe mais que a tarefa
+      guardada — a dose diária (01/10/2026) */
+  alvo?: number;
 }> = {
   agua: (S, alvo) => {
     const ml = (S.profile as any).targets.waterMl as number;
@@ -4400,6 +4943,29 @@ const MEDIDAS: Record<string, (S: State, alvo: number) => {
      como as outras três contam água, proteína e movimento. */
   aplicacao: (S, alvo) => {
     const de = +startOfDay(now()) - 6 * DAY;
+    /* ⚠️ NA DOSE DIÁRIA, A TAREFA É "DOSE TODO DIA" (01/10/2026, parte B1).
+       Todo diário nasce com `{ metrica: 'aplicacao', alvo: 1 }` (a semente
+       e o estado vazio), e o cadastro não ajusta o alvo pela cadência: quem
+       toma todo dia via "Dose da semana — 1 de 1 dose" cumprida com a dose
+       de segunda, e o resto da semana sem contar. O alvo passa a ser os
+       sete dias, e o que se conta são DIAS com dose — a mesma janela dos
+       vizinhos (água, proteína, movimento: os últimos sete dias), para a
+       lista não misturar duas semanas. */
+    if (doseDiaria(S)) {
+      /* ⚠️ OS SETE DIAS PELO CALENDÁRIO (01/10/2026, achado da revisão).
+         `de` subtrai 6 × 24 h, e na semana em que o relógio volta uma hora
+         (25/10 em Berlim) a conta cai à 01h de seis dias atrás: o primeiro
+         dia da janela saía dela, e quem tomou todo dia lia "6 de 7". O
+         semanal continua com o `de` de sempre. */
+      const deDiaria = diaDoCalendario(+startOfDay(now()), -6);
+      const dias = diasComDose(S).filter((d) => d >= deDiaria).length;
+      return {
+        texto: K().aplicacaoTodoDia,
+        feito: Math.min(dias, 7),
+        alvo: 7,
+        origem: K().origemAplicacao, para: '/aplicacoes', ic: iconeDaDose(S),
+      };
+    }
     const feito = (S.injections as any[]).filter((x) => +startOfDay(new Date(x.t)) >= de).length;
     return {
       texto: alvo === 1 ? K().aplicacaoUma : K().aplicacaoVarias(alvo),
@@ -4428,8 +4994,9 @@ export function protocoloDaSemana(S: State) {
          métrica: elas continuam valendo o que a pessoa marcou. */
       return { i, texto: x.t, nota: x.note || '', feita: !!x.done, medida: false };
     }
-    const alvo = x.alvo || 7;
-    const { texto, feito, origem, para, unidade, ic } = m(S, alvo);
+    const lida = m(S, x.alvo || 7);
+    const { texto, feito, origem, para, unidade, ic } = lida;
+    const alvo = lida.alvo ?? (x.alvo || 7);
     const [un1, unN] = unidade ?? K().unidadeDia;
     return {
       i, texto,
@@ -5941,7 +6508,11 @@ export function careState(S: State) {
      sem qualificador são as que foram tomadas. */
   /* Sem dose prevista não há conta: "0 de 0 doses" é a pastilha medindo
      um tratamento que ainda não começou a ser registrado. Nula, ela some. */
-  const adRotulo = previstas ? E().adesao(S.injections.length, previstas) : null;
+  /* ⚠️ NA DOSE DIÁRIA, AS FEITAS SÃO DIAS COM DOSE (01/10/2026), a mesma
+     conta de `adesao` — `dosesFeitas`, do mesmo período das previstas:
+     duas doses no mesmo dia não tapam o dia esquecido, "22 de 21 doses"
+     não pode existir, e hoje só conta depois da dose de hoje. */
+  const adRotulo = previstas ? E().adesao(dosesFeitas(S), previstas) : null;
   const metricas: { valor: string; label: string }[] = [
     { valor: String(semanas), label: E().metricaSemanas },
     { valor: String(S.injections.length), label: E().metricaAplicacoes },
@@ -5977,12 +6548,46 @@ export function careState(S: State) {
      régua em um: o marcador de "agora" caía sobre uma semana já cumprida,
      e a semana de fato corrente aparecia como prevista. */
   const ateAMeta = planoDoPerfil(S).semanas;
+  /* ⚠️⚠️ NA DOSE DIÁRIA, A SEMANA "COM DOSE EM DIA" É A QUE TEVE DOSE EM
+     TODOS OS DIAS QUE CONTAM (01/10/2026, achado da revisão). A grade
+     semanal marca a semana que teve UMA dose, e o hero de Cuidado dizia "4
+     semanas com dose em dia" a quem perdeu vinte de vinte e oito
+     comprimidos — o mesmo erro que o painel da Jornada já tinha deixado
+     de cometer. Agora conta as semanas do tratamento JÁ FECHADAS (a de
+     hoje ainda pode ganhar dose, e o selo não se tira depois — ver
+     LinhaDoPlano) com a contagem dos blocos da Jornada (`contagemDaJanela`,
+     do começo do regime diário). Uma semana inteira de antes do regime
+     diário — a caneta semanal de quem trocou — não tem dia a contar, e
+     vale a regra dela: teve dose, está feita. As semanas feitas vão junto
+     (`semanasFeitas`), para a barra e o número saírem da mesma conta. O
+     semanal fica como era, e sem o campo. */
+  let semanasFeitas: number[] | undefined;
+  if (doseDiaria(S)) {
+    const injs = dosesEmOrdem(S);
+    semanasFeitas = [];
+    for (let n = 1; n < semanaDoTratamentoEm(S, +now()); n++) {
+      const { ini, fim } = janelaDaSemanaDoTratamento(S, n);
+      const c = contagemDaJanela(S, ini, fim);
+      /* ⚠️ "TEVE DOSE, ESTÁ FEITA" SÓ NA SEMANA DE UM REGIME NÃO DIÁRIO — a
+         caneta de quem trocou (01/10/2026, achado da revisão). Uma semana
+         de um regime diário ANTERIOR (comprimido → caneta → comprimido) tem
+         `dias` 0 porque inicioDoDiario só vê o regime de agora, e um
+         comprimido só a dava como cumprida. Ela não conta. */
+      const naSemana = injs.filter((i) => { const d = +startOfDay(new Date(i.t)); return d >= ini && d < fim; });
+      const feita = c.dias > 0
+        ? c.feitos === c.dias
+        : naSemana.length > 0 && !diariaNaDose(S, naSemana[naSemana.length - 1]);
+      if (feita) semanasFeitas.push(n);
+    }
+  }
   const plano = {
     previstas: Math.max(grade.length, ateAMeta ?? 0),
     /** há meta a perseguir, e portanto um horizonte de verdade */
     temHorizonte: ateAMeta != null,
     atual: grade.length,
-    cumpridas: aplicadas,
+    cumpridas: semanasFeitas ? semanasFeitas.length : aplicadas,
+    /** só na dose diária: as semanas fechadas com dose em todos os dias */
+    ...(semanasFeitas ? { semanasFeitas } : {}),
   };
 
   const base = { metricas, semanas, adesaoRotulo: adRotulo, plano };
@@ -6095,7 +6700,9 @@ export function careState(S: State) {
    acompanhada em vez de só registrada. */
 export function doseContext(S: State) {
   const nd = diasAteAplicar(S);
-  const injs = S.injections as any[];
+  /* Em ordem de data, e não a ordem da lista: a dose registrada fora de
+     ordem não é a atual (01/10/2026 — ver `lastInjection`). */
+  const injs = dosesEmOrdem(S);
 
   /* há quanto tempo a dose atual não muda: acha a primeira aplicação da
      dose vigente andando de trás para frente */
@@ -6110,12 +6717,21 @@ export function doseContext(S: State) {
 
   const cs = nextConsult(S);
   const D = T.cuidado.dose;
+  /* ⚠️ NA DOSE DIÁRIA, A PASTILHA É A DOSE DE HOJE (01/10/2026, parte B1
+     de docs/superpowers/specs/2026-10-01-oral-e-diario-design.md). Com
+     cadência de um dia, "Próxima dose amanhã" ficava escrita todo santo
+     dia — a contagem regressiva que a parte B tira de quem toma todo dia.
+     O que muda de um dia para o outro, e interessa, é se a de hoje já foi
+     registrada: o mesmo estado da faixa da Home (`doseDeHoje`). */
+  const hoje = doseDiaria(S) && injs.length ? doseDeHoje(S) : null;
+  const H = T.tratamento.doseDeHoje;
   return {
     /* Sem aplicação registrada, `nd` é zero por recuo e a frase dizia
        "Aplicação hoje". A próxima é a primeira, e ela não tem data. */
     /* "Nenhuma dose registrada" era a pastilha do primeiro dia, no lugar em
        que depois mora "próxima dose em 3 dias" — e lia como falta. */
     proxima: !injs.length ? D.primeiraARegistrar
+      : hoje ? (hoje.feita && hoje.t != null ? H.pastilhaFeita(fmtTime(new Date(hoje.t))) : H.pastilhaAindaNao)
       : quandoEm(nd).hoje ? D.aplicacaoHoje : D.proximaAplicacao(quandoEm(nd).label),
     naDose: desde > 0 ? D.nestaDoseHa(desde) : null,
     revisao: cs ? D.revisaoNaConsulta(cs.dias <= 0 ? D.revisaoHoje : cs.label) : null,
@@ -6191,7 +6807,11 @@ export function cicloFases(S: State) {
      na subida do efeito de um remédio que ninguém aplicou. As fases
      continuam — são o que a pessoa vai viver —, mas nenhuma é a de agora e
      nenhuma tem data. */
-  const comCiclo = temCiclo(S);
+  /* ⚠️ E NA DOSE DIÁRIA ELAS TAMBÉM SÃO SÓ CONTEÚDO (01/10/2026, parte
+     B1): a tabela é de um ciclo semanal, e "agora" marcaria a subida do
+     efeito todo dia. A tela de ciclo sai do caminho de quem toma todo
+     dia; se alguém chegar nela, nenhuma fase é a de hoje. */
+  const comCiclo = temFasesDoCiclo(S);
   const fases = cicloFasesFixas().map((f) => {
     const estado: 'passou' | 'agora' | 'amanha' | 'depois' = !comCiclo ? 'depois'
       : dayIn > f.ate ? 'passou'

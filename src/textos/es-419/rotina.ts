@@ -111,6 +111,9 @@ export const rotina = {
 
     aplicacaoUma: 'Dosis de la semana',
     aplicacaoVarias: (quantas: number) => `${quantas} dosis en la semana`,
+    /* ⚠️ Con dosis diaria (01/10/2026): se cuenta en días con dosis, como
+       la línea del agua. Ver ../pt-BR/rotina.ts. */
+    aplicacaoTodoDia: 'Dosis todos los días',
     origemAplicacao: 'Dosis',
 
     /* Lo que se cuenta en cada tarea. "1 de 1 día" no describe una

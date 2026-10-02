@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { timelineWeeks, timelineEvents, timelineCounts, temCiclo, type TLKind } from '../logic/derive';
 import { DAY, dataLonga, fmtDate, fmtPeriodo } from '../logic/time';
+import { noCalendario } from '../logic/descobertasDaSemana';
 import { Txt, Vazio } from '../ui/kit';
 import {
   TelaInterna, Titulao, Chips, Sanfona, SanfonaLinha, Cartao, Linha, Aviso,
@@ -109,7 +110,15 @@ export default function Historico() {
                   casa diz o mês uma vez — "17 a 23 set" — e em inglês diz
                   "Sep 17–23". O "a" escrito na tela ficaria em português
                   para sempre. */
-              sub={[fmtPeriodo(new Date(w.t), new Date(w.t + 6 * DAY)), w.dose, w.site].filter(Boolean).join(' · ')}
+              /* ⚠️ NA DOSE DIÁRIA, A SEMANA É O BLOCO DE 7 DIAS DO
+                 TRATAMENTO, com o fim dele (a semana 1 pode começar antes,
+                 numa dose anterior ao início), e a linha conta os dias com
+                 dose — "6 de 7 doses", como o cabeçalho da Jornada
+                 (01/10/2026, parte B2). */
+              sub={[
+                fmtPeriodo(new Date(w.t), new Date(w.fim != null ? noCalendario(w.fim, -1) : w.t + 6 * DAY)),
+                w.dosesTexto, w.dose, w.site,
+              ].filter(Boolean).join(' · ')}
               meta={w.resumo}
               onPress={() => router.push(`/leitura?s=${w.semana}` as any)}
             />

@@ -52,6 +52,11 @@ export const conquistas = {
   doses: 'Dosi',
   dosesDesc: (a: number) => `${p(a, 'dose', 'dosi')} registrat${a === 1 ? 'a' : 'e'}`,
   dosesFalta: (r: number) => `${v(r, 'Manca', 'Mancano')} ${p(r, 'dose', 'dosi')}`,
+  /* ⚠️ Con la dose quotidiana, il percorso conta i GIORNI con la dose
+     (01/10/2026) — livelli di 7, 30, 90, 180 e 365 giorni. Vedi
+     ../pt-BR/conquistas.ts. */
+  dosesDiasDesc: (a: number) => `${p(a, 'giorno', 'giorni')} con la dose`,
+  dosesDiasFalta: (r: number) => `${v(r, 'Manca', 'Mancano')} ${p(r, 'giorno', 'giorni')} con la dose`,
 
   tempo: 'Durata della terapia',
   /* Sotto l'anno conta in mesi, e da lì in poi in anni: "12 mesi" e "1

@@ -267,7 +267,13 @@ function LinhaDoPlano() {
   const st = careState(S);
   const { previstas, atual, cumpridas, temHorizonte } = st.plano;
   const grade = weekGrid(S, 0);
-  const feitas = new Set(grade.filter((g) => g.aplicou).map((g) => g.n));
+  /* ⚠️ NA DOSE DIÁRIA, O CHECK É DA SEMANA COM DOSE EM TODOS OS DIAS, e
+     não da semana com uma dose (01/10/2026, achado da revisão): as barras
+     marcavam com o selo a semana de um comprimido em sete, ao lado de um
+     número que já não as contava. As duas coisas saem da mesma lista,
+     `plano.semanasFeitas` (careState); no semanal ela não existe, e vale
+     a grade, como sempre. */
+  const feitas = new Set(st.plano.semanasFeitas ?? grade.filter((g) => g.aplicou).map((g) => g.n));
   /* As semanas de antes da primeira aplicação registrada não viram barra
      de semana sem dose: são semanas sem registro, e ficam em fio, como as
      previstas — posição sem afirmar nada. Ver `antes`, em weekGrid. */
@@ -749,7 +755,12 @@ function Tratamento() {
           </Row>
 
           {/* Três frases curtas. Cada uma é um tempo diferente do mesmo
-              tratamento — o que vem, o que dura, o que será revisto. */}
+              tratamento — o que vem, o que dura, o que será revisto.
+
+              ⚠️ NA DOSE DIÁRIA, A PRIMEIRA É A DOSE DE HOJE ("Dose de hoje
+              feita às 7:12"), e não "Próxima dose amanhã", que seria a
+              mesma frase todo dia (01/10/2026, parte B1 — ver
+              `doseContext`, em logic/derive). */}
           <Row gap={7} style={{ flexWrap: 'wrap', marginTop: 18 }}>
             {[ctx.proxima, ctx.naDose, ctx.revisao].filter(Boolean).map((frase) => (
               <View key={frase as string} style={{ backgroundColor: c.bg2, borderRadius: radius.pill, paddingHorizontal: 11, paddingVertical: 6, marginBottom: 3 }}>

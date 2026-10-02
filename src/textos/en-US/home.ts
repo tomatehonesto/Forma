@@ -114,6 +114,8 @@ export const home = {
     exame: ['lab panel', 'lab panels'] as [string, string],
     contagem: (quantos: number, nome: string) => `${quantos} ${nome}`,
     semRegistros: 'Nothing logged this week',
+    /* daily dose, a week with doses only (see ../pt-BR) */
+    semOutrosRegistros: 'Nothing else logged this week',
 
     hidratacao: 'Hydration',
     proteina: 'Protein',
@@ -125,6 +127,12 @@ export const home = {
     minutos: (quanto: number) => `${quanto} min`,
     deltaGramas: (quanto: string) => `${quanto} g`,
     deltaMinutos: (quanto: string) => `${quanto} min`,
+
+    /* ⚠️ The week count for a daily dose (01/10/2026) — see ../pt-BR/home.ts.
+       Days count up to today, and today only once its dose is logged; zero
+       gets its own line, because "0 of 4 doses" reads as a reproach. */
+    dosesDaSemana: (feitas: number, dias: number) =>
+      (feitas === 0 ? 'No doses logged' : `${feitas} of ${dias} ${dias === 1 ? 'dose' : 'doses'}`),
   },
 
   mudancas: {
@@ -183,6 +191,9 @@ export const home = {
       `${feitos} of ${dias} ${dias === 1 ? 'day' : 'days'} with a check-in · ${aplicadas} of ${vividas} ${vividas === 1 ? 'week' : 'weeks'} with a dose`,
     diasComCheckinSo: (feitos: number, dias: number) =>
       `${feitos} of ${dias} ${dias === 1 ? 'day' : 'days'} with a check-in`,
+    /* ⚠️ The panel line for a daily dose (01/10/2026) — see ../pt-BR/home.ts. */
+    diasComCheckinEDose: (feitos: number, dias: number, comDose: number, diasDaSemana: number) =>
+      `${feitos} of ${dias} ${dias === 1 ? 'day' : 'days'} with a check-in · ${comDose} of ${diasDaSemana} ${diasDaSemana === 1 ? 'day' : 'days'} with a dose`,
     primeiraDose: 'First dose',
     primeiraDoseTexto: 'The cycle starts counting from the first dose you log.',
     semanaASemana: 'Week by week. Tap to see what stood out in each cycle.',

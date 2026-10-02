@@ -1,7 +1,7 @@
 import React from 'react';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
-import { M, lastInjection, siteLabel, penStock, nextInjectionDate } from '../logic/derive';
+import { M, lastInjection, siteLabel, penStock, nextInjectionDate, doseDiaria } from '../logic/derive';
 import { diffDays, now, doseTxt, dataComDiaDaSemana, maiuscula } from '../logic/time';
 import { FORMAS, formaDe, umOutro, oA, localDaDose } from '../logic/formas';
 import { SheetScreen } from '../ui/kit';
@@ -26,9 +26,12 @@ const K = () => T.tratamento.telaAplicacaoOk;
 
    O que ela faz é responder as duas perguntas que vêm logo depois de
    apertar salvar — quando é a próxima e se a caneta aguenta — e devolver
-   a pessoa para a Jornada. O caminho de volta é `dismissTo` nas abas: o
-   formulário sai da pilha, então o botão de voltar do sistema não
-   reabre um registro que já foi salvo.
+   a pessoa para a Jornada. Na dose diária, só a segunda, e só na dose
+   injetada: a próxima é sempre amanhã (ver `diaria`, logo abaixo).
+
+   O caminho de volta é `dismissTo` nas abas: o formulário sai da pilha,
+   então o botão de voltar do sistema não reabre um registro que já foi
+   salvo.
 
    ⚠️ E NÃO `replace`. As abas já estão embaixo destas folhas; `replace`
    trocava a folha por um SEGUNDO conjunto de abas em cima do primeiro, e
@@ -42,7 +45,15 @@ export default function AplicacaoOk() {
   const router = useRouter();
 
   const med = M(S);
-  const li = lastInjection(S);
+  /* ⚠️ A DOSE QUE ACABOU DE SER SALVA, PELO INSTANTE DELA (`?t=`), e não
+     a "última" (01/10/2026). `lastInjection` passou a ser a de data mais
+     recente (logic/derive, parte B1) — e, depois de um registro
+     retroativo, a mais recente é outra: a folha confirmava "Segunda, 28"
+     para quem acabou de registrar a quinta passada. O registro manda o
+     instante que gravou; sem ele (quem chega do cadastro), a mais
+     recente, como sempre foi. */
+  const { t } = useLocalSearchParams<{ t?: string }>();
+  const li = (t != null && (S.injections as any[]).find((i) => i.t === Number(t))) || lastInjection(S);
   const est = penStock(S);
   const prox = nextInjectionDate(S);
   const dias = Math.max(0, diffDays(prox, now()));
@@ -59,6 +70,14 @@ export default function AplicacaoOk() {
      devolve "another" sem olhar o gênero. As palavras estavam aqui, em
      português, dentro de `concordar(forma, 'novo', 'nova')`. */
   const outro = `${umOutro(formaDe(S))} ${vocab.recipiente}`;
+  /* ⚠️ NA DOSE DIÁRIA NÃO HÁ "PRÓXIMA DOSE" (01/10/2026, achado da
+     revisão). Seria "Amanhã · em 1 dia" depois de toda dose — a contagem
+     regressiva que a parte B tira de quem toma todo dia, e que sobrou
+     aqui. E com ela fora, o cartão de quem toma comprimido ficaria vazio
+     (a linha do recipiente é só da dose injetada): o cartão só existe
+     quando tem uma linha. */
+  const diaria = doseDiaria(S);
+  const temCartao = !diaria || vocab.injetavel;
 
   return (
     <SheetScreen
@@ -95,7 +114,9 @@ export default function AplicacaoOk() {
            em português, o nome intacto em alemão. */
         texto={`${quando} · ${med.label} ${doseTxt(li?.dose ?? S.profile.dose)} ${med.unit}${local ? ` · ${T.comum.noMeio(siteLabel(local))}` : ''}.`}
       >
+        {temCartao ? (
         <Cartao>
+          {!diaria ? (
           <Linha
             titulo={K().proximaDose}
             /* A HORA DO LEMBRETE SAIU DAQUI. Havia um horário só por
@@ -105,11 +126,15 @@ export default function AplicacaoOk() {
               aplicação é o que esta confirmação tem a dizer. */
             sub={maiuscula(dataComDiaDaSemana(prox))}
             /* ⚠️ "1 dias" era raro e virou rotina: com medicamento oral a
-               cadência é DIÁRIA, e a próxima dose é sempre amanhã. */
+               cadência é DIÁRIA, e a próxima dose é sempre amanhã. Desde
+               01/10/2026 a dose diária nem chega aqui (ver `diaria`), mas
+               uma dose registrada com atraso ainda pode deixar a próxima a
+               um dia. */
             selo={dias === 0 ? K().hoje : K().emDias(dias)}
             seloTom="neutra"
             seta={false}
           />
+          ) : null}
           {vocab.injetavel ? (
             <Linha
               titulo={maiuscula(vocab.recipiente)}
@@ -131,6 +156,7 @@ export default function AplicacaoOk() {
             />
           ) : null}
         </Cartao>
+        ) : null}
       </Confirmacao>
     </SheetScreen>
   );

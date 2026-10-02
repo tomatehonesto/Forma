@@ -110,6 +110,45 @@ export const tratamento = {
   localNaoInformado: 'Local não informado',
 
   /* ============================================================
+     A DOSE DE HOJE — o hábito do dia de quem toma todo dia
+
+     ⚠️ SÓ PARA A DOSE DIÁRIA (01/10/2026, parte B1 de
+     docs/superpowers/specs/2026-10-01-oral-e-diario-design.md). Decisão
+     do dono: a dose de todo dia se registra com UM TOQUE, como o
+     check-in, e nada é presumido. Moram juntas aqui porque três telas
+     dizem a mesma coisa — a faixa da Home, a pastilha de Cuidado e o
+     cartão de /aplicacoes —, e "feita às 7:12" escrito três vezes
+     divergiria na primeira revisão.
+
+     ⚠️ O BOTÃO É A ÚNICA FRASE EM PRIMEIRA PESSOA, e por isso é a única
+     que segue a forma ("Tomei" / "Apliquei" — decisão do dono, parte A).
+     O resto diz "dose", que serve às quatro formas.
+
+     ⚠️ E "AINDA NÃO REGISTRADA", NUNCA "PENDENTE" OU "ATRASADA": o que
+     sabemos é que o registro não chegou, e não que a pessoa não tomou —
+     a mesma regra do "SEM REGISTRO" da Home.
+     ============================================================ */
+  doseDeHoje: {
+    titulo: 'Dose de hoje',
+    chapeu: 'DOSE DE HOJE',
+    registrarHoje: (injetavel: boolean): string => (injetavel ? 'Apliquei hoje' : 'Tomei hoje'),
+    feitaAs: (hora: string) => `Feita às ${hora}`,
+    aindaNaoRegistrada: 'Ainda não registrada',
+    /* a pastilha de Cuidado, no lugar de "Próxima dose amanhã" */
+    pastilhaFeita: (hora: string) => `Dose de hoje feita às ${hora}`,
+    pastilhaAindaNao: 'Dose de hoje ainda não registrada',
+    /* abre a folha de registro, para trocar a dose, o dia ou o local */
+    mudar: 'Mudar',
+    /* ⚠️ A SEGUNDA DOSE DO DIA PEDE CONFIRMAÇÃO (parte B1): com dose todo
+       dia, um toque duplo ou um "será que já registrei?" vira dose dobrada
+       no histórico — e no resumo da consulta. Calma, sem alarme: pode ter
+       sido mesmo uma segunda dose, e então ela precisa entrar. */
+    outraHoje: (hora: string) => `Você já registrou uma dose hoje, às ${hora}. Registrar mais uma?`,
+    outraSim: 'Registrar mais uma',
+    cancelar: 'Cancelar',
+  },
+
+  /* ============================================================
      OS LOCAIS DE APLICAÇÃO
 
      ⚠️ O LADO VEM ABREVIADO E ENTRE PARÊNTESES porque estes rótulos
@@ -298,6 +337,21 @@ export const tratamento = {
        sempre perdeu porque passou mal, e uma casa vermelha num calendário
        de medicamento é o aplicativo cobrando de quem já pagou. */
     semCulpa: 'Sem culpa por um dia perdido — o que conta é retomar. Dá para registrar uma dose anterior a qualquer momento, no botão lá embaixo.',
+    /* ⚠️ VÁRIOS DIAS DE UMA VEZ, SÓ NA DOSE DIÁRIA (01/10/2026, parte B1).
+       Quem toma todo dia e esqueceu de registrar a semana não abre a folha
+       cinco vezes: toca nos dias vazios da grade e confirma. Cada dia entra
+       sem local, que ninguém sabe mais qual foi.
+
+       ⚠️ E COM A DOSE EM USO NAQUELE DIA, e não "com Rybelsus 7 mg"
+       (01/10/2026, achado da revisão): a nota nomeava a dose de hoje, e
+       era ela que se gravava em todos os dias, inclusive nos de antes de
+       um ajuste. Agora cada dia recebe a dose que valia nele (`doseEmUsoNoDia`,
+       em logic/derive), e a nota diz isso. */
+    marcarDias: 'Esqueceu de registrar algum dia? Toque nos dias vazios para marcar as doses de uma vez.',
+    registrarDias: (n: number) => (n === 1 ? 'Registrar a dose de 1 dia' : `Registrar as doses de ${n} dias`),
+    marcarDiasNota: (injetavel: boolean) =>
+      `Cada dia entra com a dose que estava em uso naquele dia${injetavel ? ', sem o local' : ''}.`,
+    desmarcar: 'Desmarcar',
     titulo: 'Doses',
     registrar: 'Registrar dose',
     /* Os três chegam prontos: a marca, o princípio ativo e a cadência. */
@@ -357,6 +411,12 @@ export const tratamento = {
     nivelNoCorpo: 'Nível no corpo',
     nivelTexto: (molecula: string, meiaVida: string) =>
       `Estimativa do nível de ${molecula} no corpo, com meia-vida de ${meiaVida}. O ponto mais baixo, antes da próxima dose, costuma ser quando a fome aumenta.`,
+    /* ⚠️ NA DOSE DIÁRIA NÃO HÁ "PONTO MAIS BAIXO ANTES DA PRÓXIMA" a
+       esperar (01/10/2026, parte B1): com uma dose por dia o nível fica
+       parecido de um dia para o outro, e a frase de cima inventava um vale
+       diário — o mesmo que saiu da Home. */
+    nivelTextoDiario: (molecula: string, meiaVida: string) =>
+      `Estimativa do nível de ${molecula} no corpo, com meia-vida de ${meiaVida}. Com uma dose por dia, ele fica num nível parecido de um dia para o outro.`,
     meiaVidaDias: (dias: number) => `${dias} dias`,
     meiaVidaHoras: 'cerca de 13 horas',
 
@@ -613,6 +673,17 @@ export const tratamento = {
     doses: (n: number) => (n === 1 ? '1 dose' : `${n} doses`),
     registraJunto: (oRecipiente: string, total: number, recipiente: string) =>
       `Registramos ${oRecipiente} junto com esta dose (${total} doses por ${recipiente}), e passamos a contar as que restam.`,
+
+    /* ---------- a segunda dose no mesmo dia (dose diária) ----------
+       ⚠️ 01/10/2026, parte B1. Num dia que já tem dose, salvar pede
+       confirmação. A hora só aparece quando é de hoje: a dose de um dia
+       que passou é gravada ao meio-dia (`instanteDaAplicacao`), e "às
+       12:00" seria uma hora inventada. */
+    jaHaNoDia: (hora: string | null) =>
+      (hora ? `Já há uma dose registrada hoje, às ${hora}.` : 'Já há uma dose registrada neste dia.'),
+    duplaTexto: 'Se foi mesmo mais uma dose, registre — ela entra no histórico como a segunda do dia. Se não, é só trocar o dia.',
+    registrarMaisUma: 'Registrar mais uma dose',
+    trocarODia: 'Trocar o dia',
   },
   /* ============================================================
      UM TREINO — a folha que abre ao tocar na linha do diário

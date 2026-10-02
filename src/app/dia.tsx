@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
-import { nextInjectionDate, M, respostaNoDia, respondido, temCiclo } from '../logic/derive';
+import { nextInjectionDate, M, respostaNoDia, respondido, temCiclo, doseDiaria } from '../logic/derive';
 import { startOfDay, now, diffDays, doseTxt, dataComDiaDaSemana, maiuscula } from '../logic/time';
 import { Txt, SheetScreen } from '../ui/kit';
 import { Cartao, Linha } from '../ui/internas';
@@ -54,11 +54,21 @@ export default function Dia() {
   const peso = (S.weights as any[]).find((x) => +startOfDay(new Date(x.t)) === dia);
 
   /* Sem ciclo, nada é previsto: a próxima dose seria hoje por recuo. */
-  const prevista = temCiclo(S) && diffDays(nextInjectionDate(S), d) === 0;
+  /* ⚠️ NA DOSE DIÁRIA, TODO DIA É DIA DE DOSE (01/10/2026, parte B1 de
+     docs/superpowers/specs/2026-10-01-oral-e-diario-design.md). O
+     subtítulo "Dia da dose" marcava um dia especial da semana, e para
+     quem toma todo dia ele estaria em todas as folhas — some. E a dose
+     prevista é a de hoje, e só ela: pela próxima dose (`nextInjectionDate`
+     = última + 1 dia), quem esqueceu anteontem e ontem via "prevista"
+     no dia de ontem, que já passou. */
+  const diaria = doseDiaria(S);
+  const prevista = diaria
+    ? !aplicou && dia === +startOfDay(now())
+    : temCiclo(S) && diffDays(nextInjectionDate(S), d) === 0;
   const nada = !aplicou && !fez && !peso;
 
   const sub = [
-    prevista || aplicou ? K().diaDeAplicacao : null,
+    !diaria && (prevista || aplicou) ? K().diaDeAplicacao : null,
     nada ? K().nadaRegistrado : null,
   ].filter(Boolean).join(' · ');
 
@@ -80,7 +90,13 @@ export default function Dia() {
             selo={aplicou ? K().seloFeita : K().seloRegistrar}
             seloTom={aplicou ? 'verde' : 'neutra'}
             seta={false}
-            onPress={aplicou ? undefined : () => ir('/aplicacao')}
+            /* ⚠️ NA DOSE DIÁRIA, A FOLHA ABRE NESTE DIA (`?t=`, 01/10/2026,
+               parte B1): quem esqueceu de registrar a terça e tocou na
+               terça quer a terça — abrir em hoje mandava a dose para o dia
+               errado e deixava hoje com duas. Na caneta semanal a folha
+               continua abrindo em hoje, como sempre abriu: toda mudança da
+               parte B é só para quem toma todo dia. */
+            onPress={aplicou ? undefined : () => ir(diaria ? `/aplicacao?t=${dia}` : '/aplicacao')}
           />
           <Linha
             titulo={T.home.evento.checkin}

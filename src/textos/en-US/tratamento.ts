@@ -68,6 +68,24 @@ export const tratamento = {
     `Log ${oRecipiente}, and we’ll count the doses left.`,
   localNaoInformado: 'Site not given',
 
+  /* ⚠️ Today's dose, for a daily dose only (01/10/2026, part B1) — see
+     ../pt-BR/tratamento.ts. The button is the only first-person line, and
+     "took" already serves every form in English. Never "pending" or
+     "missed": what we know is that nothing was logged. */
+  doseDeHoje: {
+    titulo: 'Today’s dose',
+    chapeu: 'TODAY’S DOSE',
+    registrarHoje: (_injetavel: boolean): string => 'Took it today',
+    feitaAs: (hora: string) => `Done at ${hora}`,
+    aindaNaoRegistrada: 'Not logged yet',
+    pastilhaFeita: (hora: string) => `Today’s dose done at ${hora}`,
+    pastilhaAindaNao: 'Today’s dose not logged yet',
+    mudar: 'Change',
+    outraHoje: (hora: string) => `You already logged a dose today, at ${hora}. Log another one?`,
+    outraSim: 'Log another',
+    cancelar: 'Cancel',
+  },
+
   /* ⚠️ THE SIDE IS ABBREVIATED IN PARENTHESES because these labels appear
      inside short lines — history, the day's suggestion, the weekly
      summary. "Left side of the abdomen" fits in none of them. */
@@ -197,6 +215,12 @@ export const tratamento = {
   telaAplicacoes: {
     aplicada: 'logged',
     semCulpa: 'No guilt over a day that slipped by — what counts is picking it back up. You can log an earlier dose at any time, using the button below.',
+    /* several days at once, daily dose only (see ../pt-BR) */
+    marcarDias: 'Forgot to log a day? Tap the empty days to mark those doses all at once.',
+    registrarDias: (n: number) => (n === 1 ? 'Log the dose for 1 day' : `Log the doses for ${n} days`),
+    marcarDiasNota: (injetavel: boolean) =>
+      `Each day is logged with the dose you were on that day${injetavel ? ', without the site' : ''}.`,
+    desmarcar: 'Clear',
     titulo: 'Doses',
     registrar: 'Log a dose',
     lead: (med: string, molecula: string, cadencia: string) => `${med} · ${molecula} · ${cadencia}`,
@@ -230,6 +254,9 @@ export const tratamento = {
     nivelNoCorpo: 'Level in the body',
     nivelTexto: (molecula: string, meiaVida: string) =>
       `Estimated ${molecula} level in your body, with a half-life of ${meiaVida}. The lowest point, just before the next dose, is usually when hunger picks up.`,
+    /* daily dose: no low point to wait for (see ../pt-BR) */
+    nivelTextoDiario: (molecula: string, meiaVida: string) =>
+      `Estimated ${molecula} level in your body, with a half-life of ${meiaVida}. With one dose a day, it stays at a similar level from one day to the next.`,
     meiaVidaDias: (dias: number) => `${dias} days`,
     meiaVidaHoras: 'about 13 hours',
 
@@ -377,6 +404,14 @@ export const tratamento = {
     doses: (n: number) => (n === 1 ? '1 dose' : `${n} doses`),
     registraJunto: (oRecipiente: string, total: number, recipiente: string) =>
       `We log ${oRecipiente} along with this dose (${total} doses per ${recipiente}) and start counting what’s left.`,
+
+    /* A second dose on the same day asks first (daily dose, part B1). The
+       time only shows for today: a past day is saved at noon. */
+    jaHaNoDia: (hora: string | null) =>
+      (hora ? `There’s already a dose logged today, at ${hora}.` : 'There’s already a dose logged on this day.'),
+    duplaTexto: 'If it really was another dose, log it — it goes into your history as the second one that day. If not, just pick another day.',
+    registrarMaisUma: 'Log another dose',
+    trocarODia: 'Pick another day',
   },
   telaTreino: {
     titulo: 'Workout',

@@ -47,6 +47,11 @@ export const conquistas = {
   doses: 'Doses',
   dosesDesc: (a: number) => `${p(a, 'dose')} notée${a === 1 ? '' : 's'}`,
   dosesFalta: (r: number) => `Il manque ${p(r, 'dose')}`,
+  /* ⚠️ Avec une dose quotidienne, le parcours compte des JOURS avec dose
+     (01/10/2026) — paliers de 7, 30, 90, 180 et 365 jours. Voir
+     ../pt-BR/conquistas.ts. */
+  dosesDiasDesc: (a: number) => `${p(a, 'jour')} avec une dose`,
+  dosesDiasFalta: (r: number) => `Il manque ${p(r, 'jour')} avec une dose`,
 
   tempo: 'Durée du traitement',
   /* En dessous d'un an on compte en mois, au-delà en années : « 12 mois »

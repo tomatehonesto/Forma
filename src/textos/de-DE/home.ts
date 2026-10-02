@@ -127,6 +127,8 @@ export const home = {
     /* ⚠️ EINE LEERE WOCHE HAT IHREN EIGENEN SATZ, und keine Lücke: eine
        Woche ohne Eintrag hat stattgefunden, und ihr Kapitel gibt es. */
     semRegistros: 'Keine Einträge in dieser Woche',
+    /* tägliche Dosis, eine Woche nur mit Dosen (siehe ../pt-BR) */
+    semOutrosRegistros: 'Sonst nichts eingetragen in dieser Woche',
 
     hidratacao: 'Trinken',
     proteina: 'Eiweiß',
@@ -138,6 +140,13 @@ export const home = {
     minutos: (quanto: number) => `${quanto} Min.`,
     deltaGramas: (quanto: string) => `${quanto} g`,
     deltaMinutos: (quanto: string) => `${quanto} Min.`,
+
+    /* ⚠️ Die Wochenzählung bei täglicher Dosis (01/10/2026) – siehe
+       ../pt-BR/home.ts. Die Tage zählen bis heute, und heute erst nach
+       seiner Dosis; die Null hat einen eigenen Satz, denn „0 von 4 Dosen“
+       klingt nach Vorwurf. */
+    dosesDaSemana: (feitas: number, dias: number) =>
+      (feitas === 0 ? 'Keine Dosis eingetragen' : `${feitas} von ${dias} ${dias === 1 ? 'Dosis' : 'Dosen'}`),
   },
 
   mudancas: {
@@ -205,6 +214,9 @@ export const home = {
       `${feitos} von ${dias} ${dias === 1 ? 'Tag' : 'Tagen'} mit Check-in · ${aplicadas} von ${vividas} ${vividas === 1 ? 'Woche' : 'Wochen'} mit Dosis`,
     diasComCheckinSo: (feitos: number, dias: number) =>
       `${feitos} von ${dias} ${dias === 1 ? 'Tag' : 'Tagen'} mit Check-in`,
+    /* ⚠️ Die Zeile im Panel bei täglicher Dosis (01/10/2026) – siehe ../pt-BR/home.ts. */
+    diasComCheckinEDose: (feitos: number, dias: number, comDose: number, diasDaSemana: number) =>
+      `${feitos} von ${dias} ${dias === 1 ? 'Tag' : 'Tagen'} mit Check-in · ${comDose} von ${diasDaSemana} ${diasDaSemana === 1 ? 'Tag' : 'Tagen'} mit Dosis`,
     primeiraDose: 'Erste Dosis',
     primeiraDoseTexto: 'Der Zyklus zählt ab der ersten Dosis, die du einträgst.',
     semanaASemana: 'Woche für Woche. Tipp darauf, um zu sehen, was jeden Zyklus geprägt hat.',

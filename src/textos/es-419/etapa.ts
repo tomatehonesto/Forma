@@ -52,6 +52,14 @@ export const etapa = {
     { head: 'El hambre puede volver un poco.', body: 'Cerca del final del ciclo, es esperable que el apetito vuelva a aparecer. Es parte del proceso, y por eso la próxima dosis tiene día fijo.', q: '¿Por qué vuelve el hambre antes de la próxima dosis?' },
     { head: 'Una semana de tratamiento.', body: 'Completaste la primera semana. Son los check-ins de estos días los que muestran cómo respondió el cuerpo, y lo que vale la pena llevar a la consulta.', q: '¿Cómo fue mi primera semana?' },
   ],
+  /* ⚠️ El sexto día de quien toma la dosis todos los días (01/10/2026) —
+     ver ../pt-BR/etapa.ts. El de arriba habla del ciclo semanal; con una
+     dosis por día no hay fin de ciclo que el hambre espere. */
+  primeiraDiaSeisDiaria: {
+    head: 'Sin altibajos en la semana.',
+    body: 'Con una dosis por día, el medicamento queda en un nivel parecido de un día a otro — el hambre no tiene un día fijo para volver. Si aparece, el check-in es el lugar para anotarlo.',
+    q: '¿Cómo funciona el medicamento de todos los días?',
+  },
 
   manutencaoChapeu: 'MANTENIMIENTO',
   /* ⚠️ LA PROCEDENCIA ENTRA EN LA FRASE, SIEMPRE. "El rango que definió tu
