@@ -176,13 +176,36 @@ const equipeDoBanco = (linhas: any[] | null | undefined): Profissional[] =>
 const COLUNAS = 'id,nome,foto,logo,sobre,endereco,bairro,cidade,uf,lat,lng,dias,abre,fecha,presencial,teleconsulta,convenios,particular,contato,exemplo,'
   + 'equipe(papel,ativo,ordem,profissionais(id,nome,foto,especialidades,conselho,regiao,registro,rqe))';
 
+/* ⚠️ QUINZE SEGUNDOS E DESISTE (02/10/2026). As duas leituras da rede não
+   tinham prazo, e uma resposta que não vem — o sinal que some no meio do
+   caminho, um servidor travado — deixava o esqueleto da vitrine, o da
+   ficha e os rostos do Cuidado pulsando sem fim: o fetch do aparelho não
+   desiste em tempo de tela, e o cliente do Supabase ainda repete sozinho,
+   até três vezes, a leitura que falha pela rede. Uma espera sem fim
+   parece carregamento, e ninguém sai dela.
+
+   Com o prazo, a leitura que não volta acaba como a que falha: o corte
+   chega como o erro de um fetch que caiu (`AbortError`, com `data` nulo),
+   e dali em diante é o caminho de sempre — `carregarRede` lança e
+   `clinicaDaRede` devolve nulo. O prazo vale para a leitura inteira, com
+   as repetições dentro; quinze é o mesmo da estimativa pelo nome
+   (logic/estimativa). */
+const PRAZO_DA_REDE = 15000;
+
 export async function carregarRede(): Promise<Clinica[]> {
   const cliente = contaLigada() ? nuvem() : null;
   if (!cliente) return [];
-  const { data, error } = await cliente.from('clinicas').select(COLUNAS).eq('publicada', true).order('nome');
-  if (error) throw error;
-  ultima = (data ?? []).map((c: any) => clinicaDoBanco({ ...c, equipe: equipeDoBanco(c.equipe) }));
-  return ultima;
+  const corta = new AbortController();
+  const relogio = setTimeout(() => corta.abort(), PRAZO_DA_REDE);
+  try {
+    const { data, error } = await cliente.from('clinicas').select(COLUNAS).eq('publicada', true).order('nome')
+      .abortSignal(corta.signal);
+    if (error) throw error;
+    ultima = (data ?? []).map((c: any) => clinicaDoBanco({ ...c, equipe: equipeDoBanco(c.equipe) }));
+    return ultima;
+  } finally {
+    clearTimeout(relogio);
+  }
 }
 
 /** Uma clínica pelo id — da lista lida, ou do banco: a do próprio vínculo
@@ -192,8 +215,15 @@ export async function clinicaDaRede(id: string): Promise<Clinica | null> {
   if (achada) return achada;
   const cliente = contaLigada() ? nuvem() : null;
   if (!cliente) return null;
-  const { data } = await cliente.from('clinicas').select(COLUNAS).eq('id', id).maybeSingle();
-  return data ? clinicaDoBanco({ ...(data as any), equipe: equipeDoBanco((data as any).equipe) }) : null;
+  const corta = new AbortController();
+  const relogio = setTimeout(() => corta.abort(), PRAZO_DA_REDE);
+  try {
+    const { data } = await cliente.from('clinicas').select(COLUNAS).eq('id', id)
+      .abortSignal(corta.signal).maybeSingle();
+    return data ? clinicaDoBanco({ ...(data as any), equipe: equipeDoBanco((data as any).equipe) }) : null;
+  } finally {
+    clearTimeout(relogio);
+  }
 }
 
 /* ============================================================

@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { View, Pressable, TextInput, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
 import {
@@ -17,6 +16,7 @@ import { Aviso, Cartao } from '../ui/internas';
 import { BarraQueColapsa } from '../ui/capa';
 import { Nevoa } from '../ui/nevoa';
 import { Icon } from '../ui/Icon';
+import { Esqueleto, ImagemQueChega } from '../ui/esqueleto';
 import { fotoDaRede, focoDaRede, imagensDaRede, iniciaisDaClinica } from '../ui/retratos';
 import { useTheme } from '../ui/useTheme';
 import { ty, radius, font } from '../theme';
@@ -182,7 +182,7 @@ export default function Rede() {
         <View style={{ paddingHorizontal: PAD, marginTop: 22, gap: 12 }}>
           {erro ? (
             <Vazio ic="alerta" titulo={K().erroTitulo} texto={K().erroTexto} acao={K().tentarDeNovo} onAcao={ler} />
-          ) : !lista ? null : !resultados.length ? (
+          ) : !lista ? <VitrineChegando /> : !resultados.length ? (
             <Vazio ic="steth" titulo={K().vazioTitulo} texto={K().vazioTexto} acao={K().limparFiltros} onAcao={v.limparTudo} />
           ) : (
             <>
@@ -306,7 +306,7 @@ function CartaoDaClinica({ r, convenio, onPress }: { r: Resultado; convenio: str
             borderTopRightRadius: radius.card, borderBottomRightRadius: radius.card,
           }}>
             {foto ? (
-              <Image
+              <ImagemQueChega
                 source={foto}
                 style={StyleSheet.absoluteFill}
                 contentFit="cover"
@@ -375,6 +375,56 @@ function CartaoDaClinica({ r, convenio, onPress }: { r: Resultado; convenio: str
         </Row>
       </Cartao>
     </Pressable>
+  );
+}
+
+/* ------------------------------------------------------------------
+   A VITRINE CHEGANDO — a lista enquanto o banco responde (02/10/2026,
+   fase 3 de docs/superpowers/specs/2026-10-02-motion-design.md)
+
+   Antes, o lugar da lista ficava em branco enquanto a consulta não
+   voltava — e em branco, entre os filtros e o "Já tenho um código", ele
+   lia como "nenhuma clínica" até a lista aparecer de uma vez.
+
+   ⚠️ É O CARTÃO DE CIMA, MEDIDO, e não um retângulo qualquer: o mesmo
+   `Cartao`, a mesma altura fixa, a foto de 128 na esquerda, as linhas do
+   nome, das especialidades, do lugar e do convênio, e a fileira dos sete
+   dias; a linha curta de cima é a contagem ("8 clínicas"). Quando a lista
+   chega, cada cartão cai no lugar de um esqueleto, sem empurrar o
+   "Já tenho um código" de lá para cá. A coluna vazia de 28 é a da seta.
+
+   ⚠️ TRÊS CARTÕES, porque o número de clínicas ninguém sabe ainda: dois
+   enchem a primeira dobra de um telefone comum, e o terceiro é a ponta
+   que diz que a lista continua. Ver ui/esqueleto.
+------------------------------------------------------------------ */
+function VitrineChegando() {
+  return (
+    <Esqueleto rotulo={K().carregando} style={{ gap: 12 }}>
+      <Esqueleto.Linha v="caption" largura={86} style={{ marginHorizontal: 2 }} />
+      {[0, 1, 2].map((i) => (
+        <Cartao key={i}>
+          <Row style={{ alignItems: 'stretch', height: ALTURA_DO_CARTAO }}>
+            <Esqueleto.Bloco
+              largura={128}
+              raio={0}
+              style={{ borderTopRightRadius: radius.card, borderBottomRightRadius: radius.card }}
+            />
+            <View style={{ flex: 1, paddingVertical: 14, paddingLeft: 14, paddingRight: 6, justifyContent: 'center' }}>
+              <Esqueleto.Linha v="bodyMed" largura={i === 1 ? '64%' : '78%'} />
+              <Esqueleto.Linha v="caption" largura={i === 2 ? '46%' : '58%'} style={{ marginTop: 1 }} />
+              <View style={{ marginTop: 8, gap: 3 }}>
+                <Esqueleto.Linha v="caption" largura="42%" />
+                <Esqueleto.Linha v="caption" largura="54%" />
+              </View>
+              <Row gap={3} style={{ marginTop: 10 }}>
+                {SEMANA_DE_CONSULTA.map((d) => <Esqueleto.Bloco key={d} largura={20} altura={20} raio={6} />)}
+              </Row>
+            </View>
+            <View style={{ width: 28 }} />
+          </Row>
+        </Cartao>
+      ))}
+    </Esqueleto>
   );
 }
 

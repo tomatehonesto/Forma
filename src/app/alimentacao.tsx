@@ -18,6 +18,7 @@ import {
 } from '../ui/internas';
 import { AtalhoDaCapa, CapaDeHabito, FolhaDeHabito, TelaDeHabito } from '../ui/capa';
 import { Chevron } from '../ui/kit';
+import { BarraQueEnche } from '../ui/barraQueEnche';
 import { useTheme } from '../ui/useTheme';
 import { font, radius, shadowCard } from '../theme';
 import { Rich } from '../ui/kit';
@@ -166,12 +167,8 @@ export default function Alimentacao() {
               <Txt v="metric">{milhar(energia.kcal)}</Txt>
               <Txt v="caption" c={c.tx3}>{K().deKcal(milhar(metas.kcal))}</Txt>
             </Row>
-            <View style={{ height: 5, borderRadius: radius.pill, backgroundColor: c.track, overflow: 'hidden' }}>
-              <View style={{
-                width: `${Math.max(0, Math.min(100, Math.round((energia.kcal / metas.kcal) * 100)))}%`,
-                height: '100%', borderRadius: radius.pill, backgroundColor: c.accent,
-              }} />
-            </View>
+            {/* Enche uma vez por abertura (02/10/2026) — ui/barraQueEnche. */}
+            <BarraQueEnche pct={Math.round((energia.kcal / metas.kcal) * 100)} altura={5} />
             {/* O QUE AINDA CABE, dito como frase e não como subtração que
                 a pessoa faz de cabeça. É a leitura que interessa na hora
                 do jantar: o total consumido responde "como foi o dia", e

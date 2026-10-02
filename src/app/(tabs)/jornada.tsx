@@ -20,10 +20,12 @@ import { Txt, Row, SectionHead, Divider, ListRow, Metric, Vazio, Rolagem } from 
 import { MetricasDaSemana, DestaquesDaSemana } from '../../ui/semanaEmNumeros';
 import { Icon } from '../../ui/Icon';
 import { AreaCurve } from '../../ui/charts';
+import { BarraQueEnche } from '../../ui/barraQueEnche';
 
 import { useTheme } from '../../ui/useTheme';
 import { useLarguraApp } from '../../ui/useLarguraApp';
 import { useLightStatusBar } from '../../ui/useLightStatusBar';
+import { Cascata, useEntrada, type Entrada } from '../../ui/cascata';
 import { radius, alfa, RESPIRO_ABAS } from '../../theme';
 import { aguaTxt, pesoN, pesoTxt, pesoU } from '../../logic/medidas';
 import { formaAtual, iconeDaDose } from '../../logic/formas';
@@ -53,8 +55,9 @@ const FEED_SEMANAS = 3;
 
 /* ------------------------------------------------------------------ */
 /* Painel — sangra até as bordas e é o único bloco que quebra a margem,
-   por isso ancora a tela inteira. */
-function Painel() {
+   por isso ancora a tela inteira. `entrada` é o portão da aba — ver a
+   cascata, lá embaixo. */
+function Painel({ entrada }: { entrada: Entrada }) {
   const S = useStore((s) => s.S);
   const { c } = useTheme();
   const router = useRouter();
@@ -157,6 +160,13 @@ function Painel() {
        branco sumia no fundo e deixava de ler como card. O lima pontua os
        itens dentro: veredito, barra, curva e ciclo. */
     <View style={{ marginHorizontal: -PAD, paddingHorizontal: PAD, paddingTop: insets.top + 26, borderBottomLeftRadius: radius.xl, borderBottomRightRadius: radius.xl, overflow: 'hidden' }}>
+      {/* ⚠️ O PAINEL É O PALCO, E O QUE MORA NELE CHEGA (02/10/2026, fase 1
+          de docs/superpowers/specs/2026-10-02-motion-design.md). O azul
+          sangra até o alto da tela: se ele subisse dez pixels, descobriria
+          uma faixa clara em cima, e se acendesse do branco seria um clarão.
+          Então o degradê (em `absoluteFill`, que a cascata deixa parado)
+          fica, e as linhas entram uma depois da outra — ver ui/cascata. */}
+      <Cascata entrada={entrada}>
       <LinearGradient
         colors={[c.panelFrom, c.panelMid, c.panelTo]}
         start={{ x: 0, y: 0 }} end={{ x: 0.85, y: 1 }}
@@ -387,6 +397,7 @@ function Painel() {
       </Pressable>
       ) : <View style={{ height: 26 }} />}
 
+      </Cascata>
     </View>
   );
 }
@@ -575,6 +586,8 @@ export default function Jornada() {
   const go = (to: string) => () => router.push(to as any);
 
   useLightStatusBar();
+  /* A entrada da aba, uma vez por sessão — ver ui/cascata. */
+  const entrada = useEntrada('jornada');
   const [filtro, setFiltro] = useState<TLKind | null>(null);
   const [abertas, setAbertas] = useState<Record<number, boolean>>({});
   const [todasSemanas, setTodasSemanas] = useState(false);
@@ -689,7 +702,12 @@ export default function Jornada() {
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
       <Rolagem showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: RESPIRO_ABAS, paddingHorizontal: PAD }}>
-        <Painel />
+        <Painel entrada={entrada} />
+
+        {/* ⚠️ OS BLOCOS DEPOIS DO PAINEL CONTINUAM A FILA DELE (02/10/2026):
+            as linhas do painel tomam as primeiras vezes, e daqui em diante
+            tudo entra junto com a última — ver o `teto`, em ui/cascata. */}
+        <Cascata entrada={entrada} desde={6}>
 
         {/* Estoque: é lembrete de reposição, não emergência clínica. Em
             vermelho parecia alarme grave — fica em azul, que é a cor de
@@ -817,10 +835,9 @@ export default function Jornada() {
 
                   {/* A barra some na pessoal, e não vira uma barra vazia:
                       não existe sessenta por cento de caber numa calça. */}
+                  {/* Enche uma vez por abertura (02/10/2026) — ui/barraQueEnche. */}
                   {pessoal ? null : (
-                    <View style={{ height: 5, borderRadius: radius.pill, backgroundColor: c.bg2, overflow: 'hidden' }}>
-                      <View style={{ width: `${Math.max(2, m.pct)}%`, height: 5, borderRadius: radius.pill, backgroundColor: cheia ? c.lime : c.accent }} />
-                    </View>
+                    <BarraQueEnche pct={Math.max(2, m.pct)} altura={5} trilho={c.bg2} cor={cheia ? c.lime : c.accent} />
                   )}
                 </View>
               );
@@ -1038,6 +1055,7 @@ export default function Jornada() {
         </View>
         ) : null}
 
+        </Cascata>
       </Rolagem>
     </View>
   );

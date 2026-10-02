@@ -21,6 +21,7 @@ import { startOfDay, fmtDate, fmtTime, DAY } from '../logic/time';
 import { GavetaDeConversas } from '../ui/gavetaDeConversas';
 import { Orbe } from '../ui/orbe';
 import { Icon } from '../ui/Icon';
+import { PontosDaEspera } from '../ui/esqueleto';
 import { useTheme } from '../ui/useTheme';
 import { useDitado, estadoDoDitado } from '../ui/useDitado';
 import { radius, font, alfa } from '../theme';
@@ -141,14 +142,20 @@ const textoPuro = (t: string) =>
     Existiam 450 ms de silêncio entre a pergunta e a resposta, sem nada na
     tela — e silêncio sem sinal não lê como processamento, lê como falha.
     O balão vazio no lugar certo do fio resolve isso sem prometer mais do
-    que acontece: ele ocupa a posição da resposta que vem. */
+    que acontece: ele ocupa a posição da resposta que vem.
+
+    ⚠️ E OS PONTOS ANDAM (02/10/2026, fase 3 de
+    docs/superpowers/specs/2026-10-02-motion-design.md). Parados, liam
+    como o desenho de um balão, e não como alguém escrevendo — e numa
+    resposta que leva segundos a dúvida voltava no meio da espera. Agora
+    acendem em onda, no fôlego do esqueleto (ui/esqueleto); com "reduzir
+    movimento", ficam como eram. O leitor de tela ouve "Estou
+    escrevendo…" no lugar deles. */
 function Pensando() {
   const { c } = useTheme();
   return (
     <Row gap={5} style={{ backgroundColor: c.bg1, borderRadius: radius.lg, borderBottomLeftRadius: 6, paddingHorizontal: 16, paddingVertical: 15, alignSelf: 'flex-start' }}>
-      {[0, 1, 2].map((i) => (
-        <View key={i} style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: c.tx4, opacity: 1 - i * 0.25 }} />
-      ))}
+      <PontosDaEspera cor={c.tx4} rotulo={K().escrevendo} />
     </Row>
   );
 }

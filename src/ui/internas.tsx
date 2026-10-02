@@ -9,7 +9,9 @@ import { WD, nf } from '../logic/time';
 import { formato, type ParteDaData } from '../logic/local';
 import { Txt, Row, Rolagem } from './kit';
 import { Icon } from './Icon';
-import { AreaCurve } from './charts';
+import { AreaCurve, BarraQueSobe, QueAparece, useBarrasQueSobem } from './charts';
+import { BarraQueEnche } from './barraQueEnche';
+import { Cascata } from './cascata';
 import { useTheme } from './useTheme';
 import { ty, font, radius, shadowCard, alfa } from '../theme';
 import { T } from '../textos';
@@ -43,7 +45,7 @@ const PAD = 16;
    no topo ela é a mesma superfície do fundo, e um fio ali dividiria a tela
    em duas sem ter o que separar. */
 export function TelaInterna({
-  titulo, sub, acao, iconeAcao, onAcao, fechar, onVoltar, rodape, tituloFixo, children,
+  titulo, sub, acao, iconeAcao, onAcao, fechar, onVoltar, rodape, tituloFixo, semCascata, children,
 }: {
   titulo: string;
   /** a legenda do título na barra — data, origem, o que situa a tela */
@@ -66,12 +68,21 @@ export function TelaInterna({
      de Exames inteiro ao fechar um marcador. */
   onVoltar?: () => void;
   rodape?: React.ReactNode;
+  /* ⚠️ A ENTRADA EM CASCATA É O PADRÃO (02/10/2026, fase 1 de
+     docs/superpowers/specs/2026-10-02-motion-design.md): os blocos do
+     conteúdo chegam um depois do outro, e a barra e o rodapé ficam
+     parados — eles são a moldura, e não o que chegou. Ver ui/cascata.
+     `semCascata` é para a tela que já tem coreografia própria (a conta). */
+  semCascata?: boolean;
   children: React.ReactNode;
 }) {
   const { c } = useTheme();
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const [rolou, setRolou] = useState(false);
+  /* O vão entre os blocos. A cascata precisa dele para devolvê-lo quando
+     um bloco não desenha nada — ver "O VÃO DO gap", em ui/cascata. */
+  const vao = 26;
   const temAcao = !!onAcao && (!!acao || !!iconeAcao);
 
   /* O TÍTULO NÃO SE ESCREVE DUAS VEZES.
@@ -162,9 +173,9 @@ export function TelaInterna({
           setRolou(y > 6);
           setPassou(y > 38);
         }}
-        contentContainerStyle={{ paddingHorizontal: PAD, paddingTop: 6, paddingBottom: rodape ? 160 : 110, gap: 26 }}
+        contentContainerStyle={{ paddingHorizontal: PAD, paddingTop: 6, paddingBottom: rodape ? 160 : 110, gap: vao }}
       >
-        {children}
+        {semCascata ? children : <Cascata vao={vao}>{children}</Cascata>}
       </Rolagem>
 
       {/* Fundo chapado com um fio no topo. Aqui havia um véu em degradê, do
@@ -618,16 +629,15 @@ export function Progresso({ label, valor, pct, nota, cor }: {
   label: string; valor?: string; pct: number; nota?: string; cor?: string;
 }) {
   const { c } = useTheme();
-  const p = Math.max(0, Math.min(100, pct));
   return (
     <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, padding: PAD, gap: 9 }, shadowCard(c)]}>
       <Row style={{ gap: 9 }}>
         <Txt v="body" style={{ flex: 1 }}>{label}</Txt>
         {valor ? <Txt v="caption" c={c.tx2}>{valor}</Txt> : null}
       </Row>
-      <View style={{ height: 5, borderRadius: radius.pill, backgroundColor: c.track, overflow: 'hidden' }}>
-        <View style={{ width: `${p}%`, height: '100%', borderRadius: radius.pill, backgroundColor: cor ?? c.accent }} />
-      </View>
+      {/* A barra é a peça de todas (02/10/2026): enche uma vez por
+          abertura — ver ui/barraQueEnche. */}
+      <BarraQueEnche pct={pct} altura={5} cor={cor} />
       {nota ? <Txt v="caption" c={c.tx3}>{nota}</Txt> : null}
     </View>
   );
@@ -909,6 +919,12 @@ export function CardSemana({
      meta enche a barra e um acima dela não sai da caixa. */
   const teto = Math.max(alvo, ...dias.map((d) => d.v)) || 1;
   const yMeta = Math.round((alvo / teto) * ALT_SEMANA);
+  /* ⚠️ O GRÁFICO SE DESENHA UMA VEZ POR ABERTURA (02/10/2026): a meta
+     entra primeiro, num fade, e só então as barras sobem do pé, uma depois
+     da outra, cada número junto da sua barra. A régua antes do que ela
+     mede — ver `useBarrasQueSobem`, em ui/charts. Um registro novo não
+     redesenha nada: o estado é clonado a cada gravação. */
+  const sobem = useBarrasQueSobem(dias.length, true);
 
   return (
     <View style={[{ backgroundColor: c.bg1, borderRadius: radius.card, overflow: 'hidden' }, shadowCard(c)]}>
@@ -925,7 +941,8 @@ export function CardSemana({
 
       <View style={{ paddingHorizontal: PAD }}>
         <View style={{ height: ALT_SEMANA + 24 }}>
-          <View
+          <QueAparece
+            desenho={sobem.desenho} de={0}
             pointerEvents="none"
             style={{
               position: 'absolute', left: 0, right: CALHA, bottom: yMeta,
@@ -937,9 +954,11 @@ export function CardSemana({
           />
           {/* A tracejada aponta para o próprio nome. Sem isto ela era um
               fio no meio do gráfico que só entendia quem já sabia. */}
-          <Txt v="micro" c={c.tx3} style={{ position: 'absolute', right: 0, bottom: yMeta - 8 }}>
-            {rotuloMeta}
-          </Txt>
+          <QueAparece desenho={sobem.desenho} de={0} style={{ position: 'absolute', right: 0, bottom: yMeta - 8 }}>
+            <Txt v="micro" c={c.tx3}>
+              {rotuloMeta}
+            </Txt>
+          </QueAparece>
           <Row style={{ flex: 1, alignItems: 'flex-end', paddingRight: CALHA }}>
             {dias.map((d, i) => {
               const eHoje = i === dias.length - 1;
@@ -949,20 +968,26 @@ export function CardSemana({
                     /* Fundo do cartão atrás do número: a tracejada da meta
                        passa na altura dos rótulos dos dias curtos e cruzava
                        os dígitos. */
-                    <Txt
-                      v="micro"
-                      c={eHoje ? c.tx : c.tx4}
-                      style={{ marginBottom: 5, backgroundColor: c.bg1, paddingHorizontal: 3 }}
-                    >{rotulo ? rotulo(d.v) : d.v}</Txt>
+                    <QueAparece desenho={sobem.desenho} de={sobem.de(i)} dura={sobem.dura}>
+                      <Txt
+                        v="micro"
+                        c={eHoje ? c.tx : c.tx4}
+                        style={{ marginBottom: 5, backgroundColor: c.bg1, paddingHorizontal: 3 }}
+                      >{rotulo ? rotulo(d.v) : d.v}</Txt>
+                    </QueAparece>
                   ) : null}
                   {/* O dia em branco ganha um ponto na linha de base: coluna
-                      vazia some, e não ter registro não é ausência de dado. */}
-                  <View style={{
-                    width: d.v ? 16 : 5,
-                    height: d.v ? Math.max(8, Math.round((d.v / teto) * ALT_SEMANA)) : 5,
-                    borderRadius: radius.pill,
-                    backgroundColor: d.v ? c.accent : c.line,
-                  }} />
+                      vazia some, e não ter registro não é ausência de dado.
+                      O ponto não sobe: ele é a linha de base, não barra. */}
+                  {d.v ? (
+                    <BarraQueSobe
+                      desenho={sobem.desenho} de={sobem.de(i)} dura={sobem.dura}
+                      altura={Math.max(8, Math.round((d.v / teto) * ALT_SEMANA))}
+                      style={{ width: 16, borderRadius: radius.pill, backgroundColor: c.accent }}
+                    />
+                  ) : (
+                    <View style={{ width: 5, height: 5, borderRadius: radius.pill, backgroundColor: c.line }} />
+                  )}
                 </View>
               );
             })}

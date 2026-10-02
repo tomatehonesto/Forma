@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Image } from 'expo-image';
+import { ImagemQueChega } from '../ui/esqueleto';
 import { useStore } from '../logic/store';
 import {
   fichaDaEquipe, destinoDoDocumento, tipoDoDocumento, notasAbertas, clinicaConectada,
@@ -597,7 +597,7 @@ function Retrato({ ficha, lado }: { ficha: { id: string; nome: string }; lado: n
   const foto = fotoDaEquipe(S, ficha.id);
   if (foto) {
     return (
-      <Image
+      <ImagemQueChega
         source={foto}
         style={{ width: lado, height: lado, borderRadius: radius.md, backgroundColor: c.bg2 }}
         contentFit="cover"

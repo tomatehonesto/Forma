@@ -24,6 +24,7 @@ import { useTheme } from '../ui/useTheme';
 import { useAurora, PROPORCAO_DA_CAPA, PAPEL_COMECA } from '../ui/aurora';
 import { ManchaDeLuz } from '../ui/mancha';
 import { BrilhoNoTexto, RodaQueViraVisto, FASE_ATIVA } from '../ui/espera';
+import { useMenosMovimento } from '../ui/useMenosMovimento';
 import { PAPEL_DO_PLANO } from './plano';
 import { ty, font, radius } from '../theme';
 import { T } from '../textos';
@@ -323,9 +324,14 @@ export default function Conta() {
   if (__DEV__ && passoDoLink === 'entrando') {
     return <EsperaDaConta titulo={K().titulo[porta]} frase={porta === 'cadastro' ? K().guardando : K().trazendo} />;
   }
+  /* ⚠️ AS TRÊS TELAS INTERNAS DAQUI NÃO ENTRAM EM CASCATA (02/10/2026): a
+     conta tem coreografia própria — a espera que sobe, a frase com o
+     brilho, a roda que vira visto —, e uma cascata nos passos do meio
+     seria uma segunda língua de movimento dentro do mesmo fluxo. Ver a
+     fase 1 de docs/superpowers/specs/2026-10-02-motion-design.md. */
   if (passo === 'entrando' && erro) {
     return (
-      <TelaInterna titulo={K().titulo[porta]} onVoltar={() => {}}>
+      <TelaInterna titulo={K().titulo[porta]} onVoltar={() => {}} semCascata>
         {erro ? (
           <View style={{ gap: 12, paddingTop: 40 }}>
             {aviso}
@@ -344,7 +350,7 @@ export default function Conta() {
   if (passo === 'dois-diarios' && dono) {
     const D = K().doisDiarios;
     return (
-      <TelaInterna titulo={D.titulo} onVoltar={voltar}>
+      <TelaInterna titulo={D.titulo} onVoltar={voltar} semCascata>
         <Titulao titulo={D.titulo} lead={D.lead} />
         {aviso}
         <Cartao>
@@ -366,7 +372,7 @@ export default function Conta() {
   if (passo === 'outra-conta') {
     const O = K().outraConta;
     return (
-      <TelaInterna titulo={O.titulo} onVoltar={voltar}>
+      <TelaInterna titulo={O.titulo} onVoltar={voltar} semCascata>
         <Titulao titulo={O.titulo} lead={O.lead} />
         <Cartao>
           <Linha ic="user" titulo={O.entrarComADona} onPress={voltar} />
@@ -732,14 +738,20 @@ function CasasDoCodigo({ valor, onMuda }: { valor: string; onMuda: (so: string) 
   const { c } = useTheme();
   const [focado, setFocado] = React.useState(true);
   const pisca = React.useRef(new Animated.Value(1)).current;
+  /* ⚠️ COM "REDUZIR MOVIMENTO", O CURSOR PARA ACESO (02/10/2026, fase 4 de
+     docs/superpowers/specs/2026-10-02-motion-design.md). O laço piscava
+     para sempre, para quem pediu ao sistema que nada piscasse; parado e
+     aceso, ele continua dizendo onde o próximo número cai. */
+  const menos = useMenosMovimento();
   React.useEffect(() => {
+    if (menos) { pisca.setValue(1); return; }
     const laco = Animated.loop(Animated.sequence([
       Animated.timing(pisca, { toValue: 0, duration: 420, delay: 380, useNativeDriver: true }),
       Animated.timing(pisca, { toValue: 1, duration: 160, useNativeDriver: true }),
     ]));
     laco.start();
     return () => laco.stop();
-  }, [pisca]);
+  }, [pisca, menos]);
 
   const meio = Math.ceil(DIGITOS_DO_CODIGO / 2);
   const casa = (i: number) => {

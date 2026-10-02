@@ -2885,3 +2885,35 @@ disto trava a entrega; o que trava a publicação está nos itens 2 e 37.
 9. **O Google na Política.** A seção 7 cita Supabase, Resend, Apple,
    Vercel e Anthropic. O login com o Google é da fase 5, e entra na
    Política quando existir, com a versão subindo.
+
+---
+
+## 🟡 39. O movimento das telas precisa ser visto num aparelho
+
+Em 02/10/2026 entraram a entrada em cascata, os gráficos que se desenham, a
+barra que enche e os esqueletos de espera (ver
+docs/superpowers/specs/2026-10-02-motion-design.md). Tudo foi conferido no
+navegador e revisado no código das bibliotecas, mas três coisas só o
+aparelho responde — ler o console pelo Metro:
+
+1. **Android: a curva abrindo da esquerda para a direita.** O recorte só
+   remonta a cada quadro com `clipRule="nonzero"` (achado lido no código do
+   react-native-svg 15.15.4); confirmar que ela abre, e não surge pronta no
+   fim.
+2. **A entrada no aparelho**: o `entering` do Reanimated nas colunas, e a
+   conta do vão do `gap` (`childNodes` no primeiro desenho, em ui/cascata).
+3. **O "reduzir movimento"** ligado e desligado com o aplicativo aberto:
+   nada se move com ele ligado, e tudo volta a se mover ao desligar.
+
+E no Android 14, com a fonte do sistema grande, conferir que as linhas do
+esqueleto têm a altura do texto que chega.
+
+---
+
+## 🟡 40. A clínica da rede que não carrega diz "você não tem clínica"
+
+Quando a ficha de uma clínica da rede falha (ou passa dos 15 s de espera,
+desde 02/10/2026), /clinica cai no mesmo texto de quem não tem vínculo:
+"Você não tem clínica vinculada…". Para uma clínica aberta pela vitrine isso
+é falso. Precisa de um estado próprio — "não conseguimos carregar agora", com
+tentar de novo —, nos seis idiomas.

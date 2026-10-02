@@ -8,6 +8,7 @@ import { BEBIDAS, BEBIDA_PADRAO, bebidaDe, medidasDe } from '../logic/bebidas';
 import { somaDe } from '../logic/prato';
 import { Txt, Row, SheetScreen, Metric } from '../ui/kit';
 import { Icon } from '../ui/Icon';
+import { BarraQueEnche } from '../ui/barraQueEnche';
 import { useTheme } from '../ui/useTheme';
 import { font, radius } from '../theme';
 import { sistemaDe } from '../logic/medidas';
@@ -134,9 +135,10 @@ export default function MedirAgua() {
           <View style={{ flex: 1 }} />
           <Txt v="note" c={c.tx3}>{K().deHoje(L(alvo))}</Txt>
         </Row>
-        <View style={{ height: 6, borderRadius: radius.pill, backgroundColor: c.bg2, overflow: 'hidden', marginTop: 14 }}>
-          <View style={{ width: `${Math.max(2, pct * 100)}%`, height: 6, borderRadius: radius.pill, backgroundColor: c.accent }} />
-        </View>
+        {/* Enche uma vez por abertura (02/10/2026) — ui/barraQueEnche. O
+            copo que a pessoa soma aqui não reenche a barra do zero: ela
+            passa ao novo total na hora, sem se redesenhar. */}
+        <BarraQueEnche pct={Math.max(2, pct * 100)} altura={6} trilho={c.bg2} style={{ marginTop: 14 }} />
       </View>
 
       {/* O QUE VOCÊ BEBEU, antes de quanto.

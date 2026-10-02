@@ -3,6 +3,7 @@ import { Animated, Easing, View } from 'react-native';
 import Svg, { Defs, RadialGradient, Rect, Stop } from 'react-native-svg';
 import { useStore } from '../logic/store';
 import { PALETAS } from '../theme';
+import { useMenosMovimento } from './useMenosMovimento';
 
 /* ============================================================
    A MANCHA DE LUZ — a espera do plano e o alto dele
@@ -114,14 +115,24 @@ export function ManchaDeLuz({ p = PARADO, largura: W, altura: H, papel: T, viva 
      deriva some conforme a luz sobe — no cabeçalho ela está parada, e o
      plano, que desenha a mesma luz sem deriva, emenda sem pulo. */
   const deriva = React.useRef(new Animated.Value(0)).current;
+  /* ⚠️ COM "REDUZIR MOVIMENTO", A LUZ NÃO DERIVA (02/10/2026, fase 4 de
+     docs/superpowers/specs/2026-10-02-motion-design.md): as manchas ficam
+     no quadro em que estão — o de partida, para quem já abriu com o
+     pedido ligado —, sem pulo. A subida para o cabeçalho (`p`) é a
+     coreografia da espera do plano, e é de quem a anima. */
+  const menos = useMenosMovimento();
   React.useEffect(() => {
-    if (!viva) return;
+    if (!viva || menos) return;
+    /* O laço nativo repete a partir de onde começou: recomeçado do meio
+       (o pedido desligado com a espera aberta), ele pularia a cada volta.
+       Do zero, a volta emenda — a onda é a mesma em 0 e em 1. */
+    deriva.setValue(0);
     const laco = Animated.loop(Animated.timing(deriva, {
       toValue: 1, duration: 7000, easing: Easing.linear, useNativeDriver: true,
     }));
     laco.start();
     return () => laco.stop();
-  }, [viva]);
+  }, [viva, menos, deriva]);
   const PONTOS = [0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1];
   const onda = (fase: number, amplitude: number) => Animated.multiply(
     deriva.interpolate({

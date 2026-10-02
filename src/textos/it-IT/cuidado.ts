@@ -169,6 +169,7 @@ export const cuidado = {
   telaClinica: {
     titulo: 'Centro',
     semClinica: 'Nessun centro è collegato al tuo percorso. Chi segue la tua terapia compare nell’area medica.',
+    carregando: 'Caricamento del centro…',
     convenios: 'Assicurazioni accettate',
     sobre: 'Presentazione',
     outrosCanais: 'Altri canali',

@@ -17,7 +17,7 @@ import { Botao, Cartao, Linha } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 import { dataComAno } from '../logic/time';
 import { radius, paletaDe } from '../theme';
-import { Image } from 'expo-image';
+import { Esqueleto, ImagemQueChega } from '../ui/esqueleto';
 import { BlurView } from 'expo-blur';
 import { Nevoa } from '../ui/nevoa';
 import { T } from '../textos';
@@ -195,9 +195,11 @@ export default function Clinica() {
   const [passou, setPassou] = useState(false);
   const limiar = ALTURA_DA_FOTO - 150;
 
-  /* Enquanto a clínica da rede não chega, a tela fica no fundo — e não
-     diz "você não tem clínica", que seria a frase errada por meio segundo. */
-  if (rede && daRede === undefined) return <View style={{ flex: 1, backgroundColor: c.bg }} />;
+  /* Enquanto a clínica da rede não chega, a tela não diz "você não tem
+     clínica", que seria a frase errada por meio segundo. Ela fica no
+     esqueleto da ficha (`ClinicaChegando`, lá embaixo) — que era um fundo
+     liso, sem nem o botão de voltar. */
+  if (rede && daRede === undefined) return <ClinicaChegando />;
 
   if (!f) {
     return (
@@ -247,13 +249,25 @@ export default function Clinica() {
             diferente, não uma tela diferente — e antes eram duas estruturas
             paralelas que precisavam ser mantidas juntas na mão. */}
         <View style={{ height: ALTURA_DA_FOTO }}>
+          {/* Sem foto, a névoa da paleta no mesmo lugar e do mesmo
+              tamanho: o vidro, o nome e a página por cima dela são os
+              mesmos — a tela é uma só.
+
+              ⚠️ E COM FOTO ELA FICA POR BAIXO DELA (02/10/2026). A foto da
+              clínica da rede desce do banco depois da ficha, e chega com
+              fade (ui/esqueleto). Sem nada por baixo, quem vinha do
+              esqueleto — cujo cabeçalho é esta mesma névoa — via a névoa
+              sumir, o fundo liso por um instante e só então a foto. Com
+              ela aqui, a névoa do esqueleto fica onde estava e a foto
+              aparece por cima, até cobri-la inteira. */}
+          <Nevoa altura={ALTURA_DA_FOTO} capa />
           {imagens.foto ? (
             <>
             {/* A imagem sobe até o topo do aparelho, POR TRÁS da barra de
                 status, e não começa depois dela. Uma foto que respeita a
                 safe area vira um cartão com uma faixa de fundo em cima; uma
                 que a atravessa vira o cabeçalho. */}
-            <Image
+            <ImagemQueChega
               source={imagens.foto}
               style={StyleSheet.absoluteFill}
               contentFit="cover"
@@ -271,12 +285,7 @@ export default function Clinica() {
               pointerEvents="none"
             />
             </>
-          ) : (
-            /* Sem foto, a névoa da paleta no mesmo lugar e do mesmo
-               tamanho: o vidro, o nome e a página por cima dela são os
-               mesmos — a tela é uma só. */
-            <Nevoa altura={ALTURA_DA_FOTO} capa />
-          )}
+          ) : null}
             {/* ---- o vidro, e o nome dentro dele ----
 
                 ⚠️ É A MESMA PEÇA DAS CAPAS DE HÁBITO: foto em cima, vidro
@@ -328,7 +337,7 @@ export default function Clinica() {
               }}
             >
               {imagens.logo ? (
-                <Image
+                <ImagemQueChega
                   source={imagens.logo}
                   style={{ width: 48, height: 48, borderRadius: radius.sm, marginBottom: 12 }}
                   contentFit="contain"
@@ -654,6 +663,102 @@ export default function Clinica() {
 }
 
 /* ============================================================
+   A FICHA CHEGANDO — a clínica da rede enquanto o banco responde
+   (02/10/2026, fase 3 de docs/superpowers/specs/2026-10-02-motion-design.md)
+
+   Quase sempre ela nem aparece: a vitrine já leu a lista, e
+   `clinicaDaRede` acha a clínica nela na hora — mais rápido que o atraso
+   do esqueleto (ui/esqueleto). Ela aparece quando a ficha vem direto do
+   banco: aberta de fora da vitrine, ou com a rede lenta.
+
+   ⚠️ O CABEÇALHO É A NÉVOA, E NÃO UM OSSO. É o cabeçalho da clínica sem
+   foto, no mesmo lugar e da mesma altura — e a névoa não diz que falta
+   alguma coisa, como diria um cinza de 480 px pulsando (ver o alto deste
+   arquivo). Ela não pulsa; quem pulsa é o nome sobre ela e a página. E
+   ela continua no cabeçalho de verdade, por baixo da foto, para a foto
+   chegar por cima dela.
+
+   ⚠️ SEM O VIDRO. O desfoque do iOS não se desenha dentro de um pai com
+   opacidade abaixo de 1, e o grupo do esqueleto surge com fade. O nome
+   do esqueleto mora direto sobre a névoa, no lugar exato em que o vidro
+   vai pôr o nome de verdade.
+
+   ⚠️ A PÁGINA SEGUE A ORDEM DE CIMA: onde fica (endereço, horário e o
+   "Como chegar"), os convênios em chips e o sobre, com as mesmas
+   margens. Os ossos moram direto no fundo da página, e por isso sobem
+   um degrau de cor (`sobreOFundo`).
+
+   ⚠️ E A BARRA DE VOLTAR ESTÁ AQUI, fora do grupo, desde o primeiro
+   quadro. O fundo liso de antes não tinha saída nenhuma enquanto
+   esperava.
+   ============================================================ */
+const LINHAS_DO_SOBRE = ['100%', '96%', '100%', '58%'] as const;
+
+function ClinicaChegando() {
+  const { c } = useTheme();
+  return (
+    <View style={{ flex: 1, backgroundColor: c.bg, overflow: 'hidden' }}>
+      <Esqueleto rotulo={K().carregando} sobreOFundo>
+        <View style={{ height: ALTURA_DA_FOTO }}>
+          <Nevoa altura={ALTURA_DA_FOTO} capa />
+          <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: PAD, paddingTop: 20, paddingBottom: 48 }}>
+            <Esqueleto.Linha v="h1" largura="72%" />
+            <Esqueleto.Linha v="caption" largura="48%" style={{ marginTop: 5 }} />
+          </View>
+        </View>
+
+        <View style={{
+          backgroundColor: c.bg, borderTopLeftRadius: 28, borderTopRightRadius: 28,
+          marginTop: -26, paddingTop: 24, paddingHorizontal: PAD,
+        }}>
+          {/* onde fica: o endereço em duas linhas (a de cima com o 22 do
+              endereço, como em `Local`) e o horário */}
+          <Row gap={11} style={{ alignItems: 'flex-start' }}>
+            <View style={{ width: 18, alignItems: 'center', marginTop: 3 }}><Esqueleto.Disco lado={16} /></View>
+            <View style={{ flex: 1 }}>
+              <Esqueleto.Linha v="caption" largura="84%" alturaDaLinha={22} />
+              <Esqueleto.Linha v="caption" largura="46%" />
+            </View>
+          </Row>
+          <Row gap={11} style={{ marginTop: 12 }}>
+            <View style={{ width: 18, alignItems: 'center' }}><Esqueleto.Disco lado={16} /></View>
+            <View style={{ flex: 1 }}><Esqueleto.Linha v="caption" largura="68%" /></View>
+          </Row>
+          {/* ⚠️ E O "COMO CHEGAR" (02/10/2026). A clínica presencial da rede
+              sempre o tem, logo abaixo do horário — 12 de margem e uma
+              linha de legenda com o ícone de 16 —, e sem ele aqui as seções
+              de baixo caíam ~33 px no instante em que a ficha chegava. */}
+          <Row gap={11} style={{ marginTop: 12, alignSelf: 'flex-start' }}>
+            <View style={{ width: 18, alignItems: 'center' }}><Esqueleto.Disco lado={16} /></View>
+            <Esqueleto.Linha v="caption" largura={90} />
+          </Row>
+
+          {/* os convênios: o título e três chips da altura dos de verdade */}
+          <View style={{ marginTop: 26 }}>
+            <Esqueleto.Linha v="h2" largura="52%" style={{ marginBottom: 12 }} />
+            <Row gap={8} style={{ flexWrap: 'wrap' }}>
+              {[88, 116, 76].map((w) => (
+                <Esqueleto.Bloco key={w} largura={w} altura={39} raio={radius.pill} style={{ marginBottom: 8 }} />
+              ))}
+            </Row>
+          </View>
+
+          {/* o sobre */}
+          <View style={{ marginTop: 30 }}>
+            <Esqueleto.Linha v="h2" largura="26%" />
+            <View style={{ marginTop: 12 }}>
+              {LINHAS_DO_SOBRE.map((w, i) => <Esqueleto.Linha key={i} largura={w} />)}
+            </View>
+          </View>
+        </View>
+      </Esqueleto>
+
+      <BarraQueColapsa titulo={K().titulo} passou={false} repouso="normal" />
+    </View>
+  );
+}
+
+/* ============================================================
    DESCONECTAR DA CLÍNICA
 
    Antes de confirmar, a pessoa lê o que acontece: a equipe para de ver,
@@ -795,7 +900,7 @@ function Avatar({ ficha, daRede }: {
   const lado = 48;
   if (foto) {
     return (
-      <Image
+      <ImagemQueChega
         source={foto}
         style={{ width: lado, height: lado, borderRadius: radius.sm, backgroundColor: c.bg2 }}
         contentFit="cover"

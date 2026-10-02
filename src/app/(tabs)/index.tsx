@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { View, Pressable, ScrollView, Animated, Easing, StyleSheet, AccessibilityInfo, useWindowDimensions } from 'react-native';
+import { View, Pressable, ScrollView, Animated, Easing, StyleSheet, useWindowDimensions } from 'react-native';
 import { useAurora } from '../../ui/aurora';
-import { useRouter } from 'expo-router';
+import { useRouter, useIsFocused } from 'expo-router';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -26,11 +26,15 @@ import { FORMAS, formaDe, oA, noNa, injetavelDe, localDaDose, remedioDaDose } fr
 import { Txt, Row, Card, SectionHead, ListRow, Metric, Retrato, Rolagem } from '../../ui/kit';
 import { Icon } from '../../ui/Icon';
 import { AreaCurve } from '../../ui/charts';
+import { BarraQueEnche } from '../../ui/barraQueEnche';
 import { useTheme } from '../../ui/useTheme';
 import { useLarguraApp } from '../../ui/useLarguraApp';
 import { useLightStatusBar } from '../../ui/useLightStatusBar';
+import { useMenosMovimento } from '../../ui/useMenosMovimento';
+import { Cascata, Entra, useEntrada } from '../../ui/cascata';
 import { radius, alfa, type Palette, RESPIRO_ABAS } from '../../theme';
 import { fotoDaEquipe, focoDaEquipe, iniciaisDeQuemCuida } from '../../ui/retratos';
+import { ImagemQueChega } from '../../ui/esqueleto';
 import { FaixaDaConta } from '../../ui/conta';
 import { PrimeirosPassos } from '../../ui/primeirosPassos';
 import { useLeituraDaSemana } from '../../ui/leituraDaSemana';
@@ -61,12 +65,10 @@ function GoalBar({ t }: { t: DailyTarget }) {
   const pct = `${Math.round(t.pct * 100)}%`;
   return (
     <View>
-      <View style={{ height: 8, borderRadius: radius.pill, backgroundColor: c.bg2, overflow: 'hidden' }}>
-        <LinearGradient
-          colors={[from, to]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
-          style={{ width: pct as any, height: 8, borderRadius: radius.pill }}
-        />
-      </View>
+      {/* O degradê enche uma vez por abertura (02/10/2026) — ver
+          ui/barraQueEnche. O marcador fica parado onde a barra vai chegar:
+          ele diz onde a pessoa está, e a barra vai até ele. */}
+      <BarraQueEnche pct={Math.round(t.pct * 100)} altura={8} cores={[from, to]} trilho={c.bg2} />
       <Row style={{ justifyContent: 'space-between', marginTop: 5 }}>
         <Txt v="note" c={c.tx3}>0</Txt>
         <Txt v="note" c={c.tx3}>{t.maxLabel}</Txt>
@@ -136,6 +138,11 @@ export default function Home() {
      onFinalize — e não mais o ScrollView, que não existe mais. */
   const progress = useRef(new Animated.Value(0)).current;
   const deriva = useRef(new Animated.Value(0)).current;
+  /* Quem decide se algo se move aqui: o pedido do sistema, a aba em foco
+     e a entrada da Home, que toca uma vez por sessão (ver ui/cascata). */
+  const menos = useMenosMovimento();
+  const focada = useIsFocused();
+  const entrada = useEntrada('home');
 
   /* ⚠️ navigate, E NÃO push, PORQUE UM DOS DESTINOS É UMA ABA.
 
@@ -490,36 +497,61 @@ export default function Home() {
 
   /* A barra do ponto ativo é o próprio cronômetro: enche em SLIDE_MS e,
      ao encher, empurra para o próximo slide (voltando ao primeiro no fim).
-     Encostar o dedo pausa; soltar recomeça a contagem do slide atual. */
+     Encostar o dedo pausa; soltar recomeça a contagem do slide atual.
+
+     ⚠️⚠️ NO DRIVER NATIVO, E PARADO FORA DA ABA (02/10/2026, fase 4 de
+     docs/superpowers/specs/2026-10-02-motion-design.md). A barra animava
+     `width`, que não roda no driver nativo: eram sete segundos de quadros
+     na thread de JS, em laço, para sempre — e com a pessoa em outra aba a
+     Home continuava trocando de slide e se redesenhando sem ninguém
+     olhando. Agora a tinta desliza para dentro do ponto (`translateX`, ver
+     os pontinhos lá embaixo), e o cronômetro só anda com a aba em foco; na
+     volta, o slide da vez recomeça a contagem, como depois do dedo.
+
+     ⚠️ COM "REDUZIR MOVIMENTO", NÃO TROCA SOZINHO. Carrossel que vira
+     sozinho é movimento que a pessoa não pediu. Os slides continuam a um
+     toque nos pontos ou a um arrasto, e o ponto da vez fica cheio — o
+     quadro de descanso de uma barra que enche. */
   useEffect(() => {
+    if (menos) { progress.setValue(1); return; }
     progress.setValue(0);
-    if (held || total < 2) return;
+    if (held || !focada || total < 2) return;
     const anim = Animated.timing(progress, {
-      toValue: 1, duration: SLIDE_MS, easing: Easing.linear, useNativeDriver: false,
+      toValue: 1, duration: SLIDE_MS, easing: Easing.linear, useNativeDriver: true,
     });
     anim.start(({ finished }) => {
       if (!finished) return;
       setSlide((s) => (s + 1) % total);
     });
     return () => anim.stop();
-  }, [slide, held, total, progress]);
+  }, [slide, held, total, progress, focada, menos]);
 
 
   /* Deriva da aurora — vai e volta devagar, dando vida ao fundo sem
      pedir atenção. Transform roda no driver nativo, então não custa
      quadro de JS. Respeita 'reduzir movimento': para quem liga essa
-     opção do sistema, o fundo fica parado. */
+     opção do sistema, o fundo fica parado.
+
+     ⚠️ E AGORA ESCUTA AO VIVO, E PARA FORA DA ABA (02/10/2026, fase 4). A
+     pergunta ao sistema era feita uma vez, na montagem: quem ligasse o
+     ajuste com o aplicativo aberto continuava vendo a aurora andar.
+     `useMenosMovimento` responde também depois — e a aurora fica no quadro
+     em que estava, sem voltar ao começo.
+
+     ⚠️ `resetBeforeIteration: false` É O QUE NÃO DEIXA A AURORA PULAR. O
+     padrão do `loop` devolve o valor ao ponto de partida antes de cada
+     volta, a primeira inclusive; a deriva retomada ao voltar para a aba
+     saltaria para lá. Sem o reinício, ela segue de onde parou, e a volta
+     seguinte emenda. */
   useEffect(() => {
-    let cancelado = false;
-    AccessibilityInfo.isReduceMotionEnabled().then((reduzir) => {
-      if (cancelado || reduzir) return;
-      const ida = (to: number) => Animated.timing(deriva, {
-        toValue: to, duration: DERIVA_MS, easing: Easing.inOut(Easing.ease), useNativeDriver: true,
-      });
-      Animated.loop(Animated.sequence([ida(1), ida(0)])).start();
+    if (menos || !focada) return;
+    const ida = (to: number) => Animated.timing(deriva, {
+      toValue: to, duration: DERIVA_MS, easing: Easing.inOut(Easing.ease), useNativeDriver: true,
     });
-    return () => { cancelado = true; deriva.stopAnimation(); };
-  }, [deriva]);
+    const laco = Animated.loop(Animated.sequence([ida(1), ida(0)]), { resetBeforeIteration: false });
+    laco.start();
+    return () => laco.stop();
+  }, [deriva, menos, focada]);
 
   /* ⚠️ NÃO HÁ BARRA QUE COLAPSA. Ela existiu: ao rolar, uma faixa fixa
      com o retrato, a linha do dia e o sino acendia no alto, para os dois
@@ -695,6 +727,15 @@ export default function Home() {
 
               A altura é a mesma do vão que ele deixava: o carrossel continua
               a 80 px de onde a saudação acaba. */}
+          {/* ⚠️ A ENTRADA DA HOME (02/10/2026, fase 1 de
+              docs/superpowers/specs/2026-10-02-motion-design.md). A aurora, o
+              véu e a folha são o palco, e ficam parados: uma aurora que
+              subisse dez pixels descobriria uma faixa clara no alto da tela,
+              e uma que acendesse do branco seria um clarão. Quem chega é o
+              que mora em cima deles, bloco a bloco — o cabeçalho, o
+              carrossel, os pontos, a faixa do check-in e então a folha. Uma
+              vez por sessão: ver `useEntrada`, em ui/cascata. */}
+          <Entra entrada={entrada} ordem={0}>
           <View style={{ height: insets.top + 66, paddingHorizontal: PAD, paddingTop: insets.top + 26 }}>
             <Row style={{ alignItems: 'center' }}>
               {/* O RETRATO É O MESMO DO PERFIL. Quem escolhe a foto lá
@@ -714,6 +755,7 @@ export default function Home() {
               <Sino tam={40} claro />
             </Row>
           </View>
+          </Entra>
 
           {/* ---- o carrossel, que deixou de correr ----
 
@@ -737,7 +779,12 @@ export default function Home() {
               ⚠️ E O `minHeight` É O PISO DESSE PRIMEIRO DESENHO. Antes de a
               medida chegar, a altura seria zero e a faixa de baixo subiria
               por um quadro. O número não desenha nada — ele só evita o
-              pulo entre montar e medir. */}
+              pulo entre montar e medir.
+
+              ⚠️ A ENTRADA NÃO MEXE NESSA MEDIDA: ela anda por opacidade e
+              `transform`, que não entram no layout — os slides se medem do
+              mesmo tamanho com a caixa da cascata em volta. */}
+          <Entra entrada={entrada} ordem={1}>
           <GestureDetector gesture={arrastar}>
           <View style={{ marginTop: 80, minHeight: 176, height: alturaDoSlide || undefined }}>
             {/* ⚠️⚠️ O `fade` MORA NESTE PAI, E NUNCA SAI DELE.
@@ -804,19 +851,27 @@ export default function Home() {
             </Animated.View>
           </View>
           </GestureDetector>
+          </Entra>
 
           {/* pontinhos — o ativo é a barra que enche até virar o slide */}
+          <Entra entrada={entrada} ordem={2}>
           <Row gap={4} style={{ paddingHorizontal: PAD, marginTop: 24 }}>
             {slides.map((_, i) => {
               const active = i === slide;
               return (
                 <Pressable key={i} hitSlop={10} onPress={() => setSlide(i)}>
                   <View style={{ width: active ? DOT_W : DOT_IDLE, height: 4, borderRadius: radius.pill, backgroundColor: c.onHeroLine, overflow: 'hidden' }}>
+                    {/* ⚠️ A TINTA TEM A LARGURA DO PONTO E DESLIZA PARA DENTRO
+                        DELE (02/10/2026). Era a largura que crescia, e largura
+                        não roda no driver nativo. `translateX` roda — e, ao
+                        contrário de um `scaleX`, não achata a ponta redonda
+                        enquanto enche: a ponta da tinta é sempre a dela, e a
+                        da esquerda é o recorte do ponto. */}
                     {active && (
                       <Animated.View
                         style={{
-                          height: 4, borderRadius: radius.pill, backgroundColor: c.onHero,
-                          width: progress.interpolate({ inputRange: [0, 1], outputRange: [0, DOT_W] }),
+                          width: DOT_W, height: 4, borderRadius: radius.pill, backgroundColor: c.onHero,
+                          transform: [{ translateX: progress.interpolate({ inputRange: [0, 1], outputRange: [-DOT_W, 0] }) }],
                         }}
                       />
                     )}
@@ -825,6 +880,7 @@ export default function Home() {
               );
             })}
           </Row>
+          </Entra>
 
           {/* Faixa do check-in — vidro sobre a aurora, cantos de cima
               arredondados. Os 60 de padding embaixo são os 36px que a
@@ -834,6 +890,7 @@ export default function Home() {
               e, para quem toma todo dia, a da dose de hoje embaixo dela.
               Para quem toma por semana ela é a mesma fileira de antes, só
               que dentro de uma caixa que não desenha nada. */}
+          <Entra entrada={entrada} ordem={3}>
           <View style={{
             marginTop: 40, paddingHorizontal: PAD, paddingTop: 24, paddingBottom: 60,
             backgroundColor: 'rgba(151,151,151,0.20)',
@@ -945,13 +1002,17 @@ export default function Home() {
             </View>
           ) : null}
           </View>
+          </Entra>
         </View>
 
         {/* ================= FOLHA ================= */}
         {/* Folha clara — sobe 36px por cima da faixa de vidro, que é o
             que torna o arredondamento visível (senão os cantos revelam
             o próprio fundo claro e o raio some). */}
+        {/* A folha fica parada e os blocos dela continuam a fila da
+            entrada, depois dos quatro da aurora (ver "A ENTRADA DA HOME"). */}
         <View style={{ backgroundColor: c.bg, borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg, marginTop: -36, paddingTop: 32 }}>
+        <Cascata entrada={entrada} desde={4}>
 
           {/* O diário que ainda não está a salvo: sem conta porque não
               havia conexão, ou a conta apagada em outro aparelho. Ver
@@ -1118,7 +1179,7 @@ export default function Home() {
                     {/* Sem retrato — quem veio da rede sem foto —, a inicial:
                         um quadrado tingido vazio lia como imagem quebrada. */}
                     {fotoMedica ? (
-                      <Image
+                      <ImagemQueChega
                         source={fotoMedica}
                         style={{ width: '100%', height: '100%' }}
                         contentFit="cover"
@@ -1261,6 +1322,7 @@ export default function Home() {
             )}
           </View>
           ) : null}
+        </Cascata>
         </View>
       </Rolagem>
 

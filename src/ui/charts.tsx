@@ -1,11 +1,199 @@
-import React, { useState } from 'react';
-import { View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, type StyleProp, type ViewProps, type ViewStyle } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Svg, { Path, Defs, LinearGradient as SvgGrad, Stop, Circle, Line } from 'react-native-svg';
+import Svg, { Path, Defs, LinearGradient as SvgGrad, Stop, Circle, Line, ClipPath, Rect, G } from 'react-native-svg';
+import Animated, {
+  Easing, cancelAnimation, useAnimatedProps, useAnimatedStyle, useSharedValue, withTiming,
+  type SharedValue,
+} from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 import { Txt } from './kit';
 import { useTheme } from './useTheme';
+import { useMenosMovimento, curvaDoMovimento } from './useMenosMovimento';
+import { movimento } from '../theme';
 
 type Pt = { x: number; y: number };
+
+/* ============================================================
+   O GRÁFICO SE DESENHA UMA VEZ POR ABERTURA (02/10/2026)
+
+   Fase 2 de docs/superpowers/specs/2026-10-02-motion-design.md: a curva
+   se revela da esquerda para a direita, as barras sobem do pé, a barra
+   de progresso enche. Tudo aqui é o relógio que essas peças dividem.
+
+   ⚠️ UMA VEZ POR ABERTURA, E NÃO A CADA REGISTRO. O estado é clonado a
+   cada gravação — um copo d'água, um check-in — e um desenho que
+   dependesse dos dados recomeçaria a cada um deles: a pessoa registra e
+   o gráfico some e se redesenha embaixo do dedo. O relógio anda uma vez
+   só, na montagem (ou quando a largura chega, para quem espera medir), e
+   dado novo entra pronto. Só uma montagem nova desenha de novo.
+
+   ⚠️ NA UI THREAD, PELO REANIMATED, e não no `Animated` do RN: animação
+   de JS disparada na montagem perde os primeiros quadros, porque é
+   justamente quando a thread de JS está ocupada montando a tela (a lição
+   de ui/folhas).
+
+   UM RELÓGIO SÓ, LINEAR, de 0 a 1. Cada peça recorta dele a própria
+   janela (`naJanela`) e aplica a curva da casa — é assim que a meta entra
+   antes do dado e cada barra espera a vez dela sem um animador por barra.
+
+   ⚠️ O ESTADO FINAL É O DESENHO DE SEMPRE. Quando o relógio chega ao fim,
+   `desenhado` vira verdadeiro e as peças voltam aos elementos comuns, sem
+   prop animada nenhuma: o que fica na tela é exatamente o desenho de
+   antes, e não "o último quadro de uma animação". É também a rede de
+   proteção da web: se uma prop animada de SVG não pegar lá, o pior que
+   acontece é o gráfico surgir pronto no fim — nunca ficar pela metade.
+
+   Com "reduzir movimento", `desenhado` nasce verdadeiro: aparece pronto.
+   ============================================================ */
+export type Desenho = {
+  /** o relógio, de 0 a 1, linear — cada peça recorta dele a sua janela */
+  t: SharedValue<number>;
+  /** a duração do relógio inteiro, em ms */
+  total: number;
+  /** o relógio acabou (ou nem andou): desenhe o de sempre, sem animação */
+  desenhado: boolean;
+};
+
+export function useDesenhoDaAbertura(total: number, pronto = true): Desenho {
+  const menos = useMenosMovimento();
+  const t = useSharedValue(menos ? 1 : 0);
+  const [desenhado, setDesenhado] = useState(menos);
+  const andou = useRef(false);
+  /* A duração que valeu na partida: se a série crescer no meio do
+     desenho, as janelas continuam medidas no relógio que está correndo. */
+  const daPartida = useRef(total);
+
+  useEffect(() => {
+    /* O "reduzir movimento" pode chegar depois da montagem (a escuta do
+       AccessibilityInfo responde numa promessa): aí o desenho pula para o
+       fim, onde estiver. */
+    if (menos) {
+      andou.current = true;
+      cancelAnimation(t);
+      t.value = 1;
+      setDesenhado(true);
+      return;
+    }
+    if (!pronto || andou.current) return;
+    andou.current = true;
+    daPartida.current = total;
+    t.value = withTiming(1, { duration: total, easing: Easing.linear }, (fim) => {
+      if (fim) scheduleOnRN(setDesenhado, true);
+    });
+    /* ⚠️ O RELÓGIO PARA JUNTO COM QUEM O ACENDEU — e pode voltar a andar.
+       Esta limpeza roda ao desmontar, mas também quando o efeito vai rodar
+       de novo: a largura sumiu e voltou, o "reduzir movimento" chegou, a
+       recarga do desenvolvimento repassou os efeitos. Se só parasse, o
+       `andou` impediria a volta e o gráfico ficaria preso no meio, com o
+       recorte pela metade. Então ele para E se desarma: se o componente
+       continua de pé, a próxima rodada retoma de onde o relógio estava (e,
+       com o desenho já pronto, retomar de 1 até 1 não mexe em nada). */
+    return () => {
+      cancelAnimation(t);
+      andou.current = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [menos, pronto]);
+
+  return { t, total: andou.current ? daPartida.current : total, desenhado };
+}
+
+/** Quanto uma peça já andou: a janela dela no relógio (de `de`, por
+    `dura` ms, num relógio de `total` ms), na curva da casa. */
+export function naJanela(t: number, total: number, de: number, dura: number) {
+  'worklet';
+  const x = (t * total - de) / Math.max(1, dura);
+  return curvaDoMovimento(x <= 0 ? 0 : x >= 1 ? 1 : x);
+}
+
+/* O PASSO ENTRE AS BARRAS. É o da casa (`movimento.passo`, 40 ms) enquanto
+   a série cabe no tempo de um gráfico; numa série longa ele encurta, para
+   a última barra não chegar um segundo e meio depois da primeira — uma
+   onda que demora deixa de ser desenho e vira espera. */
+function passoDasBarras(n: number, antes: number) {
+  return Math.min(movimento.passo, (movimento.grafico - antes - movimento.medio) / Math.max(1, n - 1));
+}
+
+/* O RELÓGIO DE UM GRÁFICO DE BARRAS. Com meta, ela entra primeiro, num
+   fade curto, e só então as barras começam a subir: a régua aparece antes
+   do que ela mede. Cada barra sobe em `movimento.medio`, uma depois da
+   outra. `de(i)` diz quando a barra i parte; `dura`, quanto ela leva. */
+export function useBarrasQueSobem(n: number, comMeta = false) {
+  const antes = comMeta ? movimento.curto : 0;
+  const passo = passoDasBarras(n, antes);
+  const desenho = useDesenhoDaAbertura(antes + Math.max(0, n - 1) * passo + movimento.medio);
+  return { desenho, de: (i: number) => antes + i * passo, dura: movimento.medio as number };
+}
+
+/* UMA BARRA QUE SOBE DO PÉ. A altura anima, e não um `scaleY`: barra de
+   ponta redonda achatada pela escala vira gota no meio da subida, e o
+   rótulo que mora em cima dela (no cartão da semana) sobe junto só se a
+   altura for de verdade. Quem passa o `style` não passa a altura — ela é
+   a `altura` daqui. */
+export function BarraQueSobe({ desenho, de, dura = movimento.medio, altura, style }: {
+  desenho: Desenho; de: number; dura?: number; altura: number; style?: StyleProp<ViewStyle>;
+}) {
+  if (desenho.desenhado) return <View style={[style, { height: altura }]} />;
+  return <BarraSubindo t={desenho.t} total={desenho.total} de={de} dura={dura} altura={altura} style={style} />;
+}
+
+function BarraSubindo({ t, total, de, dura, altura, style }: {
+  t: SharedValue<number>; total: number; de: number; dura: number; altura: number; style?: StyleProp<ViewStyle>;
+}) {
+  const sobe = useAnimatedStyle(() => ({ height: altura * naJanela(t.value, total, de, dura) }));
+  return <Animated.View style={[style, sobe]} />;
+}
+
+/* O QUE APARECE NUM FADE — a meta antes das barras, o número com a barra
+   dele. Pronto o desenho, vira um View comum. */
+export function QueAparece({ desenho, de, dura = movimento.curto, style, pointerEvents, children }: {
+  desenho: Desenho; de: number; dura?: number; style?: StyleProp<ViewStyle>;
+  pointerEvents?: ViewProps['pointerEvents']; children?: React.ReactNode;
+}) {
+  if (desenho.desenhado) return <View pointerEvents={pointerEvents} style={style}>{children}</View>;
+  return (
+    <Aparecendo t={desenho.t} total={desenho.total} de={de} dura={dura} style={style} pointerEvents={pointerEvents}>
+      {children}
+    </Aparecendo>
+  );
+}
+
+function Aparecendo({ t, total, de, dura, style, pointerEvents, children }: {
+  t: SharedValue<number>; total: number; de: number; dura: number; style?: StyleProp<ViewStyle>;
+  pointerEvents?: ViewProps['pointerEvents']; children?: React.ReactNode;
+}) {
+  const aparece = useAnimatedStyle(() => ({ opacity: naJanela(t.value, total, de, dura) }));
+  return <Animated.View pointerEvents={pointerEvents} style={[style, aparece]}>{children}</Animated.View>;
+}
+
+/* O RECORTE QUE ABRE A CURVA. Um retângulo dentro do ClipPath, com a
+   largura indo de zero à do desenho: a curva aparece da esquerda para a
+   direita, como traço sendo feito. A largura anima por prop de SVG
+   (`useAnimatedProps`), que o Reanimated 4 dá como suportada nos três.
+
+   ⚠️ CONFERIDO NA WEB (02/10/2026): no navegador o react-native-svg recebe
+   a largura quadro a quadro (o `setNativeProps` dele vira atributo do
+   <rect>), e o recorte abre como no aparelho. Se um dia deixar de pegar,
+   o `desenhado` do fim tira o recorte de qualquer jeito — a curva surge
+   pronta, nunca pela metade.
+
+   ⚠️⚠️ E NO ANDROID, O `clipRule="nonzero"` NO GRUPO É O QUE FAZ ABRIR
+   (02/10/2026, achado da revisão, lido no código do react-native-svg
+   15.15.4). Sem ele a regra é a padrão, evenodd, e o Android usa o caminho
+   do recorte que ficou guardado no primeiro quadro: o retângulo dentro do
+   ClipPath nunca é desenhado, então mudar a largura dele não limpa esse
+   cache — a curva ficava em branco os 0,7 s inteiros e surgia de uma vez
+   no fim. Com "nonzero" o Android remonta o recorte a partir do retângulo
+   a cada desenho. Para um retângulo só, o resultado é o mesmo no iOS e na
+   web. Ainda precisa ser visto num Android de verdade. */
+const RetanguloAnimado = Animated.createAnimatedComponent(Rect);
+
+function RecorteQueAbre({ desenho, largura, altura }: { desenho: Desenho; largura: number; altura: number }) {
+  const { t, total } = desenho;
+  const abre = useAnimatedProps(() => ({ width: largura * naJanela(t.value, total, 0, total) }));
+  return <RetanguloAnimado x={0} y={0} height={altura} animatedProps={abre} />;
+}
 
 /* A CURVA PASSA PELOS PONTOS.
 
@@ -99,6 +287,18 @@ export function AreaCurve({
   const mk = marker != null && PX[marker] ? PX[marker] : null;
   const sc = scrub != null && PX[scrub] ? PX[scrub] : null;
 
+  /* ⚠️ A CURVA SE REVELA DA ESQUERDA PARA A DIREITA, uma vez por abertura
+     (02/10/2026 — ver `useDesenhoDaAbertura`, acima). O relógio só parte
+     quando a largura existe: quem espera o onLayout desenharia metade do
+     caminho no escuro. Pronto o desenho, o recorte sai e a curva volta a
+     ser exatamente a de sempre.
+
+     O id do recorte é do componente, e não só o `id` de quem chama: na web
+     todos os ids moram no mesmo documento, e duas curvas com o mesmo nome
+     de recorte usariam o retângulo da primeira. */
+  const desenho = useDesenhoDaAbertura(movimento.grafico, w > 0);
+  const recorte = `${id}k${React.useId().replace(/[^A-Za-z0-9_-]/g, '')}`;
+
   /* Recuo da área de toque em relação às bordas laterais.
 
      A curva sangra até a borda do card, e o card fica a 16px da borda da
@@ -185,26 +385,34 @@ export function AreaCurve({
           <Defs>
             <SvgGrad id={`${id}s`} x1="0" y1="0" x2="1" y2="0"><Stop offset="0" stopColor={sf} /><Stop offset="1" stopColor={st} /></SvgGrad>
             <SvgGrad id={`${id}f`} x1="0" y1="0" x2="0" y2="1"><Stop offset="0" stopColor={sf} stopOpacity={fill} /><Stop offset="1" stopColor={sf} stopOpacity={0} /></SvgGrad>
+            {desenho.desenhado ? null : (
+              <ClipPath id={recorte}><RecorteQueAbre desenho={desenho} largura={w} altura={height} /></ClipPath>
+            )}
           </Defs>
-          <Path d={area} fill={`url(#${id}f)`} />
-          {eixosEm?.map((i) => (PX[i] ? (
-            <Line
-              key={`e${i}`} x1={PX[i].x} y1={PX[i].y} x2={PX[i].x} y2={height - padB}
-              stroke={st} strokeWidth={1} opacity={0.32}
+          {/* O que se revela: área, fios, traço, nós e marcador. A marca do
+              dedo fica de fora, embaixo — quem arrasta durante o desenho
+              lê o ponto que já existe, sem esperar o recorte chegar nele. */}
+          <G clipPath={desenho.desenhado ? undefined : `url(#${recorte})`} clipRule="nonzero">
+            <Path d={area} fill={`url(#${id}f)`} />
+            {eixosEm?.map((i) => (PX[i] ? (
+              <Line
+                key={`e${i}`} x1={PX[i].x} y1={PX[i].y} x2={PX[i].x} y2={height - padB}
+                stroke={st} strokeWidth={1} opacity={0.32}
+              />
+            ) : null))}
+            <Path
+              d={line} stroke={`url(#${id}s)`} strokeWidth={strokeW} fill="none"
+              strokeLinecap="round" strokeLinejoin="round"
             />
-          ) : null))}
-          <Path
-            d={line} stroke={`url(#${id}s)`} strokeWidth={strokeW} fill="none"
-            strokeLinecap="round" strokeLinejoin="round"
-          />
-          {/* Nó vazado, e não cheio: sobre uma curva grossa o ponto cheio
-              vira um engrossamento do próprio traço e some. O miolo na cor
-              do cartão é o que faz cada marcação existir como marcação. */}
-          {nodes && PX.map((p, i) => (nosEm && !nosEm.includes(i) ? null : (
-            <Circle key={i} cx={p.x} cy={p.y} r={3.6} fill={c.bg1} stroke={st} strokeWidth={2.2} />
-          )))}
-          {mk && dashed && <Line x1={mk.x} y1={mk.y} x2={mk.x} y2={height - padB} stroke={st} strokeWidth={1.4} strokeDasharray="3 4" opacity={0.5} />}
-          {mk && <><Circle cx={mk.x} cy={mk.y} r={6.5} fill={c.bg1} /><Circle cx={mk.x} cy={mk.y} r={4.3} fill={st} /></>}
+            {/* Nó vazado, e não cheio: sobre uma curva grossa o ponto cheio
+                vira um engrossamento do próprio traço e some. O miolo na cor
+                do cartão é o que faz cada marcação existir como marcação. */}
+            {nodes && PX.map((p, i) => (nosEm && !nosEm.includes(i) ? null : (
+              <Circle key={i} cx={p.x} cy={p.y} r={3.6} fill={c.bg1} stroke={st} strokeWidth={2.2} />
+            )))}
+            {mk && dashed && <Line x1={mk.x} y1={mk.y} x2={mk.x} y2={height - padB} stroke={st} strokeWidth={1.4} strokeDasharray="3 4" opacity={0.5} />}
+            {mk && <><Circle cx={mk.x} cy={mk.y} r={6.5} fill={c.bg1} /><Circle cx={mk.x} cy={mk.y} r={4.3} fill={st} /></>}
+          </G>
 
           {/* Marca do dedo — fio inteiro da borda de cima à de baixo, para
               ela ser encontrada mesmo com a mão cobrindo metade do card. */}
@@ -285,6 +493,9 @@ export function Barras({
   height?: number; largura?: number; gap?: number; destaque?: boolean;
 }) {
   const { c } = useTheme();
+  /* As barras sobem do pé, uma depois da outra, uma vez por abertura
+     (02/10/2026). Sem meta: aqui não há régua para entrar antes. */
+  const sobem = useBarrasQueSobem(data.length);
   if (!data.length) return null;
   /* piso de 4 px: barra de valor zero sumiria, e sumir é dizer que não
      houve registro — que é diferente de ter registrado zero */
@@ -295,11 +506,12 @@ export function Barras({
       {data.map((d, i) => {
         const ultima = i === data.length - 1;
         return (
-          <View
+          <BarraQueSobe
             key={d.t}
+            desenho={sobem.desenho} de={sobem.de(i)} dura={sobem.dura}
+            altura={alt(d.v)}
             style={{
               width: largura,
-              height: alt(d.v),
               borderRadius: largura / 2,
               backgroundColor: destaque && ultima ? c.lime : 'rgba(255,255,255,0.28)',
             }}

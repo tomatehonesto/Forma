@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { View, Pressable } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
@@ -8,7 +8,7 @@ import {
 } from '../logic/derive';
 import { MOMENTOS, itensDe, momentoDaHora, nomeItem, qtdPadrao, somaDe, type ItemComida } from '../logic/prato';
 import { analisarFoto, RECADO } from '../logic/analise';
-import { BuscaAlimento, ItemAlimento, BotaoEscanear, FotoDoPrato } from '../ui/comida';
+import { BuscaAlimento, ItemAlimento, BotaoEscanear, FotoDoPrato, ItensDoPratoChegando } from '../ui/comida';
 import { CameraPrato } from '../ui/CameraPrato';
 import { aceitouAIa } from '../logic/aceiteDaIa';
 import { Txt, Row, SheetScreen } from '../ui/kit';
@@ -106,6 +106,15 @@ export default function MedirRefeicao() {
   const [foto, setFoto] = useState<string | null>(null);
   const [lendo, setLendo] = useState(false);
   const [recado, setRecado] = useState<string | null>(null);
+  /* ⚠️ A VEZ DA LEITURA (02/10/2026). Tirar a foto enquanto ela era lida
+     não cancelava nada: o esqueleto dos itens (ui/comida) ficava pulsando
+     sozinho, sem foto nenhuma na tela, e quando a resposta chegava os
+     itens da foto descartada entravam no prato assim mesmo. E com uma
+     segunda foto tirada nesse meio-tempo, a resposta da primeira desligava
+     o "lendo" da segunda, ou punha o recado dela no cartão da outra. Cada
+     leitura leva a sua vez; remover a foto passa a vez adiante, e a
+     resposta de uma vez que já passou é jogada fora. */
+  const vez = useRef(0);
 
   const ci: any = checkinToday(S);
   const alvo = (S.profile as any).targets.prot as number;
@@ -126,11 +135,13 @@ export default function MedirRefeicao() {
   };
 
   const receberFoto = async (uri: string) => {
+    const minha = ++vez.current;
     setCamera(false);
     setFoto(uri);
     setRecado(null);
     setLendo(true);
     const r = await analisarFoto(uri);
+    if (minha !== vez.current) return;
     setLendo(false);
     if (r.ok) {
       /* O que a foto viu ENTRA na lista em vez de substituir: quem já
@@ -241,7 +252,9 @@ export default function MedirRefeicao() {
             uri={foto}
             lendo={lendo}
             recado={recado || undefined}
-            onRemover={() => { setFoto(null); setRecado(null); }}
+            /* remover passa a vez: a leitura em curso, se houver, não
+               volta mais (ver `vez`, no alto) */
+            onRemover={() => { vez.current++; setLendo(false); setFoto(null); setRecado(null); }}
           />
         </View>
       ) : null}
@@ -304,6 +317,9 @@ export default function MedirRefeicao() {
               onTrocar={(novo) => setItens((v) => v.map((x, j) => (j === i ? novo : x)))}
             />
           ))}
+          {/* A foto sendo lida: o que ela achar entra DEPOIS do que já
+              estava (ver `receberFoto`), e o esqueleto mora ali (ui/comida). */}
+          {lendo ? <ItensDoPratoChegando /> : null}
 
           <Row style={{ justifyContent: 'space-between', paddingHorizontal: 2, marginTop: 3 }}>
             <Txt v="caption" c={c.tx3}>{K().proteinaDestaRefeicao}</Txt>
@@ -332,6 +348,11 @@ export default function MedirRefeicao() {
               {estimados.some((it) => it.estimado === 'nome') ? K().estimadoPelaIa : K().estimadoPelaFoto}
             </Txt>
           ) : null}
+        </View>
+      ) : lendo ? (
+        /* com o prato ainda vazio, onde a lista vai começar */
+        <View style={{ marginTop: 8 }}>
+          <ItensDoPratoChegando />
         </View>
       ) : null}
 

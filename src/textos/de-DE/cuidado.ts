@@ -189,6 +189,7 @@ export const cuidado = {
   telaClinica: {
     titulo: 'Praxis',
     semClinica: 'Du bist mit keiner Praxis verbunden. Wer deine Behandlung begleitet, erscheint im medizinischen Bereich.',
+    carregando: 'Praxis wird geladen…',
     convenios: 'Angenommene Versicherungen',
     sobre: 'Vorstellung',
     outrosCanais: 'Weitere Kanäle',

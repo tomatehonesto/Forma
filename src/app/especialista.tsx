@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { nf } from '../logic/time';
-import { Image } from 'expo-image';
+import { ImagemQueChega } from '../ui/esqueleto';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -160,7 +160,7 @@ export default function Especialista() {
             chegou é a tela dizendo que falta alguma coisa. */}
         {retrato ? (
           <View style={{ height: ALTURA_DO_RETRATO }}>
-            <Image
+            <ImagemQueChega
               source={retrato}
               style={StyleSheet.absoluteFill}
               contentFit="cover"

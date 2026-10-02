@@ -189,6 +189,9 @@ export const companion = {
   telaConversa: {
     ola: (nome: string) => `Oi, ${nome}`,
     ouvindo: 'Estou ouvindo…',
+    /* o que o leitor de tela diz no lugar dos três pontos do balão,
+       enquanto a resposta vem — na voz dele, como o "Estou ouvindo…" */
+    escrevendo: 'Estou escrevendo…',
     escrevaOuFale: 'Escreva ou fale',
     pergunte: 'Pergunte sobre sua jornada',
     novaConversa: 'Nova conversa',

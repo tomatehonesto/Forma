@@ -10,6 +10,7 @@ import { ty, font, radius, space, shadowCard } from '../theme';
 import { useTheme } from './useTheme';
 import { useFolhaAberta, Cobertura, TocarParaFechar } from './folhas';
 import { Icon } from './Icon';
+import { Cascata } from './cascata';
 
 type TxtProps = TextProps & { v?: keyof typeof ty; c?: string; style?: StyleProp<TextStyle>; };
 export function Txt({ v = 'body', c, style, ...rest }: TxtProps) {
@@ -478,15 +479,25 @@ export function Grupo({ title, children }: { title?: string; children: React.Rea
    até a conversa quando ela chega pedindo receita. Sem a referência, a
    única forma de mover a tela seria trocar o `Screen` por um ScrollView
    próprio — e aí a tela deixaria de herdar o respiro e o fundo daqui. */
-export function Screen({ children, scroll = true, style, scrollRef }: {
+/* ⚠️ E OS FILHOS ENTRAM EM CASCATA, por padrão (02/10/2026, fase 1 de
+   docs/superpowers/specs/2026-10-02-motion-design.md) — ver ui/cascata.
+   Se quem chama der um `gap` no `style`, ele vai junto para a cascata,
+   que precisa dele quando um bloco não desenha nada. `semCascata` é a
+   saída para a tela com coreografia própria. */
+export function Screen({ children, scroll = true, style, scrollRef, semCascata }: {
   children: React.ReactNode; scroll?: boolean; style?: StyleProp<ViewStyle>;
   scrollRef?: React.RefObject<ScrollView | null>;
+  semCascata?: boolean;
 }) {
   const { c } = useTheme();
   const insets = useSafeAreaInsets();
+  const vao = StyleSheet.flatten(style)?.gap;
+  const corpo = semCascata
+    ? children
+    : <Cascata vao={typeof vao === 'number' ? vao : 0}>{children}</Cascata>;
   /* +20 acima da safe area: encostar o conteúdo na status bar aperta a
      leitura. Vale para todas as telas que usam Screen. */
-  if (!scroll) return <View style={[{ flex: 1, backgroundColor: c.bg, paddingTop: insets.top + 20 }, style]}>{children}</View>;
+  if (!scroll) return <View style={[{ flex: 1, backgroundColor: c.bg, paddingTop: insets.top + 20 }, style]}>{corpo}</View>;
   return (
     <Rolagem
       ref={scrollRef}
@@ -494,7 +505,7 @@ export function Screen({ children, scroll = true, style, scrollRef }: {
       contentContainerStyle={[{ paddingTop: insets.top + 20, paddingBottom: 120, paddingHorizontal: space.xl }, style]}
       showsVerticalScrollIndicator={false}
     >
-      {children}
+      {corpo}
     </Rolagem>
   );
 }

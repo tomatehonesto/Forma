@@ -158,6 +158,7 @@ export const cuidado = {
   telaClinica: {
     titulo: 'Clinique',
     semClinica: 'Aucune clinique n’est liée à votre suivi. La personne qui suit votre traitement apparaît dans l’espace médical.',
+    carregando: 'Chargement de la clinique…',
     convenios: 'Assurances acceptées',
     sobre: 'Présentation',
     outrosCanais: 'Autres moyens de contact',

@@ -6,6 +6,7 @@ import { gramasItem, medidaItem, nomeItem, ressalvaItem, origemDe, type ItemComi
 import { Txt, Row } from './kit';
 import { Icon } from './Icon';
 import { EstrelaIA } from './marca';
+import { Esqueleto } from './esqueleto';
 import { useTheme } from './useTheme';
 import { font, radius, ty } from '../theme';
 import { T } from '../textos';
@@ -319,6 +320,51 @@ export function ItemAlimento({ item, onQtd, onRemover, onTrocar }: {
         </View>
       ) : null}
     </View>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* ENQUANTO A FOTO É LIDA — o desenho de dois itens no lugar onde os da
+   foto vão cair (02/10/2026, fase 3 de
+   docs/superpowers/specs/2026-10-02-motion-design.md). Antes, só a roda
+   do cartão da foto dizia que havia leitura, e o que ela trazia aparecia
+   de uma vez embaixo da busca, empurrando a tela.
+
+   ⚠️ É O `ItemAlimento` DE CIMA, MEDIDO: a moldura, o nome, e a fileira
+   do contador com os dois quadrados de 30, a medida e as gramas. Um item
+   da tabela chega com essa altura exata; o estimado chega com as linhas
+   do que foi considerado, e essas a foto não tem como prever.
+
+   ⚠️ DOIS, porque quantos a foto vai achar ninguém sabe: prato de verdade
+   quase nunca é um item só, e três empurrariam os favoritos para longe
+   por uma suposição.
+
+   A frase "Lendo o prato…" continua no cartão da foto, e é ela que o
+   leitor de tela lê: para ele, o esqueleto é enfeite. Ver ui/esqueleto. */
+const NOMES_CHEGANDO = ['62%', '44%'] as const;
+
+export function ItensDoPratoChegando() {
+  const { c } = useTheme();
+  return (
+    <Esqueleto style={{ gap: 7 }}>
+      {NOMES_CHEGANDO.map((nome) => (
+        <View
+          key={nome}
+          style={{
+            backgroundColor: c.bg1, borderWidth: 1, borderColor: c.line,
+            borderRadius: radius.md, paddingHorizontal: 13, paddingVertical: 11, gap: 9,
+          }}
+        >
+          <Esqueleto.Linha v="label" largura={nome} />
+          <Row gap={8}>
+            <Esqueleto.Bloco largura={30} altura={30} raio={radius.sm} />
+            <View style={{ minWidth: 92, alignItems: 'center' }}><Esqueleto.Linha v="caption" largura={60} /></View>
+            <Esqueleto.Bloco largura={30} altura={30} raio={radius.sm} />
+            <View style={{ flex: 1, alignItems: 'flex-end' }}><Esqueleto.Linha v="tag" largura={34} /></View>
+          </Row>
+        </View>
+      ))}
+    </Esqueleto>
   );
 }
 

@@ -54,6 +54,11 @@ export const rede = {
   },
 
   resultados: (n: number) => `${n} ${n === 1 ? 'clínica' : 'clínicas'}`,
+  /* ⚠️ SÓ O LEITOR DE TELA OUVE ESTA (02/10/2026): é o rótulo do
+     esqueleto da lista enquanto ela chega do banco. Na tela, os cartões
+     cinza já dizem que alguma coisa está vindo; sem a frase, quem não vê
+     a tela ouviria a busca e os filtros e depois nada. */
+  carregando: 'Carregando as clínicas…',
 
   /* ---------- o cartão ---------- */
   aDistancia: (quanto: string) => `a ${quanto}`,

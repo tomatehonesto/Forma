@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { View, Pressable, Animated, StyleSheet } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import { View, Pressable, StyleSheet } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
@@ -19,8 +19,9 @@ import { Icon } from '../ui/Icon';
 import { EstrelaIA } from '../ui/marca';
 import { TelaInterna, Titulao, Bloco, Cartao, Linha, Selo, Botao, Progresso, Sanfona, SanfonaLinha } from '../ui/internas';
 import { MetricasDaSemana, DestaquesDaSemana, type Destaque } from '../ui/semanaEmNumeros';
+import { Esqueleto } from '../ui/esqueleto';
 import { useTheme } from '../ui/useTheme';
-import { radius, shadowCard, font } from '../theme';
+import { radius, shadowCard, font, alfa } from '../theme';
 import { T } from '../textos';
 
 const K = () => T.descobertas.semana;
@@ -697,29 +698,60 @@ function Chapeu({ cor, rotulo, children }: { cor: string; rotulo: string; childr
 }
 
 /* ------------------------------------------------------------------ */
-/* ENQUANTO ESCREVE: a estrela, a frase e três linhas que pulsam no lugar
-   do texto — o desenho do que vem, e não uma roda girando no vazio. */
+/* ENQUANTO ESCREVE: a estrela, a frase e o desenho das três partes no
+   lugar do texto — o desenho do que vem, e não uma roda girando no vazio.
+
+   ⚠️ AGORA SÃO AS TRÊS PARTES, e era só a primeira (02/10/2026, fase 3 de
+   docs/superpowers/specs/2026-10-02-motion-design.md). A leitura chega
+   sempre em três cartões — a semana, a descoberta e o teste (`Partes`) —,
+   e o esqueleto de um cartão só fazia a tela crescer dois cartões no
+   instante da chegada, empurrando "como você se sentiu" para baixo de
+   quem estava lendo. Os três já estão no lugar, cada um no seu fundo, e
+   só os ossos pulsam (ui/esqueleto) — com o pulso que era escrito aqui à
+   mão, na thread de JS e sem ouvir o "reduzir movimento".
+
+   ⚠️ "LENDO A SUA SEMANA…" É TAMBÉM O RÓTULO DO GRUPO: é o que o leitor
+   de tela diz, uma vez, no lugar dos ossos.
+
+   ⚠️ NOS DOIS CARTÕES DE COR, O OSSO É DA COR DO CARTÃO (02/10/2026). O
+   cinza de sempre (`bg2`) é feito para o cartão branco, e sobre o azul
+   fraco e o lima ele sumia (de 1,00 a 1,10:1 no claro, nas dez paletas):
+   a descoberta e o teste pareciam cartões vazios, e não esperando.
+   Aqui o osso é a tinta de cada fundo, um degrau acima dele: no azul, o
+   fio do próprio cartão (`accentLine`); no lima, a tinta do lima a 20%.
+   Medido nas dez paletas, no ponto aceso do pulso: o azul de 1,29 a
+   1,44:1 no claro e de 1,54 a 1,94 no escuro; o lima de 1,34 a 1,36 e de
+   1,61 a 1,80. A 15%, o lima do claro ficava em 1,24. */
+const LINHAS_DA_SEMANA = ['100%', '94%', '68%'] as const;
+const LINHAS_DA_DESCOBERTA = ['100%', '56%'] as const;
+const LINHAS_DO_TESTE = ['96%', '48%'] as const;
+
 function Lendo() {
   const { c } = useTheme();
-  const pulso = useRef(new Animated.Value(0.45)).current;
-  useEffect(() => {
-    const laco = Animated.loop(Animated.sequence([
-      Animated.timing(pulso, { toValue: 1, duration: 700, useNativeDriver: true }),
-      Animated.timing(pulso, { toValue: 0.45, duration: 700, useNativeDriver: true }),
-    ]));
-    laco.start();
-    return () => laco.stop();
-  }, [pulso]);
-
+  const ossoDoAzul = c.accentLine;
+  const ossoDoLima = alfa(c.limeSoftInk, 0.2);
   return (
-    <Parte fundo={c.bg1} sombra>
-      <Chapeu cor={c.accent} rotulo={K().lendo}><EstrelaIA size={15} /></Chapeu>
-      <Animated.View style={{ gap: 9, opacity: pulso }}>
-        {[100, 92, 64].map((w) => (
-          <View key={w} style={{ width: `${w}%`, height: 12, borderRadius: 6, backgroundColor: c.bg2 }} />
-        ))}
-      </Animated.View>
-    </Parte>
+    <Esqueleto rotulo={K().lendo} style={{ gap: 12 }}>
+      <Parte fundo={c.bg1} sombra>
+        <Chapeu cor={c.accent} rotulo={K().lendo}><EstrelaIA size={15} /></Chapeu>
+        <View>{LINHAS_DA_SEMANA.map((w) => <Esqueleto.Linha key={w} largura={w} />)}</View>
+      </Parte>
+      {/* o chapéu da descoberta é o selo de 28 da área, e o do teste, o alvo de 16 */}
+      <Parte fundo={c.accentWeak} borda={c.accentLine}>
+        <Row gap={8}>
+          <Esqueleto.Disco lado={28} cor={ossoDoAzul} />
+          <Esqueleto.Linha v="micro" largura={104} cor={ossoDoAzul} />
+        </Row>
+        <View>{LINHAS_DA_DESCOBERTA.map((w) => <Esqueleto.Linha key={w} largura={w} cor={ossoDoAzul} />)}</View>
+      </Parte>
+      <Parte fundo={c.limeSoft}>
+        <Row gap={8}>
+          <Esqueleto.Disco lado={16} cor={ossoDoLima} />
+          <Esqueleto.Linha v="micro" largura={132} cor={ossoDoLima} />
+        </Row>
+        <View>{LINHAS_DO_TESTE.map((w) => <Esqueleto.Linha key={w} largura={w} cor={ossoDoLima} />)}</View>
+      </Parte>
+    </Esqueleto>
   );
 }
 

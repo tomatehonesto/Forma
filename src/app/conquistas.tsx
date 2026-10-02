@@ -10,6 +10,7 @@ import { relDay } from '../logic/time';
 import { Txt, Row, Vazio } from '../ui/kit';
 import { TelaInterna, Titulao, Bloco, Chips, Grade } from '../ui/internas';
 import { Icon } from '../ui/Icon';
+import { BarraQueEnche } from '../ui/barraQueEnche';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
 import { T } from '../textos';
@@ -121,10 +122,10 @@ function Cartao({ q, onPress }: { q: Conquista; onPress: () => void }) {
                 inteira: de cinquenta para cem check-ins, estar em setenta é
                 quarenta por cento do trecho — e mostrar setenta por cento
                 seria uma barra quase cheia que não anda mais por trinta
-                dias. */}
-            <View style={{ height: 4, borderRadius: 2, backgroundColor: c.track, overflow: 'hidden' }}>
-              <View style={{ width: `${Math.round(q.pct * 100)}%`, height: 4, backgroundColor: c.tx4 }} />
-            </View>
+                dias.
+
+                Enche uma vez por abertura (02/10/2026) — ui/barraQueEnche. */}
+            <BarraQueEnche pct={Math.round(q.pct * 100)} altura={4} raio={2} pontaReta cor={c.tx4} />
             <Txt v="micro" c={c.tx3} numberOfLines={2} style={{ textAlign: 'center', lineHeight: 15 }}>{q.falta}</Txt>
           </View>
         )}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Pressable, ScrollView } from 'react-native';
-import { Image } from 'expo-image';
+import { ImagemQueChega } from '../ui/esqueleto';
 import * as ImagePicker from 'expo-image-picker';
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import { useRouter } from 'expo-router';
@@ -462,7 +462,7 @@ export default function Perfil() {
                     alignItems: 'center', justifyContent: 'center',
                   }}>
                     {fotoMedica ? (
-                      <Image
+                      <ImagemQueChega
                         source={fotoMedica}
                         style={{ width: '100%', height: '100%' }}
                         contentFit="cover"

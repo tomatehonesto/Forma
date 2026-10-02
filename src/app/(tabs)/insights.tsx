@@ -23,6 +23,7 @@ import { Icon } from '../../ui/Icon';
 import { useTheme } from '../../ui/useTheme';
 import { useLarguraApp } from '../../ui/useLarguraApp';
 import { useLightStatusBar } from '../../ui/useLightStatusBar';
+import { Cascata, useEntrada } from '../../ui/cascata';
 import Svg, { Defs, Ellipse, Path, RadialGradient, Rect, LinearGradient as SvgGrad, Stop } from 'react-native-svg';
 import { radius, font, shadowCard, alfa, type Palette, RESPIRO_ABAS, comPaleta, dark } from '../../theme';
 import { T } from '../../textos';
@@ -137,6 +138,8 @@ export default function Insights() {
   const { c } = useTheme();
   const orbe = useMemo(() => comPaleta(dark, (S as any).paleta, true), [(S as any).paleta]);
   const focada = useIsFocused();
+  /* A entrada da aba, uma vez por sessão — ver ui/cascata. */
+  const entrada = useEntrada('insights');
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const width = useLarguraApp();
@@ -244,6 +247,14 @@ export default function Insights() {
           paddingTop: insets.top + 76, paddingBottom: BARRA,
           overflow: 'hidden',
         }}>
+          {/* ⚠️ A AURORA É O PALCO, E O QUE MORA NELA CHEGA (02/10/2026, fase 1
+              de docs/superpowers/specs/2026-10-02-motion-design.md). A
+              imagem e o véu (em `absoluteFill`, que a cascata deixa parados)
+              não se mexem — subindo, descobririam uma faixa clara no alto
+              da tela. A esfera, a pergunta, o campo, as perguntas prontas e
+              a descoberta entram um depois do outro, e a folha continua a
+              fila. Uma vez por sessão — ver ui/cascata. */}
+          <Cascata entrada={entrada}>
           {/* A aurora entra como imagem: o degradê que eu havia construído em
               paradas de cor chegava perto, mas cor calculada não tem grão nem
               a irregularidade de luz que uma peça pintada tem. Desde
@@ -449,6 +460,7 @@ export default function Insights() {
               </View>
             </Pressable>
           )}
+          </Cascata>
         </View>
 
         {/* ================= FOLHA =================
@@ -487,6 +499,8 @@ export default function Insights() {
           borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg,
           marginTop: -SOBREPOSICAO, paddingTop: 34,
         }}>
+        {/* A folha fica parada; os blocos dela entram depois dos do hero. */}
+        <Cascata entrada={entrada} desde={7}>
 
         {/* ============================================================
             O CORPO DA MATÉRIA
@@ -770,6 +784,7 @@ export default function Insights() {
             ela faz é observar, interpretar e organizar — sugerir artigo é
             outro serviço, e ele diluía o último gesto da página. libraryPicks
             segue em derive.ts, servindo a Biblioteca. */}
+        </Cascata>
         </View>
       </Rolagem>
     </View>

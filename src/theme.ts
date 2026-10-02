@@ -248,6 +248,41 @@ export const RESPIRO_ABAS = 28;
    raio maior é o que dá o ar de superfície agrupada.                [figma] */
 export const radius = { sm: 8, md: 12, card: 18, lg: 24, xl: 32, pill: 999 };
 
+/* ============================================================
+   O MOVIMENTO (02/10/2026)
+
+   Sutil, por decisão do dono: a entrada de uma tela inteira cabe em ~0,3 s,
+   e o que se move anda pouco. As durações moravam escritas à mão em cada
+   tela, de 130 a 1300 ms; daqui em diante saem daqui. Ver
+   docs/superpowers/specs/2026-10-02-motion-design.md.
+
+   ⚠️ A CURVA MORA COMO NOME, E NÃO COMO FUNÇÃO. Este arquivo não importa
+   nada — e é por isso que as sondas e a trava o leem sem carregar o
+   Reanimated. A função de easing é montada em ui/useMenosMovimento.
+
+   ⚠️ E NADA DISTO VALE COM O "REDUZIR MOVIMENTO" DO SISTEMA LIGADO: aí a
+   entrada some, o gráfico aparece pronto e o esqueleto fica parado. Quem
+   anima pergunta a `useMenosMovimento` antes. */
+export const movimento = {
+  /** um aparecer simples, de um elemento só: o fade */
+  curto: 180,
+  /** a entrada de um bloco da tela: fade e uns pixels para cima */
+  medio: 260,
+  /** um gráfico se desenhando */
+  grafico: 700,
+  /** o intervalo entre dois blocos de uma cascata */
+  passo: 40,
+  /** só os primeiros esperam a vez; do sétimo em diante, entram com o sexto */
+  teto: 6,
+  /** quanto um bloco sobe ao entrar, em px */
+  sobe: 10,
+  /** a curva: sai rápido e assenta (out-cubic) — ver `curvaDoMovimento` */
+  curva: 'saida',
+  /** a mesma curva escrita para o CSS da web (ui/cascata), onde a função
+      do Reanimated não tem nome e cairia para linear */
+  curvaCss: 'cubic-bezier(0.33, 1, 0.68, 1)',
+} as const;
+
 /* Outfit em quatro pesos. O frame usa 300 como peso mais frequente —
    o app v1 era 700/800, então o conjunto fica visivelmente mais leve. */
 export const font = {

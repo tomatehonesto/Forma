@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Pressable, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Image } from 'expo-image';
+import { ImagemQueChega, RostosChegando } from '../../ui/esqueleto';
 import Svg, { Defs, Ellipse, RadialGradient, Stop } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
@@ -23,6 +23,7 @@ import {
 } from '../../logic/rede';
 import { pontoSemPedir, type Ponto } from '../../logic/localizacao';
 import { useTheme } from '../../ui/useTheme';
+import { Cascata, useEntrada } from '../../ui/cascata';
 import { radius, RESPIRO_ABAS } from '../../theme';
 import { fotoDaEquipe, focoDaEquipe, fotoDaRede, focoDaRede, inicialDoNome, iniciaisDeQuemCuida } from '../../ui/retratos';
 import { noNa, formaDe, oA, FORMAS, iconeDaDose, injetavelDe } from '../../logic/formas';
@@ -429,7 +430,7 @@ function BannerMedica() {
         <Pressable onPress={go('/medico')} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
           <Row gap={13} style={{ backgroundColor: c.bg1, padding: 16, alignItems: 'center' }}>
             {fotoMedica ? (
-              <Image
+              <ImagemQueChega
                 source={fotoMedica}
                 style={{ width: 44, height: 44, borderRadius: radius.sm, backgroundColor: c.bg2 }}
                 contentFit="cover"
@@ -1044,7 +1045,9 @@ function Parceiros() {
   const [ponto, setPonto] = React.useState<Ponto | null>(null);
   React.useEffect(() => {
     if (!noAr) return;
-    carregarRede().then(setRede).catch(() => {});
+    /* Sem resposta, a lista fica vazia, e não nula: nula é "chegando", e o
+       esqueleto dos rostos ficaria pulsando para sempre (02/10/2026). */
+    carregarRede().then(setRede).catch(() => setRede([]));
     pontoSemPedir().then(setPonto).catch(() => {});
   }, [noAr]);
 
@@ -1072,7 +1075,8 @@ function Parceiros() {
       {/* ⚠️ COM A REDE NO AR, O CARTÃO MOSTRA GENTE: os rostos de quem
           atende — os mais próximos, quando sabemos onde a pessoa está — e
           "Ver clínicas". Com a rede no ar e a lista ainda chegando, é o
-          mesmo cartão sem os rostos, e "Saiba mais" leva à apresentação.
+          mesmo cartão com o esqueleto dos rostos no lugar deles (e sem
+          rostos se ela não vier), e "Saiba mais" leva à apresentação.
           Sem a rede no ar (sem nuvem), o botão é o código de convite, que é
           o único caminho que existe sem lista — a tela /parceiros, que
           explicava isso, saiu na fase 8. */}
@@ -1082,6 +1086,7 @@ function Parceiros() {
         <CartaoDeParceiros
           acao={noAr ? T.rede.cartao.saibaMais : T.rede.jaTenhoCodigo}
           onPress={noAr ? abrirRede : () => router.push('/codigo' as any)}
+          chegando={noAr && rede === null}
         />
       )}
 
@@ -1145,8 +1150,11 @@ function CartaoDaRede({ rede, ponto, onPress }: {
    ⚠️ O BOTÃO FICA À DIREITA NOS DOIS, com ou sem rostos: a ação mora no
    mesmo lugar em qualquer estado do cartão.
 ------------------------------------------------------------------ */
-function CartaoDeParceiros({ rostos, acao, onPress }: {
+function CartaoDeParceiros({ rostos, acao, onPress, chegando }: {
   rostos?: ProfissionalDaRede[]; acao: string; onPress: () => void;
+  /** A lista da rede ainda vem do banco: o lugar dos rostos mostra o
+      esqueleto deles, do mesmo tamanho (ui/esqueleto, 02/10/2026). */
+  chegando?: boolean;
 }) {
   const { c } = useTheme();
   const R = T.rede.cartao;
@@ -1172,7 +1180,7 @@ function CartaoDeParceiros({ rostos, acao, onPress }: {
                     }}
                   >
                     {foto ? (
-                      <Image source={foto} style={{ width: 42, height: 42 }} contentFit="cover" contentPosition={focoDaRede(p)} />
+                      <ImagemQueChega source={foto} style={{ width: 42, height: 42 }} contentFit="cover" contentPosition={focoDaRede(p)} />
                     ) : (
                       <Txt v="label" c={c.accent}>{inicialDoNome(p.nome)}</Txt>
                     )}
@@ -1180,7 +1188,7 @@ function CartaoDeParceiros({ rostos, acao, onPress }: {
                 );
               })}
             </Row>
-          ) : null}
+          ) : chegando ? <RostosChegando /> : null}
         </View>
         <View style={{ backgroundColor: c.tx, borderRadius: radius.pill, paddingHorizontal: 18, paddingVertical: 12 }}>
           <Txt v="label" c={c.bg1}>{acao}</Txt>
@@ -1195,6 +1203,8 @@ export default function Cuidado() {
   const { c } = useTheme();
   const insets = useSafeAreaInsets();
   const conectada = clinicaConectada(S);
+  /* A entrada da aba, uma vez por sessão — ver ui/cascata. */
+  const entrada = useEntrada('cuidado');
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
@@ -1202,6 +1212,13 @@ export default function Cuidado() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingHorizontal: PAD, paddingTop: insets.top + 20, paddingBottom: RESPIRO_ABAS }}
       >
+        {/* ⚠️ OS BLOCOS ENTRAM UM DEPOIS DO OUTRO (02/10/2026, fase 1 de
+            docs/superpowers/specs/2026-10-02-motion-design.md), e aqui o
+            hero entra junto: ele é um cartão dentro da margem, e não um
+            palco sangrado como a aurora da Home — subir dez pixels não
+            descobre nada. Os dois fragmentos de baixo são achatados pela
+            cascata, e cada componente é um bloco. */}
+        <Cascata entrada={entrada}>
         {/* Sem título de tela. A tab bar já diz onde a pessoa está, e
             repetir "Cuidado" no topo gasta a primeira dobra com informação
             que ela acabou de dar. O hero abre direto — é ele que responde
@@ -1263,6 +1280,7 @@ export default function Cuidado() {
             <Parceiros />
           </>
         )}
+        </Cascata>
       </Rolagem>
     </View>
   );

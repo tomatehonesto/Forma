@@ -1,7 +1,7 @@
 # Motion: entrada das telas, gráficos que se desenham e esqueleto
 
-**Data:** 02/10/2026 · **Estado:** aprovado pelo dono; começa depois do commit
-da correção do uso diário (as duas mexem na Home, na Jornada e no Cuidado)
+**Data:** 02/10/2026 · **Estado:** aplicado (fases 0 a 4), revisado por três
+agentes; falta ver no aparelho (PENDENCIAS, item 39)
 
 ## Por quê
 

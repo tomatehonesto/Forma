@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import Svg, { Circle, Path, Line as SvgLine } from 'react-native-svg';
+import Animated, { useAnimatedProps, useAnimatedStyle } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import * as Haptics from 'expo-haptics';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -20,8 +21,9 @@ import {
 } from '../ui/internas';
 import { CapaDeHabito, FolhaDeHabito, TelaDeHabito } from '../ui/capa';
 import { useAurora } from '../ui/aurora';
+import { useDesenhoDaAbertura, naJanela, type Desenho } from '../ui/charts';
 import { useTheme } from '../ui/useTheme';
-import { radius, shadowCard, alfa, mix } from '../theme';
+import { radius, shadowCard, alfa, mix, movimento } from '../theme';
 import { T } from '../textos';
 
 /* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
@@ -346,6 +348,84 @@ const RAIO_DA_COLETA = 4;
 const CALHA = 32;
 const RESPIRO_DAS_DATAS = 10;
 
+/* ============================================================
+   O DESENHO DA EVOLUÇÃO, UMA VEZ POR ABERTURA (02/10/2026)
+
+   Fase 2 de docs/superpowers/specs/2026-10-02-motion-design.md, no idioma
+   desta peça: o PAPEL entra antes da TINTA. A malha (e o eixo, que é a
+   régua dela) aparece inteira, num fade curto; só então o traço se
+   desenha da primeira coleta à última, e cada bolinha acende quando o
+   traço chega nela. O relógio é o dos gráficos (`useDesenhoDaAbertura`,
+   em ui/charts): uma vez por abertura, e não a cada registro.
+
+   ⚠️ O TRAÇO SE DESENHA POR `strokeDashoffset`, e não por recorte: um
+   tracejado do tamanho do caminho inteiro, deslocado para fora e
+   trazido de volta. Os segmentos são retos, então o comprimento é conta
+   exata — a soma das distâncias entre as coletas.
+
+   ⚠️ A MALHA FICA NUMA CAMADA PRÓPRIA, embaixo do traço, e o fade é dessa
+   camada (um View), não de cada ponto: são centenas de círculos, e um
+   fade por círculo seria centenas de animações. Pela mesma razão ela não
+   troca de peça no fim — remontar a malha inteira no último quadro seria
+   pagar o desenho duas vezes. O traço e as bolinhas, que são poucos,
+   voltam ao desenho de sempre quando o relógio acaba.
+   ============================================================ */
+const TracoAnimado = Animated.createAnimatedComponent(Path);
+const ColetaAnimada = Animated.createAnimatedComponent(Circle);
+/* As janelas no relógio do gráfico: a malha em [0, curto]; o traço
+   depois dela, até o fim do gráfico. */
+const TRACO_DE = movimento.curto;
+const TRACO_DURA = movimento.grafico - movimento.curto;
+/* Quanto de traço (em px) a bolinha leva para acender inteira: ela fica
+   pronta exatamente quando o traço chega nela, sem estalar. */
+const ACENDE_EM = 12;
+
+function MalhaQueAparece({ desenho, children }: { desenho: Desenho; children: React.ReactNode }) {
+  const { t, total } = desenho;
+  const dura = movimento.curto;
+  const aparece = useAnimatedStyle(() => ({ opacity: naJanela(t.value, total, 0, dura) }));
+  return (
+    <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, aparece]}>
+      {children}
+    </Animated.View>
+  );
+}
+
+function TracoQueSeDesenha({ desenho, d, comprimento, cor }: {
+  desenho: Desenho; d: string; comprimento: number; cor: string;
+}) {
+  const { t, total } = desenho;
+  const traca = useAnimatedProps(() => ({
+    strokeDashoffset: comprimento * (1 - naJanela(t.value, total, TRACO_DE, TRACO_DURA)),
+  }));
+  return (
+    <TracoAnimado
+      d={d} stroke={cor} strokeWidth={2.2} fill="none"
+      strokeLinecap="round" strokeLinejoin="round"
+      transform={`translate(0,${RAIO_DA_MALHA})`}
+      strokeDasharray={`${comprimento} ${comprimento}`}
+      animatedProps={traca}
+    />
+  );
+}
+
+function ColetaQueAcende({ desenho, ate, folga, cx, cy, r, cor }: {
+  desenho: Desenho;
+  /** a fração do traço em que ela fica inteira */
+  ate: number;
+  /** a fração do traço que ela leva para acender */
+  folga: number;
+  cx: number; cy: number; r: number; cor: string;
+}) {
+  const { t, total } = desenho;
+  const acende = useAnimatedProps(() => {
+    const andou = naJanela(t.value, total, TRACO_DE, TRACO_DURA);
+    const x = (andou - (ate - folga)) / folga;
+    return { opacity: x <= 0 ? 0 : x >= 1 ? 1 : x };
+  });
+  return <ColetaAnimada cx={cx} cy={cy} r={r} fill={cor} animatedProps={acende} />;
+}
+
 function MalhaDaEvolucao({ e }: { e: any }) {
   const { c, isDark } = useTheme();
   const g = examGaugeData(e);
@@ -418,6 +498,47 @@ function MalhaDaEvolucao({ e }: { e: any }) {
 
   const P = vals.map((x) => ({ x: xDe(x.t), y: yDe(x.v), v: x.v, t: x.t }));
   const traco = P.map((q, i) => `${i ? 'L' : 'M'}${q.x},${q.y}`).join(' ');
+
+  /* ---- o desenho da abertura (ver a nota em cima de `TracoAnimado`) ----
+
+     O comprimento do traço é a soma dos segmentos retos, e cada coleta
+     sabe em que fração dele ela cai — é ali que ela acende. Um pixel de
+     folga no tracejado, para o arredondamento nunca deixar um fio aberto
+     no fim. */
+  const ateAqui = P.map((q, i) => (i ? Math.hypot(q.x - P[i - 1].x, q.y - P[i - 1].y) : 0));
+  for (let i = 1; i < ateAqui.length; i++) ateAqui[i] += ateAqui[i - 1];
+  const comprimento = (ateAqui[ateAqui.length - 1] ?? 0) + 1;
+  const folga = Math.min(1, ACENDE_EM / comprimento);
+  const desenho = useDesenhoDaAbertura(movimento.grafico, w > 0);
+
+  /* ⚠️ A MALHA É MEMORIZADA (fase 4 da mesma especificação). São linhas
+     vezes colunas círculos — centenas —, e o arrasto do toque redesenha
+     este componente a cada quadro do dedo: sem a memória, a malha inteira
+     era refeita a cada pixel de arrasto para sair igual. Ela só muda com a
+     largura, a escala, a referência e a cor. */
+  const corDaJanela = alfa(c.accent, isDark ? 0.46 : 0.34);
+  const corDeFora = alfa(c.tx4, isDark ? 0.3 : 0.26);
+  const malha = React.useMemo(() => (w > 0 ? (
+    <Svg width={w} height={ALTURA + RAIO_DA_MALHA * 2}>
+      {Array.from({ length: LINHAS }).map((_, i) => {
+        const dentro = dentroDe(valorDaLinha(i));
+        const y = i * ESPACO_LINHA + RAIO_DA_MALHA;
+        return Array.from({ length: colunas }).map((__, j) => (
+          <Circle
+            key={`${i}-${j}`}
+            cx={CALHA + (j / Math.max(1, colunas - 1)) * Math.max(1, w - CALHA - RAIO_DA_MALHA * 2) + RAIO_DA_MALHA}
+            cy={y}
+            r={RAIO_DA_MALHA}
+            fill={dentro ? corDaJanela : corDeFora}
+          />
+        ));
+      })}
+    </Svg>
+  ) : null),
+  /* `dentroDe` e `valorDaLinha` nascem de novo a cada render; o que elas
+     leem é o que está aqui. */
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  [w, LINHAS, ALTURA, colunas, yHi, yLo, limAlto, limBaixo, corDaJanela, corDeFora]);
 
   /* ---- o toque ----
 
@@ -493,46 +614,50 @@ function MalhaDaEvolucao({ e }: { e: any }) {
       <GestureDetector gesture={gesto}>
       <View style={{ height: ALTURA + RAIO_DA_MALHA * 2 }} onLayout={(ev) => setW(Math.round(ev.nativeEvent.layout.width))}>
         {w > 0 ? (
-          <Svg width={w} height={ALTURA + RAIO_DA_MALHA * 2}>
-            {Array.from({ length: LINHAS }).map((_, i) => {
-              const naJanela = dentroDe(valorDaLinha(i));
-              const y = i * ESPACO_LINHA + RAIO_DA_MALHA;
-              return Array.from({ length: colunas }).map((__, j) => (
-                <Circle
-                  key={`${i}-${j}`}
-                  cx={CALHA + (j / Math.max(1, colunas - 1)) * Math.max(1, w - CALHA - RAIO_DA_MALHA * 2) + RAIO_DA_MALHA}
-                  cy={y}
-                  r={RAIO_DA_MALHA}
-                  fill={naJanela ? alfa(c.accent, isDark ? 0.46 : 0.34) : alfa(c.tx4, isDark ? 0.3 : 0.26)}
+          <>
+            {/* O papel: a malha, memorizada, numa camada embaixo. */}
+            <MalhaQueAparece desenho={desenho}>{malha}</MalhaQueAparece>
+            {/* A tinta: o traço, as coletas e a marca do dedo. */}
+            <Svg width={w} height={ALTURA + RAIO_DA_MALHA * 2}>
+              {desenho.desenhado ? (
+                <Path
+                  d={traco} stroke={c.accent} strokeWidth={2.2} fill="none"
+                  strokeLinecap="round" strokeLinejoin="round"
+                  transform={`translate(0,${RAIO_DA_MALHA})`}
                 />
-              ));
-            })}
-            <Path
-              d={traco} stroke={c.accent} strokeWidth={2.2} fill="none"
-              strokeLinecap="round" strokeLinejoin="round"
-              transform={`translate(0,${RAIO_DA_MALHA})`}
-            />
-            {/* A bolinha da coleta é cheia, e já foi um anel vazado: o anel
-                precisa de um miolo da cor do cartão para existir, e sobre a
-                malha esse miolo vira um buraco branco de pontos. Cheia, ela
-                é só um nó mais grosso do mesmo traço.
+              ) : (
+                <TracoQueSeDesenha desenho={desenho} d={traco} comprimento={comprimento} cor={c.accent} />
+              )}
+              {/* A bolinha da coleta é cheia, e já foi um anel vazado: o anel
+                  precisa de um miolo da cor do cartão para existir, e sobre a
+                  malha esse miolo vira um buraco branco de pontos. Cheia, ela
+                  é só um nó mais grosso do mesmo traço.
 
-                Todas na cor do traço. O vermelho saiu daqui e virou palavra
-                dentro do balão — ver a nota do toque, acima. */}
-            {P.map((q, i) => (
-              <Circle
-                key={q.t} cx={q.x} cy={q.y + RAIO_DA_MALHA}
-                r={i === sel ? RAIO_DA_COLETA + 1.5 : RAIO_DA_COLETA}
-                fill={c.accent}
-              />
-            ))}
-            {alvo ? (
-              <SvgLine
-                x1={alvo.x} y1={0} x2={alvo.x} y2={ALTURA + RAIO_DA_MALHA * 2}
-                stroke={alfa(c.tx, 0.22)} strokeWidth={1}
-              />
-            ) : null}
-          </Svg>
+                  Todas na cor do traço. O vermelho saiu daqui e virou palavra
+                  dentro do balão — ver a nota do toque, acima. */}
+              {P.map((q, i) => (desenho.desenhado ? (
+                <Circle
+                  key={q.t} cx={q.x} cy={q.y + RAIO_DA_MALHA}
+                  r={i === sel ? RAIO_DA_COLETA + 1.5 : RAIO_DA_COLETA}
+                  fill={c.accent}
+                />
+              ) : (
+                <ColetaQueAcende
+                  key={q.t} desenho={desenho}
+                  ate={Math.max(ateAqui[i] / comprimento, folga)} folga={folga}
+                  cx={q.x} cy={q.y + RAIO_DA_MALHA}
+                  r={i === sel ? RAIO_DA_COLETA + 1.5 : RAIO_DA_COLETA}
+                  cor={c.accent}
+                />
+              )))}
+              {alvo ? (
+                <SvgLine
+                  x1={alvo.x} y1={0} x2={alvo.x} y2={ALTURA + RAIO_DA_MALHA * 2}
+                  stroke={alfa(c.tx, 0.22)} strokeWidth={1}
+                />
+              ) : null}
+            </Svg>
+          </>
         ) : null}
 
         {/* ---- o balão ----
@@ -573,15 +698,18 @@ function MalhaDaEvolucao({ e }: { e: any }) {
           </View>
         ) : null}
 
-        {/* O eixo, encostado à direita da calha e na altura da sua linha. */}
-        {Array.from({ length: LINHAS }).map((_, i) => (i % LINHAS_POR_DEGRAU === 0 ? (
-          <View
-            key={i} pointerEvents="none"
-            style={{ position: 'absolute', left: 0, width: CALHA - 8, alignItems: 'flex-end', top: i * ESPACO_LINHA + RAIO_DA_MALHA - 9 }}
-          >
-            <Txt v="micro" c={c.tx4}>{fmtV(valorDaLinha(i))}</Txt>
-          </View>
-        ) : null))}
+        {/* O eixo, encostado à direita da calha e na altura da sua linha.
+            Ele é a régua da malha, e entra com ela. */}
+        <MalhaQueAparece desenho={desenho}>
+          {Array.from({ length: LINHAS }).map((_, i) => (i % LINHAS_POR_DEGRAU === 0 ? (
+            <View
+              key={i} pointerEvents="none"
+              style={{ position: 'absolute', left: 0, width: CALHA - 8, alignItems: 'flex-end', top: i * ESPACO_LINHA + RAIO_DA_MALHA - 9 }}
+            >
+              <Txt v="micro" c={c.tx4}>{fmtV(valorDaLinha(i))}</Txt>
+            </View>
+          ) : null))}
+        </MalhaQueAparece>
       </View>
       </GestureDetector>
 

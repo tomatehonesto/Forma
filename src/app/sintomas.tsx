@@ -13,6 +13,7 @@ import { Txt, Row } from '../ui/kit';
 import {
   TelaInterna, Titulao, Bloco, Cartao, Linha, Progresso, Chips, CardCurva, Aviso, Botao,
 } from '../ui/internas';
+import { BarraQueSobe, useBarrasQueSobem } from '../ui/charts';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
 import { T } from '../textos';
@@ -91,10 +92,14 @@ function BarrasDoCiclo({ baldes, destaque }: {
 }) {
   const { c } = useTheme();
   const ALT = 76;
+  /* As barras sobem do pé, uma depois da outra, uma vez por abertura
+     (02/10/2026 — ver `useBarrasQueSobem`, em ui/charts). A calha fica
+     parada: ela é o quadro, e não o dado. */
+  const sobem = useBarrasQueSobem(baldes.length);
   return (
     <View style={{ gap: 8 }}>
       <Row style={{ alignItems: 'flex-end', gap: 6 }}>
-        {baldes.map((b) => {
+        {baldes.map((b, i) => {
           const vazio = b.media == null;
           const forte = !destaque || destaque.includes(b.dia);
           return (
@@ -107,11 +112,11 @@ function BarrasDoCiclo({ baldes, destaque }: {
                 borderStyle: 'dashed',
               }}>
                 {vazio ? null : (
-                  <View style={{
-                    height: Math.max(3, ((b.media as number) / 5) * ALT),
-                    borderRadius: radius.sm,
-                    backgroundColor: forte ? c.accent : c.accentLine,
-                  }} />
+                  <BarraQueSobe
+                    desenho={sobem.desenho} de={sobem.de(i)} dura={sobem.dura}
+                    altura={Math.max(3, ((b.media as number) / 5) * ALT)}
+                    style={{ borderRadius: radius.sm, backgroundColor: forte ? c.accent : c.accentLine }}
+                  />
                 )}
               </View>
               <Txt v="micro" c={vazio ? c.tx4 : c.tx3}>{b.dia === 0 ? K().dose : b.dia}</Txt>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Animated, Easing, View, StyleSheet } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
+import { useMenosMovimento } from './useMenosMovimento';
 
 /* ============================================================
    AS PEÇAS DA ESPERA — o que a espera do plano (app/cadastro) e a volta
@@ -34,14 +35,22 @@ export function BrilhoNoTexto({ texto, estilo, cor }: {
 }) {
   const [largura, setLargura] = React.useState(0);
   const x = React.useRef(new Animated.Value(0)).current;
+  /* ⚠️ COM "REDUZIR MOVIMENTO", NÃO HÁ BRILHO (02/10/2026, fase 4 de
+     docs/superpowers/specs/2026-10-02-motion-design.md). A faixa passava
+     sem parar para quem pediu ao sistema que nada passasse. Parado, o
+     brilho não tem quadro de descanso: o descanso é a frase sem ele — e a
+     frase já está desenhada embaixo, por quem chama. */
+  const menos = useMenosMovimento();
   React.useEffect(() => {
+    if (menos) return;
     const laco = Animated.loop(Animated.sequence([
       Animated.timing(x, { toValue: 1, duration: 1150, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
       Animated.delay(180),
     ]));
     laco.start();
     return () => laco.stop();
-  }, []);
+  }, [menos, x]);
+  if (menos) return null;
   const centro = x.interpolate({ inputRange: [0, 1], outputRange: [-70, largura + 70] });
   return (
     <View
@@ -104,22 +113,37 @@ export function RodaQueViraVisto({ pronto, cor }: { pronto: boolean; cor: string
     return () => { arco.removeListener(a); visto.removeListener(b); };
   }, []);
 
+  /* ⚠️ COM "REDUZIR MOVIMENTO", A RODA NÃO GIRA (02/10/2026, fase 4 de
+     docs/superpowers/specs/2026-10-02-motion-design.md): fica o arco de
+     um quarto, parado — o quadro em que ela nasce. E quando a espera
+     acaba, o círculo fecha e o visto aparece de uma vez, sem se desenhar.
+     A espera continua dita pela frase da vez, que troca sozinha. */
+  const menos = useMenosMovimento();
   React.useEffect(() => {
+    if (menos || pronto) return;
+    /* do zero: o laço nativo repete a partir de onde começou, e recomeçado
+       do meio ele pularia a cada volta */
+    giro.setValue(0);
     laco.current = Animated.loop(Animated.timing(giro, {
       toValue: 1, duration: 850, easing: Easing.linear, useNativeDriver: true,
     }));
     laco.current.start();
     return () => laco.current?.stop();
-  }, []);
+  }, [menos, pronto, giro]);
 
   React.useEffect(() => {
     if (!pronto) return;
     laco.current?.stop();
+    if (menos) {
+      arco.setValue(1);
+      visto.setValue(1);
+      return;
+    }
     Animated.sequence([
       Animated.timing(arco, { toValue: 1, duration: 360, easing: Easing.out(Easing.cubic), useNativeDriver: false }),
       Animated.timing(visto, { toValue: 1, duration: 280, easing: Easing.out(Easing.cubic), useNativeDriver: false }),
     ]).start();
-  }, [pronto]);
+  }, [pronto, menos]);
 
   return (
     <View style={{ width: RODA, height: RODA }}>

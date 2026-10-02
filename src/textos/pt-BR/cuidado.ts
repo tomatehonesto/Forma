@@ -220,6 +220,9 @@ export const cuidado = {
   telaClinica: {
     titulo: 'Clínica',
     semClinica: 'Você não tem clínica vinculada. Quem acompanha o seu tratamento aparece na área médica.',
+    /* só o leitor de tela ouve: o rótulo do esqueleto da ficha enquanto a
+       clínica da rede chega do banco (02/10/2026) */
+    carregando: 'Carregando a clínica…',
     convenios: 'Convênios atendidos',
     sobre: 'Sobre',
     outrosCanais: 'Outros canais',

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AppState, Platform, View } from 'react-native';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -21,6 +21,7 @@ import { juntarPesagens, pesagensDoAparelho } from '../logic/saude-do-aparelho';
 import { novosNiveis } from '../logic/conquistas';
 import { light, APP_MAX_W } from '../theme';
 import { SombraDasFolhas } from '../ui/folhas';
+import { segurarEntradas } from '../ui/cascata';
 
 /* Fundo fora da coluna, no web. Não é cor da marca e não entra na paleta:
    é a mesa sobre a qual o aparelho fica apoiado, e só existe em navegador. */
@@ -321,6 +322,19 @@ export default function RootLayout() {
 
   useEffect(() => { hydrate(); }, [hydrate]);
 
+  /* ⚠️ A REMONTAGEM NÃO REPETE A ENTRADA DAS TELAS (02/10/2026, achado da
+     revisão do movimento). Quando a chave da `Moldura`, abaixo, muda — o
+     idioma ou o modo fingido —, a árvore inteira nasce de novo, e a tela
+     que estava aberta tocaria a cascata outra vez no meio do ajuste. A
+     chave é lida aqui, no desenho, antes de a árvore nova desenhar, e a
+     troca segura as entradas por um instante (ver ui/cascata). */
+  const chaveDaMoldura = `${localAtual()}·${modoFingido() ?? ''}`;
+  const ultimaMoldura = useRef(chaveDaMoldura);
+  if (ultimaMoldura.current !== chaveDaMoldura) {
+    ultimaMoldura.current = chaveDaMoldura;
+    segurarEntradas();
+  }
+
   /* ⚠️⚠️ O APARELHO É LIDO UMA VEZ, ANTES DA PRIMEIRA TELA. Idioma,
      relógio e sistema de unidades são coisas que o sistema operacional já
      sabe sobre quem está segurando o telefone, e perguntar de novo o que
@@ -376,7 +390,7 @@ export default function RootLayout() {
             ele muda — então a remontagem aqui não é o que faz a troca
             funcionar, é o que garante que nenhuma tela guarde em memo um
             derivado do estado antigo. Ver logic/modo. */}
-        <Moldura key={`${localAtual()}·${modoFingido() ?? ''}`}>
+        <Moldura key={chaveDaMoldura}>
         <Portao>
         <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: light.bg }, animation: 'slide_from_right' }}>
           <Stack.Screen name="(tabs)" />

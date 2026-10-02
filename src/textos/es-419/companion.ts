@@ -108,6 +108,7 @@ export const companion = {
   telaConversa: {
     ola: (nome: string) => `Hola, ${nome}`,
     ouvindo: 'Te escucho…',
+    escrevendo: 'Estoy escribiendo…',
     escrevaOuFale: 'Escribe o habla',
     pergunte: 'Pregunta sobre tu recorrido',
     novaConversa: 'Nueva conversación',

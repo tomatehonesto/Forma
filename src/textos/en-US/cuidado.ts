@@ -146,6 +146,7 @@ export const cuidado = {
   telaClinica: {
     titulo: 'Clinic',
     semClinica: 'You’re not linked to a clinic. Whoever follows your treatment shows up in the medical area.',
+    carregando: 'Loading the clinic…',
     convenios: 'Insurance accepted',
     sobre: 'About',
     outrosCanais: 'Other channels',

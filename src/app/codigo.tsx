@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, TextInput, Pressable, Keyboard, StyleSheet, Linking } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Image } from 'expo-image';
 import { useStore } from '../logic/store';
 import {
   normalizarConvite, vinculoDoConvite, assinaturaAtual, GESTAO_NA_LOJA, NOME_DA_LOJA,
@@ -15,6 +14,7 @@ import {
 } from '../logic/rede';
 import { SheetScreen, Txt, Row } from '../ui/kit';
 import { Botao } from '../ui/internas';
+import { ImagemQueChega } from '../ui/esqueleto';
 import { fotoDaRede, focoDaRede, imagensDaRede, iniciaisDaClinica, inicialDoNome } from '../ui/retratos';
 import { useTheme } from '../ui/useTheme';
 import { ty, radius } from '../theme';
@@ -432,7 +432,7 @@ function CartaoDoConvite({ v }: { v: ConviteDaRede }) {
           backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center',
         }}>
           {fotoDaClinica ? (
-            <Image source={fotoDaClinica} style={StyleSheet.absoluteFill} contentFit="cover" />
+            <ImagemQueChega source={fotoDaClinica} style={StyleSheet.absoluteFill} contentFit="cover" />
           ) : (
             <Txt v="label" c={c.accent}>{iniciaisDaClinica(cl.nome)}</Txt>
           )}
@@ -453,7 +453,7 @@ function CartaoDoConvite({ v }: { v: ConviteDaRede }) {
             backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center',
           }}>
             {rosto ? (
-              <Image source={rosto} style={{ width: 44, height: 44 }} contentFit="cover" contentPosition={focoDaRede(p)} />
+              <ImagemQueChega source={rosto} style={{ width: 44, height: 44 }} contentFit="cover" contentPosition={focoDaRede(p)} />
             ) : (
               <Txt v="label" c={c.accent}>{inicialDoNome(p.nome)}</Txt>
             )}

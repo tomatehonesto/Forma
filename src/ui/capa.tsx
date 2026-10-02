@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Txt, Row, Rolagem } from './kit';
 import { Icon } from './Icon';
 import { VidroDegrade } from './vidro';
+import { Cascata } from './cascata';
 import { useTheme } from './useTheme';
 import { radius } from '../theme';
 
@@ -224,16 +225,24 @@ export function AtalhoDaCapa({ titulo, sub, cheio, onPress }: {
 
    O fundo é o `bg` de sempre, e não o branco dos cartões: os Blocos e
    Cartões que moram dentro dela precisam do fundo para continuarem
-   parecendo cartões. */
-export function FolhaDeHabito({ children }: { children: React.ReactNode }) {
+   parecendo cartões.
+
+   ⚠️ OS BLOCOS DELA ENTRAM EM CASCATA, E ELA NÃO (02/10/2026, fase 1 de
+   docs/superpowers/specs/2026-10-02-motion-design.md). A folha e a capa
+   são o palco: uma folha que subisse dez pixels descobriria a foto por
+   baixo da borda arredondada. Quem chega é o que mora nela — ver
+   ui/cascata. `semCascata` fica para a tela que tiver coreografia própria. */
+export function FolhaDeHabito({ children, semCascata }: { children: React.ReactNode; semCascata?: boolean }) {
   const { c } = useTheme();
+  /* o vão entre os blocos — a cascata o devolve quando um bloco não desenha nada */
+  const vao = 22;
   return (
     <View style={{
       backgroundColor: c.bg, marginTop: -26,
       borderTopLeftRadius: radius.xl, borderTopRightRadius: radius.xl,
-      paddingHorizontal: 16, paddingTop: 22, gap: 22,
+      paddingHorizontal: 16, paddingTop: 22, gap: vao,
     }}>
-      {children}
+      {semCascata ? children : <Cascata vao={vao}>{children}</Cascata>}
     </View>
   );
 }

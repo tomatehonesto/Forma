@@ -39,6 +39,7 @@ export const rede = {
   },
 
   resultados: (n: number) => `${n} ${n === 1 ? 'clínica' : 'clínicas'}`,
+  carregando: 'Cargando las clínicas…',
 
   aDistancia: (quanto: string) => `a ${quanto}`,
   lugarEDistancia: (lugar: string, distancia: string) => `${lugar} • ${distancia}`,

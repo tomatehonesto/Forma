@@ -11,6 +11,7 @@ import { Txt, Row, Vazio, Chevron } from '../ui/kit';
 import { Icon } from '../ui/Icon';
 import { Bloco, Cartao, Linha, Selo } from '../ui/internas';
 import { AtalhoDaCapa, CapaDeHabito, FolhaDeHabito, TelaDeHabito } from '../ui/capa';
+import { BarraQueEnche } from '../ui/barraQueEnche';
 import { useTheme } from '../ui/useTheme';
 import { radius } from '../theme';
 import { pesoTxt, pesoN } from '../logic/medidas';
@@ -190,16 +191,9 @@ export default function Metas() {
                       )}
                       <View style={{ marginLeft: 8 }}><Chevron size={15} /></View>
                     </Row>
+                    {/* Enche uma vez por abertura (02/10/2026) — ui/barraQueEnche. */}
                     {m.pessoal ? null : (
-                      <View style={{
-                        height: 6, borderRadius: radius.pill, backgroundColor: c.track,
-                        overflow: 'hidden', marginTop: 12,
-                      }}>
-                        <View style={{
-                          width: `${Math.max(2, m.pct)}%`, height: 6,
-                          borderRadius: radius.pill, backgroundColor: c.accent,
-                        }} />
-                      </View>
+                      <BarraQueEnche pct={Math.max(2, m.pct)} altura={6} style={{ marginTop: 12 }} />
                     )}
                   </View>
                 </Pressable>

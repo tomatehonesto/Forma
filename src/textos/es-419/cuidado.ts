@@ -150,6 +150,7 @@ export const cuidado = {
   telaClinica: {
     titulo: 'Clínica',
     semClinica: 'No tienes una clínica vinculada. Quien acompaña tu tratamiento aparece en el área médica.',
+    carregando: 'Cargando la clínica…',
     convenios: 'Seguros médicos aceptados',
     sobre: 'Acerca de',
     outrosCanais: 'Otros canales',
