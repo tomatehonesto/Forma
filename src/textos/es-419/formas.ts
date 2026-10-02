@@ -19,9 +19,12 @@
    laboratorios en América Latina. "Lapicera" se entiende en el Cono Sur y
    no en México; "pluma" se entiende en los dos.
 
-   ⚠️ Y EL RECIPIENTE DEL COMPRIMIDO ES EL BLÍSTER, masculino — mientras
-   que en portugués es "cartela", femenino. El género es de la PALABRA, y
-   por eso vive en cada archivo y no en la lógica.
+   ⚠️ Y EL RECIPIENTE DEL COMPRIMIDO ES LA CAJA (02/10/2026), y era el
+   blíster. El inventario del comprimido pasó a contarse por caja — 30 por
+   defecto, confirmado al abrir una (decisión del dueño; ver
+   ../pt-BR/formas.ts). El género cambió con la palabra: "el blíster" era
+   masculino, "la caja" es femenino. El género es de la PALABRA, y por eso
+   vive en cada archivo y no en la lógica.
    ============================================================ */
 
 type Recipiente = 'caneta' | 'frasco' | 'seringa' | 'comprimido';
@@ -29,14 +32,15 @@ type Recipiente = 'caneta' | 'frasco' | 'seringa' | 'comprimido';
 /* ⚠️ PRIVADO A PROPÓSITO. No entra en `palavras` y no se exporta: la única
    puerta al género son las funciones de abajo. */
 const GENERO: Record<Recipiente, 'm' | 'f'> = {
-  caneta: 'f', frasco: 'm', seringa: 'f', comprimido: 'm',
+  caneta: 'f', frasco: 'm', seringa: 'f', comprimido: 'f',
 };
 
 const f = (r: Recipiente) => GENERO[r] === 'f';
 
 export const formas = {
-  /* ⚠️ EL PLURAL ES CAMPO, y no `recipiente + 's'`. "Blíster" hace
-     "blísteres" y no "blísters" — la cuenta fácil ya falla en el cuarto. */
+  /* ⚠️ EL PLURAL ES CAMPO, y no `recipiente + 's'`. "Blíster" hacía
+     "blísteres" y no "blísters" — la cuenta fácil fallaba en el cuarto, y
+     el quinto que llegue puede fallar igual. */
   /* ⚠️ `acao` ES "DOSIS" EN LAS CUATRO FORMAS (decisión del dueño,
      01/10/2026): va a títulos y confirmaciones, y quien toma comprimido
      leía "Registrar inyección". Solo la frase en primera persona sigue la
@@ -47,7 +51,7 @@ export const formas = {
     caneta: { recipiente: 'pluma', plural: 'plumas', verbo: 'aplicar', acao: 'dosis' },
     frasco: { recipiente: 'frasco', plural: 'frascos', verbo: 'aplicar', acao: 'dosis' },
     seringa: { recipiente: 'jeringa', plural: 'jeringas', verbo: 'aplicar', acao: 'dosis' },
-    comprimido: { recipiente: 'blíster', plural: 'blísteres', verbo: 'tomar', acao: 'dosis' },
+    comprimido: { recipiente: 'caja', plural: 'cajas', verbo: 'tomar', acao: 'dosis' },
   } as Record<Recipiente, { recipiente: string; plural: string; verbo: string; acao: string }>,
 
   concordar: (r: Recipiente, masc: string, fem: string) => (f(r) ? fem : masc),

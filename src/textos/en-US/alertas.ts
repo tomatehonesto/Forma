@@ -13,6 +13,7 @@ export const alertas = {
   dose: 'Medication dose',
   doseCurto: 'Dose',
   doseDesc: 'A heads-up before your next dose, to keep the treatment on track.',
+  doseDescDiaria: 'One heads-up a day, at your dose time. If today’s dose is already logged, it stays quiet.',
 
   /* ⚠️ THE CHECK-IN IS THE ONLY ONE THAT ASKS. The other four are about
      things the person DOES — inject, weigh, drink, eat. Which is exactly

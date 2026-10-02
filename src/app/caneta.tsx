@@ -2,13 +2,14 @@ import React from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
-import { canetaAtual, siteLabel, M } from '../logic/derive';
+import { canetaAtual, siteLabel, M, coberturaDoEstoque } from '../logic/derive';
 import { FORMAS, formaDe, concordar, oA, iconeDaDose, doseInjetavel } from '../logic/formas';
 import { doseTxt, fmtDate, fmtPeriodo, dataComDiaDaSemana, dataLonga, maiuscula } from '../logic/time';
 import {
   TelaInterna, Titulao, Bloco, Progresso, Grade2, Metrica, Aviso, Cartao, Linha,
   Sanfona, SanfonaLinha, Botao,
 } from '../ui/internas';
+import { cabeDe } from '../logic/meds';
 import { T } from '../textos';
 
 /* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
@@ -56,8 +57,15 @@ export default function Caneta() {
   const atual = k.atual;
 
   const usadas = atual?.usadas ?? 0;
-  const total = atual?.total ?? 4;
+  /* ⚠️ O QUE CABE VEM DO ESTOQUE, e era um 4 escrito aqui (02/10/2026,
+     parte B3): "Nenhuma cartela aberta · 4 doses por cartela" para quem
+     toma Rybelsus. Sem recipiente aberto, é o que cabe num novo — do
+     catálogo, ou da última caixa confirmada (`dosesPorRecipiente`). */
+  const total = atual?.total ?? k.total;
+  const cabe = cabeDe(S.profile.med);
   const dose = atual?.dose ?? S.profile.dose;
+  /* em dias ou semanas, arredondado — ver `coberturaDoEstoque` */
+  const cobertura = coberturaDoEstoque(S, k);
 
   /* ⚠️⚠️ VALIDADE E LOCAL SÓ PARA QUEM INJETA (01/10/2026).
 
@@ -84,7 +92,12 @@ export default function Caneta() {
         titulo={K().tituloDose(med.label, doseTxt(dose), med.unit)}
         lead={atual?.abertaEm
           ? K().leadAberto(maiuscula(vocab.recipiente), atual.jaEmUso ? registrado : aberto, dataLonga(atual.abertaEm), total, vocab.recipiente)
-          : K().leadSemAberto(concordar(forma, K().nenhumM, K().nenhumF), vocab.recipiente, aberto, total)}
+          /* ⚠️ A CANETA DE MILIGRAMAS SEM DOSE AINDA ("ainda não sei", no
+             cadastro) dizia "0 doses por caneta" (02/10/2026, revisão da
+             B3): sem dose não há conta, e o que se sabe são os miligramas. */
+          : total === 0 && cabe.em === 'mg'
+            ? K().leadSemAbertoMg(concordar(forma, K().nenhumM, K().nenhumF), vocab.recipiente, aberto, doseTxt(cabe.mg), med.unit)
+            : K().leadSemAberto(concordar(forma, K().nenhumM, K().nenhumF), vocab.recipiente, aberto, total)}
       />
 
       {/* ⚠️ SEM RECIPIENTE REGISTRADO, NADA DE PROJEÇÃO. A tela dizia
@@ -156,7 +169,7 @@ export default function Caneta() {
           <Metrica
             ic="pill"
             nome={K().receitaAte}
-            selo={K().receitaSemanas(Math.round(k.semanas))}
+            selo={K().receitaDura(cobertura)}
             para={fmtDate(k.cobreAte)}
           />
         ) : null}
@@ -181,7 +194,7 @@ export default function Caneta() {
         <Aviso
           ic="pill"
           titulo={K().momentoDeRenovar}
-          texto={K().renovarTexto(Math.round(k.semanas))}
+          texto={K().renovarTexto(cobertura)}
         />
       ) : null}
 
@@ -198,7 +211,10 @@ export default function Caneta() {
               seloTom="neutra"
               sub={p.estado === 'uso'
                 ? K().itemEmUso(maiuscula(p.jaEmUso ? registrado : aberto), fmtDate(p.abertaEm!), p.usadas, p.total)
-                : K().itemEncerrado(fmtPeriodo(new Date(p.abertaEm!), new Date(p.ultimaEm!)), p.usadas, p.total)}
+                /* Sem dose nenhuma saída dele (a caixa de 7 mg de quem passou
+                   aos 14), o período acaba onde começou — e não em 1970
+                   (02/10/2026, revisão da B3). */
+                : K().itemEncerrado(fmtPeriodo(new Date(p.abertaEm!), new Date(p.ultimaEm ?? p.abertaEm!)), p.usadas, p.total)}
               /* A segunda coluna é o local da dose injetada — e "não
                  informado" só nela, que é quem tem local a informar. A dose
                  de comprimido não tem local nenhum: a coluna diz a dose.

@@ -1,8 +1,8 @@
 import type { State } from './seed';
-import { nextInjectionDate, temCiclo } from './derive';
+import { nextInjectionDate, temCiclo, doseDiaria, doseDeHoje } from './derive';
 import { WD, diasDaSemana, addDays, hm, now, startOfDay, quandoEm, maiuscula, ordemDaSemana } from './time';
 import { T } from '../textos';
-import { iconeDaDose } from './formas';
+import { iconeDaDose, formaDe } from './formas';
 
 /* ============================================================
    ALERTAS — os lembretes deixam de ser quatro interruptores
@@ -101,7 +101,10 @@ export const TIPOS = (): Record<TipoDeAlerta, {
   ic: string; desc: string; temDias: boolean; temLead: boolean;
 }> => ({
   dose: {
-    /* ⚠️ "DOSE", E ERA "APLICAÇÃO" — e antes ainda "DA CANETA" (01/10/2026).
+    /* ⚠️ `temLead` E `desc` SÃO OS DO SEMANAL: quem toma todo dia recebe
+       os próprios por `tiposDe(S)`, sem antecedência (parte B4, 02/10/2026).
+
+       ⚠️ "DOSE", E ERA "APLICAÇÃO" — e antes ainda "DA CANETA" (01/10/2026).
        "Dose" é o substantivo de todas as formas (decisão do dono, ver
        docs/superpowers/specs/2026-10-01-oral-e-diario-design.md), e por
        isso o título não precisa de `S`: serve a caneta, frasco, seringa e
@@ -147,10 +150,32 @@ export const TIPOS = (): Record<TipoDeAlerta, {
    pela forma do remédio dela — seringa ou comprimido (01/10/2026). Função
    nova, e não um parâmetro em `TIPOS`, porque as telas que leem `TIPOS()`
    continuam valendo sem mudar; quem tem `S` à mão passa a ler daqui. */
+/* ⚠️ E NA DOSE DIÁRIA, SEM ANTECEDÊNCIA (02/10/2026, parte B4 de
+   docs/superpowers/specs/2026-10-01-oral-e-diario-design.md). "1 dia
+   antes" de uma dose que é todo dia é o dia da dose de hoje: quem
+   registrava o comprimido às 7h recebia às 9h "A sua dose é amanhã", e
+   com 2 ou 3 dias de antecedência o aviso nunca tocava. Para quem toma
+   todo dia o aviso é o do dia, na hora escolhida — e a folha esconde a
+   pergunta que não tem resposta. A descrição diz o que ele faz agora. */
 export const tiposDe = (S: State): ReturnType<typeof TIPOS> => {
   const t = TIPOS();
-  return { ...t, dose: { ...t.dose, ic: iconeDaDose(S) } };
+  const diaria = doseDiaria(S) ? { temLead: false, desc: T.alertas.doseDescDiaria } : {};
+  return { ...t, dose: { ...t.dose, ic: iconeDaDose(S), ...diaria } };
 };
+
+/* ⚠️ A ANTECEDÊNCIA QUE VALE: a do alerta para quem toma por semana, e
+   zero para quem toma todo dia (02/10/2026, parte B4).
+
+   É LIDA, E NÃO GRAVADA. O alerta guarda o `lead` que a pessoa escolheu —
+   ou o 1 com que todo diário novo nasce (seed, `estadoVazio`) —, e quem
+   toma todo dia simplesmente não o usa. Gravar zero no cadastro seria uma
+   regra a mais para cada caminho que torna alguém diário (o cadastro, a
+   troca de remédio em Tratamento, o intervalo de exceção) e apagaria a
+   escolha de quem um dia voltar para a caneta semanal: lida aqui, a volta
+   devolve a antecedência que estava lá. É por isso que o padrão do diário
+   novo — 9h, no dia — sai do mesmo alerta de todo mundo, sem pergunta no
+   cadastro (decisão 5 do dono). */
+export const antecedenciaDe = (S: State, a: Alerta): number => (doseDiaria(S) ? 0 : a.lead ?? 0);
 
 /* A ORDEM É A DO CICLO, e não a do alfabeto nem a da idade do recurso:
    dose e check-in são o que o aplicativo pede por si — um por semana, um
@@ -187,6 +212,9 @@ const id = () => `al-${Date.now().toString(36)}-${Math.random().toString(36).sli
    ninguém decide beber água às 15h, decide beber de tempos em tempos. Os
    outros três nascem com a hora em que fazem sentido. */
 const PADRAO: Record<TipoDeAlerta, Partial<Alerta>> = {
+  /* ⚠️ O `lead: 1` É DO SEMANAL. Para quem toma todo dia este mesmo
+     padrão vira "todo dia às 9h, no dia" — a antecedência não é lida (ver
+     `antecedenciaDe`; parte B4, 02/10/2026). */
   dose: { modo: 'horas', horas: [9], lead: 1 },
   /* ⚠️ ÀS 21H, E NÃO DE MANHÃ. O check-in pergunta como foi o DIA, e às
      nove da manhã o dia ainda não foi. É o único dos cinco cuja resposta
@@ -246,8 +274,14 @@ const diasEmTexto = (dias: number[]) => {
 };
 
 /** O alerta em uma linha: quando ele toca, e a que horas. */
-export function resumoDe(a: Alerta): string {
-  const quando = a.tipo === 'dose' ? rotuloDoLead(a.lead ?? 0) : diasEmTexto(a.dias);
+/* ⚠️ PEDE `S` DESDE 02/10/2026 (parte B4): a dose de quem toma todo dia
+   não tem antecedência, e a linha dizia "1 dia antes · 09:00" de um aviso
+   que toca todo dia às nove. Para ela é "Todo dia · 09:00" — o mesmo
+   "todo dia" dos outros alertas sem dia escolhido. */
+export function resumoDe(a: Alerta, S: State): string {
+  const quando = a.tipo === 'dose'
+    ? (doseDiaria(S) ? T.alertas.todoDia : rotuloDoLead(a.lead ?? 0))
+    : diasEmTexto(a.dias);
   /* O INTERVALO SE DESCREVE, e não se lista. "De 2 em 2h, 8h às 20h" é
      uma frase; as sete horas que ela gera não caberiam na linha, e caberiam
      ainda menos na cabeça de quem só quer conferir o que configurou. */
@@ -278,6 +312,44 @@ export function proximasDe(S: State, a: Alerta, quantas = 1): Date[] {
        ainda nem começou. Ele passa a contar da primeira dose registrada,
        como o resto do app. Ver `temCiclo`, em derive. */
     if (!temCiclo(S)) return [];
+    /* ⚠️⚠️ NA DOSE DIÁRIA, O AVISO É DE TODO DIA (02/10/2026, parte B4 de
+       docs/superpowers/specs/2026-10-01-oral-e-diario-design.md). A conta
+       de baixo dá UMA data — a da próxima dose menos a antecedência —, e
+       para quem toma todo dia isso quebrava de três jeitos: com o padrão
+       de 1 dia antes, quem registrava o comprimido às 7h lia às 9h "A sua
+       dose é amanhã"; com 2 ou 3 dias, nunca tocava; e no primeiro dia sem
+       registro a data já tinha passado, e o aviso sumia até o próximo
+       registro — justo quando ele faria falta.
+
+       Agora é como o check-in: todo dia, nas horas do alerta, quantas
+       vezes o agendador pedir (a `cota` de logic/avisos, que reparte o
+       orçamento do aparelho). A antecedência não entra (ver
+       `antecedenciaDe`), e o único dia que sai é HOJE quando a dose de
+       hoje já foi registrada — a mesma pergunta do cartão "Dose de hoje"
+       da Home (`doseDeHoje`), para o aviso nunca chamar para uma dose que a
+       Home já mostra feita. Registrar depois das nove não desfaz nada: o
+       aviso das nove já tocou.
+
+       ⚠️ QUEM CALA O DE HOJE É A REMARCAÇÃO, e não esta conta sozinha: o
+       aviso já está agendado no aparelho. Registrar a dose muda a chave de
+       `chaveDosAvisos` (logo abaixo), o _layout remarca, e a conta, rodando
+       de novo, deixa hoje de fora.
+
+       ⚠️ OS DIAS SÃO DO CALENDÁRIO, e não `addDays` (24 horas somadas): na
+       noite em que o relógio volta uma hora (25/10 em Berlim), a soma cai
+       às 23h do mesmo dia, e o dia da troca sairia duas vezes — dois avisos
+       iguais às nove — e o último da fila, nenhuma. É o mesmo motivo de
+       `nextInjectionDate` contar a dose diária pelo calendário. */
+    if (doseDiaria(S)) {
+      const hoje = startOfDay(agora);
+      for (let k = doseDeHoje(S).feita ? 1 : 0; k < 35 && saida.length < quantas; k++) {
+        for (const h of horas) {
+          const d = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() + k, h, 0, 0, 0);
+          if (d > agora) saida.push(d);
+        }
+      }
+      return saida.sort((x, y) => +x - +y).slice(0, quantas);
+    }
     const base = addDays(startOfDay(nextInjectionDate(S)), -(a.lead ?? 0)) as Date;
     for (const h of horas) {
       const d = new Date(base); d.setHours(h, 0, 0, 0);
@@ -311,6 +383,31 @@ export function proximasDe(S: State, a: Alerta, quantas = 1): Date[] {
 }
 
 export const proximaDe = (S: State, a: Alerta): Date | null => proximasDe(S, a, 1)[0] ?? null;
+
+/* O QUE, MUDANDO, PEDE OS AVISOS REMARCADOS — a chave que o Agendador do
+   _layout observa: os alertas e a data da próxima dose. Morava escrita lá
+   dentro, e subiu para cá (02/10/2026, parte B4) para a sonda da dose
+   diária poder afirmar que registrar a dose de hoje a muda.
+
+   ⚠️ NA DOSE DIÁRIA ENTRA TAMBÉM SE A DOSE DE HOJE JÁ FOI FEITA, que é a
+   pergunta que tira o aviso de hoje da fila (ver `proximasDe`). Hoje a
+   data da próxima dose já anda com o registro — a dose de hoje a leva para
+   amanhã —, mas é coincidência da conta, e o aviso depende da outra
+   pergunta: escrita na chave, a dependência não some no dia em que a
+   conta da próxima dose mudar.
+
+   ⚠️ E O QUE O AVISO DIZ (02/10/2026, achado da revisão da parte B4): o
+   remédio, a dose e a forma. Quem abria à noite a caixa nova de 14 mg
+   seguia recebendo "Rybelsus 7 mg" nos 34 avisos já marcados, e quem
+   trocava o Rybelsus pela Saxenda seguia lendo "tomar", até o app voltar
+   ao foco. A fila da caneta semanal tinha o mesmo buraco com um aviso só;
+   com a dose diária ele virou cinco semanas de avisos. Mudar o texto
+   remarca — as datas do semanal não mudam com isso. */
+export const chaveDosAvisos = (S: State): string =>
+  JSON.stringify([
+    (S as any).alertas, +nextInjectionDate(S), ...(doseDiaria(S) ? [doseDeHoje(S).feita] : []),
+    S.profile?.med ?? null, S.profile?.dose ?? null, formaDe(S),
+  ]);
 
 /** "hoje · 09:00", "amanhã · 08:00", "sábado · 09:00" */
 export function quando(d: Date | null): string | null {

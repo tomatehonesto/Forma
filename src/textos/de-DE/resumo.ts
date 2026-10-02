@@ -42,6 +42,11 @@ export const resumo = {
   aplicacoesNenhuma: 'Keine eingetragen',
   /* doses registradas sem um "previstas" a comparar (quem trocou e ainda não registrou o regime de agora) */
   aplicacoesRegistradas: (n: number): string => `${n} eingetragen`,
+  /* ⚠️ Wer täglich einnimmt, liest TAGE und keine vorgesehenen Dosen
+     (02.10.2026, Teil B5): ein Tag ohne Tippen ist ein Tag ohne EINTRAG.
+     Der Grund steht in ../pt-BR/resumo.ts. */
+  diasComDose: 'Tage mit eingetragener Dosis',
+  diasComDoseValor: (feitos: number, dias: number) => `${feitos} von ${dias}`,
 
   /* ---------------- Gewicht ---------------- */
   peso: 'Gewicht',
@@ -89,12 +94,13 @@ export const resumo = {
     pesoAtual: 'Aktuelles Gewicht',
     variacao: 'Veränderung im Zeitraum',
     aplicacoesNoPeriodo: 'Dosen im Zeitraum',
+    diasComDoseNoPeriodo: 'Tage mit Dosis im Zeitraum',
     checkinsRespondidos: 'Beantwortete Check-ins',
     peso: 'Gewicht',
     medidas: 'Körpermaße',
     aplicacoes: 'Dosen',
-    dosesSub: (quantas: number, comLocal: boolean): string =>
-      `${quantas} ${quantas === 1 ? 'Eintrag' : 'Einträge'} · ${comLocal ? 'Datum, Dosis und Stelle' : 'Datum und Dosis'}`,
+    dosesSub: (quantas: number, comLocal: boolean, resumidas: boolean): string =>
+      `${quantas} ${quantas === 1 ? 'Eintrag' : 'Einträge'} · ${resumidas ? 'nach Dosis zusammengefasst' : comLocal ? 'Datum, Dosis und Stelle' : 'Datum und Dosis'}`,
     sintomas: 'Beschwerden',
     exames: 'Laborwerte',
     notas: 'Notizen für den Termin',
@@ -103,6 +109,10 @@ export const resumo = {
     medicamento: 'Medikament',
     dose: 'Dosis',
     local: 'Stelle',
+    periodoDaDose: 'Zeitraum',
+    registros: 'Einträge',
+    diasComDose: 'Tage mit Dosis',
+    resumoPorDose: (n: number) => `${n} Einträge im Zeitraum, nach Dosis zusammengefasst. Tage mit Dosis sind Tage mit mindestens einer eingetragenen Dosis.`,
     proteinaMedia: 'Eiweiß pro Tag, im Schnitt',
     aguaMedia: 'Getränke pro Tag, im Schnitt',
     exercicioTotal: 'Bewegung im Zeitraum',

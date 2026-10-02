@@ -28,4 +28,11 @@ export const tempo = {
     if (dias === 1) return 'domani';
     return dias < 0 ? `${-dias} giorni fa` : `tra ${dias} giorni`;
   },
+
+  /** Una durata: "1 giorno", "5 giorni", "1 settimana", "3 settimane". Le
+      ragioni sono in ../pt-BR/tempo.ts (02/10/2026, scorta in giorni). */
+  duracao: (c: { n: number; unidade: 'dia' | 'semana' }) =>
+    c.unidade === 'dia'
+      ? `${c.n} ${c.n === 1 ? 'giorno' : 'giorni'}`
+      : `${c.n} ${c.n === 1 ? 'settimana' : 'settimane'}`,
 };

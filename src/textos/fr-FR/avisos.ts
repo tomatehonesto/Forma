@@ -24,6 +24,13 @@ export const avisos = {
   doseEmDias: (dias: number, acao: string) => `Votre ${acao} est dans ${dias} jours`,
   doseEmDiasCorpo: (dose: string, doRecipiente: string) => `${dose}. Vous avez le temps de vérifier ce qu’il reste ${doRecipiente}.`,
 
+  /* ⚠️ LA DOSE QUOTIDIENNE N'A QU'UNE NOTIFICATION, CELLE DU JOUR
+     (02/10/2026, partie B4 — raisons dans ../pt-BR/avisos.ts). Le verbe
+     suit la forme : qui prend un comprimé n'injecte rien. Et le texte
+     n'affirme pas qu'elle ne l'a pas encore prise. */
+  doseDiaria: (injetavel: boolean): string => (injetavel ? 'C’est l’heure d’injecter la dose du jour' : 'C’est l’heure de prendre la dose du jour'),
+  doseDiariaCorpo: (dose: string) => `${dose}. Ensuite, un toucher suffit pour la noter.`,
+
   checkin: 'Comment s’est passée votre journée ?',
   checkinCorpo: 'Sommeil, faim, énergie et humeur — quatre réponses, et la journée est enregistrée.',
   peso: 'Jour de pesée',

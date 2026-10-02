@@ -1,3 +1,4 @@
+import { tempo } from './tempo';
 /* ============================================================
    LE SUIVI — l'espace des personnes · fr-FR
 
@@ -35,8 +36,12 @@ export const cuidado = {
     mensagemRotulo: 'les messages',
 
     receita: 'Demander le renouvellement de l’ordonnance',
-    receitaSub: (doses: number, semanas: number) =>
-      `${doses} ${doses === 1 ? 'dose restante' : 'doses restantes'} · environ ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}`,
+    /* En jours ou en semaines, et jamais « environ 0 » (02/10/2026) — les
+       raisons sont dans ../pt-BR/cuidado.ts. */
+    receitaSub: (doses: number, c: { n: number; unidade: 'dia' | 'semana' }) =>
+      c.n === 0 || doses === 0
+        ? 'Aucune dose restante'
+        : `${doses} ${doses === 1 ? 'dose restante' : 'doses restantes'} · environ ${tempo.duracao(c)}`,
     receitaRotulo: 'l’ordonnance',
 
     /* Le titre de l'analyse vient du protocole — c'est ce que l'équipe a
@@ -200,8 +205,10 @@ export const cuidado = {
     seuTratamento: 'Votre traitement',
     aplicacoesLink: 'Doses',
     dosesEm: (onde: string) => `Doses ${onde}`,
-    restamDe: (restam: number, total: number, semanas: number) =>
-      `${restam} sur ${total} · environ ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}`,
+    restamDe: (restam: number, total: number, c: { n: number; unidade: 'dia' | 'semana' }) =>
+      c.n === 0 || restam === 0
+        ? `${restam} sur ${total}`
+        : `${restam} sur ${total} · environ ${tempo.duracao(c)}`,
     pedirRenovacao: 'Demander le renouvellement',
 
     exames: 'Analyses',

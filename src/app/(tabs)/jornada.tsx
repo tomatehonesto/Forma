@@ -8,7 +8,7 @@ import { useStore } from '../../logic/store';
 import {
   journeySummary, journeyChanges, journeyGoals, metaDePeso, timelineWeeks, timelineEvents, timelineCounts, weightSeries,
   startWeight, curWeight, temEvolucao,
-  doseCycle, penStock, nextInjectionDate,
+  doseCycle, penStock, nextInjectionDate, coberturaDoEstoque,
   waterMlToday, litros, checkinToday, protocoloDaSemana, weekGrid, last7Days, M,
   sintomasDaSemana, diasDeSintomas, type Change, type TLEvent, type TLKind, type WeekMetric,
   diasAteAplicar, semanasDaGrade, temCiclo, diaDoTratamento, temHistoria,
@@ -704,7 +704,9 @@ export default function Jornada() {
               <View style={{ flex: 1 }}>
                 <Txt v="body">{pen.verdict.label}</Txt>
                 <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>
-                  {K().dosesRestantes(pen.left, Math.round(pen.semanas))}
+                  {/* em dias ou semanas — "cerca de 0 semanas" para três
+                      comprimidos era o que se lia aqui (02/10/2026) */}
+                  {K().dosesRestantes(pen.left, coberturaDoEstoque(S, pen))}
                 </Txt>
               </View>
               <Icon name="chev" size={14} color={c.tx4} sw={2} />

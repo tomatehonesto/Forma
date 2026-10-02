@@ -22,4 +22,11 @@ export const tempo = {
     if (dias === 1) return 'mañana';
     return dias < 0 ? `hace ${-dias} días` : `en ${dias} días`;
   },
+
+  /** Una duración: "1 día", "5 días", "1 semana", "3 semanas". Las razones
+      están en ../pt-BR/tempo.ts (02/10/2026, inventario en días). */
+  duracao: (c: { n: number; unidade: 'dia' | 'semana' }) =>
+    c.unidade === 'dia'
+      ? `${c.n} ${c.n === 1 ? 'día' : 'días'}`
+      : `${c.n} ${c.n === 1 ? 'semana' : 'semanas'}`,
 };

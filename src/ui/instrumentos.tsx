@@ -361,9 +361,16 @@ export function Nivel({
      Deitado e não em pé porque a leitura é de SEQUÊNCIA, não de altura:
      as doses se gastam em ordem, da esquerda para a direita, e um traço
      horizontal com vão entre eles é o desenho mais curto que diz isso. O
-     gasto fica no mesmo lugar, apagado — a posição é o que importa. */
+     gasto fica no mesmo lugar, apagado — a posição é o que importa.
+
+     ⚠️ O VÃO ENCOLHE COM A CONTAGEM (02/10/2026, parte B3). O nível nasceu
+     para as quatro doses da caneta semanal; a caixa de comprimidos tem
+     30, e a caneta de Saxenda em 0,6 mg também. Com o vão de 10 px, trinta
+     traços somavam 290 px de vão num cartão de pouco mais que isso, e os
+     traços sumiam. Até oito, o desenho de sempre. */
+  const vao = total <= 8 ? 10 : total <= 16 ? 5 : 2;
   return (
-    <Row gap={10} style={{ height: altura, alignItems: 'center' }}>
+    <Row gap={vao} style={{ height: altura, alignItems: 'center' }}>
       {Array.from({ length: total }, (_, i) => {
         const cheio = i < cheios;
         const t = total > 1 ? i / (total - 1) : 0;

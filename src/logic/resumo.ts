@@ -2,7 +2,7 @@ import { T, NOMES_DO_RESUMO } from '../textos';
 import { nomeDaMolecula } from './formas';
 import type { State } from './seed';
 import {
-  M, cadenciaCurta, curWeight, dosesPrevistas, dosesFeitas, examLast, journeyDay,
+  M, cadenciaCurta, curWeight, dosesPrevistas, dosesFeitas, doseDiaria, examLast, journeyDay,
   lostKg, lostPct, mediaDe, notasAbertas, respondido, variacaoDe, temEvolucao, doseDoPerfil, nomeDoMarcador, type Nota,
 } from './derive';
 import { fmtDate, diffDays, now, nf, kg, startOfDay } from './time';
@@ -118,8 +118,21 @@ export function resumoDoTratamento(S: State): SecaoDoResumo[] {
            comprimido tem zero previstas no regime de agora — e o documento
            dizia ao médico "Nenhuma registrada" com as canetas no diário. Aí
            vai a contagem, sem um "previstas" que não existe. */
-        { k: K.aplicacoes, v: dosesPrevistas(S) ? K.aplicacoesValor(dosesFeitas(S), dosesPrevistas(S))
-          : ((S as any).injections ?? []).length ? K.aplicacoesRegistradas(((S as any).injections ?? []).length) : K.aplicacoesNenhuma },
+        /* ⚠️⚠️ NA DOSE DIÁRIA, "DIAS COM DOSE REGISTRADA", E NÃO "PREVISTAS"
+           (02/10/2026, parte B5 de docs/superpowers/specs/2026-10-01-oral-
+           e-diario-design.md). "Doses: 26 de 28 previstas" diz ao médico
+           que duas doses faltaram — e o que a conta sabe é que em dois dias
+           não houve REGISTRO. A pessoa marca a dose do dia com um toque, e
+           nada é presumido (decisão 2 do dono): o rótulo diz o que foi
+           contado. Os números são os mesmos de sempre (`dosesFeitas` e
+           `dosesPrevistas`, que no diário já são os dias do regime de
+           agora, com hoje só depois da dose dele). Sem dia a contar — trocou
+           e ainda não registrou o comprimido —, a linha de baixo, como era.
+           O semanal fica como era. */
+        doseDiaria(S) && dosesPrevistas(S)
+          ? { k: K.diasComDose, v: K.diasComDoseValor(dosesFeitas(S), dosesPrevistas(S)) }
+          : { k: K.aplicacoes, v: dosesPrevistas(S) ? K.aplicacoesValor(dosesFeitas(S), dosesPrevistas(S))
+            : ((S as any).injections ?? []).length ? K.aplicacoesRegistradas(((S as any).injections ?? []).length) : K.aplicacoesNenhuma },
       ],
     },
     {

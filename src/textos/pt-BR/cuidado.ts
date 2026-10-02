@@ -1,3 +1,4 @@
+import { tempo } from './tempo';
 /* ============================================================
    O CUIDADO — a área das pessoas
 
@@ -47,9 +48,16 @@ export const cuidado = {
 
     receita: 'Pedir a renovação da receita',
     /* Duas contagens na mesma linha, cada uma com o próprio plural: as
-       doses que restam e as semanas que elas cobrem. */
-    receitaSub: (doses: number, semanas: number) =>
-      `${doses} ${doses === 1 ? 'dose restante' : 'doses restantes'} · cerca de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
+       doses que restam e o tempo que elas cobrem.
+
+       ⚠️ O TEMPO É EM DIAS OU EM SEMANAS (02/10/2026, parte B3): para quem
+       toma todo dia, "cerca de 0.43 semanas" virou "cerca de 3 dias". A
+       unidade vem pronta da lógica (`coberturaDoEstoque`); e sem dose
+       nenhuma não há "cerca de 0" — há "nenhuma dose restante". */
+    receitaSub: (doses: number, c: { n: number; unidade: 'dia' | 'semana' }) =>
+      c.n === 0 || doses === 0
+        ? 'Nenhuma dose restante'
+        : `${doses} ${doses === 1 ? 'dose restante' : 'doses restantes'} · cerca de ${tempo.duracao(c)}`,
     receitaRotulo: 'a receita',
 
     /* O título do exame vem do protocolo — é o que a equipe escreveu, e
@@ -292,8 +300,11 @@ export const cuidado = {
     /* o nome da tela /aplicacoes, que é "Doses" desde 01/10/2026 */
     aplicacoesLink: 'Doses',
     dosesEm: (onde: string) => `Doses ${onde}`,
-    restamDe: (restam: number, total: number, semanas: number) =>
-      `${restam} de ${total} · cerca de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
+    /* em dias ou semanas, e sem "cerca de 0" — ver `receitaSub` (02/10/2026) */
+    restamDe: (restam: number, total: number, c: { n: number; unidade: 'dia' | 'semana' }) =>
+      c.n === 0 || restam === 0
+        ? `${restam} de ${total}`
+        : `${restam} de ${total} · cerca de ${tempo.duracao(c)}`,
     pedirRenovacao: 'Pedir renovação',
 
     /* ---------- os exames ---------- */

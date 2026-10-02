@@ -21,6 +21,7 @@ export const alertas = {
   dose: 'Dose del farmaco',
   doseCurto: 'Dose',
   doseDesc: 'Un avviso prima della prossima dose, per tenere la terapia in ordine.',
+  doseDescDiaria: 'Un avviso al giorno, all’ora della tua dose. Se la dose di oggi è già registrata, resta in silenzio.',
 
   checkin: 'Check-in del giorno',
   checkinCurto: 'Check-in',

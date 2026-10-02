@@ -3,7 +3,7 @@ import { Platform } from 'react-native';
 import { File, Paths } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import type { State } from './seed';
-import { M, cadenciaCurta, siteLabel } from './derive';
+import { M, cadenciaCurta, siteLabel, doseDiaria, inicioDoDiario, dosesPrevistas, dosesFeitas } from './derive';
 import { MEDS } from './meds';
 import { doseInjetavel, injetavelDe, localDaDose } from './formas';
 import { now } from './time';
@@ -56,6 +56,20 @@ const dia = (t: number) => new Date(t).toISOString().slice(0, 10);
    máquina compara com 'oral', e uma exportação em alemão não pode mudar o
    que ela compara. Só há duas — toda forma que não se injeta é comprimido. */
 const viaDe = (injetavel: boolean) => (injetavel ? 'injetavel' : 'oral');
+/* ⚠️ O DIA DO CALENDÁRIO DE QUEM EXPORTA, e não o de Greenwich (02/10/2026).
+   As datas da constância diária são meias-noites locais, e `dia` as passa
+   por `toISOString`: em Berlim, a meia-noite de 2 de outubro é 22h de 1º
+   em UTC, e o arquivo diria que a contagem começou na véspera. */
+const diaLocal = (t: number) => {
+  const d = new Date(t);
+  const p = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+};
+/** O dia (00h) `k` dias depois de `t`, pelo calendário. */
+const noCalendario = (t: number, k: number) => {
+  const d = new Date(t);
+  return +new Date(d.getFullYear(), d.getMonth(), d.getDate() + k);
+};
 
 export function dadosParaExportar(S: State, r: Recorte) {
   const p: any = S.profile;
@@ -89,6 +103,35 @@ export function dadosParaExportar(S: State, r: Recorte) {
       meta_de_peso_kg: p.goalWeight || null,
     },
   };
+
+  /* ⚠️ QUEM TOMA TODO DIA LEVA A CONSTÂNCIA EM DIAS (02/10/2026, parte B5
+     de docs/superpowers/specs/2026-10-01-oral-e-diario-design.md). É a
+     mesma conta do resumo do médico — `dosesFeitas` de `dosesPrevistas`,
+     que no diário são os dias do regime diário de agora —, escrita para
+     máquina: de que dia a que dia se contou, quantos dias contam e em
+     quantos houve pelo menos uma dose registrada. Hoje só conta depois da
+     dose de hoje, e por isso o `ate` vai escrito: sem ele, quem lê o
+     arquivo de manhã acharia um dia a menos. Dia sem registro é dia sem
+     REGISTRO, e o nome do campo diz isso.
+
+     Sem regime diário a contar (trocou e ainda não registrou o
+     comprimido), datas nulas e zero dias — e não um bloco que some.
+     Ela sai das doses, e por isso só entra com elas: quem desligou as
+     doses não leva uma conta feita sobre elas.
+     ⚠️ SÓ NO DIÁRIO: o arquivo de quem toma por semana sai como era,
+     campo a campo (scripts/congelar.ts confere). */
+  if (r.inclui.aplicacoes && doseDiaria(S)) {
+    const desdeRegime = inicioDoDiario(S);
+    const dias = dosesPrevistas(S);
+    const conta = desdeRegime != null && dias > 0;
+    out.tratamento.constancia_diaria = {
+      desde: conta ? diaLocal(desdeRegime) : null,
+      /* os dias contados são seguidos, do `desde` em diante */
+      ate: conta ? diaLocal(noCalendario(desdeRegime, dias - 1)) : null,
+      dias_contados: dias,
+      dias_com_dose_registrada: dosesFeitas(S),
+    };
+  }
 
   /* ⚠️⚠️ AS DOSES, CADA UMA COM O SEU REMÉDIO E A SUA VIA (01/10/2026).
 

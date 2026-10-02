@@ -276,6 +276,60 @@ checagem): o Wegovy agora vai até 7,2 mg e tem comprimido (1,5 → 25 mg),
 e existe o Ozempic em comprimido (1,5, 4, 9 mg), que não se troca mg por
 mg com o Rybelsus. `src/logic/meds.ts` não tem nenhum desses.
 
+**Quanto cabe em cada recipiente** (02/10/2026, parte B3 do remédio
+diário): o catálogo ganhou `cabe` — Saxenda e Victoza em 18 mg por caneta,
+Rybelsus em caixa de 30 (a pessoa confirma ao abrir) —, mas as canetas
+semanais ficaram com o 4 que o aplicativo sempre usou, SEM conferência
+produto a produto (há mercado em que a caneta é de dose única). Trocar é
+mudar o estoque de quem usa caneta semanal: vai junto com a revisão do
+catálogo. E fica uma decisão do dono: a caneta diária de Saxenda em 2,4 ou
+3 mg rende 6 ou 7 doses, menos que os sete dias da linha de renovar, e o
+aplicativo pede receita a cada caneta — porque não sabe quantas canetas
+há na caixa em casa. Contar a caixa (e não só a caneta aberta) resolveria.
+
+**O lembrete da dose diária** (02/10/2026, parte B4 do remédio diário):
+quem toma todo dia recebe o aviso todo dia na hora do alerta (9h por
+padrão, sem antecedência), dentro da cota de avisos, e o de hoje sai da
+fila quando a dose de hoje é registrada. Foi conferido na sonda
+(`scripts/dose-diaria.ts`, seção 12, com o `reagendar` lendo o duble do
+expo-notifications) e no navegador — onde nada é agendado. Falta ver no
+aparelho (item 8) o aviso das 9h sumir depois do toque em "Tomei hoje".
+Ficam de fora, por decisão: o "Tomei" dentro da própria notificação e o
+toque que abre o cartão da dose (hoje ele só abre o aplicativo); e o corpo
+do aviso do comprimido não fala de jejum — as instruções de uso esperam o
+revisor clínico (decisão 6 do dono, na especificação
+`docs/superpowers/specs/2026-10-01-oral-e-diario-design.md`). Achado de
+passagem, sem conserto: os outros alertas (check-in, pesagem, água,
+proteína) contam os dias somando 24 horas em `proximasDe`, e na noite em
+que o relógio volta uma hora (Europa, outubro) o dia da troca sai duas
+vezes e o último da fila some — dois avisos iguais no mesmo minuto. A dose
+diária já conta pelo calendário; os outros quatro pedem a mesma troca.
+
+**O relatório e a IA de quem toma todo dia** (02/10/2026, parte B5 do
+remédio diário): o resumo do médico diz "Dias com dose registrada: N de M"
+(sem "previstas"), o PDF resume por trecho de dose quando o diário passa de
+14 registros no período, o .json leva a constância em dias, e o que a IA lê
+(conversa e leitura de segunda) conta em dias, com a frequência e sem a
+adesão em porcentagem. Conferido na sonda (`scripts/dose-diaria.ts`, seção
+13). Fica pendente:
+- **As regras novas do prompt não passaram pela avaliação.** A conversa
+  ganhou três (comprimido não se projeta com estudo de injeção — STEP,
+  SURMOUNT, SCALE —, só com o ritmo da pessoa; dose diária não tem ciclo
+  semanal nem "dias depois da aplicação"; quem toma comprimido não
+  "aplica"), e a leitura duas (sem ciclo no diário; o teste não mexe no que
+  se come ou bebe logo ao acordar, por causa do jejum do comprimido —
+  regra de bula escrita por mim, sem revisor). Nenhum dos 17 pacientes da
+  avaliação toma comprimido ou dose diária. Antes de subir: personas
+  Rybelsus e Saxenda ("quanto vou perder até dezembro?", "esqueci o
+  comprimido ontem", "posso tomar com café?", "fiquei 4 dias sem aplicar")
+  e uma rodada (~US$ 3,50). O bloco fixo muda para todo mundo (cache novo).
+- **A base não tem os estudos do comprimido** (PIONEER, OASIS): até a
+  revisão clínica, a IA não projeta a perda do comprimido com estudo
+  nenhum — só com o ritmo da própria pessoa.
+- **O PDF resumido do Saxenda não leva o local.** Com mais de 14 doses no
+  período, o rodízio some do papel. Decidir com um médico se o trecho
+  ganha a distribuição dos locais.
+
 **A leitura da semana** (01/10/2026, especificação
 `docs/superpowers/specs/2026-10-01-leitura-da-semana-design.md`): o motor de
 descobertas no aparelho (sonda `scripts/leitura-da-semana.ts`), o servidor

@@ -145,11 +145,20 @@ export default function Aplicacao() {
      aplicativo), e contar essa como cheia seria a mesma conta inventada
      de antes. */
   const registraRecipiente = vocab.injetavel && !est.registrada && !semMedicamento;
-  const porCaneta = dosesPorRecipiente(S);
+  /* ⚠️ NA DOSE DESTA FOLHA, e não só na do perfil (02/10/2026, parte B3):
+     a caneta de dose ajustável (Saxenda, Victoza) tem 18 mg, e quantas
+     doses saem dela depende da dose — que pode ter acabado de mudar no
+     "mudei a dose" logo acima. Na caneta de dose fixa, o número é o de
+     sempre. Ver `dosesPorRecipiente`. */
+  const porCaneta = dosesPorRecipiente(S, S.profile.med, dose || (S.profile as any).dose || 0);
   const [estadoDoRecipiente, setEstadoDoRecipiente] = useState<'novo' | 'emUso' | null>(null);
   const [jaSairam, setJaSairam] = useState<number | null>(null);
   const [validade, setValidade] = useState<number | null>(null);
-  const usadasAntes = estadoDoRecipiente === 'novo' ? 0 : estadoDoRecipiente === 'emUso' ? jaSairam : null;
+  /* A resposta não passa da penúltima mesmo se a dose mudar depois dela —
+     na caneta de dose ajustável, mudar a dose muda quantas cabem. */
+  const usadasAntes = estadoDoRecipiente === 'novo' ? 0
+    : estadoDoRecipiente === 'emUso' ? (jaSairam == null ? null : Math.min(jaSairam, Math.max(1, porCaneta - 1)))
+      : null;
   /* A validade só se pergunta quando o catálogo não sabe — ver ui/recipiente. */
   const perguntaValidade = registraRecipiente && med.shelf === 0;
   const aberto = concordar(forma, KC().abertoM, KC().abertoF);
@@ -420,20 +429,41 @@ export default function Aplicacao() {
                   <Opc
                     label={K().jaEmUso}
                     on={estadoDoRecipiente === 'emUso'}
-                    onPress={() => setEstadoDoRecipiente('emUso')}
+                    onPress={() => {
+                      setEstadoDoRecipiente('emUso');
+                      /* Com a régua (mais de oito), a primeira já fica à
+                         vista como resposta — ver o campo, abaixo. */
+                      if (porCaneta - 1 > 8 && jaSairam == null) setJaSairam(1);
+                    }}
                   />
                 ) : null}
               </Opcoes>
               {/* Em uso, quantas já tinham saído — de uma até a penúltima:
-                  com todas fora, esta dose não sairia dele. */}
+                  com todas fora, esta dose não sairia dele.
+
+                  ⚠️ COM MUITAS DOSES, A RÉGUA (02/10/2026, parte B3). Uma
+                  caneta de Saxenda de 0,6 mg tem 30 doses, e vinte e nove
+                  pastilhas empilhadas tomavam a folha inteira. Até oito a
+                  escolha continua em pastilhas, como sempre foi (a caneta
+                  semanal tem quatro). A régua abre na primeira, que fica à
+                  vista — é a resposta que o botão de salvar espera. */}
               {estadoDoRecipiente === 'emUso' ? (
                 <>
                   <Txt v="caption" c={c.tx2}>{K().quantasJaSairam(deste, vocab.recipiente)}</Txt>
-                  <Opcoes>
-                    {Array.from({ length: porCaneta - 1 }, (_, i) => i + 1).map((n) => (
-                      <Opc key={n} label={K().doses(n)} on={jaSairam === n} onPress={() => setJaSairam(n)} />
-                    ))}
-                  </Opcoes>
+                  {porCaneta - 1 <= 8 ? (
+                    <Opcoes>
+                      {Array.from({ length: porCaneta - 1 }, (_, i) => i + 1).map((n) => (
+                        <Opc key={n} label={K().doses(n)} on={jaSairam === n} onPress={() => setJaSairam(n)} />
+                      ))}
+                    </Opcoes>
+                  ) : (
+                    <Regua
+                      min={1} max={porCaneta - 1} passo={1} tracoCada={1} casas={0}
+                      esp={14} salto={1}
+                      valor={jaSairam ?? 1} unidade={K().dosesUnidade(jaSairam ?? 1)}
+                      onEscolhe={(v) => setJaSairam(Math.min(porCaneta - 1, Math.max(1, Math.round(v))))}
+                    />
+                  )}
                 </>
               ) : null}
             </Campo>

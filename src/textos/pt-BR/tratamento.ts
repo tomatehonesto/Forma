@@ -1,3 +1,4 @@
+import { tempo } from './tempo';
 /* ============================================================
    O TRATAMENTO — a dose, a cadência, os marcos e as réguas
 
@@ -390,13 +391,22 @@ export const tratamento = {
     medicamento: 'Medicamento',
     dosesRestantesNo: (restam: number, onde: string) =>
       `${restam === 1 ? 'Resta 1 dose' : `Restam ${restam} doses`} ${onde}`,
-    cobreSemanas: (veredito: string, semanas: number) =>
-      `${veredito} — dá para cerca de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
+    /* ⚠️ ERA `cobreSemanas`, e escrevia "dá para cerca de 0.43 semanas" a
+       quem tinha três comprimidos (02/10/2026, parte B3). A cobertura vem
+       pronta da lógica, em dias ou em semanas (`coberturaDoEstoque`), e
+       sem dose nenhuma a frase não diz "cerca de 0". */
+    cobre: (veredito: string, c: { n: number; unidade: 'dia' | 'semana' }) =>
+      c.n === 0
+        ? `${veredito} — não resta nenhuma dose`
+        : `${veredito} — dá para cerca de ${tempo.duracao(c)}`,
 
     alertasDeDose: (quantos: number) => `${quantos} ${quantos === 1 ? 'alerta' : 'alertas'} de dose`,
     nenhumAlerta: 'Nenhum alerta de dose',
     tocaEm: (quando: string) => `Toca ${quando}`,
     avisoAntes: 'Um aviso antes da dose, na hora que você escolher',
+    /* ⚠️ A DOSE DIÁRIA NÃO TEM "ANTES" (02/10/2026, parte B4): o aviso é o
+       do dia, todo dia, na hora escolhida. */
+    avisoDiario: 'Um aviso por dia, na hora que você escolher',
 
     proxima: 'próxima',
 
@@ -476,6 +486,9 @@ export const tratamento = {
       `${Recipiente} ${aberto} em ${data} · ${total} doses por ${recipiente}`,
     leadSemAberto: (nenhum: string, recipiente: string, aberto: string, total: number) =>
       `${nenhum} ${recipiente} ${aberto} · ${total} doses por ${recipiente}`,
+    /* a caneta de dose ajustável sem dose escolhida ainda (02/10/2026): os miligramas, e não "0 doses" */
+    leadSemAbertoMg: (nenhum: string, recipiente: string, aberto: string, mg: string, unidade: string) =>
+      `${nenhum} ${recipiente} ${aberto} · ${mg} ${unidade} por ${recipiente}`,
 
     dosesUsadas: 'Doses usadas',
     usadasDe: (usadas: number, total: number) => `${usadas} de ${total}`,
@@ -495,7 +508,9 @@ export const tratamento = {
     quemPreparaDefine: 'quem prepara define o prazo',
 
     receitaAte: 'Receita até',
-    receitaSemanas: (semanas: number) => `${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
+    /* em dias ou semanas, e sem "0 semanas" — ver `cobre` (02/10/2026) */
+    receitaDura: (c: { n: number; unidade: 'dia' | 'semana' }) =>
+      (c.n === 0 ? 'sem doses' : tempo.duracao(c)),
 
     /* O recipiente pode vencer antes de a última dose sair dele — com 14
        dias de validade e quatro doses semanais isso é a regra, não a
@@ -506,8 +521,10 @@ export const tratamento = {
       `${medicamento} dura ${dias} dias depois de ${aberto}, e nesse prazo não cabem as ${total} doses. Vale confirmar com quem acompanha você o que fazer com o que sobrar.`,
 
     momentoDeRenovar: 'Hora de pedir a renovação',
-    renovarTexto: (semanas: number) =>
-      `Sua receita cobre cerca de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}. Pedir agora evita ficar sem o medicamento entre uma consulta e outra.`,
+    renovarTexto: (c: { n: number; unidade: 'dia' | 'semana' }) =>
+      c.n === 0
+        ? 'As doses registradas acabaram. Pedir agora evita ficar sem o medicamento entre uma consulta e outra.'
+        : `Sua receita cobre cerca de ${tempo.duracao(c)}. Pedir agora evita ficar sem o medicamento entre uma consulta e outra.`,
 
     historico: (plural: string) => `Histórico de ${plural}`,
     emUso: 'em uso',
@@ -591,6 +608,20 @@ export const tratamento = {
     outro: 'Outro',
     concentracaoEDoses: 'Concentração e doses',
     ajudaDoses: (quantas: number, recipiente: string) => `${quantas} doses por ${recipiente}`,
+    /* ⚠️ A CANETA DE DOSE AJUSTÁVEL DIZ OS MILIGRAMAS E A CONTA (02/10/2026,
+       parte B3). "4 doses por caneta" era falso para Saxenda e Victoza:
+       são 18 mg, e quantas doses saem depende da dose escolhida logo
+       acima — 6 de 3 mg, 30 de 0,6 mg. A frase muda com o chip. */
+    ajudaMg: (mg: string, unidade: string, recipiente: string, quantas: number, dose: string) =>
+      `${mg} ${unidade} por ${recipiente} · ${quantas} ${quantas === 1 ? 'dose' : 'doses'} de ${dose} ${unidade}`,
+    /* ⚠️ A CAIXA DE COMPRIMIDOS PERGUNTA QUANTOS VÊM (02/10/2026, decisão
+       do dono): 30 é o padrão e já vem marcado, e a pessoa confirma ou
+       corrige ao abrir uma caixa nova. O número fica com a caixa — é com
+       ele que contamos quantos dias ela cobre. `onde` chega concordado
+       ("na caixa"). */
+    quantosComprimidos: (onde: string) => `Quantos comprimidos vêm ${onde}?`,
+    comprimidosAjuda: 'O número está impresso na embalagem. É com ele que contamos quantos dias ela cobre.',
+    comprimidos: 'comprimidos',
     /* ⚠️ SÓ SAI QUANDO A VALIDADE EXISTE. Com o catálogo em zero isto
        escrevia "validade de 0 dias", o aplicativo dizendo que a coisa
        vence no dia em que foi aberta. */
@@ -601,6 +632,8 @@ export const tratamento = {
     estaNoRotulo: 'Está no rótulo',
     dias: 'dias',
     registrar: (novoRecipiente: string) => `Registrar ${novoRecipiente}`,
+    /* o recipiente que já estava em uso, com o artigo (02/10/2026, revisão da B3) */
+    registrarRecipiente: (oRecipiente: string) => `Registrar ${oRecipiente}`,
   },
 
   telaRegistrarAplicacao: {
@@ -671,6 +704,8 @@ export const tratamento = {
     quantasJaSairam: (deste: string, recipiente: string) =>
       `Quantas doses já tinham saído ${deste} ${recipiente}?`,
     doses: (n: number) => (n === 1 ? '1 dose' : `${n} doses`),
+    /* a palavra sem o número, para a régua das doses que já saíram (02/10/2026) */
+    dosesUnidade: (n: number): string => (n === 1 ? 'dose' : 'doses'),
     registraJunto: (oRecipiente: string, total: number, recipiente: string) =>
       `Registramos ${oRecipiente} junto com esta dose (${total} doses por ${recipiente}), e passamos a contar as que restam.`,
 

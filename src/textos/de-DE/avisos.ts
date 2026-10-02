@@ -33,6 +33,13 @@ export const avisos = {
   /* Hier passt der Genitiv, und `doDa` liefert ihn: „den Vorrat des Pens“. */
   doseEmDiasCorpo: (dose: string, doRecipiente: string) => `${dose}. Zeit genug, den Vorrat ${doRecipiente} zu prüfen.`,
 
+  /* ⚠️ DIE TÄGLICHE DOSIS HAT NUR EINE MITTEILUNG, DIE VON HEUTE
+     (02/10/2026, Teil B4 — Gründe in ../pt-BR/avisos.ts). Das Verb folgt
+     der Form: wer eine Tablette nimmt, spritzt nichts. Und der Text
+     behauptet nicht, dass sie noch nicht genommen wurde. */
+  doseDiaria: (injetavel: boolean): string => (injetavel ? 'Zeit, die heutige Dosis zu spritzen' : 'Zeit, die heutige Dosis einzunehmen'),
+  doseDiariaCorpo: (dose: string) => `${dose}. Danach reicht ein Tippen, um sie einzutragen.`,
+
   /* ---------- die anderen vier ---------- */
   checkin: 'Wie war dein Tag?',
   checkinCorpo: 'Schlaf, Hunger, Energie und Stimmung — vier Antworten, und der Tag ist eingetragen.',

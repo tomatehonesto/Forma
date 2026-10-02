@@ -1,4 +1,5 @@
 import { medidas } from './medidas';
+import { tempo } from './tempo';
 
 /* ============================================================
    A HOME E A JORNADA — as metas do dia, os cartões e a linha do tempo
@@ -318,10 +319,13 @@ export const home = {
 
        ⚠️ E A CONTA É O QUE RESTA. "3 de 4" obriga a subtrair para saber
        se dá para esperar a próxima consulta. */
-    dosesRestantes: (restam: number, semanas: number) =>
-      restam === 0
+    /* ⚠️ O TEMPO EM DIAS OU SEMANAS (02/10/2026, parte B3): quem toma todo
+       dia lia "Restam 3 doses · cerca de 0 semanas". A unidade vem da
+       lógica (`coberturaDoEstoque`). */
+    dosesRestantes: (restam: number, c: { n: number; unidade: 'dia' | 'semana' }) =>
+      restam === 0 || c.n === 0
         ? 'Nenhuma dose restante'
-        : `${restam === 1 ? 'Resta 1 dose' : `Restam ${restam} doses`} · cerca de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
+        : `${restam === 1 ? 'Resta 1 dose' : `Restam ${restam} doses`} · cerca de ${tempo.duracao(c)}`,
 
     /* ---------- os cabeçalhos ---------- */
     /* ⚠️ O LINK DIZ O NOME DO DESTINO, e dizia "Ver todas" — que é uma
@@ -423,6 +427,10 @@ export const home = {
        do mesmo substantivo (era o item 26 do PENDENCIAS). */
     acabou: (oRecipiente: string) => `${oRecipiente} acabou.`,
     restaUmaDose: (onde: string) => `Resta uma dose ${onde}.`,
+    /* ⚠️ NA DOSE DIÁRIA O CARTÃO CHEGA COM TRÊS DIAS (02/10/2026, parte
+       B3): "Renove agora" é em dias de remédio, e uma dose só seria o dia
+       em que acaba. Duas ou três doses pedem o plural. */
+    restamDoses: (quantas: number, onde: string) => `Restam ${quantas} doses ${onde}.`,
     receitaCorpo: 'Uma receita nova leva alguns dias entre o pedido e a farmácia — começar agora evita parar no meio.',
     pedirRenovacao: 'Pedir renovação',
     verMedicamento: 'Ver o medicamento',

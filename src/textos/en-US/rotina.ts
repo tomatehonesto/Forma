@@ -65,7 +65,7 @@ export const rotina = {
       (injetavel ? `Get ${recipiente} out and pick the site` : `Get ${recipiente} out`),
     aplicacaoPorque: (injetavel: boolean): string => (injetavel
       ? 'Your next dose is coming up, and rotating the site reduces skin irritation'
-      : 'Your next dose is coming up, and keeping the blister pack handy helps you not forget'),
+      : 'Your next dose is coming up, and keeping the box handy helps you not forget'),
 
     receita: 'Ask for a prescription refill',
     /* ⚠️ The word "doses" used to live in the call site. See ../pt-BR. */

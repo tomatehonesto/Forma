@@ -43,11 +43,38 @@
         dose, e as sobras do ciclo semanal que ainda falavam com o diário;
     10. com o relógio parado em Berlim, na semana em que o relógio volta
         uma hora (25/10/2026): os sete dias e a próxima dose pelo
-        calendário, e a contagem do regime diário atravessando a troca.
+        calendário, e a contagem do regime diário atravessando a troca;
+    11. o estoque (parte B3, 02/10/2026): o semanal como era; o que cabe
+        em cada recipiente (miligramas na caneta diária, caixa de 30 no
+        comprimido); a linha de renovar em dias de cobertura; o recipiente
+        de outro remédio (ou da outra dose do comprimido) que não gasta; e
+        os textos em dias, sem "cerca de 0", nos seis idiomas;
+    12. o lembrete (parte B4, 02/10/2026): o semanal com a conta e a chave
+        de sempre; o diário todo dia na hora do alerta, sem antecedência,
+        dentro da cota, quieto hoje depois do toque em "Tomei hoje" (a
+        chave de remarcar muda com ele); o `reagendar` de verdade, lido
+        no duble do expo-notifications; o texto do aviso do dia pela forma
+        nos seis idiomas; e a noite em que o relógio volta uma hora.
+    13. o relatório e a IA (parte B5, 02/10/2026): o semanal como era (o
+        resumo, a lista do PDF, o .json, o que a IA lê e a constância de
+        dose a dose, igual à conta antiga); no diário, "Dias com dose
+        registrada: N de M" no resumo do médico, o PDF em trechos de dose
+        com mais de 14 registros (a subida, a dose dobrada, o trecho
+        recortado pelo período, a troca no mesmo dia e a troca de
+        remédio), a constância em dias no .json, no resumo da conversa e
+        no da semana, os dias seguidos com dose na leitura; as regras do
+        servidor citando as linhas que o resumo escreve; e os seis
+        idiomas.
    ============================================================ */
 
-import { buildSeed, ensureDefaults, estadoVazio, iniciarMarcaDaEscadaDiaria, type State } from '../src/logic/seed';
-import { resumoDoTratamento } from '../src/logic/resumo';
+import { buildSeed, comNotificacoesDeExemplo, ensureDefaults, estadoVazio, iniciarMarcaDaEscadaDiaria, type State } from '../src/logic/seed';
+import { resumoDoTratamento, resumoEmTexto } from '../src/logic/resumo';
+import { htmlDoRelatorio, dosesEmResumo, INCLUI_PADRAO } from '../src/logic/relatorioPdf';
+import { esc } from '../src/logic/pdf';
+import { dadosParaExportar } from '../src/logic/exportacao';
+import { constancia } from '../src/logic/descobertasDaSemana/detectores';
+import { INSTRUCOES, TELAS } from '../servidor/conversa/prompt';
+import { REGRAS_DA_LEITURA } from '../servidor/leitura/prompt';
 import {
   lastInjection, nextInjectionDate, doseCycle, todayBrief, hungerForecast, pharmaSeries, janelaDoEnjoo,
   sintomaNoCiclo, padraoDoCiclo, companionSuggestions, recommendations, libraryPicks, protocoloDaSemana,
@@ -57,18 +84,24 @@ import {
   doseContext, injGrade,
   inicioDoDiario, diasDoDiario, dosesPrevistas, dosesFeitas, careState, constanciaDaGrade, doseEmUsoNoDia,
   faltaNaDose, timelineEvents, diasAteAplicar, adesaoSemConta, radar, patterns,
+  penStock, canetas, canetaAtual, dosesPorRecipiente, coberturaDoEstoque, estoqueNoFim, recipienteDaDose,
+  carePending, RENOVAR_COM, trechosDeDose, diasComDoseDesde, cadenciaDias,
 } from '../src/logic/derive';
-import { resumoDaJornada } from '../src/logic/resumoDaJornada';
+import { resumoDaJornada, viaDoTratamento, frequenciaDoTratamento } from '../src/logic/resumoDaJornada';
 import { conquistas, novosNiveis, marcarComoVistas } from '../src/logic/conquistas';
 import { mensagemDoDia } from '../src/logic/etapa';
 import { semanaQuePassou } from '../src/logic/destaques';
 import { descobertas } from '../src/logic/descobertas';
 import { diasDaJanela, semanaLida } from '../src/logic/descobertasDaSemana/dias';
-import { destaquesDaSemana } from '../src/logic/resumoDaSemana';
+import { destaquesDaSemana, resumoDaSemana } from '../src/logic/resumoDaSemana';
 import { FORMAS, formaDe } from '../src/logic/formas';
-import { primeiroDiaDaSemana } from '../src/logic/local';
-import { MEDS } from '../src/logic/meds';
-import { semanaDoTratamento, startOfDay, fmtTime } from '../src/logic/time';
+import { primeiroDiaDaSemana, trocarLocal, type Local } from '../src/logic/local';
+import { MEDS, cabeDe, dosesDoMg } from '../src/logic/meds';
+import { semanaDoTratamento, startOfDay, fmtTime, addDays, hm, doseTxt } from '../src/logic/time';
+import { proximasDe, resumoDe, tiposDe, antecedenciaDe, chaveDosAvisos, rotuloDoLead, novoAlerta, type Alerta } from '../src/logic/alertas';
+import { textoDoAvisoDeDose, lerNotificacao } from '../src/logic/notificacoes';
+import { reagendar } from '../src/logic/avisos';
+import { agendados } from './duble/expo';
 import { T } from '../src/textos';
 
 let falhas = 0;
@@ -558,5 +591,605 @@ comRelogio('Europe/Berlin', [2026, 9, 25, 10], () => {
   ok(daSemana(S) === '{"semana":1,"feitos":7,"dias":7}', 'F1 a primeira semana, com o dia de 25 horas, tem sete dias');
 });
 
-console.log(falhas ? `\n${falhas} afirmação(ões) falharam\n` : '\ntodas as afirmações passaram\n');
-process.exit(falhas ? 1 : 0);
+/* ------------------------------------------------------------------ */
+/* ⚠️ A PARTE B3 — O ESTOQUE (02/10/2026). Era um 4 para todo remédio e
+   uma linha de renovar em doses: a caneta de Saxenda "acabava" no quarto
+   dia, a caixa de Rybelsus pedia receita a cada quatro comprimidos, e a
+   cobertura saía "cerca de 0.2857 semanas". Agora o catálogo diz quanto
+   cabe (doses, miligramas ou comprimidos por caixa), a linha de renovar é
+   em DIAS de cobertura (sete, ou três doses, o que vier antes), e o
+   recipiente de outro remédio não "gasta" com a dose de quem toma todo
+   dia. E o semanal, de novo, primeiro. */
+console.log('\n11. O ESTOQUE (B3): O QUE CABE, EM DIAS DE COBERTURA');
+/* Um recipiente aberto à meia-noite de `k` dias atrás — as doses das 7h12
+   daquele dia em diante saem dele. */
+const comRecipiente = (S: State, k: number, med: string, dose: number, dosesPerPen: number, extra: Record<string, unknown> = {}) => {
+  (S as any).pens = [{ t: diaHa(k, 0, 0), med, dose, dosesPerPen, ...extra }];
+  return S;
+};
+const R = T.rotina.empurroes;
+const PC = T.cuidado.pendencias;
+const temReceita = (S: State) => carePending(S).some((p: any) => p.texto === PC.receita);
+const recoReceita = (S: State) => recommendations(S).find((r) => r.texto === R.receita);
+
+/* O semanal: a semente e a mesma caneta com 1 a 5 doses dentro. */
+const pS = penStock(semente);
+const regraAntiga = (left: number) => (left <= 1 ? T.tratamento.estoqueUrgente : left <= RENOVAR_COM ? T.tratamento.estoqueRenovar : T.tratamento.estoqueEmDia);
+ok(pS.registrada && pS.verdict.label === regraAntiga(pS.left) && dosesPorRecipiente(semente) === 4,
+  `semanal: a semente tem ${pS.left} de ${pS.total}, e o veredito é o de sempre ("${pS.verdict.label}")`);
+ok(JSON.stringify(coberturaDoEstoque(semente)) === JSON.stringify({ n: pS.left, unidade: 'semana' }),
+  'semanal: a cobertura continua em semanas, e é o mesmo número de antes (doses × 7 ÷ 7)');
+const semanalCom = (n: number) => {
+  const x = clone(semente);
+  (x as any).pens = [{ t: lastInjection(semente)!.t + 1, med: semente.profile.med, dose: (semente.profile as any).dose, dosesPerPen: n }];
+  return x;
+};
+ok([1, 2, 3, 4, 5].every((n) => penStock(semanalCom(n)).verdict.label === regraAntiga(n) && estoqueNoFim(semanalCom(n)) === (n <= 1)),
+  'semanal: de 1 a 5 doses, "Renove agora" na última, "Vale renovar" com três — como sempre foi, e o cartão da Home só na última');
+ok(recoReceita(semanalCom(3))?.emDias === 14, `semanal: o pedido da receita, com três doses, continua "daqui a 14 dias" (${recoReceita(semanalCom(3))?.emDias})`);
+ok(!('mg' in recipienteDaDose({ t: 1, med: 'mounjaro', dose: 2.5, dosesPerPen: 4 })), 'semanal: o recipiente gravado sai como sempre saiu, sem miligramas');
+
+/* O catálogo. */
+ok(dosesDoMg(18, 0.6) === 30 && dosesDoMg(18, 1.2) === 15 && dosesDoMg(18, 1.8) === 10 && dosesDoMg(18, 2.4) === 7 && dosesDoMg(18, 3) === 6,
+  'a caneta de 18 mg: 30 doses de 0,6, 15 de 1,2, 10 de 1,8, 7 de 2,4 e 6 de 3 mg — em µg, sem o 29,999 da vírgula');
+ok(cabeDe('saxenda').em === 'mg' && cabeDe('victoza').em === 'mg' && JSON.stringify(cabeDe('rybelsus')) === '{"em":"comprimidos","n":30}'
+  && JSON.stringify(cabeDe('mounjaro')) === '{"em":"doses","n":4}',
+  'o catálogo: Saxenda e Victoza em mg, Rybelsus em caixa de 30, as semanais com o 4 de sempre');
+
+/* A caneta diária, em miligramas. Saxenda 1,2 mg, dez doses desde a
+   abertura. */
+const sax = comRecipiente(diario(20, ate(9), 1.2, 'saxenda'), 9, 'saxenda', 1.2, 15, { mg: 18 });
+const pSax = penStock(sax);
+ok(pSax.registrada && pSax.left === 5 && pSax.total === 15, `Saxenda 1,2 mg, dez doses: restam 5 de 15 (${pSax.left} de ${pSax.total}), e não "acabou" no quarto dia`);
+ok(pSax.verdict.label === T.tratamento.estoqueRenovar && !estoqueNoFim(sax),
+  'cinco dias de remédio: "Vale renovar" (sete dias de cobertura), e ainda não o cartão da Home');
+const subiu18 = clone(sax);
+(subiu18.profile as any).dose = 1.8;
+ok(penStock(subiu18).left === 3 && penStock(subiu18).total === 13 && estoqueNoFim(subiu18),
+  'a dose sobe para 1,8 mg no meio da caneta: os 6 mg que sobram são 3 doses (13 no total), e é "Renove agora"');
+const antiga = comRecipiente(clone(sax), 9, 'saxenda', 1.2, 4);
+ok(penStock(antiga).left === 5, 'a caneta de Saxenda gravada antes disto (com o "4" de todo mundo) conta pelos 18 mg do catálogo');
+ok(recipienteDaDose({ t: 1, med: 'saxenda', dose: 3, dosesPerPen: 6 }).mg === 18 && dosesPorRecipiente(diario(5, [], 3, 'saxenda')) === 6,
+  'a caneta nova de Saxenda grava os 18 mg, e a 3 mg cabem 6 doses');
+const saxSemCaneta = diario(5, ate(5), 3, 'saxenda');
+ok(!penStock(saxSemCaneta).registrada && penStock(saxSemCaneta).verdict.good && !temReceita(saxSemCaneta),
+  'sem caneta registrada, nada de "renovar": a caneta cheia de 3 mg (6 doses, menos de 7 dias) é recuo, e não estoque');
+
+/* O comprimido. */
+ok(!penStock(A).registrada && penStock(A).verdict.good && !estoqueNoFim(A) && !temReceita(A) && !recoReceita(A),
+  'o comprimido sem caixa registrada: não há "a caixa acabou", nem receita a pedir — o Cuidado pede o registro');
+ok(dosesPorRecipiente(A) === 30 && canetaAtual(A).atual === null, 'e a caixa nova abre com os 30 do padrão');
+/* A caixa registrada pela folha de hoje grava os comprimidos confirmados
+   (`comprimidos`, revisão da B3); a de antes gravava só o 4 de todo mundo. */
+const caixa = (usadas: number, n = 30, extra: Record<string, unknown> = { comprimidos: n }) =>
+  comRecipiente(diario(usadas + 5, ate(usadas - 1)), usadas - 1, 'rybelsus', 7, n, extra);
+const c24 = caixa(24);
+const cob24 = coberturaDoEstoque(c24);
+ok(penStock(c24).left === 6 && JSON.stringify(cob24) === '{"n":6,"unidade":"dia"}' && penStock(c24).verdict.label === T.tratamento.estoqueRenovar,
+  `a caixa de 30 com 24 tomados: restam 6, "cerca de 6 dias", e é hora de renovar (${penStock(c24).verdict.label})`);
+ok(T.cuidado.tela.restamDe(6, 30, cob24) === '6 de 30 · cerca de 6 dias' && T.cuidado.pendencias.receitaSub(6, cob24) === '6 doses restantes · cerca de 6 dias',
+  `o Cuidado escreve "${T.cuidado.tela.restamDe(6, 30, cob24)}" — e não "cerca de 0.857 semanas"`);
+ok(temReceita(c24) && recoReceita(c24)?.emDias === 5, `o pedido da receita entra nas pendências, e nas ações "daqui a 5 dias" (${recoReceita(c24)?.emDias}), e não 35`);
+const c2 = caixa(2);
+ok(penStock(c2).left === 28 && JSON.stringify(coberturaDoEstoque(c2)) === '{"n":4,"unidade":"semana"}' && penStock(c2).verdict.good,
+  'com 28 na caixa: "cerca de 4 semanas", estoque em dia');
+const c28 = caixa(28);
+ok(penStock(c28).left === 2 && estoqueNoFim(c28) && penStock(c28).verdict.label === T.tratamento.estoqueUrgente,
+  'com 2 na caixa (dois dias): "Renove agora", e o cartão da Home aparece — três dias antes, e não no último');
+const c30 = caixa(30);
+const cob0 = coberturaDoEstoque(c30);
+ok(penStock(c30).left === 0 && T.cuidado.tela.restamDe(0, 30, cob0) === '0 de 30' && T.home.telaJornada.dosesRestantes(0, cob0) === T.home.telaJornada.dosesRestantes(0, { n: 0, unidade: 'semana' })
+  && !T.tratamento.telaAplicacoes.cobre(T.tratamento.estoqueUrgente, cob0).includes('cerca de 0'),
+  'a caixa vazia não diz "cerca de 0" em lugar nenhum');
+ok(dosesPorRecipiente(caixa(10, 28)) === 28, 'quem confirmou uma caixa de 28 abre a próxima com 28 marcado');
+/* A caixa de 7 mg e o comprimido de 14 mg. */
+const subiu14 = caixa(10);
+(subiu14.profile as any).dose = 14;
+for (const i of subiu14.injections as any[]) if (i.t >= diaHa(2, 0, 0)) i.dose = 14;
+ok(!penStock(subiu14).registrada && penStock(subiu14).verdict.good && !estoqueNoFim(subiu14) && canetas(subiu14)[0].usadas === 7 && canetas(subiu14)[0].estado === 'fim',
+  'subiu para 14 mg sem registrar a caixa nova: a caixa de 7 mg não conta os de 14, e o estoque pede o registro em vez de anunciar o fim');
+/* Quem trocou a caneta semanal pelo comprimido: a última caneta aberta
+   não gasta com o comprimido. */
+const trocouComCaneta = comRecipiente(clone(trocou), 20, 'mounjaro', 5, 4);
+ok(!penStock(trocouComCaneta).registrada && !estoqueNoFim(trocouComCaneta) && canetas(trocouComCaneta)[0].usadas === 3 && !temReceita(trocouComCaneta),
+  'trocou o Mounjaro pelo Rybelsus: a caneta antiga conta só as 3 injeções, e nada de "a caneta acabou" para quem toma comprimido');
+
+/* ---- a segunda leitura da B3 (02/10/2026, achados da revisão) ---- */
+
+/* Do comprimido diário para a caneta semanal: as injeções de Ozempic não
+   saem da caixa de Rybelsus. Antes, "Estoque em dia · 18 de 30 · cerca de
+   18 semanas" e nenhum pedido para registrar a caneta. */
+const paraSemanal = caixa(20);
+paraSemanal.injections = (paraSemanal.injections as any[]).filter((i) => i.t < diaHa(7, 0, 0));
+(paraSemanal.injections as any[]).push(
+  { t: diaHa(7, 8, 0), med: 'ozempic', dose: 0.25, site: '', note: '' },
+  { t: diaHa(0, 8, 0), med: 'ozempic', dose: 0.25, site: '', note: '' },
+);
+paraSemanal.profile.med = 'ozempic';
+(paraSemanal.profile as any).dose = 0.25;
+(paraSemanal.profile as any).forma = 'caneta';
+ok(!doseDiaria(paraSemanal) && !penStock(paraSemanal).registrada && canetas(paraSemanal)[0].usadas === 12 && canetas(paraSemanal)[0].estado === 'fim'
+  && faltaNaDose(paraSemanal, { dose: 0.25, usadasAntes: null }).includes('recipiente'),
+  `trocou o Rybelsus pelo Ozempic: a caixa conta só os 12 comprimidos, o estoque pede a caneta, e a folha da dose pergunta por ela (${canetas(paraSemanal)[0].usadas} na caixa)`);
+/* O mesmo da caneta de miligramas: o Wegovy não sai da caneta de Saxenda. */
+const saxParaWegovy = comRecipiente(diario(12, ate(11).filter((k) => k >= 7), 3, 'saxenda'), 11, 'saxenda', 3, 6, { mg: 18 });
+(saxParaWegovy.injections as any[]).push({ t: diaHa(0, 8, 0), med: 'wegovy', dose: 0.25, site: '', note: '' });
+saxParaWegovy.profile.med = 'wegovy';
+(saxParaWegovy.profile as any).dose = 0.25;
+ok(!penStock(saxParaWegovy).registrada && canetas(saxParaWegovy)[0].usadas === 5,
+  `a caneta de Saxenda não absorve o Wegovy: 5 doses de Saxenda, e o estoque pede a caneta nova (${canetas(saxParaWegovy)[0].usadas})`);
+/* E a caneta semanal continua dona de toda dose depois dela. */
+ok(penStock(semente).registrada
+  && canetas(semente)[0].usadas === (semente.injections as any[]).filter((i) => i.t >= ((semente as any).pens as any[]).slice(-1)[0].t).length,
+  'a caneta semanal da semente continua dona de toda dose depois da abertura dela, como sempre');
+
+/* A caixa de antes, com o 4 de todo mundo: conta pelos 30 do catálogo. */
+const caixaAntiga = caixa(10, 4, {});
+ok(penStock(caixaAntiga).registrada && penStock(caixaAntiga).total === 30 && penStock(caixaAntiga).left === 20 && !estoqueNoFim(caixaAntiga)
+  && dosesPorRecipiente(caixaAntiga) === 30,
+  `a caixa registrada antes da revisão (dosesPerPen 4, sem os comprimidos confirmados) conta 20 de 30, e a próxima abre com 30 (${penStock(caixaAntiga).left} de ${penStock(caixaAntiga).total})`);
+ok(penStock(caixa(2, 4)).total === 4, 'e a caixa de 4 que alguém confirmou é de 4');
+
+/* A caixa que já estava em uso: dez comprimidos já tinham saído quando ela
+   foi registrada, e dois foram tomados depois. */
+const caixaEmUso = caixa(2, 30, { comprimidos: 30, usadasAntes: 10 });
+ok(penStock(caixaEmUso).registrada && penStock(caixaEmUso).left === 18 && canetas(caixaEmUso)[0].jaEmUso && canetaAtual(caixaEmUso).vence === null,
+  `a caixa registrada já em uso conta o que restava: 18 de 30, e não 28 (${penStock(caixaEmUso).left})`);
+
+/* Os seis idiomas: o recipiente do comprimido é a caixa, e nenhum texto
+   do estoque escreve "cerca de 0" nem um número quebrado. */
+const CAIXA: Record<Local, string> = { 'pt-BR': 'caixa', 'en-US': 'box', 'es-419': 'caja', 'de-DE': 'Packung', 'fr-FR': 'boîte', 'it-IT': 'confezione' };
+const falhasDeIdioma: string[] = [];
+for (const l of Object.keys(CAIXA) as Local[]) {
+  trocarLocal(l);
+  if (FORMAS().comprimido.recipiente !== CAIXA[l]) falhasDeIdioma.push(`${l}: ${FORMAS().comprimido.recipiente}`);
+  const zero = { n: 0, unidade: 'dia' as const };
+  const tres = { n: 3, unidade: 'dia' as const };
+  const z0 = T.tempo.duracao(zero);
+  const comZero = [
+    T.cuidado.pendencias.receitaSub(0, zero), T.cuidado.tela.restamDe(0, 30, zero), T.home.telaJornada.dosesRestantes(0, zero),
+    T.tratamento.telaAplicacoes.cobre('x', zero), T.tratamento.telaCaneta.receitaDura(zero), T.tratamento.telaCaneta.renovarTexto(zero),
+  ];
+  if (comZero.some((s) => s.includes(z0))) falhasDeIdioma.push(`${l}: "${z0}" num texto de estoque vazio`);
+  const comTres = [
+    T.cuidado.pendencias.receitaSub(3, tres), T.cuidado.tela.restamDe(3, 30, tres), T.home.telaJornada.dosesRestantes(3, tres),
+    T.tratamento.telaAplicacoes.cobre('x', tres), T.tratamento.telaCaneta.receitaDura(tres), T.tratamento.telaCaneta.renovarTexto(tres),
+  ];
+  if (!comTres.every((s) => s.includes(T.tempo.duracao(tres)) && !/\d[.,]\d/.test(s))) falhasDeIdioma.push(`${l}: três dias não escritos como "${T.tempo.duracao(tres)}"`);
+}
+trocarLocal(null);
+ok(!falhasDeIdioma.length, `nos seis idiomas, a caixa é o recipiente e o estoque fala em dias sem "cerca de 0" ${falhasDeIdioma.length ? `(${falhasDeIdioma.join('; ')})` : ''}`);
+
+/* ------------------------------------------------------------------ */
+/* ⚠️ A PARTE B4 — O LEMBRETE (02/10/2026). O aviso da dose era UMA data —
+   a próxima dose menos a antecedência —, e para quem toma todo dia isso
+   dava "A sua dose é amanhã" às 9h do dia de tomar (o padrão é 1 dia
+   antes), nunca tocava com 2 ou 3 dias, e sumia no primeiro dia sem
+   registro. Agora o diário é como o check-in: todo dia, nas horas do
+   alerta, dentro da cota — e quieto hoje depois da dose de hoje. O
+   semanal, de novo, primeiro: a conta antiga está escrita aqui, e as duas
+   têm de dar as mesmas datas.
+
+   ⚠️ É ASSÍNCRONA porque roda o `reagendar` de logic/avisos de verdade, e
+   lê no duble do expo-notifications (scripts/duble/expo.ts) o que ele
+   marcaria no aparelho. O relógio parado espera a promessa acabar antes
+   de devolver o `Date` — o de `comRelogio`, síncrono, o devolveria no
+   primeiro `await`. */
+async function comRelogioAsync<R>(fuso: string | null, [a, m, d, h]: [number, number, number, number], fn: () => Promise<R>): Promise<R> {
+  const Real = Date;
+  const antes = process.env.TZ ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
+  if (fuso) process.env.TZ = fuso;
+  const AGORA = new Real(a, m, d, h, 0, 0).getTime();
+  class Fixo extends Real {
+    constructor(...x: any[]) {
+      if (x.length === 0) super(AGORA);
+      else super(...(x as [number]));
+    }
+    static now() { return AGORA; }
+  }
+  (globalThis as any).Date = Fixo;
+  try { return await fn(); } finally { (globalThis as any).Date = Real; process.env.TZ = antes; }
+}
+
+const alDose = (S: State) => (((S as any).alertas ?? []) as Alerta[]).find((a) => a.tipo === 'dose')!;
+/* A conta de antes da B4, escrita aqui: a próxima dose menos a
+   antecedência, nas horas do alerta, só as que ainda vêm. */
+const contaAntiga = (S: State, a: Alerta) => {
+  const agora = new Date();
+  const base = addDays(startOfDay(nextInjectionDate(S)), -(a.lead ?? 0));
+  return a.horas.map((h) => { const x = new Date(base); x.setHours(h, 0, 0, 0); return x; })
+    .filter((x) => x > agora).sort((x, y) => +x - +y);
+};
+const datas = (ds: Date[]) => JSON.stringify(ds.map(Number));
+
+async function oLembrete() {
+  console.log('\n12. O LEMBRETE (B4): TODO DIA NA HORA, E QUIETO DEPOIS DA DOSE DE HOJE');
+
+  /* O semanal: a semente e a mesma pessoa com uma dose ontem ao meio-dia
+     (a próxima fica a seis dias, e todas as antecedências caem no futuro). */
+  const semanalOntem = clone(semente);
+  (semanalOntem.injections as any[]).push({ ...lastInjection(semente)!, t: diaHa(1, 12, 0) });
+  const alS = alDose(semente);
+  ok([0, 1, 2, 3].every((lead) => {
+    const a = { ...alS, lead, horas: [8, 20] };
+    return contaAntiga(semanalOntem, a).length === 2 && datas(proximasDe(semanalOntem, a, 56)) === datas(contaAntiga(semanalOntem, a));
+  }), 'semanal: com 0 a 3 dias de antecedência e duas horas, as datas são as da conta antiga — e a cota não acrescenta nenhuma');
+  ok(resumoDe(alS, semente) === T.alertas.quandoEHoras(rotuloDoLead(alS.lead ?? 0), hm(9, 0)) && antecedenciaDe(semente, { ...alS, lead: 2 }) === 2,
+    `semanal: a linha da lista continua "${resumoDe(alS, semente)}", e a antecedência gravada vale`);
+  ok(tiposDe(semente).dose.temLead && tiposDe(semente).dose.desc === T.alertas.doseDesc,
+    'semanal: a folha continua perguntando a antecedência, com a descrição de sempre');
+  /* A chave do semanal ganhou o que o aviso diz — remédio, dose e forma
+     (02/10/2026, revisão da B4) —, e as datas que ela remarca são as de
+     sempre (ver a afirmação logo acima). */
+  ok(chaveDosAvisos(semente) === JSON.stringify([(semente as any).alertas, +nextInjectionDate(semente),
+    semente.profile.med, semente.profile.dose, formaDe(semente)]),
+    'semanal: a chave que o _layout observa para remarcar são os alertas, a próxima dose e o que o aviso diz');
+  ok(textoDoAvisoDeDose({ dias: 1, med: 'Mounjaro', dose: 5, unidade: 'mg', forma: 'caneta' }).title === T.avisos.doseAmanha(FORMAS().caneta.acao)
+    && lerNotificacao(semente, { t: 1, tipo: 'dose', dias: 1, med: 'Mounjaro', dose: 5, unidade: 'mg', forma: 'caneta' })?.titulo === T.avisos.doseAmanha(FORMAS().caneta.acao),
+    'semanal: o aviso (e o guardado na lista de notificações) continua "A sua dose é amanhã"');
+  const exS = (comNotificacoesDeExemplo(clone(semente)).notifications as any[]).filter((n) => n.tipo === 'dose');
+  const ultS2 = dosesEmOrdem(semente).slice(-1)[0];
+  ok(exS.length === 1 && exS[0].t === +startOfDay(new Date(ultS2.t)) - 864e5 + 9 * 36e5 && exS[0].dias === 1
+    && JSON.stringify(Object.keys(exS[0])) === '["t","tipo","dias","med","dose","unidade","forma"]',
+    'semanal: o aviso de exemplo da semente é o da véspera, às 9h, com os campos de sempre (sem `diaria`)');
+  await reagendar(semanalOntem);
+  ok(agendados.length === 1 && agendados[0].title === T.avisos.doseAmanha(FORMAS().caneta.acao) && +agendados[0].date === +contaAntiga(semanalOntem, alS)[0],
+    `semanal: o agendador marca um aviso só, na véspera às 9h ("${agendados[0]?.title}")`);
+
+  /* O diário, com o relógio parado numa quarta-feira às 8h: Rybelsus todo
+     dia até ontem, a dose de hoje ainda por tomar. */
+  await comRelogioAsync(null, [2026, 9, 14, 8], async () => {
+    const D = diario(10, ate(10).filter((k) => k !== 0));
+    const al = alDose(D);
+    const nove = (k: number) => diaHa(-k, 9, 0);
+    const seq = (n: number, de = 0) => JSON.stringify(Array.from({ length: n }, (_, i) => nove(de + i)));
+    ok(al.on && al.lead === 1 && al.horas.join() === '9' && datas(proximasDe(D, al, 5)) === seq(5),
+      'diário: o alerta com que todo diário nasce (9h, gravado "1 dia antes") toca hoje às 9h e em cada um dos quatro dias seguintes — no dia, sem antecedência');
+    ok([0, 2, 3].every((lead) => datas(proximasDe(D, { ...al, lead }, 5)) === seq(5)) && antecedenciaDe(D, { ...al, lead: 3 }) === 0,
+      'a antecedência gravada não é lida no diário (nem 2 ou 3 dias, que antes nunca tocavam)');
+    ok(datas(proximasDe(D, { ...al, horas: [9, 21] }, 3)) === JSON.stringify([nove(0), diaHa(0, 21, 0), nove(1)]),
+      'com duas horas, as duas tocam todo dia, na ordem');
+    const fila = proximasDe(D, al, 56);
+    ok(fila.length === 35 && new Set(fila.map((x) => +startOfDay(x))).size === 35 && fila.every((x) => x.getHours() === 9 && x.getMinutes() === 0),
+      `a fila para no horizonte de cinco semanas: 35 dias, um aviso por dia, todos às 9h (${fila.length})`);
+
+    /* O toque em "Tomei hoje" às 8h — o mesmo `gravarDose` da Home. */
+    const tocou = clone(D);
+    gravarDose(tocou, { t: +new Date(), med: 'rybelsus', dose: 7, site: '', note: '' });
+    ok(doseDeHoje(tocou).feita && +nextInjectionDate(tocou) === diaHa(-1, 0, 0) && +nextInjectionDate(D) === +startOfDay(new Date())
+      && chaveDosAvisos(tocou) !== chaveDosAvisos(D),
+      'o toque das 8h leva a próxima dose de hoje para amanhã, e a chave que o _layout observa muda — os avisos são remarcados');
+    ok(+proximasDe(tocou, al, 1)[0] === nove(1) && datas(proximasDe(tocou, al, 5)) === seq(5, 1) && proximasDe(tocou, al, 56).length === 34,
+      'e o aviso das 9h de hoje sai da fila: o primeiro passa a ser amanhã às 9h');
+    const sumiu = diario(10, ate(10).filter((k) => k >= 3));
+    ok(contaAntiga(sumiu, al).length === 0 && +proximasDe(sumiu, al, 1)[0] === nove(0),
+      'três dias sem registro: a conta antiga não tinha data nenhuma (o aviso sumia), e o de agora toca hoje às 9h');
+    ok(proximasDe(diario(0, []), al, 3).length === 0,
+      'antes da primeira dose registrada, nada — a mesma espera do semanal (`temCiclo`)');
+    const saxD = diario(10, ate(10).filter((k) => k !== 0), 1.2, 'saxenda');
+    ok(datas(proximasDe(saxD, alDose(saxD), 3)) === seq(3), 'a caneta diária (Saxenda) tem o mesmo aviso de todo dia');
+
+    /* O que as telas leem. */
+    ok(resumoDe(al, D) === T.alertas.quandoEHoras(T.alertas.todoDia, hm(9, 0)),
+      `a linha de Lembretes: "${resumoDe(al, D)}", e não "${T.alertas.quandoEHoras(rotuloDoLead(1), hm(9, 0))}"`);
+    ok(!tiposDe(D).dose.temLead && tiposDe(D).dose.desc === T.alertas.doseDescDiaria && tiposDe(D).dose.ic === 'pill'
+      && tiposDe(D).checkin.temDias,
+      'a folha esconde a antecedência, e a descrição diz que o aviso fica quieto depois da dose de hoje');
+
+    /* O agendador de verdade. */
+    const r = MEDS.rybelsus;
+    await reagendar(D);
+    ok(agendados.length === 35 && agendados[0].title === T.avisos.doseDiaria(false) && agendados[0].title !== T.avisos.doseAmanha(FORMAS().comprimido.acao)
+      && agendados[0].body === T.avisos.doseDiariaCorpo(`${r.label} ${doseTxt(7)} ${r.unit}`) && +agendados[0].date === nove(0),
+      `o agendador marca 35 avisos, o primeiro hoje às 9h: "${agendados[0]?.title}" — "${agendados[0]?.body}"`);
+    await reagendar(tocou);
+    ok(agendados.length === 34 && +agendados[0].date === nove(1), 'depois do toque, a fila remarcada começa amanhã');
+    const varios = clone(D);
+    (varios as any).alertas = [al, novoAlerta('checkin'), novoAlerta('peso'), novoAlerta('agua')];
+    await reagendar(varios);
+    const daDose = agendados.filter((x) => x.title === T.avisos.doseDiaria(false));
+    ok(daDose.length === 14 && +daDose[0].date === nove(0) && +daDose[13].date === nove(13),
+      `com quatro alertas ligados, a dose leva a parte dela do orçamento (56 ÷ 4 = 14 dias seguidos), e não a fila inteira (${daDose.length})`);
+    await reagendar(saxD);
+    ok(agendados[0]?.title === T.avisos.doseDiaria(true), `a caneta diária: "${agendados[0]?.title}"`);
+
+    /* ⚠️ Duas remarcações ao mesmo tempo (revisão da B4, 02/10/2026): a
+       volta ao foco e a chave que mudou à meia-noite chegavam juntas, e a
+       fila saía com avisos em dobro. Agora a segunda espera, e uma que
+       chega com outra já esperando só troca o estado. */
+    await Promise.all([reagendar(D), reagendar(D)]);
+    ok(agendados.length === 35 && new Set(agendados.map((x) => +x.date)).size === 35,
+      `duas remarcações juntas deixam a fila uma vez só: 35 avisos, nenhum em dobro (${agendados.length})`);
+    const primeira = reagendar(D);
+    const ultima = reagendar(tocou);
+    await Promise.all([primeira, ultima]);
+    ok(agendados.length === 34 && +agendados[0].date === nove(1),
+      'e quem chega por último manda: a remarcação que esperava usa o estado mais novo (a dose de hoje feita, fila começando amanhã)');
+
+    /* A caixa nova de 14 mg à noite, com a dose de hoje já feita: a
+       próxima dose não muda, e o texto dos avisos já marcados mudaria. */
+    const caixa14 = clone(tocou);
+    caixa14.profile.dose = 14;
+    ok(chaveDosAvisos(caixa14) !== chaveDosAvisos(tocou) && +nextInjectionDate(caixa14) === +nextInjectionDate(tocou),
+      'trocar a dose remarca os avisos, mesmo sem mexer na data da próxima — "Rybelsus 7 mg" não fica nos 34 já marcados');
+
+    /* A lista de notificações. */
+    ok(lerNotificacao(D, { t: 1, tipo: 'dose', dias: 0, med: 'Rybelsus', dose: 7, unidade: 'mg', forma: 'comprimido', diaria: true })?.titulo === T.avisos.doseDiaria(false),
+      'o aviso do dia guardado na lista de notificações se lê como chegou');
+    const exD = (S: State) => (comNotificacoesDeExemplo(clone(S)).notifications as any[]).filter((n) => n.tipo === 'dose');
+    const ontemAs10 = clone(D);
+    const ontem = (ontemAs10.injections as any[]).find((i) => i.t === diaHa(1));
+    ontem.t = diaHa(1, 10, 0);
+    const ex10 = exD(ontemAs10);
+    ok(exD(D).length === 0 && ex10.length === 1 && ex10[0].t === diaHa(1, 9, 0) && ex10[0].dias === 0 && ex10[0].diaria === true,
+      'o aviso de exemplo: a dose das 7h12 calou o das 9h (nenhum na lista); a das 10h deixou o das 9h tocar');
+
+    /* Os seis idiomas: o aviso do dia, com o verbo da forma. */
+    const falhasB4: string[] = [];
+    for (const l of Object.keys(CAIXA) as Local[]) {
+      trocarLocal(l);
+      const comp = textoDoAvisoDeDose({ dias: 0, med: 'Rybelsus', dose: 7, unidade: 'mg', forma: 'comprimido', diaria: true });
+      const can = textoDoAvisoDeDose({ dias: 0, med: 'Saxenda', dose: 1.2, unidade: 'mg', forma: 'caneta', diaria: true });
+      const semanalHoje = textoDoAvisoDeDose({ dias: 0, med: 'Rybelsus', dose: 7, unidade: 'mg', forma: 'comprimido' });
+      if (comp.title !== T.avisos.doseDiaria(false) || can.title !== T.avisos.doseDiaria(true)) falhasB4.push(`${l}: título`);
+      if (comp.title === semanalHoje.title || comp.title === T.avisos.doseAmanha(FORMAS().comprimido.acao)) falhasB4.push(`${l}: o diário com a frase do semanal`);
+      if (l !== 'en-US' && comp.title === can.title) falhasB4.push(`${l}: o verbo não segue a forma`);
+      if (!comp.body.includes(`Rybelsus ${doseTxt(7)} mg`) || !can.body.includes(`Saxenda ${doseTxt(1.2)} mg`)) falhasB4.push(`${l}: corpo sem a dose`);
+      if (!T.alertas.doseDescDiaria || T.alertas.doseDescDiaria === T.alertas.doseDesc) falhasB4.push(`${l}: descrição`);
+      if (!T.tratamento.telaAplicacoes.avisoDiario || T.tratamento.telaAplicacoes.avisoDiario === T.tratamento.telaAplicacoes.avisoAntes) falhasB4.push(`${l}: convite de /aplicacoes`);
+      if (resumoDe(al, D) !== T.alertas.quandoEHoras(T.alertas.todoDia, hm(9, 0))) falhasB4.push(`${l}: linha de Lembretes`);
+    }
+    trocarLocal(null);
+    ok(!falhasB4.length, `nos seis idiomas, o aviso do dia tem o verbo da forma, traz a dose e não fala de "amanhã" ${falhasB4.length ? `(${falhasB4.join('; ')})` : ''}`);
+  });
+
+  /* Berlim, sábado 24/10 às 10h, com a dose de hoje feita: o relógio volta
+     uma hora na madrugada de domingo, e a fila não pode repetir o domingo
+     nem perder um dia. */
+  comRelogio('Europe/Berlin', [2026, 9, 24, 10], () => {
+    const B = diario(6, ate(6));
+    const f = proximasDe(B, alDose(B), 4).map((x) => `${x.getDate()}/${x.getMonth() + 1} ${x.getHours()}h`).join(', ');
+    ok(f === '25/10 9h, 26/10 9h, 27/10 9h, 28/10 9h', `em Berlim, atravessando a volta do relógio: ${f}`);
+  });
+}
+
+/* ------------------------------------------------------------------ */
+/* ⚠️ A PARTE B5 — O RELATÓRIO E A IA (02/10/2026). O papel do médico dizia
+   "Doses: 40 de 92 previstas" a quem registra o comprimido de um toque por
+   dia, e listava uma linha por comprimido — noventa "7 mg" desde a última
+   consulta. A IA lia a adesão em porcentagem, "Próxima dose prevista:
+   amanhã" e a constância de dose a dose com três dias de folga; e o prompt
+   mandava responder "quanto vou perder?" com "a referência mais próxima
+   que os documentos trazem", que para quem toma Rybelsus é o STEP 1 da
+   injeção. O semanal, de novo, primeiro.
+
+   ⚠️ COM O RELÓGIO PARADO na sexta, 02/10/2026, às 10h: a dose de hoje das
+   7h12 já foi, e a semana que a leitura lê é a de 21 a 27/09. */
+const secaoDoses = (html: string) => {
+  const i = html.indexOf(`<h2>${esc(T.resumo.relatorio.aplicacoes)}</h2>`);
+  return i < 0 ? '' : html.slice(i, html.indexOf('</section>', i));
+};
+/* as linhas do corpo da tabela das doses (a do cabeçalho fica de fora) */
+const linhasDaTabela = (secao: string) => Math.max(0, (secao.match(/<tr>/g) ?? []).length - 1);
+const diaIso = (t: number) => {
+  const d = new Date(t);
+  const p = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+};
+/* A conta de constância de antes da B5, escrita aqui: o semanal tem de
+   dar exatamente o mesmo. */
+const constanciaAntiga = (S: State, ate: number) => {
+  const apl = (((S as any).injections ?? []) as any[]).filter((i) => i.t < ate).sort((a, b) => b.t - a.t);
+  const folga = (cadenciaDias(S) + 2) * 864e5;
+  let seguidas = apl.length ? 1 : 0;
+  for (let i = 1; i < apl.length && apl[i - 1].t - apl[i].t <= folga; i++) seguidas++;
+  return seguidas >= 4 && apl.length && ate - apl[0].t <= folga
+    ? [{ tipo: 'aplicacoesSemFalha', chave: `constancia:aplicacoes:${Math.floor(seguidas / 4)}`, dados: { aplicacoesSeguidas: seguidas, cadenciaDias: cadenciaDias(S) } }]
+    : [];
+};
+
+function oRelatorioEaIa() {
+  console.log('\n13. O RELATÓRIO E A IA (B5): DIAS COM DOSE, O PDF EM TRECHOS E AS REGRAS DO SERVIDOR');
+  comRelogio(null, [2026, 9, 2, 10], () => {
+    const R = T.resumo.relatorio;
+    const Q = T.resumo;
+    const medicacao = (S: State) => resumoDoTratamento(S).find((s) => s.id === 'medicacao')!.linhas;
+    const tudo = (S: State) => ({ desde: S.profile.startT, inclui: { ...INCLUI_PADRAO } });
+
+    /* ---- o semanal, como era ---- */
+    const sem = ensureDefaults(buildSeed()) as State;
+    ok(medicacao(sem).some((l) => l.k === Q.aplicacoes && l.v === Q.aplicacoesValor(dosesFeitas(sem), dosesPrevistas(sem)))
+      && !medicacao(sem).some((l) => l.k === Q.diasComDose),
+      `semanal: o resumo do médico continua "${Q.aplicacoes}: ${Q.aplicacoesValor(dosesFeitas(sem), dosesPrevistas(sem))}"`);
+    /* vinte canetas semanais: mais de 14, e a lista continua */
+    const vinte = diario(140, Array.from({ length: 20 }, (_, i) => i * 7), 5, 'mounjaro');
+    const htmlVinte = htmlDoRelatorio(vinte, tudo(vinte));
+    ok(!dosesEmResumo(vinte, 20) && linhasDaTabela(secaoDoses(htmlVinte)) === 20 && !htmlVinte.includes(esc(R.resumoPorDose(20)))
+      && htmlVinte.includes(esc(R.aplicacoesNoPeriodo)) && !htmlVinte.includes(esc(R.diasComDoseNoPeriodo)),
+      `semanal com 20 doses no período: a lista de sempre, uma linha por dose (${linhasDaTabela(secaoDoses(htmlVinte))}), e o cartão "${R.aplicacoesNoPeriodo}"`);
+    ok(R.dosesSub(20, true, dosesEmResumo(vinte, 20)) === R.dosesSub(20, true, false),
+      `semanal: a linha do ajuste do PDF continua "${R.dosesSub(20, true, false)}"`);
+    const expSem = dadosParaExportar(sem, { desde: 0, inclui: { aplicacoes: true } } as any);
+    ok(!('constancia_diaria' in expSem.tratamento), 'semanal: o .json não ganha a constância diária (o congelar.ts confere o arquivo inteiro)');
+    const jSem = resumoDaJornada(sem);
+    ok(jSem.includes('Frequência: semanal') && jSem.includes('Próxima dose prevista:') && jSem.includes('(adesão ')
+      && !jSem.includes('Dias com dose') && !jSem.includes('Dose de hoje'),
+      'semanal: o resumo da conversa continua com a adesão e a próxima dose, sem as linhas do diário');
+    const sSem = resumoDaSemana(sem);
+    ok(!sSem.includes('Frequência') && (sSem.includes('Doses na semana:') || sSem.includes('Nenhuma dose registrada na semana')) && !sSem.includes('Dias com dose'),
+      'semanal: o resumo da semana continua com a lista das doses, sem a linha da frequência');
+    const { ate: fimDaSemana } = semanaLida(new Date());
+    const consSem = constancia({ S: sem, dias: [], de: 0, ate: fimDaSemana }).filter((c) => /^constancia:(dias|aplicacoes):/.test(c.chave));
+    ok(JSON.stringify(consSem.map(({ tipo, chave, dados }) => ({ tipo, chave, dados }))) === JSON.stringify(constanciaAntiga(sem, fimDaSemana)),
+      `semanal: a constância de dose a dose dá o mesmo que a conta antiga (${consSem.length ? consSem[0].chave : 'nenhuma'})`);
+
+    /* ---- o diário: o resumo do médico em dias ---- */
+    const D = diario(27, ate(27).filter((k) => k !== 3 && k !== 10));
+    const D0 = diario(27, ate(27).filter((k) => k !== 0 && k !== 3 && k !== 10));
+    ok(medicacao(D).some((l) => l.k === Q.diasComDose && l.v === Q.diasComDoseValor(26, 28)) && !medicacao(D).some((l) => l.k === Q.aplicacoes),
+      `diário: "${Q.diasComDose}: ${Q.diasComDoseValor(26, 28)}" — 28 dias do regime, dois sem registro, e nenhum "previstas"`);
+    ok(medicacao(D0).some((l) => l.k === Q.diasComDose && l.v === Q.diasComDoseValor(25, 27)),
+      'diário: antes da dose de hoje, hoje não conta ("25 de 27", e não "25 de 28")');
+    ok(resumoEmTexto(D).includes(`- ${Q.diasComDose}: ${Q.diasComDoseValor(26, 28)}`) && !resumoEmTexto(D).includes(Q.aplicacoesValor(26, 28)),
+      'diário: o texto que se envia diz o mesmo que a tela');
+    const trocouB5 = diario(20, [2, 1, 0]);
+    (trocouB5.injections as any[]).unshift(...[20, 13, 6].map((k) => umaDose(k, 'mounjaro', 5, { site: 'abd-e' })));
+    const semPilula = clone(trocouB5);
+    (semPilula as any).injections = (semPilula.injections as any[]).filter((i) => i.med === 'mounjaro');
+    ok(!medicacao(semPilula).some((l) => l.k === Q.diasComDose) && medicacao(semPilula).some((l) => l.v === Q.aplicacoesRegistradas(3)),
+      'diário sem comprimido registrado (trocou da caneta): a linha de antes, "3 registradas", sem dias a contar');
+
+    /* ---- o PDF: o resumo por dose ---- */
+    const htmlD = htmlDoRelatorio(D, tudo(D));
+    const dosesD = secaoDoses(htmlD);
+    ok(dosesEmResumo(D, 26) && dosesD.includes(esc(R.resumoPorDose(26))) && dosesD.includes(esc(R.periodoDaDose))
+      && linhasDaTabela(dosesD) === 1 && dosesD.includes(`>${esc(Q.diasComDoseValor(26, 28))}<`) && dosesD.includes('>26<'),
+      `diário, 26 registros: uma linha por trecho de dose (${linhasDaTabela(dosesD)}), com "${Q.diasComDoseValor(26, 28)}" dias com dose, e não 26 linhas`);
+    ok(htmlD.includes(esc(R.diasComDoseNoPeriodo)) && htmlD.includes(`>${esc(Q.diasComDoseValor(26, 28))}</div>`) && !htmlD.includes(esc(R.aplicacoesNoPeriodo)),
+      `diário: o cartão do período conta dias ("${R.diasComDoseNoPeriodo}: ${Q.diasComDoseValor(26, 28)}")`);
+    ok(R.dosesSub(26, false, dosesEmResumo(D, 26)) !== R.dosesSub(26, false, false),
+      `diário: a linha do ajuste do PDF avisa que vem resumido ("${R.dosesSub(26, false, true)}")`);
+    const curto = htmlDoRelatorio(D, { desde: diaHa(9, 0, 0), inclui: { ...INCLUI_PADRAO } });
+    ok(!dosesEmResumo(D, 9) && linhasDaTabela(secaoDoses(curto)) === 9 && !curto.includes(esc(R.resumoPorDose(9)))
+      && curto.includes(`>${esc(Q.diasComDoseValor(9, 10))}</div>`),
+      `diário, período curto (9 registros): a lista, uma linha por dose (${linhasDaTabela(secaoDoses(curto))}), e o cartão "${Q.diasComDoseValor(9, 10)}"`);
+
+    /* A subida de 3 para 7 mg, com quatro dias sem registro entre as duas e
+       uma dose dobrada no dia 5. */
+    const tit = diario(27, []);
+    (tit as any).injections = [
+      ...Array.from({ length: 10 }, (_, i) => umaDose(27 - i, 'rybelsus', 3)),
+      ...Array.from({ length: 14 }, (_, i) => umaDose(13 - i, 'rybelsus', 7)),
+    ];
+    (tit.injections as any[]).splice((tit.injections as any[]).findIndex((i) => i.t === diaHa(5)) + 1, 0, umaDose(5, 'rybelsus', 7, { t: diaHa(5, 20, 0) }));
+    const tr = trechosDeDose(tit, diaHa(27, 0, 0));
+    const trTxt = JSON.stringify(tr.map((t) => [t.dose, diaIso(t.de), diaIso(t.ate), t.doses, t.feitos, t.dias]));
+    ok(trTxt === JSON.stringify([[3, diaIso(diaHa(27)), diaIso(diaHa(14)), 10, 10, 14], [7, diaIso(diaHa(13)), diaIso(diaHa(0)), 15, 14, 14]]),
+      `a subida: o trecho de 3 mg vai até a véspera do de 7 mg — os quatro dias sem registro contam contra ele —, e a dose dobrada aparece como 15 registros em 14 dias (${trTxt})`);
+    const noPer = diasComDoseDesde(tit, diaHa(27, 0, 0));
+    ok(tr.reduce((s, t) => s + t.dias, 0) === noPer.dias && tr.reduce((s, t) => s + t.feitos, 0) === noPer.feitos && noPer.dias === 28,
+      `os trechos somam o cartão do período (${noPer.feitos} de ${noPer.dias})`);
+    const tr20 = trechosDeDose(tit, diaHa(20, 0, 0));
+    ok(tr20.length === 2 && tr20[0].de === diaHa(20, 0, 0) && tr20[0].doses === 3 && tr20[0].feitos === 3 && tr20[0].dias === 7,
+      'o trecho que começou antes do período entra recortado: do começo do período, 3 de 7 dias');
+    const dosesTit = secaoDoses(htmlDoRelatorio(tit, tudo(tit)));
+    ok(linhasDaTabela(dosesTit) === 2 && dosesTit.indexOf(`${doseTxt(7)} mg`) < dosesTit.indexOf(`${doseTxt(3)} mg`),
+      'no papel, dois trechos, o mais novo em cima');
+
+    /* A troca no mesmo dia (14 mg às 7h, de volta a 7 mg às 9h): nenhuma
+       dose some do papel. */
+    const mesmoDia = diario(27, ate(27).filter((k) => k !== 0));
+    (mesmoDia.injections as any[]).push(umaDose(0, 'rybelsus', 14, { t: diaHa(0, 7, 0) }), umaDose(0, 'rybelsus', 7, { t: diaHa(0, 9, 0) }));
+    const trMd = trechosDeDose(mesmoDia, diaHa(27, 0, 0));
+    /* O dia dividido fica com o trecho de antes (revisão da B5): o de 14
+       mg conta o dia (1 de 1), e a dose das 9h vai numa linha própria, sem
+       dia a contar — nenhuma dose some do papel. */
+    ok(trMd.reduce((s, t) => s + t.doses, 0) === 29 && trMd.some((t) => t.dose === 14 && t.doses === 1 && t.feitos === 1 && t.dias === 1)
+      && trMd.filter((t) => t.dose === 7).slice(-1)[0]?.doses === 1 && trMd.filter((t) => t.dose === 7).slice(-1)[0]?.dias === 0,
+      'a troca no mesmo dia: o dia fica com o trecho de antes, e a dose seguinte entra numa linha própria, sem dia a contar (29 de 29 no papel)');
+
+    /* A manhã da subida: "Tomei hoje" grava os 7 mg do perfil às 7h10, e a
+       pessoa acrescenta os 14 mg de verdade às 7h15. O papel não pode dizer
+       que houve uma dose dobrada de 7 mg no trecho de antes. */
+    const subida = diario(40, ate(40).filter((k) => k !== 0));
+    (subida.injections as any[]).push(umaDose(0, 'rybelsus', 7, { t: diaHa(0, 7, 10) }), umaDose(0, 'rybelsus', 14, { t: diaHa(0, 7, 15) }));
+    const trSub = trechosDeDose(subida, diaHa(40, 0, 0));
+    const sete = trSub.find((t) => t.dose === 7)!, quatorze = trSub.find((t) => t.dose === 14)!;
+    ok(sete.doses === 41 && sete.feitos === 41 && sete.dias === 41 && sete.ate === diaHa(0, 0, 0) && quatorze.doses === 1 && quatorze.dias === 0,
+      `a manhã da subida: 7 mg com 41 registros em 41 de 41 dias, até hoje, e 14 mg numa linha de hoje — e não 41 registros em 40 dias (${sete.doses} em ${sete.feitos} de ${sete.dias})`);
+
+    /* Quem trocou a caneta semanal pelo comprimido no período. */
+    const troca = diario(30, ate(15));
+    (troca.injections as any[]).unshift(...[30, 23, 16].map((k) => umaDose(k, 'mounjaro', 5, { site: 'abd-e' })));
+    const trTroca = trechosDeDose(troca, diaHa(30, 0, 0));
+    const dosesTroca = secaoDoses(htmlDoRelatorio(troca, { desde: diaHa(30, 0, 0), inclui: { ...INCLUI_PADRAO } }));
+    ok(trTroca.length === 2 && trTroca[0].med === 'mounjaro' && trTroca[0].doses === 3 && trTroca[0].dias === 0
+      && trTroca[1].dias === 16 && trTroca[1].feitos === 16 && dosesTroca.includes(esc(R.medicamento)) && dosesTroca.includes('>—<'),
+      'quem trocou de caneta para comprimido: a caneta é um trecho com as doses dela e sem dias a contar (traço), e a coluna Medicamento aparece');
+    ok(trechosDeDose(troca, diaHa(10, 0, 0)).length === 1, 'a caneta que acabou antes do período não entra como linha vazia');
+
+    /* ---- o .json ---- */
+    const exD = (S: State, aplicacoes = true) => dadosParaExportar(S, { desde: 0, inclui: { aplicacoes } } as any).tratamento.constancia_diaria;
+    ok(JSON.stringify(exD(D)) === JSON.stringify({ desde: diaIso(diaHa(27)), ate: diaIso(diaHa(0)), dias_contados: 28, dias_com_dose_registrada: 26 }),
+      `o .json leva a constância em dias, com as datas do calendário de quem exporta (${JSON.stringify(exD(D))})`);
+    ok(exD(D0).ate === diaIso(diaHa(1)) && exD(D0).dias_contados === 27 && exD(D, false) === undefined
+      && JSON.stringify(exD(semPilula)) === JSON.stringify({ desde: null, ate: null, dias_contados: 0, dias_com_dose_registrada: 0 }),
+      'antes da dose de hoje a contagem para ontem; sem as doses no arquivo, sem a conta; sem comprimido registrado, zero e datas nulas');
+
+    /* ---- o que a conversa lê ---- */
+    const jD = resumoDaJornada(D);
+    const linhasEsperadas = [
+      'Frequência: diária',
+      `Dias com dose registrada desde o começo do uso diário (${diaIso(diaHa(27))}): 26 de 28`,
+      'Dias com dose nas últimas 2 semanas: 12 de 14',
+      'Dose de hoje: registrada às 07:12',
+    ];
+    ok(linhasEsperadas.every((l) => jD.includes(l)) && !jD.includes('adesão') && !jD.includes('Próxima dose prevista'),
+      `a conversa lê a constância em dias e a dose de hoje, sem adesão em porcentagem nem "próxima dose" (${linhasEsperadas.filter((l) => !jD.includes(l)).join(' | ') || 'as quatro linhas'})`);
+    const jD0 = resumoDaJornada(D0);
+    ok(jD0.includes('Dose de hoje: ainda não registrada') && jD0.includes('Dias com dose nas últimas 2 semanas: 11 de 13'),
+      'antes da dose de hoje: "ainda não registrada", e hoje fora da conta das duas semanas');
+    const sax = diario(10, ate(10), 1.2, 'saxenda');
+    ok(resumoDaJornada(sax).includes('Via: injetável (caneta)') && resumoDaJornada(sax).includes('Frequência: diária'),
+      'a caneta diária: a via injetável e a frequência diária (a regra do comprimido não vale para ela)');
+
+    /* ---- o que a leitura de segunda lê ---- */
+    const sD = resumoDaSemana(D);
+    ok(sD.includes('Frequência: diária') && sD.includes('Dias com dose registrada na semana: 6 de 7')
+      && sD.includes('Dias com dose registrada desde o começo do uso diário: 26 de 28')
+      && !sD.includes('Doses na semana:') && !sD.includes('Adesão desde o início'),
+      'a semana de 21 a 27/09 em dias ("6 de 7", o 22 sem registro), e não sete datas e uma porcentagem');
+    const subiu = clone(D);
+    for (const i of subiu.injections as any[]) if (i.t < diaHa(8, 0, 0)) i.dose = 3;
+    (subiu.profile as any).dose = 7;
+    ok(resumoDaSemana(subiu).includes('A dose mudou na semana: Rybelsus 3 mg desde 2026-09-21; Rybelsus 7 mg desde 2026-09-24'),
+      `a dose que mudou no meio da semana vai dita (${resumoDaSemana(subiu).split('\n').find((l) => l.startsWith('A dose mudou')) ?? 'sem a linha'})`);
+
+    /* ---- a constância da leitura, em dias ---- */
+    const todos = diario(40, ate(40));
+    const consD = constancia({ S: todos, dias: [], de: 0, ate: fimDaSemana }).filter((c) => /^constancia:(dias|aplicacoes):/.test(c.chave));
+    ok(consD.length === 1 && consD[0].tipo === 'diasSeguidosComDose' && consD[0].dados.diasSeguidosComDose === 36 && consD[0].chave === 'constancia:dias:1',
+      `diário: dias seguidos com dose até o domingo da semana lida (${JSON.stringify(consD.map((c) => c.dados))}), com a chave de quatro em quatro semanas`);
+    const doisFuros = diario(40, ate(40).filter((k) => k !== 7 && k !== 8));
+    ok(!constancia({ S: doisFuros, dias: [], de: 0, ate: fimDaSemana }).some((c) => /^constancia:(dias|aplicacoes):/.test(c.chave))
+      && constanciaAntiga(doisFuros, fimDaSemana).length === 1,
+      'dois comprimidos esquecidos seguidos quebram a sequência (a conta antiga, com três dias de folga, dava "sem falha")');
+
+    /* ---- as regras do servidor leem as linhas que o resumo escreve ---- */
+    ok(viaDoTratamento(D) === 'Via: oral (comprimido)' && frequenciaDoTratamento(D) === 'Frequência: diária'
+      && INSTRUCOES.includes('"Via: oral (comprimido)"') && INSTRUCOES.includes('"Frequência: diária"')
+      && REGRAS_DA_LEITURA.includes('"Via: oral (comprimido)"') && REGRAS_DA_LEITURA.includes('"Frequência: diária"'),
+      'as regras da conversa e da leitura citam exatamente as linhas "Via" e "Frequência" que o resumo escreve');
+    ok(/COMPRIMIDO NÃO SE PROJETA COM ESTUDO DE INJEÇÃO[^\n]*STEP, SURMOUNT/.test(INSTRUCOES) && /REMÉDIO DE TODO DIA NÃO TEM CICLO SEMANAL/.test(INSTRUCOES)
+      && /DOSE DE TODO DIA NÃO TEM CICLO SEMANAL/.test(REGRAS_DA_LEITURA) && REGRAS_DA_LEITURA.includes('diasSeguidosComDose:'),
+      'a conversa não projeta o comprimido com estudo de injeção nem fala de ciclo no diário; a leitura também, e o glossário explica o campo novo');
+    ok(!/\$\{|undefined|NaN/.test(INSTRUCOES) && TELAS['/aplicacoes'] === 'as doses registradas e a próxima dose',
+      'o bloco fixo da conversa continua sem nada que varie (o cache acerta), e a tela das doses tem o nome de agora');
+
+    /* ---- os seis idiomas ---- */
+    const falhasB5: string[] = [];
+    for (const l of Object.keys(CAIXA) as Local[]) {
+      trocarLocal(l);
+      const RR = T.resumo.relatorio;
+      const QQ = T.resumo;
+      if (!QQ.diasComDose || QQ.diasComDose === QQ.aplicacoes) falhasB5.push(`${l}: rótulo`);
+      if (!/26\D+28/.test(QQ.diasComDoseValor(26, 28))) falhasB5.push(`${l}: valor`);
+      if (RR.dosesSub(26, false, true) === RR.dosesSub(26, false, false) || RR.dosesSub(26, true, true) !== RR.dosesSub(26, false, true)) falhasB5.push(`${l}: linha do ajuste`);
+      if (!RR.resumoPorDose(26).includes('26') || !RR.periodoDaDose || !RR.registros || !RR.diasComDose || !RR.diasComDoseNoPeriodo) falhasB5.push(`${l}: colunas`);
+      const h = htmlDoRelatorio(D, tudo(D));
+      if (!h.includes(esc(RR.resumoPorDose(26))) || !h.includes(esc(RR.diasComDoseNoPeriodo)) || !h.includes(esc(QQ.diasComDose))) falhasB5.push(`${l}: o papel`);
+      if (/undefined|NaN/.test(secaoDoses(h))) falhasB5.push(`${l}: buraco no papel`);
+    }
+    trocarLocal(null);
+    ok(!falhasB5.length, `nos seis idiomas, o papel do diário diz dias com dose, resume por dose e a linha do ajuste avisa ${falhasB5.length ? `(${falhasB5.join('; ')})` : ''}`);
+  });
+}
+
+oLembrete().then(() => {
+  oRelatorioEaIa();
+  console.log(falhas ? `\n${falhas} afirmação(ões) falharam\n` : '\ntodas as afirmações passaram\n');
+  process.exit(falhas ? 1 : 0);
+}, (e) => {
+  console.error(e);
+  process.exit(1);
+});

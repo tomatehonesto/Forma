@@ -25,6 +25,12 @@ export const alertas = {
   dose: 'Dose do medicamento',
   doseCurto: 'Dose',
   doseDesc: 'Um aviso antes da próxima dose, para manter o tratamento em dia.',
+  /* ⚠️ A DE QUEM TOMA TODO DIA (02/10/2026, parte B4 de
+     docs/superpowers/specs/2026-10-01-oral-e-diario-design.md): não há
+     "antes da próxima dose" — o aviso é o do dia, na hora escolhida, e
+     fica quieto quando a dose de hoje já está registrada. Dizer isso aqui
+     é o que explica por que, num dia, ele não tocou. */
+  doseDescDiaria: 'Um aviso por dia, na hora da sua dose. Se a dose de hoje já estiver registrada, ele fica quieto.',
 
   checkin: 'Check-in do dia',
   checkinCurto: 'Check-in',

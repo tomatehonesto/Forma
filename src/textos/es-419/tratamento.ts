@@ -1,3 +1,4 @@
+import { tempo } from './tempo';
 /* ============================================================
    EL TRATAMIENTO — la dosis, la cadencia, los hitos y las reglas · es-419
 
@@ -243,13 +244,18 @@ export const tratamento = {
     medicamento: 'Medicamento',
     dosesRestantesNo: (restam: number, onde: string) =>
       `${restam === 1 ? 'Queda 1 dosis' : `Quedan ${restam} dosis`} ${onde}`,
-    cobreSemanas: (veredito: string, semanas: number) =>
-      `${veredito} — alcanza para cerca de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
+    /* era `cobreSemanas`; en días o en semanas, nunca "cerca de 0"
+       (02/10/2026) — razones en ../pt-BR/tratamento.ts */
+    cobre: (veredito: string, c: { n: number; unidade: 'dia' | 'semana' }) =>
+      c.n === 0
+        ? `${veredito} — no queda ninguna dosis`
+        : `${veredito} — alcanza para cerca de ${tempo.duracao(c)}`,
 
     alertasDeDose: (quantos: number) => `${quantos} ${quantos === 1 ? 'alerta' : 'alertas'} de dosis`,
     nenhumAlerta: 'Ninguna alerta de dosis',
     tocaEm: (quando: string) => `Suena ${quando}`,
     avisoAntes: 'Un aviso antes de la dosis, a la hora que elijas',
+    avisoDiario: 'Un aviso cada día, a la hora que elijas',
 
     proxima: 'próxima',
 
@@ -294,6 +300,9 @@ export const tratamento = {
       `${Recipiente} ${aberto} el ${data} · ${total} dosis por ${recipiente}`,
     leadSemAberto: (nenhum: string, recipiente: string, aberto: string, total: number) =>
       `${nenhum} ${recipiente} ${aberto} · ${total} dosis por ${recipiente}`,
+    /* la pluma de dosis ajustable sin dosis elegida todavía (02/10/2026): los miligramos, y no "0 dosis" */
+    leadSemAbertoMg: (nenhum: string, recipiente: string, aberto: string, mg: string, unidade: string) =>
+      `${nenhum} ${recipiente} ${aberto} · ${mg} ${unidade} por ${recipiente}`,
 
     dosesUsadas: 'Dosis usadas',
     usadasDe: (usadas: number, total: number) => `${usadas} de ${total}`,
@@ -307,15 +316,18 @@ export const tratamento = {
     quemPreparaDefine: 'quien la prepara define el plazo',
 
     receitaAte: 'Receta hasta',
-    receitaSemanas: (semanas: number) => `${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
+    receitaDura: (c: { n: number; unidade: 'dia' | 'semana' }) =>
+      (c.n === 0 ? 'sin dosis' : tempo.duracao(c)),
 
     venceAntes: (oRecipiente: string) => `${oRecipiente} vence antes de acabarse`,
     venceAntesTexto: (medicamento: string, dias: number, total: number, aberto: string) =>
       `${medicamento} dura ${dias} días después de ${aberto}, y en ese plazo no caben las ${total} dosis. Conviene confirmar con quien te acompaña qué hacer con lo que sobre.`,
 
     momentoDeRenovar: 'Es momento de pedir la renovación',
-    renovarTexto: (semanas: number) =>
-      `Tu receta cubre cerca de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}. Pedirla ahora evita quedarte sin el medicamento entre una consulta y otra.`,
+    renovarTexto: (c: { n: number; unidade: 'dia' | 'semana' }) =>
+      c.n === 0
+        ? 'Las dosis registradas se acabaron. Pedirla ahora evita quedarte sin el medicamento entre una consulta y otra.'
+        : `Tu receta cubre cerca de ${tempo.duracao(c)}. Pedirla ahora evita quedarte sin el medicamento entre una consulta y otra.`,
 
     historico: (plural: string) => `Historial de ${plural}`,
     emUso: 'en uso',
@@ -346,6 +358,13 @@ export const tratamento = {
     outro: 'Otro',
     concentracaoEDoses: 'Concentración y dosis',
     ajudaDoses: (quantas: number, recipiente: string) => `${quantas} dosis por ${recipiente}`,
+    /* pluma de dosis ajustable y caja de comprimidos (02/10/2026) —
+       razones en ../pt-BR/tratamento.ts */
+    ajudaMg: (mg: string, unidade: string, recipiente: string, quantas: number, dose: string) =>
+      `${mg} ${unidade} por ${recipiente} · ${quantas} dosis de ${dose} ${unidade}`,
+    quantosComprimidos: (onde: string) => `¿Cuántos comprimidos vienen ${onde}?`,
+    comprimidosAjuda: 'El número viene impreso en el empaque. Con él contamos cuántos días te alcanza.',
+    comprimidos: 'comprimidos',
     ajudaValidade: (dias: number, aberto: string) => ` · dura ${dias} días después de ${aberto}`,
     validadeRotulo: (aberto: string) => `Duración después de ${aberto}`,
     validadeAjuda: 'Quien lo prepara define este plazo, y suele venir en la etiqueta. Sin él no hablamos de vencimiento — preferimos callar antes que inventar una fecha.',
@@ -353,6 +372,8 @@ export const tratamento = {
     estaNoRotulo: 'Está en la etiqueta',
     dias: 'días',
     registrar: (novoRecipiente: string) => `Registrar ${novoRecipiente}`,
+    /* o recipiente que já estava em uso, com o artigo (02/10/2026, revisão da B3) */
+    registrarRecipiente: (oRecipiente: string) => `Registrar ${oRecipiente}`,
   },
 
   telaRegistrarAplicacao: {
@@ -404,6 +425,8 @@ export const tratamento = {
     quantasJaSairam: (deste: string, recipiente: string) =>
       `¿Cuántas dosis ya habías usado ${deste} ${recipiente}?`,
     doses: (n: number) => (n === 1 ? '1 dosis' : `${n} dosis`),
+    /* la palabra sin el número, para la regla de las dosis que ya salieron (02/10/2026) */
+    dosesUnidade: (_n: number): string => 'dosis',
     registraJunto: (oRecipiente: string, total: number, recipiente: string) =>
       `Registramos ${oRecipiente} junto con esta dosis (${total} dosis por ${recipiente}) y empezamos a contar las que quedan.`,
 

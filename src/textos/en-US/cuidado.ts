@@ -1,3 +1,4 @@
+import { tempo } from './tempo';
 /* ============================================================
    CARE — the people area · en-US
 
@@ -35,8 +36,12 @@ export const cuidado = {
     mensagemRotulo: 'your messages',
 
     receita: 'Ask for a prescription refill',
-    receitaSub: (doses: number, semanas: number) =>
-      `${doses} ${doses === 1 ? 'dose left' : 'doses left'} · about ${semanas} ${semanas === 1 ? 'week' : 'weeks'}`,
+    /* In days or weeks, and never "about 0" (02/10/2026) — reasons in
+       ../pt-BR/cuidado.ts. */
+    receitaSub: (doses: number, c: { n: number; unidade: 'dia' | 'semana' }) =>
+      c.n === 0 || doses === 0
+        ? 'No doses left'
+        : `${doses} ${doses === 1 ? 'dose left' : 'doses left'} · about ${tempo.duracao(c)}`,
     receitaRotulo: 'your prescription',
 
     exameSubDaEquipe: 'requested by your care team',
@@ -188,8 +193,10 @@ export const cuidado = {
     seuTratamento: 'Your treatment',
     aplicacoesLink: 'Doses',
     dosesEm: (onde: string) => `Doses ${onde}`,
-    restamDe: (restam: number, total: number, semanas: number) =>
-      `${restam} of ${total} · about ${semanas} ${semanas === 1 ? 'week' : 'weeks'}`,
+    restamDe: (restam: number, total: number, c: { n: number; unidade: 'dia' | 'semana' }) =>
+      c.n === 0 || restam === 0
+        ? `${restam} of ${total}`
+        : `${restam} of ${total} · about ${tempo.duracao(c)}`,
     pedirRenovacao: 'Ask for a refill',
 
     exames: 'Lab results',

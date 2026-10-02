@@ -1,3 +1,4 @@
+import { tempo } from './tempo';
 /* ============================================================
    EL CUIDADO — el área de las personas · es-419
 
@@ -33,8 +34,12 @@ export const cuidado = {
     mensagemRotulo: 'los mensajes',
 
     receita: 'Pide la renovación de la receta',
-    receitaSub: (doses: number, semanas: number) =>
-      `${doses} ${doses === 1 ? 'dosis restante' : 'dosis restantes'} · cerca de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
+    /* En días o en semanas, y nunca "cerca de 0" (02/10/2026) — las
+       razones están en ../pt-BR/cuidado.ts. */
+    receitaSub: (doses: number, c: { n: number; unidade: 'dia' | 'semana' }) =>
+      c.n === 0 || doses === 0
+        ? 'Ninguna dosis restante'
+        : `${doses} ${doses === 1 ? 'dosis restante' : 'dosis restantes'} · cerca de ${tempo.duracao(c)}`,
     receitaRotulo: 'la receta',
 
     /* El título del examen viene del protocolo — es lo que el equipo
@@ -196,8 +201,10 @@ export const cuidado = {
     seuTratamento: 'Tu tratamiento',
     aplicacoesLink: 'Dosis',
     dosesEm: (onde: string) => `Dosis ${onde}`,
-    restamDe: (restam: number, total: number, semanas: number) =>
-      `${restam} de ${total} · cerca de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
+    restamDe: (restam: number, total: number, c: { n: number; unidade: 'dia' | 'semana' }) =>
+      c.n === 0 || restam === 0
+        ? `${restam} de ${total}`
+        : `${restam} de ${total} · cerca de ${tempo.duracao(c)}`,
     pedirRenovacao: 'Pedir renovación',
 
     exames: 'Exámenes',

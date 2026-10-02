@@ -1,4 +1,5 @@
 import { medidas } from './medidas';
+import { tempo } from './tempo';
 
 /* ============================================================
    DIE STARTSEITE UND DER VERLAUF — die Tagesziele, die Karten und der Zeitstrahl · de-DE
@@ -240,10 +241,11 @@ export const home = {
     sintomaEmDias: (sintoma: string, dias: number) =>
       `${sintoma} an ${dias} ${dias === 1 ? 'Tag' : 'Tagen'}`,
 
-    dosesRestantes: (restam: number, semanas: number) =>
-      restam === 0
+    /* In Tagen oder Wochen (02.10.2026) — Gründe in ../pt-BR/home.ts. */
+    dosesRestantes: (restam: number, c: { n: number; unidade: 'dia' | 'semana' }) =>
+      restam === 0 || c.n === 0
         ? 'Keine Dosis mehr übrig'
-        : `${restam === 1 ? 'Noch 1 Dosis' : `Noch ${restam} Dosen`} · rund ${semanas} ${semanas === 1 ? 'Woche' : 'Wochen'}`,
+        : `${restam === 1 ? 'Noch 1 Dosis' : `Noch ${restam} Dosen`} · rund ${tempo.duracao(c)}`,
 
     oQueJaMudou: 'Was sich geändert hat',
     oQueJaMudouVazio: 'Ab der zweiten Wiegung erscheint hier, was sich geändert hat.',
@@ -300,6 +302,8 @@ export const home = {
 
     acabou: (oRecipiente: string) => `${oRecipiente} ist leer.`,
     restaUmaDose: (onde: string) => `Eine Dosis ist noch ${onde}.`,
+    /* die tägliche Dosis bekommt die Karte mit drei Tagen (02.10.2026) */
+    restamDoses: (quantas: number, onde: string) => `Noch ${quantas} Dosen ${onde}.`,
     receitaCorpo: 'Ein neues Rezept braucht ein paar Tage zwischen Anfrage und Apotheke — jetzt anzufangen bewahrt davor, mittendrin stehen zu bleiben.',
     pedirRenovacao: 'Rezept anfragen',
     verMedicamento: 'Medikament ansehen',

@@ -135,7 +135,13 @@ export default function AlertaFolha() {
         ) : null}
 
         {/* A ANTECEDÊNCIA, só para a dose: ela não acontece num dia da
-            semana, acontece antes da próxima aplicação — que anda. */}
+            semana, acontece antes da próxima aplicação — que anda.
+
+            ⚠️ E SÓ PARA QUEM TOMA POR SEMANA (02/10/2026, parte B4): para
+            quem toma todo dia, `tiposDe(S)` desliga `temLead`, e o aviso é
+            o do dia, na hora marcada logo abaixo. O `lead` do rascunho fica
+            gravado como estava — não é lido no diário (`antecedenciaDe`), e
+            volta a valer se a pessoa voltar para a dose semanal. */}
         {t.temLead ? (
           <Campo nu rotulo={K().antecedencia} ajuda={K().antecedenciaAjuda}>
             <Opcoes>

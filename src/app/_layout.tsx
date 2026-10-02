@@ -15,7 +15,7 @@ import { modoFingido } from '../logic/modo';
 import { contaLigada, temConexao } from '../logic/nuvem';
 import { consentimentoPendente } from '../logic/consentimento';
 import { atualizarVinculo, sincronia, usarConvitePendente } from '../logic/conta';
-import { nextInjectionDate } from '../logic/derive';
+import { chaveDosAvisos } from '../logic/alertas';
 import { reagendar } from '../logic/avisos';
 import { juntarPesagens, pesagensDoAparelho } from '../logic/saude-do-aparelho';
 import { novosNiveis } from '../logic/conquistas';
@@ -184,7 +184,12 @@ function Sincronizador() {
 function Agendador() {
   const ready = useStore((s) => s.ready);
   const S = useStore((s) => s.S);
-  const chave = ready ? JSON.stringify([(S as any).alertas, +nextInjectionDate(S)]) : '';
+  /* ⚠️ A CHAVE MORA EM logic/alertas (`chaveDosAvisos`) desde 02/10/2026:
+     na dose diária ela leva também "a dose de hoje já foi feita?", que é o
+     que cala o aviso de hoje — o toque de "Tomei hoje" remarca a fila
+     inteira, e o aviso das nove sai dela (parte B4 de
+     docs/superpowers/specs/2026-10-01-oral-e-diario-design.md). */
+  const chave = ready ? chaveDosAvisos(S) : '';
   useEffect(() => {
     if (!ready) return;
     reagendar(useStore.getState().S);

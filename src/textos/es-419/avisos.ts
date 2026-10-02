@@ -20,6 +20,13 @@ export const avisos = {
   doseEmDias: (dias: number, acao: string) => `Tu ${acao} es en ${dias} días`,
   doseEmDiasCorpo: (dose: string, doRecipiente: string) => `${dose}. Da tiempo de revisar cuánto queda ${doRecipiente}.`,
 
+  /* ⚠️ LA DOSIS DIARIA TIENE UN SOLO AVISO, EL DEL DÍA (02/10/2026, parte
+     B4 — razones en ../pt-BR/avisos.ts). El verbo sigue la forma: quien
+     toma comprimido no se aplica nada. Y el cuerpo no afirma que todavía
+     no la tomó. */
+  doseDiaria: (injetavel: boolean): string => (injetavel ? 'Hora de aplicarte la dosis de hoy' : 'Hora de tomar la dosis de hoy'),
+  doseDiariaCorpo: (dose: string) => `${dose}. Después, basta un toque para registrarla.`,
+
   checkin: '¿Cómo te fue hoy?',
   checkinCorpo: 'Sueño, hambre, energía y ánimo — cuatro respuestas, y el día queda registrado.',
   peso: 'Día de pesarte',

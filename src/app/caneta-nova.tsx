@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
-import { MEDS } from '../logic/meds';
-import { FORMAS, concordar, formaDe, faixaDaMolecula, meioDaFaixa } from '../logic/formas';
-import { doseTxt, now } from '../logic/time';
-import { dosesPorRecipiente } from '../logic/derive';
-import { SheetScreen } from '../ui/kit';
+import { MEDS, cabeDe } from '../logic/meds';
+import { FORMAS, concordar, formaDe, faixaDaMolecula, meioDaFaixa, noNa, oA } from '../logic/formas';
+import { doseTxt, now, maiuscula } from '../logic/time';
+import { dosesPorRecipiente, mgDoCatalogo } from '../logic/derive';
+import { SheetScreen, Txt } from '../ui/kit';
+import { useTheme } from '../ui/useTheme';
 import { Campo, Opcoes, Opc, Regua, Botao } from '../ui/internas';
 import { PerguntaDaValidade } from '../ui/recipiente';
 import { T } from '../textos';
@@ -34,6 +35,7 @@ const ATALHOS = ['mounjaro', 'ozempic', 'saxenda'];
 export default function CanetaNova() {
   const S = useStore((s) => s.S);
   const update = useStore((s) => s.update);
+  const { c } = useTheme();
   const router = useRouter();
 
   const [med, setMed] = useState<string>(S.profile.med);
@@ -45,7 +47,38 @@ export default function CanetaNova() {
      inventar o dado que a pergunta existe para não inventar. */
   const [validade, setValidade] = useState<number | null>(null);
   const catalogo = MEDS[med] ?? MEDS.mounjaro;
-  const porCaneta = dosesPorRecipiente(S);
+  /* ============================================================
+     QUANTO CABE NESTE RECIPIENTE (02/10/2026, parte B3 de
+     docs/superpowers/specs/2026-10-01-oral-e-diario-design.md)
+
+     ⚠️⚠️ ERA "4 DOSES POR …" PARA TODO REMÉDIO, escrito na ajuda e gravado
+     no recipiente. Agora vem do catálogo (`cabe`, em logic/meds), pelo
+     remédio e pela dose escolhidos AQUI — não pelos do perfil, que esta
+     folha pode trocar:
+
+     · caneta de dose ajustável (Saxenda, Victoza): 18 mg, e as doses são
+       a conta com a dose do chip — a ajuda muda quando o chip muda;
+     · caixa de comprimidos: a folha PERGUNTA quantos vêm, com o número já
+       marcado — 30, ou o da última caixa do mesmo remédio. É a decisão do
+       dono: padrão 30, confirmado ao abrir uma caixa nova. E sem pergunta
+       de validade, como já era (ver `perguntaValidade`);
+     · caneta de dose fixa: como sempre foi. */
+  const cabe = cabeDe(med);
+  const [comprimidos, setComprimidos] = useState<number>(() => dosesPorRecipiente(S, med, dose));
+  const porCaneta = cabe.em === 'comprimidos' ? comprimidos : dosesPorRecipiente(S, med, dose);
+  /* ⚠️ A CAIXA QUE JÁ ESTAVA EM USO (02/10/2026, achado da revisão da
+     parte B3). Cuidado, Doses e a tela do medicamento pedem "Registre a
+     caixa, e contamos as doses que restam" — e esta folha, o único
+     caminho, contava toda caixa como cheia. Quem já tomava Rybelsus antes
+     do aplicativo, com dez comprimidos na mão, lia "30 de 30" e ficava sem
+     aviso nenhum quando acabasse. A caneta tem essa pergunta na folha da
+     dose; a caixa a tem aqui. Começa em "nova", que é o que o título diz e
+     o que esta folha sempre registrou. */
+  const [estadoDaCaixa, setEstadoDaCaixa] = useState<'nova' | 'emUso'>('nova');
+  const [jaSairam, setJaSairam] = useState<number>(1);
+  const usadasAntes = cabe.em === 'comprimidos' && estadoDaCaixa === 'emUso' && comprimidos > 1
+    ? Math.min(Math.max(1, jaSairam), comprimidos - 1)
+    : 0;
 
   const vocab = FORMAS()[formaDe(S)];
   /* ⚠️ AS DUAS GRAFIAS VÊM DO CATÁLOGO, e estavam escritas aqui em
@@ -60,6 +93,9 @@ export default function CanetaNova() {
      outras formas e para os outros idiomas. O par mora na tela de
      Medicamento, que já o usava. */
   const aberto = concordar(formaDe(S), T.tratamento.telaCaneta.abertoM, T.tratamento.telaCaneta.abertoF);
+  const deste = concordar(formaDe(S), T.tratamento.telaCaneta.desteM, T.tratamento.telaCaneta.desteF);
+  /* as frases da pergunta "já estava em uso" são as da folha da dose */
+  const KA = T.tratamento.telaRegistrarAplicacao;
   /* A pergunta existe quando o catálogo NÃO SABE o prazo — `shelf: 0` —, e
      só para quem injeta: cartela de comprimido não vence depois de aberta
      do jeito que um frasco vence. Ver o bloco de `shelf` em logic/meds. */
@@ -72,6 +108,15 @@ export default function CanetaNova() {
   /* Sem escada de bula, a dose é livre e a faixa vem da molécula na mesma
      via — ver logic/formas. */
   const faixa = catalogo.doses.length ? null : faixaDaMolecula(catalogo.mol, formaDe(S));
+  /* A ajuda das doses segue o jeito de contar — ver o campo, abaixo. */
+  const quantasCabem = cabe.em === 'comprimidos'
+    ? ''
+    : cabe.em === 'mg'
+      ? (dose > 0 ? K().ajudaMg(doseTxt(cabe.mg), catalogo.unit, vocab.recipiente, porCaneta, doseTxt(dose)) : '')
+      : K().ajudaDoses(porCaneta, vocab.recipiente);
+  const ajudaDasDoses = quantasCabem
+    ? quantasCabem + (catalogo.shelf > 0 ? K().ajudaValidade(catalogo.shelf, aberto) : '')
+    : undefined;
 
   const trocarMed = (k: string) => {
     setMed(k);
@@ -100,6 +145,13 @@ export default function CanetaNova() {
         dose,
         dosesPerPen: porCaneta,
         validadeDias: validade ?? undefined,
+        /* a caneta de dose ajustável leva os miligramas (02/10/2026) */
+        ...mgDoCatalogo(med),
+        /* e a caixa, os comprimidos confirmados — e os que já tinham saído
+           dela, quando já estava em uso (ver `comprimidos` e `usadasAntes`
+           em logic/derive) */
+        ...(cabe.em === 'comprimidos' ? { comprimidos } : {}),
+        ...(usadasAntes > 0 ? { usadasAntes } : {}),
       }];
     });
     router.back();
@@ -130,9 +182,14 @@ export default function CanetaNova() {
           /* ⚠️ A FRASE DA VALIDADE SÓ SAI QUANDO ELA EXISTE. Com o
              catálogo em zero, isto escrevia "validade de 0 dias após
              aberta" — o aplicativo dizendo que a coisa vence no dia em
-             que foi aberta. */
-          ajuda={K().ajudaDoses(porCaneta, vocab.recipiente)
-            + (catalogo.shelf > 0 ? K().ajudaValidade(catalogo.shelf, aberto) : '')}
+             que foi aberta.
+
+             ⚠️ E A DAS DOSES SEGUE O JEITO DE CONTAR (02/10/2026): na
+             caneta de dose ajustável, os miligramas e a conta na dose do
+             chip (sem dose escolhida, nada — a conta não chuta um
+             degrau); na caixa de comprimidos, nada aqui, porque a pergunta
+             logo abaixo é ela. */
+          ajuda={ajudaDasDoses}
         >
           {/* ⚠️ SEM ESCADA, A RÉGUA — e sem isto a seção ficava VAZIA para
               manipulado: rótulo, linha de ajuda e nada embaixo. É a mesma
@@ -163,6 +220,53 @@ export default function CanetaNova() {
           ) : null}
         </Campo>
 
+        {/* ⚠️ QUANTOS COMPRIMIDOS VÊM NA CAIXA (02/10/2026, decisão do
+            dono). O número já vem marcado — 30, ou o da última caixa do
+            mesmo remédio —, e registrar com ele à vista é a confirmação; a
+            régua existe para quem compra outra embalagem. É com ele que o
+            estoque conta os dias que a caixa cobre. */}
+        {cabe.em === 'comprimidos' ? (
+          <Campo rotulo={K().quantosComprimidos(noNa(formaDe(S)))} ajuda={K().comprimidosAjuda}>
+            <Regua
+              min={1} max={120} passo={1} tracoCada={1} casas={0}
+              salto={1}
+              valor={comprimidos} unidade={K().comprimidos} onEscolhe={(v) => setComprimidos(Math.round(v))}
+            />
+          </Campo>
+        ) : null}
+
+        {/* Nova, ou já em uso — e então quantas já tinham saído, de uma
+            até a penúltima (com todas fora, não haveria o que registrar).
+            A régua abre na primeira, que fica à vista como resposta. */}
+        {cabe.em === 'comprimidos' && comprimidos > 1 ? (
+          <Campo
+            rotulo={maiuscula(vocab.recipiente)}
+            ajuda={estadoDaCaixa === 'emUso'
+              ? (comprimidos - usadasAntes <= 1 ? KA.ultimaDose(deste, vocab.recipiente) : KA.restamDoses(comprimidos - usadasAntes))
+              : undefined}
+          >
+            <Opcoes>
+              <Opc
+                label={concordar(formaDe(S), T.tratamento.telaCaneta.novoM, T.tratamento.telaCaneta.novoF)}
+                on={estadoDaCaixa === 'nova'}
+                onPress={() => setEstadoDaCaixa('nova')}
+              />
+              <Opc label={KA.jaEmUso} on={estadoDaCaixa === 'emUso'} onPress={() => setEstadoDaCaixa('emUso')} />
+            </Opcoes>
+            {estadoDaCaixa === 'emUso' ? (
+              <>
+                <Txt v="caption" c={c.tx2}>{KA.quantasJaSairam(deste, vocab.recipiente)}</Txt>
+                <Regua
+                  min={1} max={comprimidos - 1} passo={1} tracoCada={1} casas={0}
+                  esp={14} salto={1}
+                  valor={usadasAntes || 1} unidade={KA.dosesUnidade(usadasAntes || 1)}
+                  onEscolhe={(v) => setJaSairam(Math.min(comprimidos - 1, Math.max(1, Math.round(v))))}
+                />
+              </>
+            ) : null}
+          </Campo>
+        ) : null}
+
         {/* Opcional, e começa em "não sei" — ver ui/recipiente. */}
         {perguntaValidade ? (
           <PerguntaDaValidade aberto={aberto} valor={validade} onMuda={setValidade} />
@@ -172,9 +276,9 @@ export default function CanetaNova() {
             registrava "Ainda não definido · 0 mg" — uma caneta de nada, que
             a conta de doses passaria a tratar como de verdade. */}
         <Botao
-          label={K().registrar(novo)}
+          label={usadasAntes > 0 ? K().registrarRecipiente(`${oA(formaDe(S))} ${vocab.recipiente}`) : K().registrar(novo)}
           onPress={registrar}
-          desligado={med === 'indefinido' || !(dose > 0)}
+          desligado={med === 'indefinido' || !(dose > 0) || !(porCaneta > 0)}
         />
       </View>
     </SheetScreen>

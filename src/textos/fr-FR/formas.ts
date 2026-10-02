@@ -19,12 +19,18 @@
    voyelle ou un h muet, cassera en silence. C'est écrit ici pour que qui
    l'ajoute le sache avant, et pas après.
 
-   ⚠️ LE GENRE EST CELUI DU MOT, et ça se voit d'un coup avec trois
-   langues : le récipient du comprimé est « cartela » (féminin) en
+   ⚠️ LE GENRE EST CELUI DU MOT, et ça se voyait d'un coup avec trois
+   langues : le récipient du comprimé était « cartela » (féminin) en
    portugais, « blíster » (masculin) en espagnol et « plaquette »
    (féminin) en français. Même forme d'administration, trois genres qui ne
    s'accordent pas entre eux — et c'est pour ça que la table de genre vit
    dans chaque fichier de langue et pas dans la logique.
+
+   ⚠️ LE RÉCIPIENT DU COMPRIMÉ EST DEVENU LA BOÎTE (02/10/2026). Le stock
+   du comprimé se compte désormais par boîte — 30 par défaut, confirmé à
+   l'ouverture d'une boîte (décision du propriétaire ; voir
+   ../pt-BR/formas.ts). « Boîte » est féminin comme « plaquette », et
+   commence par une consonne : aucune élision ne change.
 
    ⚠️ ET « STYLO » EST MASCULIN, là où « caneta » et « pluma » sont
    féminins dans les deux autres langues. Rien de ce qui a été écrit
@@ -58,7 +64,7 @@ export const formas = {
     caneta: { recipiente: 'stylo', plural: 'stylos', verbo: 'injecter', acao: 'dose' },
     frasco: { recipiente: 'flacon', plural: 'flacons', verbo: 'injecter', acao: 'dose' },
     seringa: { recipiente: 'seringue', plural: 'seringues', verbo: 'injecter', acao: 'dose' },
-    comprimido: { recipiente: 'plaquette', plural: 'plaquettes', verbo: 'prendre', acao: 'dose' },
+    comprimido: { recipiente: 'boîte', plural: 'boîtes', verbo: 'prendre', acao: 'dose' },
   } as Record<Recipiente, { recipiente: string; plural: string; verbo: string; acao: string }>,
 
   concordar: (r: Recipiente, masc: string, fem: string) => (f(r) ? fem : masc),

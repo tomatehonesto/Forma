@@ -35,6 +35,11 @@ export const resumo = {
   aplicacoesNenhuma: 'Ninguna registrada',
   /* doses registradas sem um "previstas" a comparar (quem trocou e ainda não registrou o regime de agora) */
   aplicacoesRegistradas: (n: number): string => `${n} ${n === 1 ? 'registrada' : 'registradas'}`,
+  /* ⚠️ Quien toma todos los días lee DÍAS, y no dosis previstas
+     (02/10/2026, parte B5): un día sin toque es un día sin REGISTRO. La
+     razón está en ../pt-BR/resumo.ts. */
+  diasComDose: 'Días con dosis registrada',
+  diasComDoseValor: (feitos: number, dias: number) => `${feitos} de ${dias}`,
 
   peso: 'Peso',
   inicioAtual: 'Inicio → actual',
@@ -77,12 +82,13 @@ export const resumo = {
     pesoAtual: 'Peso actual',
     variacao: 'Variación en el período',
     aplicacoesNoPeriodo: 'Dosis en el período',
+    diasComDoseNoPeriodo: 'Días con dosis en el período',
     checkinsRespondidos: 'Check-ins respondidos',
     peso: 'Peso',
     medidas: 'Medidas',
     aplicacoes: 'Dosis',
-    dosesSub: (quantas: number, comLocal: boolean): string =>
-      `${quantas} ${quantas === 1 ? 'registro' : 'registros'} · ${comLocal ? 'fecha, dosis y sitio' : 'fecha y dosis'}`,
+    dosesSub: (quantas: number, comLocal: boolean, resumidas: boolean): string =>
+      `${quantas} ${quantas === 1 ? 'registro' : 'registros'} · ${resumidas ? 'resumidos por dosis' : comLocal ? 'fecha, dosis y sitio' : 'fecha y dosis'}`,
     sintomas: 'Síntomas',
     exames: 'Exámenes',
     notas: 'Notas para la consulta',
@@ -91,6 +97,10 @@ export const resumo = {
     medicamento: 'Medicamento',
     dose: 'Dosis',
     local: 'Sitio',
+    periodoDaDose: 'Período',
+    registros: 'Registros',
+    diasComDose: 'Días con dosis',
+    resumoPorDose: (n: number) => `${n} registros en el período, resumidos por dosis. Los días con dosis son los días con al menos una dosis registrada.`,
     proteinaMedia: 'Proteína por día, en promedio',
     aguaMedia: 'Líquidos por día, en promedio',
     exercicioTotal: 'Ejercicio en el período',

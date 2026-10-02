@@ -1,3 +1,4 @@
+import { tempo } from './tempo';
 /* ============================================================
    LE TRAITEMENT — la dose, la cadence, les jalons et les règles · fr-FR
 
@@ -248,13 +249,18 @@ export const tratamento = {
     medicamento: 'Médicament',
     dosesRestantesNo: (restam: number, onde: string) =>
       `${restam === 1 ? 'Il reste 1 dose' : `Il reste ${restam} doses`} ${onde}`,
-    cobreSemanas: (veredito: string, semanas: number) =>
-      `${veredito} — de quoi tenir environ ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}`,
+    /* s'appelait `cobreSemanas` ; en jours ou en semaines, jamais
+       « environ 0 » (02/10/2026) — raisons dans ../pt-BR/tratamento.ts */
+    cobre: (veredito: string, c: { n: number; unidade: 'dia' | 'semana' }) =>
+      c.n === 0
+        ? `${veredito} — il ne reste aucune dose`
+        : `${veredito} — de quoi tenir environ ${tempo.duracao(c)}`,
 
     alertasDeDose: (quantos: number) => `${quantos} ${quantos === 1 ? 'rappel' : 'rappels'} de dose`,
     nenhumAlerta: 'Aucun rappel de dose',
     tocaEm: (quando: string) => `Sonne ${quando}`,
     avisoAntes: 'Un signal avant la dose, à l’heure que vous choisissez',
+    avisoDiario: 'Un signal chaque jour, à l’heure que vous choisissez',
 
     proxima: 'prochaine',
 
@@ -299,6 +305,9 @@ export const tratamento = {
       `${Recipiente} ${aberto} le ${data} · ${total} doses par ${recipiente}`,
     leadSemAberto: (nenhum: string, recipiente: string, aberto: string, total: number) =>
       `${nenhum} ${recipiente} ${aberto} · ${total} doses par ${recipiente}`,
+    /* le stylo à dose ajustable sans dose choisie (02/10/2026) : les milligrammes, et non « 0 dose » */
+    leadSemAbertoMg: (nenhum: string, recipiente: string, aberto: string, mg: string, unidade: string) =>
+      `${nenhum} ${recipiente} ${aberto} · ${mg} ${unidade} par ${recipiente}`,
 
     dosesUsadas: 'Doses utilisées',
     usadasDe: (usadas: number, total: number) => `${usadas} sur ${total}`,
@@ -312,7 +321,8 @@ export const tratamento = {
     quemPreparaDefine: 'la personne qui le prépare fixe le délai',
 
     receitaAte: 'Ordonnance jusqu’au',
-    receitaSemanas: (semanas: number) => `${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}`,
+    receitaDura: (c: { n: number; unidade: 'dia' | 'semana' }) =>
+      (c.n === 0 ? 'plus de dose' : tempo.duracao(c)),
 
     /* ⚠️ « avant d’être fini » s’accorde, et le conteneur peut être
        féminin : « la plaquette … fini » était faux. La phrase a été
@@ -322,8 +332,10 @@ export const tratamento = {
       `${medicamento} se garde ${dias} jours une fois ${aberto}, et les ${total} doses n’entrent pas dans ce délai. Il vaut mieux demander à la personne qui vous suit quoi faire de ce qui reste.`,
 
     momentoDeRenovar: 'C’est le moment de demander le renouvellement',
-    renovarTexto: (semanas: number) =>
-      `Votre ordonnance couvre environ ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}. La demander maintenant évite de vous retrouver sans médicament entre deux consultations.`,
+    renovarTexto: (c: { n: number; unidade: 'dia' | 'semana' }) =>
+      c.n === 0
+        ? 'Les doses enregistrées sont épuisées. La demander maintenant évite de vous retrouver sans médicament entre deux consultations.'
+        : `Votre ordonnance couvre environ ${tempo.duracao(c)}. La demander maintenant évite de vous retrouver sans médicament entre deux consultations.`,
 
     historico: (plural: string) => `Historique des ${plural}`,
     emUso: 'en cours',
@@ -348,19 +360,30 @@ export const tratamento = {
   telaRecipienteNovo: {
     novoM: 'Nouveau',
     novoF: 'Nouvelle',
-    novoMinM: 'nouveau',
-    novoMinF: 'nouvelle',
+    /* ⚠️ COM O ARTIGO (02/10/2026): o botão dizia « Enregistrer le nouvelle boîte » —
+       o artigo morava no botão, e o gênero morava aqui. */
+    novoMinM: 'le nouveau',
+    novoMinF: 'la nouvelle',
     zeraContagem: 'Remet le compte de doses à zéro.',
     outro: 'Autre',
     concentracaoEDoses: 'Concentration et doses',
     ajudaDoses: (quantas: number, recipiente: string) => `${quantas} doses par ${recipiente}`,
+    /* stylo à dose réglable et boîte de comprimés (02/10/2026) — raisons
+       dans ../pt-BR/tratamento.ts */
+    ajudaMg: (mg: string, unidade: string, recipiente: string, quantas: number, dose: string) =>
+      `${mg} ${unidade} par ${recipiente} · ${quantas} ${quantas === 1 ? 'dose' : 'doses'} de ${dose} ${unidade}`,
+    quantosComprimidos: (onde: string) => `Combien de comprimés y a-t-il ${onde} ?`,
+    comprimidosAjuda: 'Le nombre est imprimé sur l’emballage. C’est avec lui que nous calculons pour combien de jours vous en avez.',
+    comprimidos: 'comprimés',
     ajudaValidade: (dias: number, aberto: string) => ` · se garde ${dias} jours une fois ${aberto}`,
     validadeRotulo: (aberto: string) => `Conservation une fois ${aberto}`,
     validadeAjuda: 'C’est la personne qui le prépare qui fixe ce délai, et il figure en général sur l’étiquette. Sans lui, nous ne parlons pas de péremption — mieux vaut se taire que deviner une date.',
     naoSei: 'Je ne sais pas',
     estaNoRotulo: 'C’est sur l’étiquette',
     dias: 'jours',
-    registrar: (novoRecipiente: string) => `Enregistrer le ${novoRecipiente}`,
+    registrar: (novoRecipiente: string) => `Enregistrer ${novoRecipiente}`,
+    /* o recipiente que já estava em uso, com o artigo (02/10/2026, revisão da B3) */
+    registrarRecipiente: (oRecipiente: string) => `Enregistrer ${oRecipiente}`,
   },
 
   telaRegistrarAplicacao: {
@@ -412,6 +435,8 @@ export const tratamento = {
     quantasJaSairam: (deste: string, recipiente: string) =>
       `Combien de doses aviez-vous déjà utilisées ${deste} ${recipiente} ?`,
     doses: (n: number) => (n === 1 ? '1 dose' : `${n} doses`),
+    /* le mot sans le nombre, pour la règle des doses déjà sorties (02/10/2026) */
+    dosesUnidade: (n: number): string => (n === 1 ? 'dose' : 'doses'),
     registraJunto: (oRecipiente: string, total: number, recipiente: string) =>
       `Nous enregistrons ${oRecipiente} avec cette dose (${total} doses par ${recipiente}), puis nous comptons celles qui restent.`,
 

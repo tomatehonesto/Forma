@@ -66,7 +66,7 @@ export const rotina = {
       (injetavel ? `Separa ${recipiente} y elige el lugar` : `Separa ${recipiente}`),
     aplicacaoPorque: (injetavel: boolean): string => (injetavel
       ? 'Tu próxima dosis está llegando, y alternar el lugar reduce la irritación en la piel'
-      : 'Tu próxima dosis está llegando, y tener el blíster a mano ayuda a no olvidarla'),
+      : 'Tu próxima dosis está llegando, y tener la caja a mano ayuda a no olvidarla'),
 
     receita: 'Pide la renovación de la receta',
     /* ⚠️ La palabra "doses" vivía en el sitio de llamada. Ver ../pt-BR. */

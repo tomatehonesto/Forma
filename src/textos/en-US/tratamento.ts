@@ -1,3 +1,4 @@
+import { tempo } from './tempo';
 /* ============================================================
    TREATMENT — the dose, the cadence, the milestones and the scales · en-US
 
@@ -237,13 +238,18 @@ export const tratamento = {
     medicamento: 'Medication',
     dosesRestantesNo: (restam: number, onde: string) =>
       `${restam === 1 ? '1 dose left' : `${restam} doses left`} ${onde}`,
-    cobreSemanas: (veredito: string, semanas: number) =>
-      `${veredito} — enough for about ${semanas} ${semanas === 1 ? 'week' : 'weeks'}`,
+    /* was `cobreSemanas`; days or weeks, never "about 0" (02/10/2026) —
+       reasons in ../pt-BR/tratamento.ts */
+    cobre: (veredito: string, c: { n: number; unidade: 'dia' | 'semana' }) =>
+      c.n === 0
+        ? `${veredito} — no doses left`
+        : `${veredito} — enough for about ${tempo.duracao(c)}`,
 
     alertasDeDose: (quantos: number) => `${quantos} dose ${quantos === 1 ? 'reminder' : 'reminders'}`,
     nenhumAlerta: 'No dose reminder',
     tocaEm: (quando: string) => `Rings ${quando}`,
     avisoAntes: 'A heads-up before the dose, at the time you choose',
+    avisoDiario: 'A heads-up every day, at the time you choose',
 
     proxima: 'next',
 
@@ -292,6 +298,9 @@ export const tratamento = {
       `${Recipiente} ${aberto} on ${data} · ${total} doses per ${recipiente}`,
     leadSemAberto: (nenhum: string, recipiente: string, aberto: string, total: number) =>
       `${nenhum} ${recipiente} ${aberto} · ${total} doses per ${recipiente}`,
+    /* the adjustable-dose pen with no dose chosen yet (02/10/2026): the milligrams, not "0 doses" */
+    leadSemAbertoMg: (nenhum: string, recipiente: string, aberto: string, mg: string, unidade: string) =>
+      `${nenhum} ${recipiente} ${aberto} · ${mg} ${unidade} per ${recipiente}`,
 
     dosesUsadas: 'Doses used',
     usadasDe: (usadas: number, total: number) => `${usadas} of ${total}`,
@@ -305,15 +314,18 @@ export const tratamento = {
     quemPreparaDefine: 'whoever compounds it sets the limit',
 
     receitaAte: 'Prescription until',
-    receitaSemanas: (semanas: number) => `${semanas} ${semanas === 1 ? 'week' : 'weeks'}`,
+    receitaDura: (c: { n: number; unidade: 'dia' | 'semana' }) =>
+      (c.n === 0 ? 'no doses left' : tempo.duracao(c)),
 
     venceAntes: (oRecipiente: string) => `${oRecipiente} expires before it runs out`,
     venceAntesTexto: (medicamento: string, dias: number, total: number, aberto: string) =>
       `${medicamento} lasts ${dias} days once ${aberto}, and the ${total} doses don’t fit in that window. Worth checking with whoever follows your treatment what to do with what’s left.`,
 
     momentoDeRenovar: 'Time to ask for a refill',
-    renovarTexto: (semanas: number) =>
-      `Your prescription covers about ${semanas} ${semanas === 1 ? 'week' : 'weeks'}. Asking now keeps you from running out of your medication between appointments.`,
+    renovarTexto: (c: { n: number; unidade: 'dia' | 'semana' }) =>
+      c.n === 0
+        ? 'The doses you logged have run out. Asking now keeps you from running out of your medication between appointments.'
+        : `Your prescription covers about ${tempo.duracao(c)}. Asking now keeps you from running out of your medication between appointments.`,
 
     historico: (plural: string) => `History of ${plural}`,
     emUso: 'in use',
@@ -344,6 +356,13 @@ export const tratamento = {
     outro: 'Other',
     concentracaoEDoses: 'Strength and doses',
     ajudaDoses: (quantas: number, recipiente: string) => `${quantas} doses per ${recipiente}`,
+    /* adjustable-dose pens and pill boxes (02/10/2026) — reasons in
+       ../pt-BR/tratamento.ts */
+    ajudaMg: (mg: string, unidade: string, recipiente: string, quantas: number, dose: string) =>
+      `${mg} ${unidade} per ${recipiente} · ${quantas} ${quantas === 1 ? 'dose' : 'doses'} of ${dose} ${unidade}`,
+    quantosComprimidos: (onde: string) => `How many tablets come ${onde}?`,
+    comprimidosAjuda: 'The number is printed on the package. It’s how we count how many days it covers.',
+    comprimidos: 'tablets',
     ajudaValidade: (dias: number, aberto: string) => ` · good for ${dias} days once ${aberto}`,
     validadeRotulo: (aberto: string) => `Shelf life once ${aberto}`,
     validadeAjuda: 'Whoever compounds it sets this limit, and it usually comes on the label. Without it we don’t talk about expiry — we’d rather stay quiet than guess a date.',
@@ -351,6 +370,8 @@ export const tratamento = {
     estaNoRotulo: 'It’s on the label',
     dias: 'days',
     registrar: (novoRecipiente: string) => `Log the ${novoRecipiente}`,
+    /* o recipiente que já estava em uso, com o artigo (02/10/2026, revisão da B3) */
+    registrarRecipiente: (oRecipiente: string) => `Log ${oRecipiente}`,
   },
 
   telaRegistrarAplicacao: {
@@ -402,6 +423,8 @@ export const tratamento = {
     quantasJaSairam: (deste: string, recipiente: string) =>
       `How many doses had you already used ${deste} ${recipiente}?`,
     doses: (n: number) => (n === 1 ? '1 dose' : `${n} doses`),
+    /* the word without the number, for the ruler of doses already used (02/10/2026) */
+    dosesUnidade: (n: number): string => (n === 1 ? 'dose' : 'doses'),
     registraJunto: (oRecipiente: string, total: number, recipiente: string) =>
       `We log ${oRecipiente} along with this dose (${total} doses per ${recipiente}) and start counting what’s left.`,
 

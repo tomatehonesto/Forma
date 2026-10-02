@@ -24,6 +24,13 @@ export const avisos = {
   doseEmDias: (dias: number, acao: string) => `La tua ${acao} è tra ${dias} giorni`,
   doseEmDiasCorpo: (dose: string, doRecipiente: string) => `${dose}. C’è tempo per controllare la scorta ${doRecipiente}.`,
 
+  /* ⚠️ LA DOSE QUOTIDIANA HA UN SOLO AVVISO, QUELLO DEL GIORNO
+     (02/10/2026, parte B4 — ragioni in ../pt-BR/avisos.ts). Il verbo segue
+     la forma: chi prende la compressa non si fa nessuna puntura. E il testo
+     non afferma che non l'ha ancora presa. */
+  doseDiaria: (injetavel: boolean): string => (injetavel ? 'È ora di fare la dose di oggi' : 'È ora di prendere la dose di oggi'),
+  doseDiariaCorpo: (dose: string) => `${dose}. Dopo, basta un tocco per registrarla.`,
+
   /* ---------- gli altri quattro ---------- */
   checkin: 'Com’è andata oggi?',
   checkinCorpo: 'Sonno, fame, energia e umore — quattro risposte, e la giornata è registrata.',

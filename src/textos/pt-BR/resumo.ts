@@ -41,6 +41,12 @@ export const resumo = {
   aplicacoesNenhuma: 'Nenhuma registrada',
   /* doses registradas sem um "previstas" a comparar (quem trocou e ainda não registrou o regime de agora) */
   aplicacoesRegistradas: (n: number): string => `${n} ${n === 1 ? 'registrada' : 'registradas'}`,
+  /* ⚠️ QUEM TOMA TODO DIA LÊ DIAS, e não doses previstas (02/10/2026,
+     parte B5). A dose do dia é um toque, e um dia sem toque é um dia sem
+     REGISTRO — o rótulo diz isso, e o número não cobra dose que ninguém
+     sabe se faltou. Hoje só conta depois da dose de hoje. */
+  diasComDose: 'Dias com dose registrada',
+  diasComDoseValor: (feitos: number, dias: number) => `${feitos} de ${dias}`,
 
   /* ---------------- peso ---------------- */
   peso: 'Peso',
@@ -108,15 +114,23 @@ export const resumo = {
     variacao: 'Variação no período',
     /* "Doses", pela mesma razão do alto deste arquivo. */
     aplicacoesNoPeriodo: 'Doses no período',
+    /* ⚠️ O CARTÃO DE QUEM TOMA TODO DIA (02/10/2026, parte B5): os dias do
+       período com dose registrada contra os que contam, e não o número de
+       registros — dois comprimidos no mesmo dia são um dia, e o dia sem
+       toque fica à vista. */
+    diasComDoseNoPeriodo: 'Dias com dose no período',
     checkinsRespondidos: 'Check-ins respondidos',
     peso: 'Peso',
     medidas: 'Medidas',
     aplicacoes: 'Doses',
     /* O subtítulo da linha "Doses" no ajuste do PDF (app/pdf-consulta).
        ⚠️ "LOCAL" SÓ QUANDO HÁ LOCAL: a coluna sai do papel quando nenhuma
-       dose do período foi injetada, e a linha não promete o que não vem. */
-    dosesSub: (quantas: number, comLocal: boolean): string =>
-      `${quantas} ${quantas === 1 ? 'registro' : 'registros'} · ${comLocal ? 'data, dose e local' : 'data e dose'}`,
+       dose do período foi injetada, e a linha não promete o que não vem.
+       ⚠️ E QUEM TOMA TODO DIA, COM MAIS DE 14 REGISTROS NO PERÍODO, recebe
+       o resumo por dose, e não a lista (02/10/2026, parte B5): a linha
+       diz isso, e não "data e dose". */
+    dosesSub: (quantas: number, comLocal: boolean, resumidas: boolean): string =>
+      `${quantas} ${quantas === 1 ? 'registro' : 'registros'} · ${resumidas ? 'resumidos por dose' : comLocal ? 'data, dose e local' : 'data e dose'}`,
     sintomas: 'Sintomas',
     exames: 'Exames',
     notas: 'Anotações para a consulta',
@@ -127,6 +141,15 @@ export const resumo = {
     medicamento: 'Medicamento',
     dose: 'Dose',
     local: 'Local',
+    /* ⚠️ O RESUMO POR DOSE (02/10/2026, parte B5): quem toma todo dia e
+       tem mais de 14 registros no período recebe uma linha por trecho de
+       dose — de quando a quando, quantos registros e em quantos dias houve
+       dose —, e não uma linha por comprimido. A nota diz quantos registros
+       o resumo cobre, para ninguém achar que faltam. */
+    periodoDaDose: 'Período',
+    registros: 'Registros',
+    diasComDose: 'Dias com dose',
+    resumoPorDose: (n: number) => `${n} registros no período, resumidos por dose. Dias com dose são os dias com pelo menos uma dose registrada.`,
     proteinaMedia: 'Proteína por dia, em média',
     aguaMedia: 'Líquidos por dia, em média',
     exercicioTotal: 'Exercício no período',

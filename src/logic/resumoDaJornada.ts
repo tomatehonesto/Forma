@@ -2,7 +2,7 @@ import type { State } from './seed';
 import {
   M, temDose, doseDoPerfil, curWeight, startWeight, lostKg, lostPct, lastInjection,
   nextInjectionDate, adesao, adesaoSemConta, cadenciaDias, aguaDoDia, sintomasEm, clinicaConectada,
-  temAcompanhamento,
+  temAcompanhamento, doseDiaria, inicioDoDiario, diasDoDiario, diasComDoseDesde, doseDeHoje,
 } from './derive';
 import { ENERGIA, FOME, HUMOR, SINTOMAS_LIDOS, grauDoSintoma, paraTela } from './escalas';
 import { pesoTxt, aguaTxt, sistemaDe } from './medidas';
@@ -74,6 +74,56 @@ const VIA: Record<Forma, string> = {
 };
 export const viaDoTratamento = (S: State) => `Via: ${VIA[formaDe(S)]}`;
 
+/* A FREQUÊNCIA, com o intervalo de exceção do perfil (`cadenciaDias`).
+   Morava escrita dentro da seção Tratamento daqui e subiu para uma função
+   (02/10/2026, parte B5) para o resumo da semana escrever a mesma linha —
+   é por ela, e pela linha da via, que as regras do servidor
+   (servidor/conversa/prompt e servidor/leitura/prompt) sabem que não há
+   ciclo semanal e que o comprimido não se projeta com estudo de injeção. */
+export const frequenciaDoTratamento = (S: State) => {
+  const d = cadenciaDias(S);
+  return `Frequência: ${d === 1 ? 'diária' : d === 7 ? 'semanal' : `a cada ${d} dias`}`;
+};
+
+const hora = (t: number) => {
+  const d = new Date(t);
+  const p = (n: number) => String(n).padStart(2, '0');
+  return `${p(d.getHours())}:${p(d.getMinutes())}`;
+};
+
+/* ⚠️⚠️ A CONSTÂNCIA DE QUEM TOMA TODO DIA, EM DIAS (02/10/2026, parte B5 de
+   docs/superpowers/specs/2026-10-01-oral-e-diario-design.md). O modelo lia
+   "Doses registradas: 40 (adesão 43%)" e "Próxima dose prevista: amanhã" —
+   uma porcentagem que cai toda manhã antes do comprimido e uma próxima dose
+   que é sempre amanhã. E respondia com a voz da caneta semanal ("a
+   aplicação desta semana", a adesão em doses). Agora vão as linhas que a
+   tela já conta, com a mesma régua (`contagemDaJanela`): os dias do regime
+   diário com pelo menos uma dose REGISTRADA, desde o começo dele e nas
+   últimas duas semanas — hoje só depois da dose de hoje, e nada presumido
+   (decisão 2 do dono) —, e a dose de hoje, registrada ou não. "Ainda não
+   registrada" é o que se sabe, e não "esquecida": o prompt manda o modelo
+   tratar assim. Sem regime diário a contar (trocou de remédio e ainda não
+   registrou o novo), sem as linhas de dias. O semanal fica como era. */
+function linhasDoDiario(S: State): string[] {
+  const linhas: string[] = [];
+  const desde = inicioDoDiario(S);
+  const total = diasDoDiario(S);
+  if (desde != null && total.dias) {
+    linhas.push(`Dias com dose registrada desde o começo do uso diário (${data(desde)}): ${total.feitos} de ${total.dias}`);
+    /* Treze dias atrás PELO CALENDÁRIO, e não 13 × 24 horas: na quinzena
+       depois da troca de horário, uma hora por dia caía no dia errado e a
+       janela tinha 12 ou 14 dias (02/10/2026, revisão da B5). */
+    const hoje0 = startOfDay(now());
+    const duas = diasComDoseDesde(S, +new Date(hoje0.getFullYear(), hoje0.getMonth(), hoje0.getDate() - 13));
+    linhas.push(`Dias com dose nas últimas 2 semanas: ${duas.feitos} de ${duas.dias}`);
+  }
+  const hoje = doseDeHoje(S);
+  linhas.push(hoje.feita && hoje.t != null
+    ? `Dose de hoje: registrada às ${hora(hoje.t)}${hoje.quantas > 1 ? ` (${hoje.quantas} registros hoje)` : ''}`
+    : 'Dose de hoje: ainda não registrada');
+  return linhas;
+}
+
 export function resumoDaJornada(S: State): string {
   const P = S.profile as any;
   const agora = +now();
@@ -118,16 +168,21 @@ export function resumoDaJornada(S: State): string {
     }
   }
   const ultima = lastInjection(S) as any;
+  const diaria = doseDiaria(S);
   secoes.push(secao('Tratamento', [
     med && P.med !== 'indefinido' ? `Medicamento: ${med.label} (${med.mol})` : 'Medicamento: ainda não informado',
     med && P.med !== 'indefinido' ? viaDoTratamento(S) : null,
-    med && P.med !== 'indefinido' ? `Frequência: ${cadenciaDias(S) === 1 ? 'diária' : cadenciaDias(S) === 7 ? 'semanal' : `a cada ${cadenciaDias(S)} dias`}` : null,
+    med && P.med !== 'indefinido' ? frequenciaDoTratamento(S) : null,
     temDose(S) ? `Dose atual no perfil: ${doseDoPerfil(S)}` : 'Dose: ainda não informada',
     /* sem dia a contar na dose diária, sem a adesão — e não "adesão 0%" (ver `adesaoSemConta`) */
-    injs.length ? `Doses registradas: ${injs.length}${injs.length >= 2 && !adesaoSemConta(S) ? ` (adesão ${adesao(S)}%)` : ''}` : 'Nenhuma dose registrada ainda',
+    /* ⚠️ NO DIÁRIO, SEM A ADESÃO EM PORCENTAGEM (02/10/2026): a constância
+       vai em dias, nas linhas de `linhasDoDiario`, logo abaixo. */
+    injs.length ? `Doses registradas: ${injs.length}${injs.length >= 2 && !diaria && !adesaoSemConta(S) ? ` (adesão ${adesao(S)}%)` : ''}` : 'Nenhuma dose registrada ainda',
+    ...(diaria && ultima ? linhasDoDiario(S) : []),
     mudancas.length > 1 ? `Doses ao longo do tempo (data do primeiro registro em cada dose): ${mudancas.join('; ')}` : null,
     ultima ? `Última dose: ${data(ultima.t)} (${haQuanto(ultima.t)})${ultima.dose != null ? `, ${num(ultima.dose, 2)} ${med?.unit ?? 'mg'}` : ''}` : null,
-    ultima ? `Próxima dose prevista: ${data(+nextInjectionDate(S))}` : null,
+    /* no diário a próxima é sempre amanhã — a linha da dose de hoje diz o que importa */
+    ultima && !diaria ? `Próxima dose prevista: ${data(+nextInjectionDate(S))}` : null,
   ]));
 
   /* O PESO — de onde partiu, onde está, a meta e as últimas pesagens. */

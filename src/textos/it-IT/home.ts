@@ -1,4 +1,5 @@
 import { medidas } from './medidas';
+import { tempo } from './tempo';
 
 /* ============================================================
    LA HOME E IL PERCORSO — gli obiettivi del giorno, le schede e la linea
@@ -276,10 +277,11 @@ export const home = {
       `${sintoma.toLowerCase()} in ${dias} ${dias === 1 ? 'giorno' : 'giorni'}`,
 
     /* ---------- la scorta ---------- */
-    dosesRestantes: (restam: number, semanas: number) =>
-      restam === 0
+    /* In giorni o in settimane (02/10/2026) — ragioni in ../pt-BR/home.ts. */
+    dosesRestantes: (restam: number, c: { n: number; unidade: 'dia' | 'semana' }) =>
+      restam === 0 || c.n === 0
         ? 'Nessuna dose rimasta'
-        : `${restam === 1 ? 'Resta 1 dose' : `Restano ${restam} dosi`} · circa ${semanas} ${semanas === 1 ? 'settimana' : 'settimane'}`,
+        : `${restam === 1 ? 'Resta 1 dose' : `Restano ${restam} dosi`} · circa ${tempo.duracao(c)}`,
 
     /* ---------- le intestazioni ---------- */
     /* ⚠️ IL LINK DICE IL NOME DELLA DESTINAZIONE, e diceva "Vedi tutte" —
@@ -356,6 +358,8 @@ export const home = {
        `formas.oA` sa restituirlo. Vedi PENDENCIAS, voce 26. */
     acabou: (oRecipiente: string) => `${oRecipiente} è finita.`,
     restaUmaDose: (onde: string) => `Resta una dose ${onde}.`,
+    /* la dose quotidiana riceve la scheda a tre giorni (02/10/2026) */
+    restamDoses: (quantas: number, onde: string) => `Restano ${quantas} dosi ${onde}.`,
     receitaCorpo: 'Una ricetta nuova richiede qualche giorno fra la richiesta e la farmacia — cominciare adesso evita di fermarsi a metà.',
     pedirRenovacao: 'Chiedi il rinnovo',
     verMedicamento: 'Vedi il farmaco',

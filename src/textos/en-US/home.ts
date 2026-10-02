@@ -1,4 +1,5 @@
 import { medidas } from './medidas';
+import { tempo } from './tempo';
 
 /* ============================================================
    HOME AND THE JOURNEY — daily goals, cards and the timeline · en-US
@@ -217,10 +218,11 @@ export const home = {
     sintomaEmDias: (sintoma: string, dias: number) =>
       `${sintoma.toLowerCase()} on ${dias} ${dias === 1 ? 'day' : 'days'}`,
 
-    dosesRestantes: (restam: number, semanas: number) =>
-      restam === 0
+    /* In days or weeks (02/10/2026) — reasons in ../pt-BR/home.ts. */
+    dosesRestantes: (restam: number, c: { n: number; unidade: 'dia' | 'semana' }) =>
+      restam === 0 || c.n === 0
         ? 'No doses left'
-        : `${restam === 1 ? '1 dose left' : `${restam} doses left`} · about ${semanas} ${semanas === 1 ? 'week' : 'weeks'}`,
+        : `${restam === 1 ? '1 dose left' : `${restam} doses left`} · about ${tempo.duracao(c)}`,
 
     oQueJaMudou: 'What has changed',
     oQueJaMudouVazio: 'From your second weigh-in on, what has changed shows up here.',
@@ -268,6 +270,8 @@ export const home = {
 
     acabou: (oRecipiente: string) => `${oRecipiente} is empty.`,
     restaUmaDose: (onde: string) => `One dose left ${onde}.`,
+    /* the daily dose gets the card with three days left (02/10/2026) */
+    restamDoses: (quantas: number, onde: string) => `${quantas} doses left ${onde}.`,
     receitaCorpo: 'A new prescription takes a few days from request to pharmacy — starting now means you won’t run out mid-treatment.',
     pedirRenovacao: 'Ask for a refill',
     verMedicamento: 'View the medication',

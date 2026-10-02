@@ -43,11 +43,18 @@
    dem Deutschen, und dann entscheidet der Satz über den Fall. Steht in
    PENDENCIAS.
 
-   ⚠️ DAS GENUS GEHÖRT ZUM WORT, und mit vier Sprachen sieht man das
-   sofort: der Behälter der Tablette heißt „cartela“ (weiblich) auf
+   ⚠️ DAS GENUS GEHÖRT ZUM WORT, und mit vier Sprachen sah man das
+   sofort: der Behälter der Tablette hieß „cartela“ (weiblich) auf
    Portugiesisch, „blíster“ (männlich) auf Spanisch, „plaquette“
    (weiblich) auf Französisch und „der Blister“ (männlich) auf Deutsch.
    Dieselbe Darreichungsform, vier Genera, die nicht zusammenpassen.
+
+   ⚠️ DER BEHÄLTER DER TABLETTE IST JETZT DIE PACKUNG (02.10.2026). Der
+   Vorrat an Tabletten wird pro Packung gezählt — 30 als Vorgabe, beim
+   Öffnen einer neuen bestätigt (Entscheidung des Eigentümers; siehe
+   ../pt-BR/formas.ts). Mit dem Wort wechselte das Genus: „der Blister“
+   war männlich, „die Packung“ ist weiblich — und weiblich beugt im
+   Genitiv nicht („der Packung“).
 
    ⚠️ UND „DURCHSTECHFLASCHE“ IST LANG, weil es das Wort ist, das auf der
    Packung steht. Dieselbe Regel wie bei ASAT und ALAT im französischen
@@ -60,7 +67,7 @@ type Recipiente = 'caneta' | 'frasco' | 'seringa' | 'comprimido';
 /* ⚠️ ABSICHTLICH PRIVAT. Es steht nicht in `palavras` und wird nicht
    exportiert: die einzige Tür zum Genus sind die Funktionen unten. */
 const GENERO: Record<Recipiente, 'm' | 'f' | 'n'> = {
-  caneta: 'm', frasco: 'f', seringa: 'f', comprimido: 'm',
+  caneta: 'm', frasco: 'f', seringa: 'f', comprimido: 'f',
 };
 
 /* ⚠️⚠️ DER GENITIV IST EIN FELD, und nicht `recipiente + 's'` — aus genau
@@ -71,7 +78,7 @@ const GENERO: Record<Recipiente, 'm' | 'f' | 'n'> = {
    Weiblich beugt gar nicht — „der Spritze“ —, männlich und sächlich
    bekommen -s oder -es, und welches von beiden hängt am Wort. */
 const GENITIVO: Record<Recipiente, string> = {
-  caneta: 'Pens', frasco: 'Durchstechflasche', seringa: 'Spritze', comprimido: 'Blisters',
+  caneta: 'Pens', frasco: 'Durchstechflasche', seringa: 'Spritze', comprimido: 'Packung',
 };
 
 const g = (r: Recipiente) => GENERO[r];
@@ -93,7 +100,7 @@ export const formas = {
     caneta: { recipiente: 'Pen', plural: 'Pens', verbo: 'spritzen', acao: 'Dosis' },
     frasco: { recipiente: 'Durchstechflasche', plural: 'Durchstechflaschen', verbo: 'spritzen', acao: 'Dosis' },
     seringa: { recipiente: 'Fertigspritze', plural: 'Fertigspritzen', verbo: 'spritzen', acao: 'Dosis' },
-    comprimido: { recipiente: 'Blister', plural: 'Blister', verbo: 'einnehmen', acao: 'Dosis' },
+    comprimido: { recipiente: 'Packung', plural: 'Packungen', verbo: 'einnehmen', acao: 'Dosis' },
   } as Record<Recipiente, { recipiente: string; plural: string; verbo: string; acao: string }>,
 
   /* ⚠️ ZWEI WÖRTER FÜR DREI GENERA. Das Sächliche bekommt die männliche

@@ -1,3 +1,4 @@
+import { tempo } from './tempo';
 /* ============================================================
    LA TERAPIA — la dose, la cadenza, i traguardi e i metri · it-IT
 
@@ -321,13 +322,18 @@ export const tratamento = {
     medicamento: 'Farmaco',
     dosesRestantesNo: (restam: number, onde: string) =>
       `${restam === 1 ? 'Resta 1 dose' : `Restano ${restam} dosi`} ${onde}`,
-    cobreSemanas: (veredito: string, semanas: number) =>
-      `${veredito} — basta per circa ${semanas} ${semanas === 1 ? 'settimana' : 'settimane'}`,
+    /* si chiamava `cobreSemanas`; in giorni o in settimane, mai "circa 0"
+       (02/10/2026) — ragioni in ../pt-BR/tratamento.ts */
+    cobre: (veredito: string, c: { n: number; unidade: 'dia' | 'semana' }) =>
+      c.n === 0
+        ? `${veredito} — non resta nessuna dose`
+        : `${veredito} — basta per circa ${tempo.duracao(c)}`,
 
     alertasDeDose: (quantos: number) => `${quantos} ${quantos === 1 ? 'avviso' : 'avvisi'} per la dose`,
     nenhumAlerta: 'Nessun avviso per la dose',
     tocaEm: (quando: string) => `Suona ${quando}`,
     avisoAntes: 'Un avviso prima della dose, all’ora che scegli tu',
+    avisoDiario: 'Un avviso ogni giorno, all’ora che scegli tu',
 
     proxima: 'prossima',
 
@@ -396,6 +402,9 @@ export const tratamento = {
       `${Recipiente} ${aberto} il ${data} · ${total} dosi per ${recipiente}`,
     leadSemAberto: (nenhum: string, recipiente: string, aberto: string, total: number) =>
       `${nenhum} ${recipiente} ${aberto} · ${total} dosi per ${recipiente}`,
+    /* la penna a dose regolabile senza dose scelta (02/10/2026): i milligrammi, e non «0 dosi» */
+    leadSemAbertoMg: (nenhum: string, recipiente: string, aberto: string, mg: string, unidade: string) =>
+      `${nenhum} ${recipiente} ${aberto} · ${mg} ${unidade} per ${recipiente}`,
 
     dosesUsadas: 'Dosi usate',
     usadasDe: (usadas: number, total: number) => `${usadas} su ${total}`,
@@ -413,7 +422,8 @@ export const tratamento = {
     quemPreparaDefine: 'il termine lo decide chi la prepara',
 
     receitaAte: 'Ricetta fino al',
-    receitaSemanas: (semanas: number) => `${semanas} ${semanas === 1 ? 'settimana' : 'settimane'}`,
+    receitaDura: (c: { n: number; unidade: 'dia' | 'semana' }) =>
+      (c.n === 0 ? 'nessuna dose' : tempo.duracao(c)),
 
     /* Il contenitore può scadere prima che ne esca l'ultima dose — con 14
        giorni di validità e quattro dosi settimanali questa è la regola,
@@ -423,8 +433,10 @@ export const tratamento = {
       `${medicamento} dura ${dias} giorni dopo essere ${aberto}, e in quel termine non ci stanno le ${total} dosi. Vale la pena chiedere a chi ti segue che cosa fare di quello che avanza.`,
 
     momentoDeRenovar: 'È il momento di chiedere il rinnovo',
-    renovarTexto: (semanas: number) =>
-      `La tua ricetta copre circa ${semanas} ${semanas === 1 ? 'settimana' : 'settimane'}. Chiederlo adesso evita di restare senza il farmaco fra una visita e l’altra.`,
+    renovarTexto: (c: { n: number; unidade: 'dia' | 'semana' }) =>
+      c.n === 0
+        ? 'Le dosi registrate sono finite. Chiederlo adesso evita di restare senza il farmaco fra una visita e l’altra.'
+        : `La tua ricetta copre circa ${tempo.duracao(c)}. Chiederlo adesso evita di restare senza il farmaco fra una visita e l’altra.`,
 
     historico: (plural: string) => `Storico ${plural}`,
     emUso: 'in uso',
@@ -469,6 +481,13 @@ export const tratamento = {
     outro: 'Altro',
     concentracaoEDoses: 'Concentrazione e dosi',
     ajudaDoses: (quantas: number, recipiente: string) => `${quantas} dosi per ${recipiente}`,
+    /* penna a dose regolabile e confezione di compresse (02/10/2026) —
+       ragioni in ../pt-BR/tratamento.ts */
+    ajudaMg: (mg: string, unidade: string, recipiente: string, quantas: number, dose: string) =>
+      `${mg} ${unidade} per ${recipiente} · ${quantas} ${quantas === 1 ? 'dose' : 'dosi'} da ${dose} ${unidade}`,
+    quantosComprimidos: (onde: string) => `Quante compresse ci sono ${onde}?`,
+    comprimidosAjuda: 'Il numero è stampato sulla confezione. È da qui che contiamo per quanti giorni ne hai.',
+    comprimidos: 'compresse',
     ajudaValidade: (dias: number, _aberto: string) => ` · dura ${dias} giorni dall’apertura`,
     validadeRotulo: (_aberto: string) => 'Durata dopo l’apertura',
     validadeAjuda: 'Questo termine lo stabilisce chi la prepara, e di solito è sull’etichetta. Senza, non parliamo di scadenza — meglio tacere che tirare a indovinare una data.',
@@ -476,6 +495,8 @@ export const tratamento = {
     estaNoRotulo: 'È sull’etichetta',
     dias: 'giorni',
     registrar: (novoRecipiente: string) => `Registra ${novoRecipiente}`,
+    /* o recipiente que já estava em uso, com o artigo (02/10/2026, revisão da B3) */
+    registrarRecipiente: (oRecipiente: string) => `Registra ${oRecipiente}`,
   },
 
   telaRegistrarAplicacao: {
@@ -535,6 +556,8 @@ export const tratamento = {
     quantasJaSairam: (deste: string, recipiente: string) =>
       `Quante dosi ${deste} ${recipiente} avevi già usato?`,
     doses: (n: number) => (n === 1 ? '1 dose' : `${n} dosi`),
+    /* la parola senza il numero, per il righello delle dosi già uscite (02/10/2026) */
+    dosesUnidade: (n: number): string => (n === 1 ? 'dose' : 'dosi'),
     registraJunto: (oRecipiente: string, total: number, recipiente: string) =>
       `Registriamo ${oRecipiente} insieme a questa dose (${total} dosi per ${recipiente}) e iniziamo a contare quelle rimaste.`,
 

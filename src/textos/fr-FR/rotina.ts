@@ -82,7 +82,7 @@ export const rotina = {
       (injetavel ? `Sortez ${recipiente} et choisissez le site` : `Sortez ${recipiente}`),
     aplicacaoPorque: (injetavel: boolean): string => (injetavel
       ? 'La prochaine dose approche, et alterner les sites réduit l’irritation de la peau'
-      : 'La prochaine dose approche, et garder la plaquette à portée de main aide à ne pas l’oublier'),
+      : 'La prochaine dose approche, et garder la boîte à portée de main aide à ne pas l’oublier'),
 
     receita: 'Demandez le renouvellement de l’ordonnance',
     /* ⚠️ L'ORDONNANCE EST NOMMÉE ICI, et ce n'est pas une redite du titre :

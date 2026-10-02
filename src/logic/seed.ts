@@ -833,12 +833,23 @@ export function comNotificacoesDeExemplo(S: State): State {
 
   /* o aviso da véspera, na hora e com a antecedência do alerta de dose */
   const al = ((S as any).alertas as any[] ?? []).find((a) => a.tipo === 'dose' && a.on);
+  /* ⚠️ NA DOSE DIÁRIA É O AVISO DO DIA, e só se ele tocou (02/10/2026,
+     parte B4): sem antecedência, na hora do alerta no dia da última dose
+     — e o aviso do dia fica quieto quando a dose já está registrada (ver
+     `proximasDe`, em logic/alertas). A dose registrada antes da hora do
+     alerta o calou; a lista não pode contar um aviso que não chegou. O
+     semanal fica como era. */
+  const diaria = doseDiaria(S as any);
   if (ultima && al && med) {
-    const lead = al.lead ?? 0;
-    lista.push({
-      t: +startOfDay(new Date(ultima.t)) - lead * DAY + (al.horas?.[0] ?? 9) * HORA,
-      tipo: 'dose', dias: lead, med: med.label, dose: ultima.dose, unidade: med.unit, forma,
-    });
+    const lead = diaria ? 0 : al.lead ?? 0;
+    const t = +startOfDay(new Date(ultima.t)) - lead * DAY + (al.horas?.[0] ?? 9) * HORA;
+    if (!diaria || t < ultima.t) {
+      lista.push({
+        t,
+        tipo: 'dose', dias: lead, med: med.label, dose: ultima.dose, unidade: med.unit, forma,
+        ...(diaria ? { diaria: true } : {}),
+      });
+    }
   }
 
   /* a manchete do ciclo de hoje, às oito — ou agora, se ainda não deu.

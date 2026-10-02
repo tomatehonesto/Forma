@@ -28,6 +28,11 @@ export const resumo = {
   aplicacoesNenhuma: 'None logged',
   /* doses registradas sem um "previstas" a comparar (quem trocou e ainda não registrou o regime de agora) */
   aplicacoesRegistradas: (n: number): string => `${n} logged`,
+  /* ⚠️ Daily doses read in DAYS, not expected doses (02/10/2026, part
+     B5): a day with no tap is a day with no LOG. Reason in
+     ../pt-BR/resumo.ts. */
+  diasComDose: 'Days with a dose logged',
+  diasComDoseValor: (feitos: number, dias: number) => `${feitos} of ${dias}`,
 
   peso: 'Weight',
   inicioAtual: 'Start → current',
@@ -73,12 +78,13 @@ export const resumo = {
     pesoAtual: 'Current weight',
     variacao: 'Change in the period',
     aplicacoesNoPeriodo: 'Doses in the period',
+    diasComDoseNoPeriodo: 'Days with a dose in the period',
     checkinsRespondidos: 'Check-ins answered',
     peso: 'Weight',
     medidas: 'Measurements',
     aplicacoes: 'Doses',
-    dosesSub: (quantas: number, comLocal: boolean): string =>
-      `${quantas} ${quantas === 1 ? 'entry' : 'entries'} · ${comLocal ? 'date, dose and site' : 'date and dose'}`,
+    dosesSub: (quantas: number, comLocal: boolean, resumidas: boolean): string =>
+      `${quantas} ${quantas === 1 ? 'entry' : 'entries'} · ${resumidas ? 'summarized by dose' : comLocal ? 'date, dose and site' : 'date and dose'}`,
     sintomas: 'Symptoms',
     exames: 'Lab results',
     notas: 'Notes for the appointment',
@@ -87,6 +93,10 @@ export const resumo = {
     medicamento: 'Medication',
     dose: 'Dose',
     local: 'Site',
+    periodoDaDose: 'Period',
+    registros: 'Entries',
+    diasComDose: 'Days with a dose',
+    resumoPorDose: (n: number) => `${n} entries in the period, summarized by dose. Days with a dose are days with at least one dose logged.`,
     proteinaMedia: 'Protein per day, on average',
     aguaMedia: 'Fluids per day, on average',
     exercicioTotal: 'Exercise in the period',

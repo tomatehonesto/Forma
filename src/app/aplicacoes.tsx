@@ -9,7 +9,7 @@ import {
   doseDoPerfil,
   diasAteAplicar, temCiclo,
   doseDiaria, doseDeHoje, inicioDoTratamento, diasComDose, gravarDose, instanteDaAplicacao, faltaNaDose, doseEmUsoNoDia,
-  dosesEmOrdem, doseEhDiaria,
+  dosesEmOrdem, doseEhDiaria, coberturaDoEstoque,
 } from '../logic/derive';
 import {
   now, diffDays, fmtDate, relDay, doseTxt, quandoEm, maiuscula, dataComDiaDaSemana, ordemDaSemana, startOfDay, fmtTime,
@@ -315,13 +315,18 @@ export default function Aplicacoes() {
             ? T.tratamento.registreORecipiente(`${oA(formaDe(S))} ${FORMAS()[formaDe(S)].recipiente}`)
             : k.verdict.good
               ? K().dosesRestantesNo(k.left, nesteNesta(formaDe(S)))
-              : K().cobreSemanas(k.verdict.label, Math.round(k.semanas))}
+              /* em dias ou semanas (02/10/2026, parte B3) — ver
+                 `coberturaDoEstoque`, em logic/derive */
+              : K().cobre(k.verdict.label, coberturaDoEstoque(S, k))}
           onPress={() => router.push('/caneta' as any)}
         />
         <Linha
           ic="bell"
           titulo={alertasDaDose.length ? K().alertasDeDose(alertasDaDose.length) : K().nenhumAlerta}
-          sub={rem ? K().tocaEm(rem) : K().avisoAntes}
+          /* ⚠️ "Um aviso antes da dose" é a antecedência do semanal; para
+             quem toma todo dia o convite é o aviso de todo dia (parte B4,
+             02/10/2026). */
+          sub={rem ? K().tocaEm(rem) : diaria ? K().avisoDiario : K().avisoAntes}
           onPress={() => router.push('/lembretes' as any)}
         />
       </Cartao>

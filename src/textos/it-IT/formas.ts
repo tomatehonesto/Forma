@@ -22,7 +22,7 @@
    ⚠️ E C'È UNA TERZA FORMA CHE OGGI NON SERVE. Davanti a s+consonante,
    z, gn, ps, x e y il maschile prende "lo", non "il" — e con la
    preposizione fa "nello" e "dello". Nessuno dei quattro contenitori di
-   oggi comincia così ("flacone", "blister"), e per questo le funzioni
+   oggi comincia così ("flacone", "confezione"), e per questo le funzioni
    qui sotto conoscono due casi e non tre. Il giorno in cui entra uno
    "spray" o uno "stick", questo file sbaglia in silenzio — è la stessa
    trappola del neutro tedesco, annotata in ../de-DE/formas.ts.
@@ -39,6 +39,12 @@
    ⚠️ E IL PLURALE DI "SIRINGA" È "SIRINGHE", con l'acca. Senza, la
    parola cambia suono. È la ragione per cui il plurale è un campo e non
    un calcolo.
+
+   ⚠️ IL CONTENITORE DELLA COMPRESSA È LA CONFEZIONE (02/10/2026), ed era
+   il blister. La scorta della compressa si conta per confezione — 30 di
+   base, confermato all'apertura di una (decisione del proprietario; vedi
+   ../pt-BR/formas.ts). Il genere è cambiato con la parola: "il blister"
+   era maschile, "la confezione" è femminile.
    ============================================================ */
 
 type Recipiente = 'caneta' | 'frasco' | 'seringa' | 'comprimido';
@@ -46,15 +52,14 @@ type Recipiente = 'caneta' | 'frasco' | 'seringa' | 'comprimido';
 /* ⚠️ PRIVATO DI PROPOSITO. Non entra in `palavras` e non si esporta:
    l'unica porta al genere sono le funzioni qui sotto. */
 const GENERO: Record<Recipiente, 'm' | 'f'> = {
-  caneta: 'f', frasco: 'm', seringa: 'f', comprimido: 'm',
+  caneta: 'f', frasco: 'm', seringa: 'f', comprimido: 'f',
 };
 
 const f = (r: Recipiente) => GENERO[r] === 'f';
 
 export const formas = {
   /* ⚠️ IL PLURALE È UN CAMPO. "Siringa" fa "siringhe" e non "siringe";
-     "blister" non cambia affatto. Due eccezioni su quattro parole: non
-     c'è nessun calcolo da applicare. */
+     "confezione" fa "confezioni". Non c'è nessun calcolo da applicare. */
   /* ⚠️ `acao` È "DOSE" PER TUTTE LE FORME (decisione del proprietario,
      01/10/2026): finisce nei titoli e nelle conferme, e chi prende la
      compressa leggeva "Registra la puntura". Solo la frase in prima
@@ -65,7 +70,7 @@ export const formas = {
     caneta: { recipiente: 'penna', plural: 'penne', verbo: 'iniettare', acao: 'dose' },
     frasco: { recipiente: 'flacone', plural: 'flaconi', verbo: 'iniettare', acao: 'dose' },
     seringa: { recipiente: 'siringa', plural: 'siringhe', verbo: 'iniettare', acao: 'dose' },
-    comprimido: { recipiente: 'blister', plural: 'blister', verbo: 'prendere', acao: 'dose' },
+    comprimido: { recipiente: 'confezione', plural: 'confezioni', verbo: 'prendere', acao: 'dose' },
   } as Record<Recipiente, { recipiente: string; plural: string; verbo: string; acao: string }>,
 
   concordar: (r: Recipiente, masc: string, fem: string) => (f(r) ? fem : masc),

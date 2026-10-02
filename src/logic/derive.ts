@@ -3,7 +3,7 @@ import {
   DAY, startOfDay, now, daysAgo, addDays, diffDays, fmtDate, hm, diasDaSemana, nf, kg, relDay,
   doseTxt, MO_LONG, semanaDoTratamento, quandoEm, dataLonga, kgTxt, maiuscula, fmtTime,
 } from './time';
-import { MEDS, SHELF_DAYS, cadenciaDoPerfil, doseDiaria } from './meds';
+import { MEDS, SHELF_DAYS, cadenciaDoPerfil, doseDiaria, cabeDe, dosesDoMg, doseEmMicrogramas } from './meds';
 import { numeroEnxuto, primeiroDiaDaSemana } from './local';
 import {
   FORMAS, formaDe, oA, noNa, nomeDaMolecula, injetavelDe, iconeDaDose, iconeDeDose, localDaDose, remedioDaDose,
@@ -392,7 +392,11 @@ export const diasComDose = (S: State): number[] =>
    cobrados como comprimido esquecido. Os dias antes de `inicioDoDiario`
    não são devidos nem feitos; quando o regime começa depois da janela,
    `dias` é zero, e o painel volta para a linha só do check-in. */
-function contagemDaJanela(S: State, ini: number, fim: number) {
+/* ⚠️ EXPORTADA DESDE A PARTE B5 (02/10/2026): o relatório do médico (os
+   trechos de dose do PDF), o resumo da semana e o resumo que a conversa lê
+   contam os dias com dose de uma janela qualquer — e contam por aqui, com
+   a mesma regra do painel, para nenhum número sobre o mesmo dia discordar. */
+export function contagemDaJanela(S: State, ini: number, fim: number) {
   const desde = inicioDoDiario(S);
   if (desde == null) return { feitos: 0, dias: 0 };
   const de = Math.max(ini, desde);
@@ -448,6 +452,89 @@ export function diasDoDiario(S: State): { feitos: number; dias: number } {
   const desde = inicioDoDiario(S);
   if (desde == null) return { feitos: 0, dias: 0 };
   return contagemDaJanela(S, desde, diaDoCalendario(+startOfDay(now()), 1));
+}
+
+/** Os dias com dose a partir do dia de `desde` (00h) até hoje — a régua de
+    `diasDoDiario`, recortada: as últimas duas semanas do resumo da
+    conversa, o período do PDF. Zero e zero sem regime diário a contar. */
+export const diasComDoseDesde = (S: State, desde: number) =>
+  contagemDaJanela(S, +startOfDay(new Date(desde)), diaDoCalendario(+startOfDay(now()), 1));
+
+/** Um trecho do diário com o mesmo remédio e a mesma dose, recortado a um
+    período: os dias (00h) de `de` a `ate`, as doses registradas nele e os
+    dias com dose contra os dias que contam (`feitos` de `dias`). */
+export type TrechoDeDose = { med: string; dose: number; de: number; ate: number; doses: number; feitos: number; dias: number };
+
+/* ⚠️ O PDF DE QUEM TOMA TODO DIA, EM TRECHOS (02/10/2026, parte B5 de
+   docs/superpowers/specs/2026-10-01-oral-e-diario-design.md). Uma linha
+   por comprimido dava noventa linhas iguais, "7 mg", desde a última
+   consulta — e trezentas no tratamento inteiro: a subida de 3 para 7 e 14
+   mg se perdia no meio, e o médico não via falha nem constância. O
+   trecho é o que ele procura: com que dose, de quando a quando, e em
+   quantos dias houve dose.
+
+   O TRECHO VAI ATÉ A VÉSPERA DO SEGUINTE, e não até a última dose dele.
+   Quem tomou 7 mg até o dia 20, não registrou nada do 21 ao 25 e subiu
+   para 14 mg no 26 estava, do 21 ao 25, em 7 mg sem dose registrada — é a
+   regra de `doseEmUsoNoDia`, e os cinco dias contam contra o trecho de 7
+   mg. O último vai até hoje, e hoje só depois da dose dele: as contas são
+   as de `contagemDaJanela`, então os trechos de um período somam o mesmo
+   que `diasComDoseDesde` do período, e nada é presumido.
+
+   O TRECHO QUE COMEÇOU ANTES DO PERÍODO entra recortado: os dias de 7 mg
+   do começo do período são dias de 7 mg, mesmo que a dose de 7 mg
+   registrada seja de antes. Um trecho de outro regime (a caneta semanal
+   de quem trocou pelo comprimido) não tem dia a contar: vai com as doses
+   e `dias` zero, de `de` a `ate` pelas doses dele — e some se não tiver
+   dose no período. */
+export function trechosDeDose(S: State, desde: number): TrechoDeDose[] {
+  const ini0 = +startOfDay(new Date(desde));
+  const amanha = diaDoCalendario(+startOfDay(now()), 1);
+  const regime = inicioDoDiario(S);
+  const grupos: { med: string; dose: number; lista: any[] }[] = [];
+  for (const i of dosesEmOrdem(S)) {
+    const med = i.med || S.profile.med;
+    const g = grupos[grupos.length - 1];
+    if (g && g.med === med && g.dose === i.dose) g.lista.push(i);
+    else grupos.push({ med, dose: i.dose, lista: [i] });
+  }
+  /* ⚠️ O DIA DIVIDIDO FICA COM O TRECHO DE ANTES (02/10/2026, achado da
+     revisão da B5). Na manhã da subida, "Tomei hoje" grava os 7 mg do
+     perfil às 7h10 e a pessoa acrescenta os 14 mg de verdade às 7h15: o
+     dia era do trecho de 14 mg, mas a dose de 7 mg dele contava no de 7 —
+     e o papel dizia "41 registros, 40 de 40 dias", uma dose dobrada de 7 mg
+     que nunca aconteceu, num período que nem incluía o dia dela. Agora o
+     trecho seguinte começa no dia depois, e a troca no mesmo dia aparece
+     como duas linhas na mesma data. */
+  const dia0 = (t: number) => +startOfDay(new Date(t));
+  const comeco = grupos.map((g, k) => {
+    const d0 = dia0(g.lista[0].t);
+    const anterior = grupos[k - 1];
+    return anterior && dia0(anterior.lista[anterior.lista.length - 1].t) === d0 ? diaDoCalendario(d0, 1) : d0;
+  });
+  const out: TrechoDeDose[] = [];
+  grupos.forEach((g, k) => {
+    const ini = Math.max(comeco[k], ini0);
+    const fim = k + 1 < grupos.length ? Math.max(comeco[k + 1], ini) : amanha;
+    const noPeriodo = g.lista.filter((i) => i.t >= ini0);
+    /* ⚠️ A TROCA NO MESMO DIA deixa a janela vazia (o trecho seguinte
+       começa no mesmo dia), mas a dose existe e não pode sumir do papel:
+       vai com as doses dela e sem dia a contar. */
+    const c = fim > ini ? contagemDaJanela(S, ini, fim) : { feitos: 0, dias: 0 };
+    if (!noPeriodo.length && !c.dias) return;
+    const dia = (t: number) => +startOfDay(new Date(t));
+    const deContado = Math.max(ini, regime ?? ini);
+    out.push({
+      med: g.med,
+      dose: g.dose,
+      de: c.dias ? deContado : dia(noPeriodo[0].t),
+      ate: c.dias ? diaDoCalendario(deContado, c.dias - 1) : dia(noPeriodo[noPeriodo.length - 1].t),
+      doses: noPeriodo.length,
+      feitos: c.feitos,
+      dias: c.dias,
+    });
+  });
+  return out;
 }
 
 /** A semana do tratamento de hoje, para o painel da Jornada ("5 de 7 dias
@@ -3154,7 +3241,11 @@ export function recommendations(S: State): Reco[] {
   const p = penStock(S);
   if (!p.verdict.good) {
     out.push({
-      emDias: Math.max(1, p.left * 7 - 7), ic: 'pill', texto: E.receita,
+      /* ⚠️ O DIA DA ÚLTIMA DOSE, NA CADÊNCIA DE QUEM TOMA (02/10/2026,
+         parte B3). Era `left × 7 − 7` — a semana fixa —, e quem toma todo
+         dia, com sete comprimidos, lia o pedido da receita "daqui a 42
+         dias". No semanal é o mesmo número de antes. */
+      emDias: Math.max(1, (p.left - 1) * cadenciaDias(S)), ic: 'pill', texto: E.receita,
       porque: E.receitaPorque(p.left, noNa(formaDe(S))),
       to: '/aplicacoes',
     });
@@ -5895,14 +5986,57 @@ export const comecouAntesDoApp = (S: State) => {
    caneta cruzou essa linha — ver `comNotificacoesDeExemplo`, em seed. */
 export const RENOVAR_COM = 3;
 
+/* ============================================================
+   A LINHA DE RENOVAR É EM DIAS DE COBERTURA (02/10/2026, parte B3 de
+   docs/superpowers/specs/2026-10-01-oral-e-diario-design.md)
+
+   ⚠️⚠️ "TRÊS DOSES" SÃO TRÊS SEMANAS PARA UNS E TRÊS DIAS PARA OUTROS. A
+   linha era em doses, e para quem toma todo dia o aviso de renovar
+   chegava três dias antes de o remédio acabar — menos do que uma receita
+   nova leva entre o pedido e a farmácia (a frase da Home diz isso). Agora
+   ela é em dias de remédio na mão (doses que restam × a cadência), e
+   chega com SETE dias de cobertura, para todos (decisão do dono).
+
+   ⚠️ "OU TRÊS DOSES, O QUE VIER ANTES" é o que mantém o semanal como
+   era: três doses semanais são 21 dias, mais do que sete, e quem usa
+   caneta semanal continua sendo avisado com três semanas, como sempre
+   foi. Só a dose diária muda — 7 doses em vez de 3 —, porque só nela a
+   linha de doses dava menos de uma semana.
+
+   E "Renove agora" segue a mesma conta: três dias de remédio, ou uma
+   dose, o que vier antes. No semanal continua sendo a última dose; na
+   diária, os últimos três dias — uma dose só seria o dia em que acaba.
+   ============================================================ */
+const DIAS_PARA_RENOVAR = 7;
+const DIAS_DE_URGENCIA = 3;
+
+/** O nível do estoque por dias de cobertura — ver o bloco acima. */
+const nivelDoEstoque = (left: number, cad: number): 'urgente' | 'renovar' | 'emDia' => {
+  const dias = left * cad;
+  if (dias <= Math.max(DIAS_DE_URGENCIA, cad)) return 'urgente';
+  if (dias <= Math.max(DIAS_PARA_RENOVAR, RENOVAR_COM * cad)) return 'renovar';
+  return 'emDia';
+};
+
 export function penStock(S: State) {
-  const atual = canetas(S)[0] ?? null;
+  /* ⚠️ O ÚLTIMO ABERTO SÓ CONTA SE VALE PARA A DOSE DE AGORA — na dose
+     diária, o do mesmo remédio (e, no comprimido, da mesma dose); no
+     semanal, sempre, como era. Ver `saiDoRecipiente`. */
+  const ult = recipientes(S).slice(-1)[0];
+  const atual = ult && valeParaAgora(S, ult) ? canetas(S)[0] ?? null : null;
   const total = atual?.total ?? dosesPorRecipiente(S);
   const left = atual ? Math.max(0, total - atual.usadas) : total;
   const semanas = left * (cadenciaDias(S) / 7);
-  const verdict: Verdict = left <= 1
+  /* ⚠️ SEM RECIPIENTE REGISTRADO, O ESTOQUE ESTÁ "EM DIA" — porque não há
+     o que pedir. No semanal o recuo (a caneta cheia) já dava isso; na
+     dose diária ele não daria: uma caneta de Saxenda cheia, em 3 mg, são
+     6 doses, menos de sete dias, e o aplicativo pediria receita nova por
+     uma caneta que ninguém registrou. E a caixa de comprimido que ninguém
+     registrou nunca "acabou" (02/10/2026). */
+  const nivel = atual ? nivelDoEstoque(left, cadenciaDias(S)) : 'emDia';
+  const verdict: Verdict = nivel === 'urgente'
     ? { label: T.tratamento.estoqueUrgente, good: false }
-    : left <= RENOVAR_COM
+    : nivel === 'renovar'
       ? { label: T.tratamento.estoqueRenovar, good: false }
       : { label: T.tratamento.estoqueEmDia, good: true };
   /* ⚠️ `registrada` DIZ SE A CONTA É DE UM RECIPIENTE DE VERDADE. Sem
@@ -5911,6 +6045,43 @@ export function penStock(S: State) {
      estoque ("4 de 4", "restam 4 doses", "estoque em dia") pergunta isto
      antes e, sem registro, pede o registro. */
   return { left, total, semanas, verdict, registrada: !!atual };
+}
+
+/* ⚠️ AS DUAS LEITURAS DO ESTOQUE QUE NÃO MORAM NO OBJETO DELE (02/10/2026).
+   `penStock` sai inteiro na rede do congelamento, e um campo novo nele
+   seria uma linha a mais no estoque de quem usa caneta semanal. Então o
+   que a parte B3 acrescenta são funções ao lado, que recebem o estoque já
+   calculado. */
+
+/** O recipiente registrado está no fim: "Renove agora". É o que acende o
+    cartão da Home e o vermelho do Cuidado — na caneta semanal, a última
+    dose (como sempre foi); na diária, os últimos três dias. Sem
+    recipiente registrado, nunca: não se anuncia o fim do que ninguém
+    registrou. */
+export const estoqueNoFim = (S: State, p: { left: number; registrada: boolean } = penStock(S)) =>
+  p.registrada && nivelDoEstoque(p.left, cadenciaDias(S)) === 'urgente';
+
+/** Quanto tempo o estoque cobre, já na unidade de ler.
+
+    ⚠️⚠️ ERA `left × cadência / 7` ESCRITO CRU, e a tela dizia "cerca de
+    0.42857142857142855 semanas" a quem tinha três comprimidos, e "cerca de
+    0 semanas" quando arredondava. Agora:
+
+    · na cadência de menos de uma semana, em DIAS enquanto a cobertura for
+      menor que duas semanas ("cerca de 6 dias") — "cerca de 1 semana"
+      para seis dias de remédio esconderia justamente o que importa;
+    · daí em diante, e em toda cadência semanal ou maior, em semanas
+      arredondadas ("cerca de 4 semanas" para uma caixa de 30). No
+      semanal isto é o mesmo número de antes: doses × 7 ÷ 7.
+
+    Zero é zero, e quem escreve não diz "cerca de" para ele — o texto de
+    cada tela tem o seu jeito de dizer que acabou. */
+export type Cobertura = { n: number; unidade: 'dia' | 'semana' };
+export function coberturaDoEstoque(S: State, p: { left: number } = penStock(S)): Cobertura {
+  const cad = cadenciaDias(S);
+  const dias = Math.max(0, p.left) * cad;
+  if (cad < 7 && dias < 14) return { n: dias, unidade: 'dia' };
+  return { n: Math.round(dias / 7), unidade: 'semana' };
 }
 
 /* Resumo do tratamento — os cinco números do topo da Jornada. */
@@ -6136,7 +6307,8 @@ export function carePending(S: State) {
   const p = penStock(S);
   if (!p.verdict.good) out.push({
     ic: 'pill', texto: P().receita,
-    sub: P().receitaSub(p.left, p.semanas),
+    /* em dias ou semanas, arredondado — ver `coberturaDoEstoque` (02/10/2026) */
+    sub: P().receitaSub(p.left, coberturaDoEstoque(S, p)),
     rotulo: P().receitaRotulo,
     /* ⚠️ COM EQUIPE, LEVA AO PEDIDO E NÃO À TELA. "Peça a renovação da
        receita" abria a tela de equipe no alto, e a pessoa ficava
@@ -6871,6 +7043,31 @@ export type Recipiente = {
       como cheia. Com ele, o dia da abertura não é conhecido: `t` é o dia
       do registro, e a validade não se projeta (ver `canetaAtual`). */
   usadasAntes?: number;
+  /** ⚠️ OS MILIGRAMAS DA CANETA DE DOSE AJUSTÁVEL (02/10/2026, parte B3 de
+      docs/superpowers/specs/2026-10-01-oral-e-diario-design.md). Saxenda e
+      Victoza têm 18 mg, e quantas doses saem dependem da dose — que sobe
+      no meio da caneta, na titulação. `dosesPerPen` continua gravado (é o
+      que uma versão anterior do aplicativo sabe ler), mas quem conta é
+      isto: ver `canetas`. Só existe nela; a caneta de dose fixa e a caixa
+      de comprimidos não o têm. */
+  mg?: number;
+  /** ⚠️ OS COMPRIMIDOS QUE VIERAM NA CAIXA, confirmados ao registrá-la
+      (02/10/2026, revisão da parte B3). A caixa registrada antes disso
+      gravava em `dosesPerPen` o "4" de todo recipiente, e uma caixa de
+      Rybelsus com dez comprimidos tomados dizia "acabou"; sem este campo,
+      quem conta lê o do catálogo (30). É o formato que diz de quando o
+      registro é, e não o número — uma caixa de 4 que alguém confirmou é
+      de 4. `dosesPerPen` continua gravado, igual a ele. */
+  comprimidos?: number;
+};
+
+/** Quantas doses o recipiente tinha ao ser aberto: na caixa, o que a
+    pessoa confirmou (ou o catálogo, na caixa de antes de 02/10/2026 — ver
+    `comprimidos`); nos outros, o gravado. A caneta de dose ajustável é
+    contada em miligramas por `canetas`, por cima disto. */
+const cabiaNoRecipiente = (ab: Recipiente): number => {
+  const c = cabeDe(ab.med);
+  return c.em === 'comprimidos' ? (ab.comprimidos ?? c.n) : ab.dosesPerPen;
 };
 
 /** O recipiente registrado junto com uma dose, na folha da aplicação.
@@ -6885,7 +7082,16 @@ export const recipienteDaDose = (r: {
   t: r.t, med: r.med, dose: r.dose, dosesPerPen: r.dosesPerPen,
   ...(r.usadasAntes ? { usadasAntes: r.usadasAntes } : {}),
   ...(r.validadeDias ? { validadeDias: r.validadeDias } : {}),
+  /* A caneta de dose ajustável leva os miligramas dela (02/10/2026). */
+  ...mgDoCatalogo(r.med),
 });
+
+/** `{ mg }` para o remédio contado em miligramas, e nada para os outros —
+    o registro de quem usa caneta de dose fixa sai como sempre saiu. */
+export const mgDoCatalogo = (med: string): { mg?: number } => {
+  const c = cabeDe(med);
+  return c.em === 'mg' ? { mg: c.mg } : {};
+};
 
 /* ============================================================
    O QUE FALTA PARA REGISTRAR UMA DOSE
@@ -6915,12 +7121,91 @@ export function faltaNaDose(S: State, r: { dose: number; usadasAntes: number | n
 const recipientes = (S: State): Recipiente[] =>
   (((S as any).pens as Recipiente[]) ?? []).slice().sort((a, b) => a.t - b.t);
 
-/** Quantas doses cabem no recipiente — a do último aberto, e quatro
-    enquanto não houver nenhum. */
-export const dosesPorRecipiente = (S: State): number => {
+/** Quantas doses cabem num recipiente novo — do remédio do perfil, na dose
+    do perfil, a menos que se peça outro (a folha de recipiente novo, em
+    que os dois se escolhem ali mesmo).
+
+    ⚠️⚠️ ERA "O DO ÚLTIMO ABERTO, E QUATRO ENQUANTO NÃO HOUVER NENHUM", e o
+    quatro valia para todo remédio (02/10/2026, parte B3 de
+    docs/superpowers/specs/2026-10-01-oral-e-diario-design.md). Agora o
+    número vem do catálogo (`cabe`, em logic/meds), e cada jeito de contar
+    tem a sua regra:
+
+    · caneta de dose ajustável: os miligramas dela divididos pela dose —
+      18 mg de Saxenda dão 6 doses de 3 mg e 15 de 1,2 mg;
+    · caixa de comprimidos: o que a pessoa confirmou na última caixa DO
+      MESMO REMÉDIO (quem compra caixa de 28 não reescreve 28 toda vez), e
+      30, o padrão, na primeira;
+    · caneta de dose fixa: como sempre foi — o número do último
+      recipiente aberto, e o do catálogo (4) quando não há nenhum. A
+      herança só vale entre recipientes contados em doses: uma caneta de
+      Saxenda de 15 doses não ensina quantas doses tem um Mounjaro. */
+export const dosesPorRecipiente = (
+  S: State,
+  med: string = S.profile.med,
+  dose: number = (S.profile as any).dose ?? 0,
+): number => {
+  const c = cabeDe(med);
+  if (c.em === 'mg') return dosesDoMg(c.mg, dose);
   const l = recipientes(S);
-  return l.length ? l[l.length - 1].dosesPerPen : 4;
+  const ult = l[l.length - 1];
+  if (c.em === 'comprimidos') return ult && ult.med === med && cabiaNoRecipiente(ult) > 0 ? cabiaNoRecipiente(ult) : c.n;
+  return ult && !mgDoRecipiente(ult) && cabeDe(ult.med).em === 'doses' ? ult.dosesPerPen : c.n;
 };
+
+/** Os miligramas de um recipiente aberto, quando ele se conta em mg: o que
+    ele gravou e, no recipiente registrado antes de 02/10/2026 (que não
+    gravava), o do catálogo — as canetas de Saxenda e Victoza abertas
+    antes disso carregavam o "4" de todo mundo, e é o catálogo que conserta
+    a conta delas sem reescrever o diário. */
+const mgDoRecipiente = (ab: Recipiente): number | null => {
+  if (typeof ab.mg === 'number' && ab.mg > 0) return ab.mg;
+  const c = cabeDe(ab.med);
+  return c.em === 'mg' ? c.mg : null;
+};
+
+/* ============================================================
+   DE QUE RECIPIENTE SAI A DOSE DE QUEM TOMA TODO DIA
+
+   ⚠️⚠️ NA CANETA SEMANAL, TODA DOSE DEPOIS DE UMA ABERTURA É DELA, e
+   assim continua (ver `todaDoseSaiDele`, abaixo, para o que mudou nos
+   outros recipientes). Na dose diária isso inventava um alarme (02/10/2026, parte
+   B3): quem trocou o Ozempic pelo Rybelsus ainda tinha a última caneta
+   aberta, e cada comprimido saía DELA — no quarto dia, "A caneta acabou",
+   para quem nem caneta usa mais. O mesmo com quem sobe o Rybelsus de 7
+   para 14 mg: o comprimido de 14 é outro comprimido, e não sai da caixa
+   de 7.
+
+   Então, para quem toma todo dia, a dose só sai do recipiente do MESMO
+   remédio — e, na caixa de comprimidos, da mesma dose. A caneta de dose
+   ajustável não pede a mesma dose: a dose nova sai da mesma caneta, em
+   miligramas. E o recipiente de outro remédio (ou da outra dose do
+   comprimido) deixa de ser o "aberto": sem um registrado para o que se
+   toma agora, o estoque diz que não sabe e pede o registro — nunca que
+   acabou.
+   ============================================================ */
+const saiDoRecipiente = (S: State, ab: Recipiente, dose: { med?: string; dose?: number }): boolean => {
+  if ((dose.med || S.profile.med) !== ab.med) return false;
+  return cabeDe(ab.med).em !== 'comprimidos' || dose.dose === ab.dose;
+};
+
+/* ⚠️ "TODA DOSE DEPOIS DA ABERTURA É DELA" SÓ NO RECIPIENTE CONTADO EM
+   DOSES (02/10/2026, achado da revisão da parte B3). A regra do semanal
+   valia para qualquer recipiente, e quem trocava o Rybelsus pelo Ozempic
+   tinha as injeções contadas na caixa de 30 comprimidos: "Estoque em dia ·
+   18 de 30 · cerca de 18 semanas", nenhum pedido para registrar a caneta, e
+   a folha da dose sem perguntar por ela. Com o 4 de antes, a mesma troca
+   acabava a "caneta" em dias e empurrava o registro; com 30, eram meses de
+   tranquilidade falsa. A caixa e a caneta de miligramas só dão doses do
+   mesmo remédio (e a caixa, da mesma dose) — para todo mundo. A caneta
+   semanal continua como sempre foi. */
+const todaDoseSaiDele = (S: State, ab: Recipiente): boolean =>
+  !doseDiaria(S) && cabeDe(ab.med).em === 'doses';
+
+/** O último recipiente aberto vale para a dose de agora? A caneta
+    semanal, sempre — como sempre foi. */
+const valeParaAgora = (S: State, ab: Recipiente): boolean =>
+  todaDoseSaiDele(S, ab) || saiDoRecipiente(S, ab, { med: S.profile.med, dose: (S.profile as any).dose });
 
 /* A validade depois de aberta virou campo de MEDS — ela varia por produto
    e não se deduz da molécula nem da cadência. Ver o bloco sobre `shelf`
@@ -6944,21 +7229,46 @@ export function canetas(S: State): Caneta[] {
   const abert = recipientes(S);
   if (!abert.length) return [];
   const injs = (S.injections as any[]).slice().sort((a, b) => a.t - b.t);
-
+  /* A dose só sai do recipiente do mesmo remédio — ver `saiDoRecipiente`
+     e `todaDoseSaiDele`, logo acima. Da caneta semanal, como sempre foi. */
   const lista: Caneta[] = abert.map((ab, i) => {
     const ate = abert[i + 1]?.t ?? Infinity;
-    const bl = injs.filter((x) => x.t >= ab.t && x.t < ate);
+    const ultimo = i === abert.length - 1;
+    const bl = injs.filter((x) => x.t >= ab.t && x.t < ate && (todaDoseSaiDele(S, ab) || saiDoRecipiente(S, ab, x)));
     /* As que saíram antes do registro contam como usadas, e não viram
        aplicação: a pessoa disse quantas foram, e não quando. */
     const usadas = (ab.usadasAntes ?? 0) + bl.length;
     /* O catálogo do recipiente, e não o do perfil: quem trocou de
        medicamento continua vendo o nome certo no que já usou. */
     const cat = MEDS[ab.med] ?? M(S);
+    /* ⚠️⚠️ A CANETA DE DOSE AJUSTÁVEL SE CONTA EM MILIGRAMAS (02/10/2026,
+       parte B3). O que já saiu é a soma das doses dela — e não quantas
+       foram —, e o que resta é o que sobra dividido pela dose de AGORA:
+       quem passou de 1,2 para 1,8 mg no meio de uma caneta de 18 mg, com
+       dez doses de 1,2 já dadas, tem 6 mg dentro, e isso são 3 doses de
+       1,8, e não 5. O total ("13 doses") é o que ela terá entregado; ele
+       muda quando a dose muda, e é por isso que é conta, e não gravado.
+
+       A dose de agora é a do perfil na caneta aberta do remédio de agora;
+       numa caneta já encerrada (ou de outro remédio), a última que saiu
+       dela. */
+    const mg = mgDoRecipiente(ab);
+    let total = cabiaNoRecipiente(ab);
+    if (mg) {
+      const doseDe = (x: any) => doseEmMicrogramas(typeof x?.dose === 'number' && x.dose > 0 ? x.dose : ab.dose);
+      const saiu = (ab.usadasAntes ?? 0) * doseEmMicrogramas(ab.dose) + bl.reduce((s, x) => s + doseDe(x), 0);
+      const doPerfil = ab.med === S.profile.med ? Number((S.profile as any).dose) || 0 : 0;
+      const daVez = ultimo && doPerfil > 0 ? doseEmMicrogramas(doPerfil) : doseDe(bl[bl.length - 1]);
+      const sobra = Math.max(0, doseEmMicrogramas(mg) - saiu);
+      total = usadas + (daVez > 0 ? Math.floor(sobra / daVez) : 0);
+    }
     return {
       /* A abertura é única no tempo, e é ela que identifica a caneta —
          índice mudaria de dono a cada recipiente novo. */
       id: ab.t,
-      estado: (i === abert.length - 1 && usadas < ab.dosesPerPen ? 'uso' : 'fim') as 'uso' | 'fim',
+      /* Na dose diária, o recipiente de outro remédio (ou da outra dose do
+         comprimido) já não está em uso, mesmo sendo o último aberto. */
+      estado: (ultimo && usadas < total && valeParaAgora(S, ab) ? 'uso' : 'fim') as 'uso' | 'fim',
       label: cat.label,
       /* A CONCENTRAÇÃO É A QUE ELA DECLAROU AO ABRIR, e não a da última
          aplicação. Uma caneta de 2,5 mg não vira de 5 porque a dose do
@@ -6966,7 +7276,7 @@ export function canetas(S: State): Caneta[] {
       dose: ab.dose,
       unit: cat.unit,
       usadas,
-      total: ab.dosesPerPen,
+      total,
       abertaEm: ab.t,
       jaEmUso: !!ab.usadasAntes,
       ultimaEm: bl.length ? bl[bl.length - 1].t : null,
@@ -6983,8 +7293,12 @@ export function canetas(S: State): Caneta[] {
     de estoque que a Jornada já mostra no card de receita. */
 export function canetaAtual(S: State) {
   const lista = canetas(S);
-  const atual = lista[0] ?? null;
   const est = penStock(S);
+  /* A aberta é a que o estoque conta. No semanal, a última da lista, como
+     sempre; na dose diária, só se for do remédio de agora (02/10/2026 —
+     ver `saiDoRecipiente`): a caneta do Ozempic de quem passou ao
+     comprimido não é "a aberta" do Rybelsus. */
+  const atual = est.registrada ? lista[0] ?? null : null;
   const cad = cadenciaDias(S);
   /* ⚠️⚠️ A VALIDADE PODE SER DESCONHECIDA, e antes ela não podia.
 

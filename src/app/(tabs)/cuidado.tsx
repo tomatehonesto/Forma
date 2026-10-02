@@ -9,7 +9,7 @@ import {
   clinicaConectada, temAcompanhamento, nextConsult, lastMessage, carePending, careState,
   examesComValor, examesForaDaRef,
   doseContext, doseCycle, penStock, weekGrid, M, cadenciaCurta,
-  medComDose, fichaDe, nomeDeQuemCuida,
+  medComDose, fichaDe, nomeDeQuemCuida, estoqueNoFim, coberturaDoEstoque,
 } from '../../logic/derive';
 import { Nivel, Malha } from '../../ui/instrumentos';
 import { fmtDate, diasDaSemana, MO } from '../../logic/time';
@@ -710,7 +710,11 @@ function Tratamento() {
   const p = penStock(S);
   const dose = medComDose(S);
   const receita = (S.prescriptions as any[])[0];
-  const critico = p.left <= 1;
+  /* ⚠️ O VERMELHO É O "RENOVE AGORA", EM DIAS (02/10/2026, parte B3): na
+     caneta semanal, a última dose, como sempre; na dose diária, os
+     últimos três dias — uma dose só seria o dia em que acaba. Ver
+     `estoqueNoFim`, em logic/derive. */
+  const critico = estoqueNoFim(S, p);
   const ctx = doseContext(S);
   /* doseCycle já traz dia e total do ciclo; a fração 0..1 que o Medidor
      pedia saiu junto com ele */
@@ -826,7 +830,9 @@ function Tratamento() {
             />
           </View>
           <Txt v="caption" c={c.tx3} style={{ marginTop: 12 }}>
-            {K().restamDe(p.left, p.total, p.semanas)}
+            {/* em dias ou semanas, arredondado: "cerca de 0.43 semanas"
+                era o que quem toma todo dia lia aqui (02/10/2026) */}
+            {K().restamDe(p.left, p.total, coberturaDoEstoque(S, p))}
           </Txt>
 
           {/* ⚠️ "PEDIR RENOVAÇÃO" É PEDIR A ALGUÉM. O botão abre a conversa

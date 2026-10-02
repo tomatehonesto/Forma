@@ -123,7 +123,9 @@ export default function Lembretes() {
             onPress={() => router.push(`/alerta?id=${a.id}` as any)}
             style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.6 : 1 }]}
           >
-            <Txt v="bodyMed" c={a.on ? c.tx : c.tx3}>{resumoDe(a)}</Txt>
+            {/* Com `S`: a dose de quem toma todo dia se resume "Todo dia
+                · 09:00", sem antecedência (parte B4, 02/10/2026). */}
+            <Txt v="bodyMed" c={a.on ? c.tx : c.tx3}>{resumoDe(a, S)}</Txt>
             <Txt v="micro" c={c.tx4} style={{ marginTop: 2 }}>
               {prox ? K().proximo(prox)
                 : !a.on ? K().desligado

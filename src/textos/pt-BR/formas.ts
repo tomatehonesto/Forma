@@ -17,9 +17,14 @@
    estavam — passa a perguntar `concordar`, que é a pergunta que tem
    resposta em qualquer idioma.
 
-   ⚠️ O RECIPIENTE DO COMPRIMIDO É A CARTELA, e não o frasco. Não é
-   preciosismo: a cartela não "vence depois de aberta" do jeito que uma
-   caneta vence. Ver o bloco de `shelf` em logic/meds.ts.
+   ⚠️ O RECIPIENTE DO COMPRIMIDO É A CAIXA (02/10/2026), e era a cartela.
+   Mudou porque o estoque do comprimido passou a ser contado pela caixa —
+   30 por padrão, confirmado ao abrir uma (decisão do dono; ver o bloco
+   "QUANTO CABE" em logic/meds.ts). Com o estoque numa caixa e a palavra
+   na cartela, a tela diria "Nova cartela" ao abrir uma caixa de trinta, e
+   "resta uma dose na cartela" quando a cartela da vez ainda tem dez. Nem
+   a caixa nem a cartela vencem "depois de abertas" do jeito que uma
+   caneta vence — ver o bloco de `shelf` em logic/meds.ts.
    ============================================================ */
 
 /* ⚠️ A UNIÃO É DECLARADA AQUI, e não importada de logic/meds. O catálogo
@@ -61,7 +66,7 @@ export const formas = {
     caneta: { recipiente: 'caneta', plural: 'canetas', verbo: 'aplicar', acao: 'dose' },
     frasco: { recipiente: 'frasco', plural: 'frascos', verbo: 'aplicar', acao: 'dose' },
     seringa: { recipiente: 'seringa', plural: 'seringas', verbo: 'aplicar', acao: 'dose' },
-    comprimido: { recipiente: 'cartela', plural: 'cartelas', verbo: 'tomar', acao: 'dose' },
+    comprimido: { recipiente: 'caixa', plural: 'caixas', verbo: 'tomar', acao: 'dose' },
   } as Record<Recipiente, { recipiente: string; plural: string; verbo: string; acao: string }>,
 
   /* ⚠️ A CONCORDÂNCIA É EXPLÍCITA, com as duas palavras escritas.

@@ -1,4 +1,5 @@
 import { medidas } from './medidas';
+import { tempo } from './tempo';
 
 /* ============================================================
    L'ACCUEIL ET LE PARCOURS — les objectifs du jour, les cartes et la frise · fr-FR
@@ -231,10 +232,11 @@ export const home = {
     sintomaEmDias: (sintoma: string, dias: number) =>
       `${sintoma.toLowerCase()} sur ${dias} ${dias === 1 ? 'jour' : 'jours'}`,
 
-    dosesRestantes: (restam: number, semanas: number) =>
-      restam === 0
+    /* En jours ou en semaines (02/10/2026) — raisons dans ../pt-BR/home.ts. */
+    dosesRestantes: (restam: number, c: { n: number; unidade: 'dia' | 'semana' }) =>
+      restam === 0 || c.n === 0
         ? 'Aucune dose restante'
-        : `${restam === 1 ? 'Il reste 1 dose' : `Il reste ${restam} doses`} · environ ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}`,
+        : `${restam === 1 ? 'Il reste 1 dose' : `Il reste ${restam} doses`} · environ ${tempo.duracao(c)}`,
 
     oQueJaMudou: 'Ce qui a changé',
     oQueJaMudouVazio: 'À partir de la deuxième pesée, ce qui a changé apparaît ici.',
@@ -292,6 +294,8 @@ export const home = {
 
     acabou: (oRecipiente: string) => `${oRecipiente} est vide.`,
     restaUmaDose: (onde: string) => `Il reste une dose ${onde}.`,
+    /* la dose quotidienne reçoit la carte à trois jours (02/10/2026) */
+    restamDoses: (quantas: number, onde: string) => `Il reste ${quantas} doses ${onde}.`,
     receitaCorpo: 'Une nouvelle ordonnance prend quelques jours entre la demande et la pharmacie — s’y mettre maintenant évite de s’arrêter en chemin.',
     pedirRenovacao: 'Demander le renouvellement',
     verMedicamento: 'Voir le médicament',

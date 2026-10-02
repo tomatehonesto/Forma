@@ -14,6 +14,35 @@ import { BASE } from './base.js';
    cada pergunta, vai num segundo bloco, depois do ponto do cache.
    Qualquer coisa que varie (data, nome, idioma) NÃO pode entrar aqui, ou
    o cache nunca acerta.
+
+   ⚠️⚠️ O COMPRIMIDO E A DOSE DE TODO DIA (02/10/2026, parte B5 de
+   docs/superpowers/specs/2026-10-01-oral-e-diario-design.md). Três
+   regras novas, porque as de antes foram escritas para a caneta semanal:
+
+   · "Quanto vou perder?" mandava dar "a referência mais próxima que os
+     documentos trazem" — e para quem toma Rybelsus a mais próxima era o
+     STEP 1, 14,9% com 2,4 mg de INJEÇÃO: outra via, outra dose e outra
+     indicação, dita como se fosse do comprimido. A base ainda não tem os
+     estudos do comprimido (dependem da revisão clínica pendente, e a base
+     não muda aqui); até lá, para o comprimido, só o ritmo da pessoa. A
+     caneta diária fica fora desta regra: para a liraglutida a base traz
+     o SCALE, que é o estudo dela mesma.
+   · Quem toma todo dia não tem "dias depois da aplicação", nem janela de
+     48 horas, nem "a aplicação desta semana" — o aparelho já desligou
+     esses achados para o diário (parte B1), e nada impedia o modelo de
+     reinventá-los a partir dos documentos e dos exemplos daqui (o do
+     "fora do assunto" termina em "a aplicação desta semana"). O exemplo
+     fica, porque para quem usa caneta semanal ele está certo; a regra diz
+     o que muda para o diário.
+   · A palavra da via: quem toma comprimido não "aplica". Pelo mesmo
+     motivo, a "constância nas aplicações" do "quanto vou perder?" virou
+     "constância nas doses" — o substantivo de todas as vias (decisão 1
+     do dono).
+
+   ⚠️ AS TRÊS LEEM AS LINHAS "Via" E "Frequência" do bloco Tratamento
+   (src/logic/resumoDaJornada), e não o nome do remédio: um comprimido novo
+   no catálogo entra nelas sem ninguém lembrar daqui. O texto continua
+   fixo — igual para todo mundo, e o cache continua acertando.
    ============================================================ */
 
 /** As telas do aplicativo que a resposta pode citar como link. O
@@ -21,7 +50,10 @@ import { BASE } from './base.js';
 export const TELAS: Record<string, string> = {
   '/evolucao': 'as pesagens e a linha do peso',
   '/sintomas': 'os sintomas registrados',
-  '/aplicacoes': 'as aplicações e o ciclo da dose',
+  /* ⚠️ era "as aplicações e o ciclo da dose" (02/10/2026, parte B5): a
+     tela se chama Doses desde a parte A, e quem toma todo dia não tem
+     ciclo — a descrição é o que o modelo escreve no link. */
+  '/aplicacoes': 'as doses registradas e a próxima dose',
   '/alimentacao': 'as refeições e a proteína',
   '/agua': 'a água do dia',
   '/exames': 'os exames',
@@ -56,7 +88,8 @@ AS REGRAS, EM ORDEM DE PRIORIDADE
    - A PRIMEIRA FRASE RESPONDE. Fora as exceções de segurança da regra 1, a resposta abre pela resposta: o número, o sim ou o não, o que fazer. O contexto, o porquê e as ressalvas vêm depois, curtos. Nada de "antes da sua pergunta", nada de começar pelo que a pessoa não perguntou.
    - CURTA E OBJETIVA. Mire em 60 a 120 palavras: pergunta simples, duas a quatro frases; sintoma, progresso ou decisão, a resposta, um parágrafo curto de porquê e no máximo três itens do que fazer. Passe de 150 palavras só quando a pessoa pediu um passo a passo. Corte o que não muda o que ela vai fazer: repetir a pergunta dela, explicar o óbvio, dois parágrafos de contexto, e fechar com "vale falar com quem acompanha" quando isso já foi dito ou não é o caso.
    - Não repita o que já disse, não resuma registros que não mudam a resposta, e não feche com o aviso de que você não é médico quando ele não acrescenta nada.
-   - "QUANTO VOU PERDER ATÉ TAL DATA?" NÃO SE RECUSA. Diga quantas semanas faltam; se os registros têm tendência (várias pesagens), use o ritmo dela, como estimativa "se o ritmo continuar"; se não têm, dê a referência mais próxima que os documentos trazem (por exemplo, a média de um estudo em tantas semanas), dita como média de estudo e não promessa, e lembre que nas doses de início a perda costuma ser pequena. Depois, o que ajuda até a data (proteína, água, movimento, constância nas aplicações). Sem sermão sobre perder rápido demais, a não ser que a pessoa peça para acelerar por conta própria.
+   - "QUANTO VOU PERDER ATÉ TAL DATA?" NÃO SE RECUSA. Diga quantas semanas faltam; se os registros têm tendência (várias pesagens), use o ritmo dela, como estimativa "se o ritmo continuar"; se não têm, dê a referência mais próxima que os documentos trazem (por exemplo, a média de um estudo em tantas semanas), dita como média de estudo e não promessa, e lembre que nas doses de início a perda costuma ser pequena. Depois, o que ajuda até a data (proteína, água, movimento, constância nas doses). Sem sermão sobre perder rápido demais, a não ser que a pessoa peça para acelerar por conta própria.
+   - COMPRIMIDO NÃO SE PROJETA COM ESTUDO DE INJEÇÃO. Quando o bloco Tratamento diz "Via: oral (comprimido)", a estimativa usa SÓ o ritmo da própria pessoa, e esta regra vale antes da de cima: nenhum número de estudo de injeção (STEP, SURMOUNT, SCALE ou outro), nem como referência, porque a via, a dose e muitas vezes a indicação são outras, e o número soaria como promessa. Sem tendência nos registros, diga que ainda não dá para estimar pelo ritmo dela, o que registrar para dar (a pesagem da semana) e o que ajuda até a data.
    - SINTOMA PEDE O QUE FAZER AGORA. Quando a pessoa conta um sintoma, ou pede remédio para ele, dê de duas a quatro medidas práticas sem remédio do documento "medidas-sem-remedio" (água, o que comer ou evitar, como ficar, repouso), escolhidas para aquele sintoma e para os registros dela, e os sinais que pedem ajuda. Remédio, mesmo de farmácia, é com quem acompanha; mas nunca responda só "fale com a equipe".
    - O resumo da jornada é o que você LÊ, não o que você responde. Use um dado da pessoa quando ele explica a resposta. Uma pergunta sobre enjoo não recebe o peso e os exames, a não ser que expliquem o enjoo.
    - Mas quando a pergunta é sobre o próprio progresso ("por que parei", "está funcionando", "está tudo bem", "devo aumentar"), olhe a jornada inteira (peso, dose e quando subiu, adesão, fome, energia, proteína, água, treino, sono) e cite tudo o que pesa. Se o peso está parado, diga que está parado: não minimize o que a pessoa vê.
@@ -69,6 +102,7 @@ AS REGRAS, EM ORDEM DE PRIORIDADE
    - Correlação é correlação: "nos dias em que...", nunca "isso causou". Com poucos dias de registro, diga que ainda é pouco para afirmar.
    - Os estudos são médias de grupos, não promessa individual.
    - Não atribua causa a um sintoma ou a um número da pessoa sem apoio nos documentos. Por exemplo: nas doses de início, a perda de peso não é "o remédio agindo" — os documentos dizem que essas doses servem para o corpo se acostumar.
+   - REMÉDIO DE TODO DIA NÃO TEM CICLO SEMANAL. Quando o bloco Tratamento diz "Frequência: diária", não fale de "dias depois da aplicação", de "dia da aplicação", de janela de 48 horas nem de efeito que sobe e desce ao longo da semana: com a dose de todo dia, esse ciclo não existe. O que costuma pesar no enjoo do uso diário é o começo e cada subida de dose (documento "efeitos-gastrointestinais"). A constância vem em dias com dose REGISTRADA: dia sem registro é dia sem registro, e não dose esquecida. Nem "a aplicação desta semana": para quem usa todo dia, é a dose de hoje.
    - Exame: diga o valor, a referência do laudo e o movimento. Não diga em que faixa diagnóstica ele cai ("pré-diabetes", "abaixo de onde se fala em diabetes"): interpretar é com o médico.
    - Conhecimento clínico sai dos documentos abaixo. Se a pergunta vai além deles, responda com cautela, diga que é orientação geral e sugira confirmar com a equipe. Nunca invente estudo, número ou referência.
 
@@ -79,6 +113,7 @@ AS REGRAS, EM ORDEM DE PRIORIDADE
    - Em decisão que é de quem prescreve (trocar de remédio, subir, parar), mostre os dados que pesam e não puxe para nenhum lado, nem de leve.
    - Trate a pessoa pelo primeiro nome só de vez em quando, não em toda resposta.
    - Não fale do aplicativo em terceira pessoa ("o Morphi guarda", "o app mostra").
+   - A PALAVRA DA VIA. Quando o bloco Tratamento diz "Via: oral (comprimido)", a pessoa TOMA a dose: nunca "aplicar" nem "aplicação". "Dose" serve para todas as vias.
 
 5. O IDIOMA.
    - Responda SEMPRE no idioma indicado no bloco da pessoa, mesmo que os documentos estejam em português. Use as unidades do resumo (kg ou lb, mL ou fl oz).

@@ -2,6 +2,7 @@ import { T } from '../textos';
 import type { State } from './seed';
 import {
   M, curWeight, medComDose, respostaNoDia, siteLabel, variacaoDe, aguaDoDia,
+  doseDiaria, diasComDoseDesde, trechosDeDose,
 } from './derive';
 import { MEDS } from './meds';
 import { localDaDose } from './formas';
@@ -62,6 +63,17 @@ const tabela = (cab: { t: string; num?: boolean }[], linhas: string[][]) => `
     <tbody>${linhas.map((l) => `<tr>${l.map((v, i) => `<td${cab[i]?.num ? ' class="num"' : ''}>${v}</td>`).join('')}</tr>`).join('')}</tbody>
   </table>`;
 
+/* ⚠️ QUANTAS LINHAS DE DOSE O PAPEL AGUENTA ANTES DE RESUMIR (02/10/2026,
+   parte B5 de docs/superpowers/specs/2026-10-01-oral-e-diario-design.md).
+   Catorze é o que a caneta semanal enche em três meses e o comprimido em
+   duas semanas: até aí, uma linha por dose ainda se lê e diz mais (a
+   hora, a dose de cada dia). Passou disso, quem toma todo dia recebe o
+   resumo por dose — e só quem toma todo dia: o semanal continua com a
+   lista, como sempre. A tela de ajuste (app/pdf-consulta) pergunta isto
+   também, para a linha dela dizer o que vai sair. */
+export const LINHAS_DE_DOSE = 14;
+export const dosesEmResumo = (S: State, quantas: number) => doseDiaria(S) && quantas > LINHAS_DE_DOSE;
+
 const cartao = (rot: string, val: string, sub?: string) => `
   <div class="cartao"><div class="rot">${esc(rot)}</div><div class="val">${esc(val)}</div>${sub ? `<div class="sub">${esc(sub)}</div>` : ''}</div>`;
 
@@ -83,10 +95,23 @@ export function htmlDoRelatorio(S: State, r: RecorteDoRelatorio): string {
   /* ---- os números do período ---- */
   const variacao = pesos.length >= 2
     ? variacaoDe(pesoV(S, pesos[pesos.length - 1].kg - pesos[0].kg), pesoU(S)).delta : null;
+  /* ⚠️ NA DOSE DIÁRIA, O CARTÃO CONTA DIAS (02/10/2026, parte B5): "Doses
+     no período: 92" somava a dose dobrada como se fosse um dia a mais e
+     não dizia quantos dias o período tinha. "Dias com dose no período: 26
+     de 28" é a régua de todo o diário (`contagemDaJanela`): do começo do
+     regime diário ou do período, o que vier depois, até hoje — e hoje só
+     depois da dose de hoje. Sem dia a contar (trocou e ainda não registrou
+     o comprimido), o número de registros, como era. O semanal fica como
+     era. */
+  const noPeriodo = doseDiaria(S) ? diasComDoseDesde(S, desde) : null;
   const cartoes = [
     S.weights.length ? cartao(R.pesoAtual, pesoTxt(S, curWeight(S))) : '',
     variacao ? cartao(R.variacao, variacao) : '',
-    r.inclui.aplicacoes ? cartao(R.aplicacoesNoPeriodo, String(aplicacoes.length)) : '',
+    r.inclui.aplicacoes
+      ? (noPeriodo?.dias
+        ? cartao(R.diasComDoseNoPeriodo, Q.diasComDoseValor(noPeriodo.feitos, noPeriodo.dias))
+        : cartao(R.aplicacoesNoPeriodo, String(aplicacoes.length)))
+      : '',
     r.inclui.sintomas ? cartao(R.checkinsRespondidos, String(checkins.length)) : '',
   ].filter(Boolean).join('');
   let corpo = secao(R.visaoGeral, `<div class="cartoes">${cartoes}</div>`);
@@ -142,7 +167,45 @@ export function htmlDoRelatorio(S: State, r: RecorteDoRelatorio): string {
 
      O registro antigo sem `med` cai no remédio de agora, como no resto do
      app (logic/formas, formaDaDose). */
-  if (r.inclui.aplicacoes) {
+  /* ⚠️⚠️ E QUEM TOMA TODO DIA, COM MAIS DE 14 REGISTROS, RECEBE O RESUMO
+     POR DOSE (02/10/2026, parte B5). Desde a última consulta eram noventa
+     linhas "7 mg" — trezentas no tratamento inteiro —, e a subida de 3
+     para 7 e 14 mg, que é o que o médico procura, se perdia no meio delas.
+     Cada linha agora é um trecho com o mesmo remédio e a mesma dose
+     (`trechosDeDose`): de quando a quando, quantos registros e em quantos
+     dias houve dose, contra os dias do trecho. Mais registros que dias
+     com dose é dose dobrada no mesmo dia, e fica à vista.
+
+     O local do Saxenda não entra no resumo: noventa locais não cabem num
+     trecho, e o rodízio por trecho fica para quando houver revisão
+     clínica do que o médico quer ver ali (PENDENCIAS). Até 14 registros, e
+     sempre no semanal, a lista de antes, com o local. */
+  if (r.inclui.aplicacoes && dosesEmResumo(S, aplicacoes.length)) {
+    const trechos = trechosDeDose(S, desde);
+    const variosRemedios = new Set(trechos.map((t) => t.med)).size > 1;
+    const quando = (t: { de: number; ate: number }) =>
+      t.de === t.ate ? dataDeTabela(t.de) : R.periodo(dataDeTabela(t.de), dataDeTabela(t.ate));
+    corpo += secao(R.aplicacoes, tabela(
+      [
+        { t: R.periodoDaDose },
+        ...(variosRemedios ? [{ t: R.medicamento }] : []),
+        { t: R.dose, num: true },
+        { t: R.registros, num: true },
+        { t: R.diasComDose, num: true },
+      ],
+      trechos.slice().reverse().map((t) => {
+        const m = MEDS[t.med] ?? med;
+        return [
+          esc(quando(t)),
+          ...(variosRemedios ? [esc(m.label)] : []),
+          esc(t.dose ? `${doseTxt(t.dose)} ${m.unit}` : '—'),
+          esc(String(t.doses)),
+          /* sem dia a contar (outro regime, ou a troca no mesmo dia), traço */
+          esc(t.dias ? Q.diasComDoseValor(t.feitos, t.dias) : '—'),
+        ];
+      }),
+    ), R.resumoPorDose(aplicacoes.length), false);
+  } else if (r.inclui.aplicacoes) {
     const medDe = (a: any) => MEDS[a.med] ?? med;
     const variosRemedios = new Set(aplicacoes.map((a: any) => a.med || S.profile.med)).size > 1;
     const comLocal = aplicacoes.some((a: any) => localDaDose(S, a));

@@ -35,6 +35,11 @@ export const resumo = {
   aplicacoesNenhuma: 'Aucune enregistrée',
   /* doses registradas sem um "previstas" a comparar (quem trocou e ainda não registrou o regime de agora) */
   aplicacoesRegistradas: (n: number): string => `${n} ${n === 1 ? 'enregistrée' : 'enregistrées'}`,
+  /* ⚠️ Qui prend tous les jours lit des JOURS, et non des doses prévues
+     (02/10/2026, partie B5) : un jour sans toucher est un jour sans
+     RELEVÉ. La raison est dans ../pt-BR/resumo.ts. */
+  diasComDose: 'Jours avec une dose enregistrée',
+  diasComDoseValor: (feitos: number, dias: number) => `${feitos} sur ${dias}`,
 
   peso: 'Poids',
   inicioAtual: 'Début → actuel',
@@ -77,12 +82,13 @@ export const resumo = {
     pesoAtual: 'Poids actuel',
     variacao: 'Variation sur la période',
     aplicacoesNoPeriodo: 'Doses sur la période',
+    diasComDoseNoPeriodo: 'Jours avec une dose sur la période',
     checkinsRespondidos: 'Check-ins remplis',
     peso: 'Poids',
     medidas: 'Mensurations',
     aplicacoes: 'Doses',
-    dosesSub: (quantas: number, comLocal: boolean): string =>
-      `${quantas} ${quantas > 1 ? 'relevés' : 'relevé'} · ${comLocal ? 'date, dose et site' : 'date et dose'}`,
+    dosesSub: (quantas: number, comLocal: boolean, resumidas: boolean): string =>
+      `${quantas} ${quantas > 1 ? 'relevés' : 'relevé'} · ${resumidas ? 'résumés par dose' : comLocal ? 'date, dose et site' : 'date et dose'}`,
     sintomas: 'Symptômes',
     exames: 'Analyses',
     notas: 'Notes pour la consultation',
@@ -91,6 +97,10 @@ export const resumo = {
     medicamento: 'Médicament',
     dose: 'Dose',
     local: 'Site',
+    periodoDaDose: 'Période',
+    registros: 'Relevés',
+    diasComDose: 'Jours avec une dose',
+    resumoPorDose: (n: number) => `${n} relevés sur la période, résumés par dose. Les jours avec une dose sont les jours avec au moins une dose enregistrée.`,
     proteinaMedia: 'Protéines par jour, en moyenne',
     aguaMedia: 'Boissons par jour, en moyenne',
     exercicioTotal: 'Activité sur la période',

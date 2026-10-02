@@ -1,3 +1,4 @@
+import { tempo } from './tempo';
 /* ============================================================
    DIE BEHANDLUNG — die Dosis, der Rhythmus, die Meilensteine und die Skalen · de-DE
 
@@ -279,13 +280,18 @@ export const tratamento = {
     medicamento: 'Medikament',
     dosesRestantesNo: (restam: number, onde: string) =>
       `${restam === 1 ? 'Noch 1 Dosis' : `Noch ${restam} Dosen`} ${onde}`,
-    cobreSemanas: (veredito: string, semanas: number) =>
-      `${veredito} — reicht rund ${semanas} ${semanas === 1 ? 'Woche' : 'Wochen'}`,
+    /* hieß `cobreSemanas`; in Tagen oder Wochen, nie „rund 0“
+       (02.10.2026) — Gründe in ../pt-BR/tratamento.ts */
+    cobre: (veredito: string, c: { n: number; unidade: 'dia' | 'semana' }) =>
+      c.n === 0
+        ? `${veredito} — keine Dosis mehr übrig`
+        : `${veredito} — reicht rund ${tempo.duracao(c)}`,
 
     alertasDeDose: (quantos: number) => `${quantos} ${quantos === 1 ? 'Erinnerung' : 'Erinnerungen'} für die Dosis`,
     nenhumAlerta: 'Keine Erinnerung für die Dosis',
     tocaEm: (quando: string) => `Klingelt: ${quando}`,
     avisoAntes: 'Ein Hinweis vor der Dosis, zu der Uhrzeit, die du wählst',
+    avisoDiario: 'Ein Hinweis jeden Tag, zu der Uhrzeit, die du wählst',
 
     proxima: 'nächste',
 
@@ -345,6 +351,9 @@ export const tratamento = {
       `${Recipiente} ${aberto} am ${data} · ${total} Dosen pro ${recipiente}`,
     leadSemAberto: (nenhum: string, recipiente: string, aberto: string, total: number) =>
       `${nenhum} ${recipiente} ${aberto} · ${total} Dosen pro ${recipiente}`,
+    /* der Pen mit einstellbarer Dosis, noch ohne gewählte Dosis (02/10/2026): die Milligramm statt „0 Dosen“ */
+    leadSemAbertoMg: (nenhum: string, recipiente: string, aberto: string, mg: string, unidade: string) =>
+      `${nenhum} ${recipiente} ${aberto} · ${mg} ${unidade} pro ${recipiente}`,
 
     dosesUsadas: 'Verbrauchte Dosen',
     usadasDe: (usadas: number, total: number) => `${usadas} von ${total}`,
@@ -358,7 +367,8 @@ export const tratamento = {
     quemPreparaDefine: 'wer es zubereitet, setzt die Frist',
 
     receitaAte: 'Rezept bis',
-    receitaSemanas: (semanas: number) => `${semanas} ${semanas === 1 ? 'Woche' : 'Wochen'}`,
+    receitaDura: (c: { n: number; unidade: 'dia' | 'semana' }) =>
+      (c.n === 0 ? 'keine Dosis mehr' : tempo.duracao(c)),
 
     venceAntes: (oRecipiente: string) => `${oRecipiente} läuft ab, bevor alles verbraucht ist`,
     venceAntesTexto: (medicamento: string, dias: number, total: number, aberto: string) =>
@@ -371,8 +381,10 @@ export const tratamento = {
        (siehe PENDENCIAS, Punkt 26). „ohne Pen dazustehen“ ist die
        idiomatische Form und kommt ohne den Fall aus. Deshalb bekommt
        diese Funktion beide Schreibweisen. */
-    renovarTexto: (semanas: number) =>
-      `Dein Rezept reicht etwa ${semanas} ${semanas === 1 ? 'Woche' : 'Wochen'}. Wenn du es jetzt anfragst, stehst du zwischen zwei Terminen nicht ohne Medikament da.`,
+    renovarTexto: (c: { n: number; unidade: 'dia' | 'semana' }) =>
+      c.n === 0
+        ? 'Die eingetragenen Dosen sind aufgebraucht. Wenn du es jetzt anfragst, stehst du zwischen zwei Terminen nicht ohne Medikament da.'
+        : `Dein Rezept reicht etwa ${tempo.duracao(c)}. Wenn du es jetzt anfragst, stehst du zwischen zwei Terminen nicht ohne Medikament da.`,
 
     historico: (plural: string) => `Verlauf der ${plural}`,
     emUso: 'in Gebrauch',
@@ -406,6 +418,13 @@ export const tratamento = {
     outro: 'Anderes',
     concentracaoEDoses: 'Wirkstärke und Dosen',
     ajudaDoses: (quantas: number, recipiente: string) => `${quantas} Dosen pro ${recipiente}`,
+    /* Pen mit einstellbarer Dosis und Tablettenpackung (02.10.2026) —
+       Gründe in ../pt-BR/tratamento.ts */
+    ajudaMg: (mg: string, unidade: string, recipiente: string, quantas: number, dose: string) =>
+      `${mg} ${unidade} pro ${recipiente} · ${quantas} ${quantas === 1 ? 'Dosis' : 'Dosen'} zu ${dose} ${unidade}`,
+    quantosComprimidos: (onde: string) => `Wie viele Tabletten sind ${onde}?`,
+    comprimidosAjuda: 'Die Zahl steht auf der Packung. Damit rechnen wir aus, für wie viele Tage du versorgt bist.',
+    comprimidos: 'Tabletten',
     ajudaValidade: (dias: number, _aberto: string) => ` · hält ${dias} Tage nach dem Öffnen`,
     validadeRotulo: (_aberto: string) => 'Haltbarkeit nach dem Öffnen',
     validadeAjuda: 'Diese Frist setzt, wer es zubereitet, und sie steht meist auf dem Etikett. Ohne sie sprechen wir nicht von Verfall — lieber schweigen als ein Datum raten.',
@@ -413,6 +432,8 @@ export const tratamento = {
     estaNoRotulo: 'Steht auf dem Etikett',
     dias: 'Tage',
     registrar: (novoRecipiente: string) => `${novoRecipiente} eintragen`,
+    /* o recipiente que já estava em uso, com o artigo (02/10/2026, revisão da B3) */
+    registrarRecipiente: (oRecipiente: string) => `${oRecipiente.charAt(0).toUpperCase()}${oRecipiente.slice(1)} eintragen`,
   },
 
   telaRegistrarAplicacao: {
@@ -464,6 +485,8 @@ export const tratamento = {
     quantasJaSairam: (deste: string, recipiente: string) =>
       `Wie viele Dosen hattest du schon ${deste} ${recipiente} genommen?`,
     doses: (n: number) => (n === 1 ? '1 Dosis' : `${n} Dosen`),
+    /* das Wort ohne die Zahl, für das Lineal der schon entnommenen Dosen (02.10.2026) */
+    dosesUnidade: (n: number): string => (n === 1 ? 'Dosis' : 'Dosen'),
     /* Der Behälter steht hier im Nominativ — `oA` liefert nur den (siehe formas). */
     registraJunto: (oRecipiente: string, total: number, recipiente: string) =>
       `${oRecipiente.charAt(0).toUpperCase()}${oRecipiente.slice(1)} wird mit dieser Dosis eingetragen (${total} Dosen pro ${recipiente}), und ab jetzt zählen wir, wie viele bleiben.`,

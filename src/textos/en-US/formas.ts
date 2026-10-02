@@ -14,9 +14,11 @@
    spellings are the same word, so whichever arrives first is the answer.
    A caller writing English prose has no reason to call it at all.
 
-   ⚠️ THE PILL'S CONTAINER IS THE BLISTER PACK, not a bottle — same
-   reasoning as the Portuguese "cartela": a blister pack doesn't expire
-   once opened the way a pen does.
+   ⚠️ THE PILL'S CONTAINER IS THE BOX (02/10/2026), and it used to be the
+   blister pack. Pill stock is now counted by the box — 30 by default,
+   confirmed when one is opened (owner's decision) — and a screen saying
+   "New blister pack" while counting a box of thirty would describe the
+   wrong thing. Reasons in ../pt-BR/formas.ts.
    ============================================================ */
 
 type Recipiente = 'caneta' | 'frasco' | 'seringa' | 'comprimido';
@@ -32,7 +34,7 @@ export const formas = {
     caneta: { recipiente: 'pen', plural: 'pens', verbo: 'inject', acao: 'dose' },
     frasco: { recipiente: 'vial', plural: 'vials', verbo: 'inject', acao: 'dose' },
     seringa: { recipiente: 'syringe', plural: 'syringes', verbo: 'inject', acao: 'dose' },
-    comprimido: { recipiente: 'blister pack', plural: 'blister packs', verbo: 'take', acao: 'dose' },
+    comprimido: { recipiente: 'box', plural: 'boxes', verbo: 'take', acao: 'dose' },
   } as Record<Recipiente, { recipiente: string; plural: string; verbo: string; acao: string }>,
 
   concordar: (_r: Recipiente, masc: string, _fem: string) => masc,

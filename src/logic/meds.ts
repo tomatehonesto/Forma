@@ -22,7 +22,43 @@ export type Med = {
      marca que não existe, numa tela de saúde. Manipulado é categoria, não
      produto: sem dono, sem registro, sem ®. */
   marca: boolean;
+  /** quanto cabe num recipiente — ver o bloco "QUANTO CABE" abaixo */
+  cabe: Cabe;
 };
+
+/* ============================================================
+   QUANTO CABE NUM RECIPIENTE (`cabe`) — 02/10/2026, parte B3 de
+   docs/superpowers/specs/2026-10-01-oral-e-diario-design.md
+
+   ⚠️⚠️ ERA UM QUATRO PARA TODO MUNDO. O estoque supunha a caneta semanal
+   do Mounjaro (quatro doses) em qualquer remédio: a caneta de Saxenda
+   "acabava" no quarto dia com dois terços do remédio dentro, e a caixa de
+   Rybelsus pedia receita nova a cada quatro comprimidos. O número não se
+   deduz de nada que já esteja aqui — não segue a molécula, nem a cadência
+   —, e por isso é campo, como `shelf`.
+
+   São três jeitos de contar, e não um número com unidade solta:
+
+   · `doses` — a caneta de dose fixa. As semanais ficam com o 4 que o
+     aplicativo sempre usou (a KwikPen do Mounjaro). ⚠️ Ele NÃO foi
+     conferido produto a produto, e há mercado em que a caneta é de dose
+     única; trocar é mudar o estoque de quem usa caneta semanal, que esta
+     etapa não toca. Fica nas pendências, para a revisão do catálogo.
+   · `mg` — a caneta de dose AJUSTÁVEL (Saxenda e Victoza, 18 mg). Quantas
+     doses saem dela depende da dose: 30 de 0,6 mg, 6 de 3 mg. Por isso o
+     catálogo guarda os miligramas, e as doses são a conta — e quando a
+     dose sobe no meio da caneta, o que já saiu conta em miligramas
+     (`canetas`, em logic/derive).
+   · `comprimidos` — o comprimido por CAIXA. 30 é o padrão (decisão do
+     dono), e é só o ponto de partida: a pessoa confirma quantos vêm ao
+     abrir uma caixa nova (app/caneta-nova), e a resposta fica com a caixa.
+   ============================================================ */
+export type Cabe =
+  | { em: 'doses'; n: number }
+  | { em: 'mg'; mg: number }
+  | { em: 'comprimidos'; n: number };
+
+const QUATRO_DOSES: Cabe = { em: 'doses', n: 4 };
 
 /* ============================================================
    EM QUE FORMAS O MEDICAMENTO VEM (`formas`)
@@ -80,13 +116,15 @@ export type Med = {
    ============================================================ */
 
 export const MEDS: Record<string, Med> = {
-  mounjaro:  { label: 'Mounjaro',  mol: 'Tirzepatida', cad: 'weekly', doses: [2.5, 5, 7.5, 10, 12.5, 15], unit: 'mg', hl: 5,    maker: 'Lilly',         shelf: 21, formas: ['caneta'], marca: true },
-  zepbound:  { label: 'Zepbound',  mol: 'Tirzepatida', cad: 'weekly', doses: [2.5, 5, 7.5, 10, 12.5, 15], unit: 'mg', hl: 5,    maker: 'Lilly',         shelf: 21, formas: ['caneta'], marca: true },
-  ozempic:   { label: 'Ozempic',   mol: 'Semaglutida', cad: 'weekly', doses: [0.25, 0.5, 1, 2],           unit: 'mg', hl: 7,    maker: 'Novo Nordisk',  shelf: 56, formas: ['caneta'], marca: true },
-  wegovy:    { label: 'Wegovy',    mol: 'Semaglutida', cad: 'weekly', doses: [0.25, 0.5, 1, 1.7, 2.4],    unit: 'mg', hl: 7,    maker: 'Novo Nordisk',  shelf: 56, formas: ['caneta'], marca: true },
-  trulicity: { label: 'Trulicity', mol: 'Dulaglutida', cad: 'weekly', doses: [0.75, 1.5, 3, 4.5],         unit: 'mg', hl: 5,    maker: 'Lilly',         shelf: 14, formas: ['caneta'], marca: true },
-  saxenda:   { label: 'Saxenda',   mol: 'Liraglutida', cad: 'daily',  doses: [0.6, 1.2, 1.8, 2.4, 3],     unit: 'mg', hl: 0.55, maker: 'Novo Nordisk',  shelf: 30, formas: ['caneta'], marca: true },
-  victoza:   { label: 'Victoza',   mol: 'Liraglutida', cad: 'daily',  doses: [0.6, 1.2, 1.8],             unit: 'mg', hl: 0.55, maker: 'Novo Nordisk',  shelf: 30, formas: ['caneta'], marca: true },
+  mounjaro:  { label: 'Mounjaro',  mol: 'Tirzepatida', cad: 'weekly', doses: [2.5, 5, 7.5, 10, 12.5, 15], unit: 'mg', hl: 5,    maker: 'Lilly',         shelf: 21, formas: ['caneta'], marca: true, cabe: QUATRO_DOSES },
+  zepbound:  { label: 'Zepbound',  mol: 'Tirzepatida', cad: 'weekly', doses: [2.5, 5, 7.5, 10, 12.5, 15], unit: 'mg', hl: 5,    maker: 'Lilly',         shelf: 21, formas: ['caneta'], marca: true, cabe: QUATRO_DOSES },
+  ozempic:   { label: 'Ozempic',   mol: 'Semaglutida', cad: 'weekly', doses: [0.25, 0.5, 1, 2],           unit: 'mg', hl: 7,    maker: 'Novo Nordisk',  shelf: 56, formas: ['caneta'], marca: true, cabe: QUATRO_DOSES },
+  wegovy:    { label: 'Wegovy',    mol: 'Semaglutida', cad: 'weekly', doses: [0.25, 0.5, 1, 1.7, 2.4],    unit: 'mg', hl: 7,    maker: 'Novo Nordisk',  shelf: 56, formas: ['caneta'], marca: true, cabe: QUATRO_DOSES },
+  trulicity: { label: 'Trulicity', mol: 'Dulaglutida', cad: 'weekly', doses: [0.75, 1.5, 3, 4.5],         unit: 'mg', hl: 5,    maker: 'Lilly',         shelf: 14, formas: ['caneta'], marca: true, cabe: QUATRO_DOSES },
+  /* ⚠️ A CANETA DIÁRIA SE CONTA EM MILIGRAMAS (02/10/2026): 18 mg por
+     caneta, nas duas. Ver o bloco "QUANTO CABE", acima. */
+  saxenda:   { label: 'Saxenda',   mol: 'Liraglutida', cad: 'daily',  doses: [0.6, 1.2, 1.8, 2.4, 3],     unit: 'mg', hl: 0.55, maker: 'Novo Nordisk',  shelf: 30, formas: ['caneta'], marca: true, cabe: { em: 'mg', mg: 18 } },
+  victoza:   { label: 'Victoza',   mol: 'Liraglutida', cad: 'daily',  doses: [0.6, 1.2, 1.8],             unit: 'mg', hl: 0.55, maker: 'Novo Nordisk',  shelf: 30, formas: ['caneta'], marca: true, cabe: { em: 'mg', mg: 18 } },
 
   /* ⚠️ O PRIMEIRO QUE NÃO SE INJETA.
 
@@ -101,8 +139,12 @@ export const MEDS: Record<string, Med> = {
 
      `shelf: 0` aqui quer dizer NÃO SE APLICA, e não "não sabemos":
      cartela de comprimido não vence depois de aberta do jeito que uma
-     caneta vence. Quem pergunta validade exige `injetavel` antes do zero. */
-  rybelsus:  { label: 'Rybelsus',  mol: 'Semaglutida', cad: 'daily',  doses: [3, 7, 14],                  unit: 'mg', hl: 7,    maker: 'Novo Nordisk',  shelf: 0,  formas: ['comprimido'], marca: true },
+     caneta vence. Quem pergunta validade exige `injetavel` antes do zero.
+
+     ⚠️ O ESTOQUE É PELA CAIXA, 30 comprimidos por padrão (decisão do dono,
+     02/10/2026) — e a pessoa confirma o número ao abrir uma caixa nova.
+     Ver o bloco "QUANTO CABE", acima. */
+  rybelsus:  { label: 'Rybelsus',  mol: 'Semaglutida', cad: 'daily',  doses: [3, 7, 14],                  unit: 'mg', hl: 7,    maker: 'Novo Nordisk',  shelf: 0,  formas: ['comprimido'], marca: true, cabe: { em: 'comprimidos', n: 30 } },
 };
 
 /* ============================================================
@@ -128,11 +170,11 @@ export const MEDS: Record<string, Med> = {
    ============================================================ */
 MEDS['semaglutida-manipulada'] = {
   label: 'Semaglutida manipulada', mol: 'Semaglutida', cad: 'weekly', doses: [], unit: 'mg',
-  hl: 7, maker: '—', shelf: 0, formas: ['frasco', 'seringa'], marca: false,
+  hl: 7, maker: '—', shelf: 0, formas: ['frasco', 'seringa'], marca: false, cabe: QUATRO_DOSES,
 };
 MEDS['tirzepatida-manipulada'] = {
   label: 'Tirzepatida manipulada', mol: 'Tirzepatida', cad: 'weekly', doses: [], unit: 'mg',
-  hl: 5, maker: '—', shelf: 0, formas: ['frasco', 'seringa'], marca: false,
+  hl: 5, maker: '—', shelf: 0, formas: ['frasco', 'seringa'], marca: false, cabe: QUATRO_DOSES,
 };
 
 /* AINDA NÃO DEFINIDO — para quem vai começar e não sabe qual caneta.
@@ -158,7 +200,7 @@ MEDS.indefinido = {
      só é o que impede o cadastro de perguntar a forma de um medicamento
      que a pessoa acabou de dizer que não conhece. Sem `marca`: "Ainda não
      definido®" seria a pior frase do aplicativo. */
-  formas: ['caneta'], marca: false,
+  formas: ['caneta'], marca: false, cabe: QUATRO_DOSES,
 };
 
 /* ============================================================
@@ -228,4 +270,22 @@ export const doseDiaria = (S: { profile: { med: string } }) =>
 
 /** Validade da caneta aberta, em dias, para o medicamento em uso. */
 export const SHELF_DAYS = (m: string) => MEDS[m]?.shelf ?? 21;
+
+/** Como o recipiente deste remédio se conta — ver o bloco "QUANTO CABE". */
+export const cabeDe = (m: string): Cabe => (MEDS[m] ?? MEDS.indefinido).cabe;
+
+/* ⚠️ EM MICROGRAMAS INTEIROS (02/10/2026). Em ponto flutuante, 18 − 1,2 ×
+   5 dá 11,999999999999998, e o chão de 11,99… ÷ 1,2 é 9: a caneta com
+   dez doses dentro diria nove. Contar em µg inteiros tira o resto da
+   vírgula da conta, e o chão continua sendo o certo — o que sobra abaixo
+   de uma dose não é dose (o resto de 1,2 mg de uma caneta de 18 mg em
+   2,4 mg fica na caneta, e o aplicativo não o oferece como dose). */
+export const doseEmMicrogramas = (mg: number) => Math.round(mg * 1000);
+
+/** Quantas doses inteiras saem de `mg` miligramas na dose `dose`. Sem
+    dose, nenhuma: a conta não chuta um degrau. */
+export const dosesDoMg = (mg: number, dose: number) => {
+  const d = doseEmMicrogramas(dose);
+  return d > 0 ? Math.max(0, Math.floor(doseEmMicrogramas(mg) / d)) : 0;
+};
 

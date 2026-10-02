@@ -91,7 +91,7 @@ export const rotina = {
     },
     aplicacaoPorque: (injetavel: boolean): string => (injetavel
       ? 'Die nächste Dosis steht an, und ein Wechsel der Stelle schont die Haut'
-      : 'Die nächste Dosis steht an, und der Blister in Reichweite hilft, sie nicht zu vergessen'),
+      : 'Die nächste Dosis steht an, und die Packung in Reichweite hilft, sie nicht zu vergessen'),
 
     receita: 'Frag das neue Rezept an',
     /* ⚠️ HIER KOMMEN DIE ZAHL UND DER ORT GETRENNT AN, und das Wort

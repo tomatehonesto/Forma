@@ -22,4 +22,11 @@ export const tempo = {
     if (dias === 1) return 'demain';
     return dias < 0 ? `il y a ${-dias} jours` : `dans ${dias} jours`;
   },
+
+  /** Une durée : « 1 jour », « 5 jours », « 1 semaine », « 3 semaines ».
+      Les raisons sont dans ../pt-BR/tempo.ts (02/10/2026, stock en jours). */
+  duracao: (c: { n: number; unidade: 'dia' | 'semana' }) =>
+    c.unidade === 'dia'
+      ? `${c.n} ${c.n === 1 ? 'jour' : 'jours'}`
+      : `${c.n} ${c.n === 1 ? 'semaine' : 'semaines'}`,
 };

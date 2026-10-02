@@ -21,10 +21,12 @@ export type { Forma };
    pessoa aplicou o comprimido não está com o texto errado — está fazendo
    uma pergunta sem sentido.
 
-   ⚠️ E O RECIPIENTE DO COMPRIMIDO É A CARTELA, não o frasco. Não é
-   preciosismo: a cartela não "vence depois de aberta" do jeito que uma
-   caneta vence, e é por isso que a validade que se pergunta no frasco não
-   se pergunta aqui. Ver o bloco de `shelf` em meds.ts.
+   ⚠️ E O RECIPIENTE DO COMPRIMIDO É A CAIXA, não o frasco — e era a
+   cartela até 02/10/2026, quando o estoque do comprimido passou a ser
+   contado pela caixa (ver textos/pt-BR/formas e o bloco "QUANTO CABE" em
+   meds.ts). Nem uma nem a outra "vencem depois de abertas" do jeito que
+   uma caneta vence, e é por isso que a validade que se pergunta no frasco
+   não se pergunta aqui. Ver o bloco de `shelf` em meds.ts.
 
    Ver docs/superpowers/specs/2026-09-21-forma-de-aplicacao-design.md.
    ============================================================ */

@@ -1,9 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { useStore } from '../logic/store';
-import { compartilharRelatorioPdf, recortePadrao, INCLUI_PADRAO } from '../logic/relatorioPdf';
+import { compartilharRelatorioPdf, recortePadrao, INCLUI_PADRAO, dosesEmResumo } from '../logic/relatorioPdf';
 import { localDaDose } from '../logic/formas';
-import { DAY, now, dataLonga } from '../logic/time';
+import { DAY, now, dataLonga, startOfDay } from '../logic/time';
 import { Txt, Row } from '../ui/kit';
 import {
   TelaInterna, Titulao, Bloco, Campo, Opcoes, Opc, Cartao, Linha, Aviso, Botao,
@@ -46,16 +46,22 @@ export default function PdfConsulta() {
   const desde = per === '4s' ? +now() - 28 * DAY : per === 'consulta' ? recortePadrao(S).desde : S.profile.startT;
 
   const conta = useMemo(() => {
-    const apos = (a: any[]) => (a || []).filter((x) => x.t >= desde).length;
+    /* ⚠️ DA MEIA-NOITE DE `desde`, como o papel (`htmlDoRelatorio`, em
+       logic/relatorioPdf) — e não do instante. Com o instante, "últimas 4
+       semanas" às 10h dizia aqui 28 registros e no PDF 29, e na beira dos 14
+       a tela prometia a lista e o papel saía resumido (02/10/2026, revisão
+       da B5). */
+    const de = +startOfDay(new Date(desde));
+    const apos = (a: any[]) => (a || []).filter((x) => x.t >= de).length;
     return {
       aplicacoes: apos(S.injections as any[]),
       /* a coluna Local do papel só existe se alguma dose do período foi
          injetada e tem local (logic/relatorioPdf) — e a linha diz o mesmo */
-      comLocal: (S.injections as any[]).some((x) => x.t >= desde && localDaDose(S, x)),
+      comLocal: (S.injections as any[]).some((x) => x.t >= de && localDaDose(S, x)),
       pesagens: apos(S.weights as any[]),
       medidas: apos(S.measures as any[]),
       checkins: apos(S.checkins as any[]),
-      exames: (S.exams as any[]).reduce((n, e) => n + ((e.values || []).filter((v: any) => v.t >= desde).length), 0),
+      exames: (S.exams as any[]).reduce((n, e) => n + ((e.values || []).filter((v: any) => v.t >= de).length), 0),
       notas: apos(S.notes as any[]),
       refeicoes: apos((S as any).meals || []),
     };
@@ -111,7 +117,10 @@ export default function PdfConsulta() {
               a quem toma comprimido. O nome agora é o da seção do PDF
               ("Doses"), que é o que este interruptor liga, e o "local" só
               entra quando a coluna vai entrar. */}
-          {linha('aplicacoes', T.resumo.relatorio.aplicacoes, T.resumo.relatorio.dosesSub(conta.aplicacoes, conta.comLocal))}
+          {/* ⚠️ E NO DIÁRIO COM MAIS DE 14 REGISTROS, "resumidos por dose"
+              (02/10/2026, parte B5): o papel troca a lista pelos trechos de
+              dose, e a pergunta é a mesma do papel (`dosesEmResumo`). */}
+          {linha('aplicacoes', T.resumo.relatorio.aplicacoes, T.resumo.relatorio.dosesSub(conta.aplicacoes, conta.comLocal, dosesEmResumo(S, conta.aplicacoes)))}
           {linha('peso', K().pesoEMedidas, K().pesoEMedidasSub(conta.pesagens, conta.medidas))}
           {linha('sintomas', K().checkins, K().checkinsSub(conta.checkins))}
           {linha('exames', K().exames, K().examesSub(conta.exames))}

@@ -1,11 +1,12 @@
 import type { State } from './seed';
-import { M, temDose, doseDoPerfil, doseDiaria, adesao, adesaoSemConta, aguaDoDia, sintomasEm, clinicaConectada, temAcompanhamento, milestones, timelineEvents, comSinal, marcoQueEhEvento, type WeekMetric } from './derive';
+import { M, temDose, doseDoPerfil, doseDiaria, adesao, adesaoSemConta, aguaDoDia, sintomasEm, clinicaConectada, temAcompanhamento, milestones, timelineEvents, comSinal, marcoQueEhEvento, contagemDaJanela, diasDoDiario, type WeekMetric } from './derive';
 import { paraTela } from './escalas';
 import { pesoTxt, aguaTxt, aguaNoPasso, sistemaDe } from './medidas';
 import { localAtual } from './local';
 import { DAY, startOfDay, now } from './time';
 import { semanaLida, noCalendario, type Candidata } from './descobertasDaSemana';
-import { viaDoTratamento } from './resumoDaJornada';
+import { viaDoTratamento, frequenciaDoTratamento } from './resumoDaJornada';
+import { remedioDaDose } from './formas';
 import { T } from '../textos';
 
 /* ============================================================
@@ -69,15 +70,47 @@ export function resumoDaSemana(S: State, agora: Date = now()): string {
   const aplicacoes = (((S as any).injections ?? []) as any[]).filter((i) => i.t >= de && i.t < ate);
   /* ⚠️ "DOSES", E ERA "APLICAÇÕES", e a via vai dita (01/10/2026) — os
      motivos estão em resumoDaJornada, que escreve a mesma linha. */
+  /* ⚠️⚠️ QUEM TOMA TODO DIA LÊ A SEMANA EM DIAS (02/10/2026, parte B5 de
+     docs/superpowers/specs/2026-10-01-oral-e-diario-design.md). A seção
+     listava sete datas iguais ("Doses na semana: 2026-09-21 7 mg;
+     2026-09-22 7 mg; …") e a "Adesão desde o início" em porcentagem — sete
+     linhas de tokens que diziam menos que uma, e a voz da caneta semanal.
+     Agora vai a FREQUÊNCIA (é por ela que a regra da leitura sabe que não
+     há "dias depois da aplicação"), os dias da semana com dose registrada
+     contra os que contavam, a dose quando ela mudou no meio da semana, e
+     a constância desde o começo do uso diário, também em dias — as contas
+     de `contagemDaJanela`, as mesmas do painel. O semanal fica como era,
+     sem a linha da frequência: ele é o caso que o modelo já supõe. */
+  const diaria = doseDiaria(S);
+  const temRemedio = med && P.med !== 'indefinido';
+  const naSemana = diaria ? contagemDaJanela(S, de, ate) : null;
+  const total = diaria ? diasDoDiario(S) : null;
+  /* as doses da semana em ordem de data (a lista guardada só fica em ordem por sorte; ver `dosesEmOrdem`) */
+  const emOrdem = aplicacoes.filter((a) => a.dose != null).sort((a, b) => a.t - b.t);
+  /* cada dose com o seu remédio, como em resumoDaJornada: numa troca no meio
+     da semana, "5 mg → 7 mg" leria a troca como um degrau da mesma escala */
+  const rotulo = (a: any) => { const r = remedioDaDose(S, a); return `${r.label} ${num(a.dose, 2)} ${r.unit}`; };
+  const dosesDaSemana = [...new Set(emOrdem.map(rotulo))];
   secoes.push(secao('Tratamento', [
-    med && P.med !== 'indefinido' ? `Medicamento: ${med.label} (${med.mol})` : null,
-    med && P.med !== 'indefinido' ? viaDoTratamento(S) : null,
+    temRemedio ? `Medicamento: ${med.label} (${med.mol})` : null,
+    temRemedio ? viaDoTratamento(S) : null,
+    temRemedio && diaria ? frequenciaDoTratamento(S) : null,
     temDose(S) ? `Dose atual no perfil: ${doseDoPerfil(S)}` : null,
-    aplicacoes.length
-      ? `Doses na semana: ${aplicacoes.map((a) => `${data(a.t)}${a.dose != null ? ` ${num(a.dose, 2)} ${med?.unit ?? 'mg'}` : ''}`).join('; ')}`
-      : 'Nenhuma dose registrada na semana',
-    /* sem dia a contar na dose diária, sem a linha — e não "0%" (ver `adesaoSemConta`) */
-    ((S as any).injections ?? []).length >= 2 && !adesaoSemConta(S) ? `Adesão desde o início: ${adesao(S)}%` : null,
+    ...(diaria ? [
+      naSemana?.dias
+        ? `Dias com dose registrada na semana: ${naSemana.feitos} de ${naSemana.dias}`
+        : aplicacoes.length ? `Doses registradas na semana: ${aplicacoes.length}` : 'Nenhuma dose registrada na semana',
+      dosesDaSemana.length > 1
+        ? `A dose mudou na semana: ${emOrdem.filter((a, i) => i === 0 || rotulo(emOrdem[i - 1]) !== rotulo(a)).map((a) => `${rotulo(a)} desde ${data(a.t)}`).join('; ')}`
+        : null,
+      total?.dias ? `Dias com dose registrada desde o começo do uso diário: ${total.feitos} de ${total.dias}` : null,
+    ] : [
+      aplicacoes.length
+        ? `Doses na semana: ${aplicacoes.map((a) => `${data(a.t)}${a.dose != null ? ` ${num(a.dose, 2)} ${med?.unit ?? 'mg'}` : ''}`).join('; ')}`
+        : 'Nenhuma dose registrada na semana',
+      /* sem dia a contar na dose diária, sem a linha — e não "0%" (ver `adesaoSemConta`) */
+      ((S as any).injections ?? []).length >= 2 && !adesaoSemConta(S) ? `Adesão desde o início: ${adesao(S)}%` : null,
+    ]),
   ]));
 
   const todosPesos = (((S as any).weights ?? []) as any[]).filter((w) => w.t < ate).sort((a, b) => a.t - b.t);

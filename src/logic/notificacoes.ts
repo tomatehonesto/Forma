@@ -28,8 +28,10 @@ import { textoDeNivel } from './conquistas';
 export type FaseDoCiclo = 'aplic' | 'pico' | 'estab' | 'retorno' | 'pre';
 
 export type Notificacao = { t: number } & (
-  /** o aviso da dose, com a distância que ele tinha quando chegou */
-  | { tipo: 'dose'; dias: number; med: string; dose: number; unidade: string; forma: Forma }
+  /** o aviso da dose, com a distância que ele tinha quando chegou — e,
+      desde 02/10/2026 (parte B4), `diaria` quando era o aviso do dia de
+      quem toma todo dia; os gravados antes não o têm, e são do semanal */
+  | { tipo: 'dose'; dias: number; med: string; dose: number; unidade: string; forma: Forma; diaria?: boolean }
   /** a manchete do ciclo naquele dia */
   | { tipo: 'ciclo'; fase: FaseDoCiclo }
   /** a resposta da equipe — o texto é de quem escreveu */
@@ -53,10 +55,17 @@ export type NotificacaoLida = { t: number; ic: string; origem: Origem; titulo: s
    que chegou, e o que chegou foi isto — logic/avisos agenda com esta
    mesma função, e duas cópias da frase divergiriam na primeira vez que
    alguém melhorasse uma delas. */
-export const textoDoAvisoDeDose = (p: { dias: number; med: string; dose: number; unidade: string; forma: Forma }) => {
+export const textoDoAvisoDeDose = (p: { dias: number; med: string; dose: number; unidade: string; forma: Forma; diaria?: boolean }) => {
   const K = T.avisos;
-  const { acao, recipiente } = FORMAS()[p.forma];
+  const { acao, recipiente, injetavel } = FORMAS()[p.forma];
   const dose = `${p.med} ${doseTxt(p.dose)} ${p.unidade}`;
+  /* ⚠️ A DOSE DIÁRIA TEM UM AVISO SÓ, O DO DIA (02/10/2026, parte B4 de
+     docs/superpowers/specs/2026-10-01-oral-e-diario-design.md). As três
+     distâncias de baixo são de quem conta os dias até a dose da semana; o
+     aviso de todo dia chama para a dose de hoje, com o verbo da forma
+     ("tomar" / "aplicar") — a frase que segue a forma é função de
+     `injetavel` no catálogo, como `cadastro.ultima`. */
+  if (p.diaria) return { title: K.doseDiaria(injetavel), body: K.doseDiariaCorpo(dose) };
   if (p.dias <= 0) return { title: K.doseHoje(acao), body: K.doseHojeCorpo(dose) };
   if (p.dias === 1) return { title: K.doseAmanha(acao), body: K.doseAmanhaCorpo(dose, `${oA(p.forma)} ${recipiente}`) };
   return { title: K.doseEmDias(p.dias, acao), body: K.doseEmDiasCorpo(dose, doDa(p.forma)) };

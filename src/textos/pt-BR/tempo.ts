@@ -37,4 +37,18 @@ export const tempo = {
     if (dias === 1) return 'amanhã';
     return dias < 0 ? `há ${-dias} dias` : `em ${dias} dias`;
   },
+
+  /** Uma duração: "1 dia", "5 dias", "1 semana", "3 semanas".
+
+      ⚠️ EXISTE POR CAUSA DO ESTOQUE (02/10/2026, parte B3 de
+      docs/superpowers/specs/2026-10-01-oral-e-diario-design.md). A
+      cobertura do remédio era sempre escrita em semanas, e para quem toma
+      todo dia isso dava "cerca de 0.42857142857142855 semanas" — três
+      comprimidos divididos por sete. A unidade é escolhida na lógica
+      (`coberturaDoEstoque`, em logic/derive); aqui só se escreve, com o
+      plural de cada língua. */
+  duracao: (c: { n: number; unidade: 'dia' | 'semana' }) =>
+    c.unidade === 'dia'
+      ? `${c.n} ${c.n === 1 ? 'dia' : 'dias'}`
+      : `${c.n} ${c.n === 1 ? 'semana' : 'semanas'}`,
 };

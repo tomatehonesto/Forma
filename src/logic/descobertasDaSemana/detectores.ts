@@ -1,5 +1,5 @@
 import type { State } from '../seed';
-import { examStatus, cadenciaDias, aguaDoDia, startWeight } from '../derive';
+import { examStatus, cadenciaDias, aguaDoDia, startWeight, doseDiaria, inicioDoDiario, diasComDose } from '../derive';
 import { SINTOMAS_LIDOS, grauDoSintoma } from '../escalas';
 import { DAY } from '../time';
 import { COMPORTAMENTOS, RESULTADOS, JANELA_SEMANAS, noCalendario, type Dia, type Comportamento, type Resultado } from './dias';
@@ -350,16 +350,47 @@ export function constancia({ S, de, ate }: Contexto): Candidata[] {
   const fora: Candidata[] = [];
   const P: any = S.profile;
 
-  /* aplicações sem falha, da mais recente para trás */
-  const apl = (((S as any).injections ?? []) as any[]).filter((i) => i.t < ate).sort((a, b) => b.t - a.t);
-  const folga = (cadenciaDias(S) + 2) * DAY;
-  let seguidas = apl.length ? 1 : 0;
-  for (let i = 1; i < apl.length && apl[i - 1].t - apl[i].t <= folga; i++) seguidas++;
-  if (seguidas >= 4 && apl.length && ate - apl[0].t <= folga) {
-    fora.push({
-      area: 'constancia', tipo: 'aplicacoesSemFalha', chave: `constancia:aplicacoes:${Math.floor(seguidas / 4)}`, nivel: 'retrato', forca: 0.5,
-      dados: { aplicacoesSeguidas: seguidas, cadenciaDias: cadenciaDias(S) },
-    });
+  /* ⚠️⚠️ NA DOSE DIÁRIA, DIAS SEGUIDOS COM DOSE REGISTRADA (02/10/2026,
+     parte B5 de docs/superpowers/specs/2026-10-01-oral-e-diario-design.md).
+     A conta de baixo é de dose a dose, com folga de cadência + 2 dias:
+     para quem toma todo dia, isso é três dias, e dois comprimidos
+     esquecidos seguidos ainda davam "sem falha" — no Saxenda, três dias é
+     justamente o limite da bula antes de refazer a subida. A chave mudava a
+     cada quatro doses, ou seja, a cada quatro DIAS, e a memória de três
+     semanas não a segurava: o mesmo retrato voltava semana sim, semana
+     não, dizendo "52 aplicações seguidas" a quem toma comprimido.
+
+     Agora a constância do diário é de DIAS: os dias seguidos com pelo menos
+     uma dose registrada, contados para trás a partir do último dia da
+     semana lida, sem folga e sem passar do começo do regime diário de
+     agora (`inicioDoDiario`). Vale a partir de 28 dias — as quatro semanas
+     que as quatro doses semanais medem — e a chave muda a cada 28, como a
+     de baixo muda a cada mês. O campo diz o que conta
+     (`diasSeguidosComDose`), e o glossário da leitura o explica. O semanal
+     fica como era. */
+  if (doseDiaria(S)) {
+    const desde = inicioDoDiario(S);
+    const com = new Set(diasComDose(S));
+    let seguidos = 0;
+    if (desde != null) for (let d = noCalendario(ate, -1); d >= desde && com.has(d); d = noCalendario(d, -1)) seguidos++;
+    if (seguidos >= 28) {
+      fora.push({
+        area: 'constancia', tipo: 'diasSeguidosComDose', chave: `constancia:dias:${Math.floor(seguidos / 28)}`, nivel: 'retrato', forca: 0.5,
+        dados: { diasSeguidosComDose: seguidos, frequencia: 'diaria' },
+      });
+    }
+  } else {
+    /* aplicações sem falha, da mais recente para trás */
+    const apl = (((S as any).injections ?? []) as any[]).filter((i) => i.t < ate).sort((a, b) => b.t - a.t);
+    const folga = (cadenciaDias(S) + 2) * DAY;
+    let seguidas = apl.length ? 1 : 0;
+    for (let i = 1; i < apl.length && apl[i - 1].t - apl[i].t <= folga; i++) seguidas++;
+    if (seguidas >= 4 && apl.length && ate - apl[0].t <= folga) {
+      fora.push({
+        area: 'constancia', tipo: 'aplicacoesSemFalha', chave: `constancia:aplicacoes:${Math.floor(seguidas / 4)}`, nivel: 'retrato', forca: 0.5,
+        dados: { aplicacoesSeguidas: seguidas, cadenciaDias: cadenciaDias(S) },
+      });
+    }
   }
 
   /* a melhor semana de água e de proteína, entre as últimas 12 */

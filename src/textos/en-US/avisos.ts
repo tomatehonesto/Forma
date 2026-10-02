@@ -15,6 +15,14 @@ export const avisos = {
   doseEmDias: (dias: number, acao: string) => `Your ${acao} is in ${dias} days`,
   doseEmDiasCorpo: (dose: string, _doRecipiente: string) => `${dose}. There’s time to check your supply.`,
 
+  /* ⚠️ THE DAILY DOSE GETS ONE NOTIFICATION, TODAY'S (02/10/2026, part B4
+     — reasons in ../pt-BR/avisos.ts). "Take" serves the pill and the daily
+     pen alike in English, the same call as `doseDeHoje.registrarHoje`, so
+     `injetavel` is accepted and not used. The body never claims she
+     hasn't taken it yet. */
+  doseDiaria: (_injetavel: boolean): string => 'Time to take today’s dose',
+  doseDiariaCorpo: (dose: string) => `${dose}. Afterward, one tap logs it.`,
+
   /* ⚠️ THIS ONE ASKS instead of telling. It's the only one of the five,
      and it's that way because the check-in is a question. */
   checkin: 'How are you feeling today?',

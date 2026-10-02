@@ -14,7 +14,7 @@ import { mensagemDoDia } from '../../logic/etapa';
 import {
   dailyTargets, weightCard, weightSeries, indicadoresDaEvolucao,
   nextInjectionDate, siteLabel, nextSite, streak, temAcompanhamento, clinicaConectada, temConsulta, M,
-  lastInjection, penStock,
+  lastInjection, penStock, estoqueNoFim,
   checkinFeito, diaDoTratamento, temEvolucao, temCiclo, nomeDeQuemCuida,
   type DailyTarget,
   doseDoPerfil, temDose,
@@ -337,11 +337,23 @@ export default function Home() {
        — é a mesma regra que a tela de Cuidado já aplica ao mesmo botão.
        Sem equipe, o cartão continua existindo e leva ao recipiente, porque
        o fato de ele estar acabando não depende de plataforma nenhuma. */
-    ...(temDose(S) && caneta.left <= 1 ? [{
+    /* ⚠️⚠️ SÓ COM RECIPIENTE REGISTRADO, E NO "RENOVE AGORA" EM DIAS
+       (02/10/2026, parte B3 de docs/superpowers/specs/2026-10-01-oral-e-diario-design.md).
+       Era `left <= 1`, sem perguntar se havia recipiente: quem toma
+       comprimido e nunca registrou uma caixa — ou trocou a caneta pelo
+       comprimido e a última caneta aberta seguia "gastando" — lia "A
+       cartela acabou." de algo que nunca registrou. Sem registro, o
+       aplicativo não sabe, e quem pede o registro é o Cuidado; aqui não se
+       anuncia o fim de nada. E na dose diária o cartão chega com três dias
+       de remédio, e não no último: uma dose só é o dia em que acaba. No
+       semanal é o mesmo cartão de sempre, na última dose. */
+    ...(temDose(S) && estoqueNoFim(S, caneta) ? [{
       over: recipiente.toUpperCase(),
       title: caneta.left <= 0
         ? K().acabou(`${maiuscula(oA(forma))} ${recipiente}`)
-        : K().restaUmaDose(noNa(forma)),
+        : caneta.left === 1
+          ? K().restaUmaDose(noNa(forma))
+          : K().restamDoses(caneta.left, noNa(forma)),
       body: K().receitaCorpo,
       ...(clinicaConectada(S)
         ? { cta: K().pedirRenovacao, to: '/conversa?pedir=receita', ic: 'doc' }

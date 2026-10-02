@@ -1,3 +1,4 @@
+import { tempo } from './tempo';
 /* ============================================================
    DIE BETREUUNG — der Bereich der Menschen · de-DE
 
@@ -40,9 +41,12 @@ export const cuidado = {
 
     receita: 'Ein neues Rezept anfragen',
     /* Zwei Zählungen in einer Zeile, jede mit eigenem Plural: die Dosen,
-       die bleiben, und die Wochen, die sie abdecken. */
-    receitaSub: (doses: number, semanas: number) =>
-      `${doses} ${doses === 1 ? 'Dosis übrig' : 'Dosen übrig'} · rund ${semanas} ${semanas === 1 ? 'Woche' : 'Wochen'}`,
+       die bleiben, und die Zeit, die sie abdecken — in Tagen oder Wochen,
+       und nie „rund 0“ (02.10.2026; Gründe in ../pt-BR/cuidado.ts). */
+    receitaSub: (doses: number, c: { n: number; unidade: 'dia' | 'semana' }) =>
+      c.n === 0 || doses === 0
+        ? 'Keine Dosis mehr übrig'
+        : `${doses} ${doses === 1 ? 'Dosis übrig' : 'Dosen übrig'} · rund ${tempo.duracao(c)}`,
     receitaRotulo: 'das Rezept',
 
     /* Der Titel der Untersuchung kommt aus dem Protokoll — das hat das
@@ -232,8 +236,10 @@ export const cuidado = {
     seuTratamento: 'Deine Behandlung',
     aplicacoesLink: 'Dosen',
     dosesEm: (onde: string) => `Dosen ${onde}`,
-    restamDe: (restam: number, total: number, semanas: number) =>
-      `${restam} von ${total} · rund ${semanas} ${semanas === 1 ? 'Woche' : 'Wochen'}`,
+    restamDe: (restam: number, total: number, c: { n: number; unidade: 'dia' | 'semana' }) =>
+      c.n === 0 || restam === 0
+        ? `${restam} von ${total}`
+        : `${restam} von ${total} · rund ${tempo.duracao(c)}`,
     pedirRenovacao: 'Rezept anfragen',
 
     exames: 'Befunde',

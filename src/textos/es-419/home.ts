@@ -1,4 +1,5 @@
 import { medidas } from './medidas';
+import { tempo } from './tempo';
 
 /* ============================================================
    EL INICIO Y EL CAMINO — las metas del día, las tarjetas y la línea de tiempo · es-419
@@ -223,10 +224,11 @@ export const home = {
     sintomaEmDias: (sintoma: string, dias: number) =>
       `${sintoma.toLowerCase()} en ${dias} ${dias === 1 ? 'día' : 'días'}`,
 
-    dosesRestantes: (restam: number, semanas: number) =>
-      restam === 0
+    /* En días o en semanas (02/10/2026) — razones en ../pt-BR/home.ts. */
+    dosesRestantes: (restam: number, c: { n: number; unidade: 'dia' | 'semana' }) =>
+      restam === 0 || c.n === 0
         ? 'Ninguna dosis restante'
-        : `${restam === 1 ? 'Queda 1 dosis' : `Quedan ${restam} dosis`} · cerca de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
+        : `${restam === 1 ? 'Queda 1 dosis' : `Quedan ${restam} dosis`} · cerca de ${tempo.duracao(c)}`,
 
     oQueJaMudou: 'Lo que ya cambió',
     oQueJaMudouVazio: 'A partir del segundo pesaje, lo que cambió aparece aquí.',
@@ -274,6 +276,8 @@ export const home = {
 
     acabou: (oRecipiente: string) => `${oRecipiente} se acabó.`,
     restaUmaDose: (onde: string) => `Queda una dosis ${onde}.`,
+    /* la dosis diaria recibe la tarjeta con tres días (02/10/2026) */
+    restamDoses: (quantas: number, onde: string) => `Quedan ${quantas} dosis ${onde}.`,
     receitaCorpo: 'Una receta nueva tarda algunos días entre el pedido y la farmacia — empezar ahora evita parar a mitad de camino.',
     pedirRenovacao: 'Pedir renovación',
     verMedicamento: 'Ver el medicamento',

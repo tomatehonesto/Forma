@@ -72,7 +72,7 @@ export const rotina = {
       (injetavel ? `Prepara ${recipiente} e scegli la zona` : `Prepara ${recipiente}`),
     aplicacaoPorque: (injetavel: boolean): string => (injetavel
       ? 'La prossima dose si avvicina, e cambiare zona riduce l’irritazione della pelle'
-      : 'La prossima dose si avvicina, e tenere il blister a portata di mano aiuta a non dimenticarla'),
+      : 'La prossima dose si avvicina, e tenere la confezione a portata di mano aiuta a non dimenticarla'),
 
     receita: 'Chiedi il rinnovo della ricetta',
     /* ⚠️⚠️ LA PAROLA "dosi" STAVA NEL CODICE, e non qui. Il punto di

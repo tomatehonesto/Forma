@@ -1,9 +1,9 @@
 import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import type { State } from './seed';
-import { M } from './derive';
+import { M, doseDiaria } from './derive';
 import { formaDe } from './formas';
-import { proximasDe, type Alerta, type TipoDeAlerta } from './alertas';
+import { proximasDe, antecedenciaDe, type Alerta, type TipoDeAlerta } from './alertas';
 import { T } from '../textos';
 import { textoDoAvisoDeDose } from './notificacoes';
 
@@ -103,9 +103,16 @@ async function canal() {
    números de agora. A lista de notificações escreve o mesmo aviso depois,
    com os números que ele tinha quando chegou — e as duas precisam sair
    da mesma frase, senão a lista conta uma coisa que não chegou. */
+/* ⚠️ NA DOSE DIÁRIA É O AVISO DO DIA (02/10/2026, parte B4): "Hora de
+   tomar a dose de hoje", e não "A sua dose é hoje" — que é a frase de
+   quem conta os dias até uma dose da semana. O `diaria` só entra no
+   objeto de quem toma todo dia: o do semanal sai como sempre saiu. */
 const textoDaDose = (S: State, lead: number) => {
   const med = M(S);
-  return textoDoAvisoDeDose({ dias: lead, med: med.label, dose: S.profile.dose, unidade: med.unit, forma: formaDe(S) });
+  return textoDoAvisoDeDose({
+    dias: lead, med: med.label, dose: S.profile.dose, unidade: med.unit, forma: formaDe(S),
+    ...(doseDiaria(S) ? { diaria: true as const } : {}),
+  });
 };
 
 /* ⚠️ É FUNÇÃO, como toda tabela que lê o catálogo: constante de módulo
@@ -167,8 +174,37 @@ const MINIMO_POR_ALERTA = 3;
    tela passa a prometer um horário e o aparelho a tocar em outro.
 
    O preço é depender de o app abrir de vez em quando para marcar as
-   seguintes, e é por isso que remarcar roda no _layout. */
-export async function reagendar(S: State): Promise<void> {
+   seguintes, e é por isso que remarcar roda no _layout.
+
+   ⚠️ E UMA REMARCAÇÃO DE CADA VEZ (02/10/2026, achado da revisão da parte
+   B4). Remarcar é limpar tudo e marcar de novo, um aviso por chamada
+   nativa — e na dose diária são 35 a 56 chamadas. Duas remarcações ao
+   mesmo tempo se atropelavam: a segunda limpava o que a primeira já tinha
+   marcado, a primeira seguia marcando o resto, e a segunda marcava tudo
+   outra vez. Acontecia todo dia, ao voltar para o app depois da
+   meia-noite (a volta ao foco remarca, e a chave muda porque "a dose de
+   hoje" vira "não feita" — ver `chaveDosAvisos`): dois "Hora de tomar a
+   dose de hoje" às 9h, e passando dos 64 avisos que o iOS guarda, que
+   descarta o excesso calado. Agora elas entram numa fila, e quem chega
+   com uma já esperando só troca o estado que ela vai usar — a última
+   palavra é a do estado mais novo, e ninguém marca duas vezes. */
+let fila: Promise<void> = Promise.resolve();
+let esperando: State | null = null;
+
+export function reagendar(S: State): Promise<void> {
+  const jaHaUmaEsperando = esperando !== null;
+  esperando = S;
+  if (!jaHaUmaEsperando) {
+    fila = fila.then(() => {
+      const s = esperando as State;
+      esperando = null;
+      return remarcar(s);
+    }).catch(() => {});
+  }
+  return fila;
+}
+
+async function remarcar(S: State): Promise<void> {
   if (!daParaAvisar) return;
   try {
     await Notifications.cancelAllScheduledNotificationsAsync();
@@ -185,7 +221,11 @@ export async function reagendar(S: State): Promise<void> {
     const cota = Math.max(MINIMO_POR_ALERTA, Math.floor(ORCAMENTO / ligados.length));
 
     for (const a of ligados) {
-      const texto = a.tipo === 'dose' ? textoDaDose(S, a.lead ?? 0) : TEXTO()[a.tipo];
+      /* ⚠️ A ANTECEDÊNCIA QUE VALE, e não a gravada: zero na dose diária
+         (ver `antecedenciaDe`, em logic/alertas; parte B4, 02/10/2026). E
+         a dose diária leva a `cota` inteira, como o check-in — um aviso
+         por dia e hora, e não mais uma data só. */
+      const texto = a.tipo === 'dose' ? textoDaDose(S, antecedenciaDe(S, a)) : TEXTO()[a.tipo];
       for (const d of proximasDe(S, a, cota)) await naData(d, texto);
     }
   } catch {

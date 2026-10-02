@@ -99,8 +99,12 @@ export default function Conversa() {
 
   React.useEffect(() => {
     if (pedir !== 'receita') return;
+    /* ⚠️ SÓ COM RECIPIENTE REGISTRADO (02/10/2026, revisão da parte B3):
+       sem ele, `left` é o recuo de um recipiente cheio, e quem toma
+       Rybelsus sem caixa registrada mandaria à equipe "Restam 30 doses na
+       caixa" — um número que ninguém contou. */
     const restam = estoque.left === 1 ? 'Resta 1 dose' : `Restam ${estoque.left} doses`;
-    setMsg(`Oi! Queria pedir a renovação da receita de ${medComDose(S)}. ${restam} ${noNa(formaDe(S))}.`);
+    setMsg(`Oi! Queria pedir a renovação da receita de ${medComDose(S)}.${estoque.registrada ? ` ${restam} ${noNa(formaDe(S))}.` : ''}`);
     const t = setTimeout(() => campoRef.current?.focus(), 120);
     return () => clearTimeout(t);
   }, [pedir]);

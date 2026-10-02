@@ -1,3 +1,4 @@
+import { tempo } from './tempo';
 /* ============================================================
    LA CURA — l'area delle persone · it-IT
 
@@ -35,8 +36,12 @@ export const cuidado = {
     mensagemRotulo: 'i messaggi',
 
     receita: 'Chiedi il rinnovo della ricetta',
-    receitaSub: (doses: number, semanas: number) =>
-      `${doses} ${doses === 1 ? 'dose rimasta' : 'dosi rimaste'} · circa ${semanas} ${semanas === 1 ? 'settimana' : 'settimane'}`,
+    /* In giorni o in settimane, e mai "circa 0" (02/10/2026) — le ragioni
+       sono in ../pt-BR/cuidado.ts. */
+    receitaSub: (doses: number, c: { n: number; unidade: 'dia' | 'semana' }) =>
+      c.n === 0 || doses === 0
+        ? 'Nessuna dose rimasta'
+        : `${doses} ${doses === 1 ? 'dose rimasta' : 'dosi rimaste'} · circa ${tempo.duracao(c)}`,
     receitaRotulo: 'la ricetta',
 
     /* Il titolo dell'esame viene dal protocollo — è quello che ha scritto
@@ -233,8 +238,10 @@ export const cuidado = {
     seuTratamento: 'La tua terapia',
     aplicacoesLink: 'Dosi',
     dosesEm: (onde: string) => `Dosi ${onde}`,
-    restamDe: (restam: number, total: number, semanas: number) =>
-      `${restam} su ${total} · circa ${semanas} ${semanas === 1 ? 'settimana' : 'settimane'}`,
+    restamDe: (restam: number, total: number, c: { n: number; unidade: 'dia' | 'semana' }) =>
+      c.n === 0 || restam === 0
+        ? `${restam} su ${total}`
+        : `${restam} su ${total} · circa ${tempo.duracao(c)}`,
     pedirRenovacao: 'Chiedi il rinnovo',
 
     /* ---------- gli esami ---------- */

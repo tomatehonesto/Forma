@@ -28,4 +28,16 @@ export const tempo = {
     if (dias === 1) return 'morgen';
     return dias < 0 ? `vor ${-dias} Tagen` : `in ${dias} Tagen`;
   },
+
+  /** Eine Dauer: „1 Tag“, „5 Tage“, „1 Woche“, „3 Wochen“. Gründe in
+      ../pt-BR/tempo.ts (02.10.2026, Vorrat in Tagen).
+
+      ⚠️ NOMINATIV/AKKUSATIV PLURAL — „Tage“, nicht „Tagen“. Alle Sätze,
+      die das heute benutzen („rund 5 Tage“, „reicht etwa 5 Tage“), stehen
+      in einem der beiden Fälle. Ein Satz mit Dativ („in 5 Tagen“) braucht
+      `daquiA`, nicht dies. */
+  duracao: (c: { n: number; unidade: 'dia' | 'semana' }) =>
+    c.unidade === 'dia'
+      ? `${c.n} ${c.n === 1 ? 'Tag' : 'Tage'}`
+      : `${c.n} ${c.n === 1 ? 'Woche' : 'Wochen'}`,
 };

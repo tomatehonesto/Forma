@@ -30,6 +30,23 @@ export const avisos = {
   doseEmDias: (dias: number, acao: string) => `A sua ${acao} é em ${dias} dias`,
   doseEmDiasCorpo: (dose: string, doRecipiente: string) => `${dose}. Dá tempo de conferir o estoque ${doRecipiente}.`,
 
+  /* ---------- a dose de todo dia ---------- */
+  /* ⚠️ QUEM TOMA TODO DIA RECEBE UM AVISO SÓ, O DO DIA (02/10/2026, parte
+     B4 de docs/superpowers/specs/2026-10-01-oral-e-diario-design.md). As
+     três distâncias de cima contam os dias até a dose da semana, e para o
+     diário diziam "A sua dose é amanhã" no dia de tomar.
+
+     ⚠️ O VERBO SEGUE A FORMA, e por isso é `injetavel`, e não `acao`:
+     "dose" é o substantivo de todas (decisão do dono), e quem toma
+     comprimido não aplica nada. É a mesma escolha de `cadastro.ultima`.
+
+     E o corpo não afirma que ela ainda não tomou: o aviso já fica quieto
+     quando a dose de hoje está registrada, mas tomar e registrar são
+     coisas diferentes — ela pode ter tomado e não registrado. Ele só diz
+     que registrar é um toque. */
+  doseDiaria: (injetavel: boolean): string => (injetavel ? 'Hora de aplicar a dose de hoje' : 'Hora de tomar a dose de hoje'),
+  doseDiariaCorpo: (dose: string) => `${dose}. Depois, é só um toque para registrar.`,
+
   /* ---------- os outros quatro ---------- */
   checkin: 'Como foi o seu dia?',
   checkinCorpo: 'Sono, fome, energia e humor — quatro respostas, e o dia fica registrado.',
