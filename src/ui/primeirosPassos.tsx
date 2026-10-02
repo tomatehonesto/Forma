@@ -83,7 +83,8 @@ export function PrimeirosPassos({ style }: { style?: StyleProp<ViewStyle> }) {
 
   const naHome = passosNaHome(S);
   /* O CARTÃO SE CONCLUI COM O ESSENCIAL, e não com todos: os opcionais (o
-     aviso e o app de saúde) não seguram ninguém — ver logic/primeirosPassos.
+     aviso, o app de saúde e a cor do aplicativo) não seguram ninguém — ver
+     logic/primeirosPassos.
      Com tudo feito, a comemoração diz "tudo"; com só o essencial, diz o
      essencial, e que o resto fica no Perfil. */
   const tudo = !!lista && essencialPronto(lista);
@@ -127,9 +128,9 @@ export function PrimeirosPassos({ style }: { style?: StyleProp<ViewStyle> }) {
   /* A COMEMORAÇÃO ESPERA SER VISTA — e isso são duas esperas.
 
      A da Home em foco: os itens se cumprem em outras telas — a aplicação,
-     o check-in, os aparelhos —, e a Home, que é aba, continua montada por
-     baixo delas. Sem esperar o foco, os dois segundos passariam enquanto a
-     pessoa ainda está na outra tela.
+     o check-in, os aparelhos, a aparência —, e a Home, que é aba, continua
+     montada por baixo delas. Sem esperar o foco, os dois segundos
+     passariam enquanto a pessoa ainda está na outra tela.
 
      E a do cartão na tela: ele mora abaixo da aurora, e quem volta para a
      Home chega no alto dela, com o cartão fora da vista. Por isso, só

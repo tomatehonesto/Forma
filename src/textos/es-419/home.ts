@@ -490,6 +490,8 @@ export const home = {
     lembretesSub: 'Para que el aviso de la dosis suene a tiempo',
     saude: (app: string) => `Conecta ${app}`,
     saudeSub: 'El peso de la báscula entra solo',
+    aparencia: 'Elige el color de la aplicación',
+    aparenciaSub: (paletas: number) => `${paletas} paletas, en modo claro u oscuro`,
     opcional: (porque: string) => `Opcional · ${porque}`,
     tudoPronto: '¡Todo listo!',
     tudoProntoTexto: 'Tu diario está armado. De aquí en adelante, solo registra: lo demás lo seguimos contigo.',

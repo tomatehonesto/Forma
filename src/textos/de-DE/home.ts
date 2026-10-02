@@ -518,6 +518,8 @@ export const home = {
     lembretesSub: 'Damit die Dosis-Erinnerung pünktlich klingelt',
     saude: (app: string) => `Verbinde ${app}`,
     saudeSub: 'Das Gewicht deiner Waage kommt von selbst',
+    aparencia: 'Wähl die Farbe der App',
+    aparenciaSub: (paletas: number) => `${paletas} Paletten, im hellen oder dunklen Modus`,
     opcional: (porque: string) => `Optional · ${porque}`,
     tudoPronto: 'Alles bereit!',
     tudoProntoTexto: 'Dein Tagebuch steht. Ab jetzt einfach eintragen – den Rest behalten wir mit dir im Blick.',

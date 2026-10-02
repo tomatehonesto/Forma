@@ -2,6 +2,7 @@ import type { State } from './seed';
 import type { Permissao } from './avisos';
 import { respostaNoDia } from './derive';
 import { iconeDaDose, injetavelDe } from './formas';
+import { PALETAS } from '../theme';
 import { T } from '../textos';
 
 /* ============================================================
@@ -23,7 +24,7 @@ import { T } from '../textos';
    marcar "fiz o primeiro check-in" — é a regra de `respostaNoDia`.
    ============================================================ */
 
-export type PassoId = 'plano' | 'medicacao' | 'aplicacao' | 'checkin' | 'meta' | 'lembretes' | 'saude';
+export type PassoId = 'plano' | 'medicacao' | 'aplicacao' | 'checkin' | 'meta' | 'lembretes' | 'saude' | 'aparencia';
 
 export type Passo = {
   id: PassoId;
@@ -49,7 +50,9 @@ const K = () => T.home.primeirosPassos;
 /* A ORDEM É A DO PRIMEIRO DIA: o plano, que já está feito, abre a lista
    com um visto, e não do zero; depois o que conta o tratamento (a
    dose), o que conta o dia (o check-in), e por fim o que deixa o resto
-   automático (os lembretes e a saúde do aparelho), que são opcionais. */
+   automático (os lembretes e a saúde do aparelho), que são opcionais. A
+   cor do aplicativo fecha a lista: também é opcional, e é a única que
+   não muda nada do diário. */
 export function passos(S: State, { permissao, aparelho }: DoAparelho): Passo[] {
   /* A forma decide o desenho (seringa ou comprimido) e ainda passa para
      a frase: "dose" é o substantivo de todas desde 01/10/2026, mas a
@@ -109,6 +112,26 @@ export function passos(S: State, { permissao, aparelho }: DoAparelho): Passo[] {
       pronto: !!(S as any).integrations?.[aparelho.id], to: '/integracoes', opcional: true,
     });
   }
+  /* ⚠️ A COR DO APLICATIVO, POR ÚLTIMO (02/10/2026, pedido do dono). É
+     opcional como os dois do aparelho, e vem depois deles: o aviso e o
+     app de saúde servem ao diário, e a cor é gosto. Não depende do
+     aparelho — no navegador, é o único opcional. O desenho é o da linha
+     "Aparência" do Perfil, que é para onde o toque leva.
+
+     ⚠️ FEITO É TER ESCOLHIDO, e não a cor ter mudado. O estado nasce com
+     a Original e o tema do sistema, e quem abre a Aparência e fica com
+     eles também escolheu — é a marca que logic/store grava na primeira
+     paleta ou no primeiro tema tocado, mesmo que seja o que já estava. A
+     paleta diferente da Original conta sem a marca: é quem escolheu antes
+     de ela existir. O tema não conta assim, porque um claro guardado
+     pode ser só o padrão antigo (`ensureDefaults`, em logic/seed).
+
+     O número de paletas vem da lista, e não do texto: ver o catálogo. */
+  lista.push({
+    id: 'aparencia', ic: 'palette', titulo: K().aparencia, sub: K().aparenciaSub(PALETAS.length),
+    pronto: !!vistas(S)[APARENCIA] || ((S as any).paleta ?? 'original') !== 'original',
+    to: '/aparencia', opcional: true,
+  });
   return lista;
 }
 
@@ -130,6 +153,11 @@ export const essencialPronto = (lista: Passo[]) => lista.every((p) => p.pronto |
 const ESCONDIDOS = 'primeiros-passos-escondidos';
 const CONCLUIDOS = 'primeiros-passos-concluidos';
 const MEDICACAO = 'primeiros-passos-medicacao';
+/* ⚠️ ESTA NÃO É GRAVADA AQUI: quem a grava é logic/store, em `setPaleta` e
+   `setTheme`, porque a escolha acontece na Aparência e vale por qualquer
+   caminho que leve até lá. Aqui ela só é lida, e a chave tem de ser a
+   mesma dos dois lados — a sonda confere pela loja de verdade. */
+const APARENCIA = 'aparencia-escolhida';
 
 const vistas = (S: any): Record<string, number> => S?.apresentacoesVistas ?? {};
 const marcar = (s: any, chave: string, quando: number | null) => {

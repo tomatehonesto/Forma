@@ -647,6 +647,8 @@ export const home = {
     lembretesSub: 'Perché il promemoria della dose suoni in tempo',
     saude: (app: string) => `Collega ${app}`,
     saudeSub: 'Il peso della bilancia entra da solo',
+    aparencia: 'Scegli il colore dell’app',
+    aparenciaSub: (paletas: number) => `${paletas} palette, in modalità chiara o scura`,
     opcional: (porque: string) => `Facoltativo · ${porque}`,
     tudoPronto: 'Tutto pronto!',
     tudoProntoTexto: 'Il tuo diario è pronto. Da qui in poi basta registrare: al resto pensiamo insieme a te.',

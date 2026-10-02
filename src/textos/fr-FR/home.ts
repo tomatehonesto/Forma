@@ -514,6 +514,8 @@ export const home = {
     lembretesSub: 'Pour que le rappel de la dose sonne à l’heure',
     saude: (app: string) => `Connectez ${app}`,
     saudeSub: 'Le poids de la balance arrive tout seul',
+    aparencia: 'Choisissez la couleur de l’application',
+    aparenciaSub: (paletas: number) => `${paletas} palettes, en mode clair ou sombre`,
     opcional: (porque: string) => `Facultatif · ${porque}`,
     tudoPronto: 'Tout est prêt !',
     tudoProntoTexto: 'Votre journal est prêt. Désormais, il suffit de noter : nous suivons le reste avec vous.',

@@ -84,10 +84,11 @@ para onde a resposta muda. O que o aplicativo não tem como saber não entra.
 | `checkin` | Faça o primeiro check-in | um dia com resposta (`respostaNoDia`, logic/derive) | `/checkin` | — |
 | `lembretes` | Permita os lembretes | `estadoDaPermissao() === 'concedida'` (logic/avisos) | o pedido do sistema, no próprio toque; negada, `/lembretes` | a permissão é `indisponivel` (o navegador) |
 | `saude` | Conecte o Apple Saúde / o Health Connect | `S.integrations.appleHealth` no iPhone, `healthConnect` no Android | `/integracoes` | `aparelhoDaVez()` é nulo (o navegador) |
+| `aparencia` | Escolha a cor do aplicativo | a marca `aparencia-escolhida`, gravada pela loja na primeira paleta ou no primeiro tema escolhido — ou uma paleta diferente da Original | `/aparencia` | — (02/10/2026, pedido do dono) |
 
 - **O plano já vem feito**, de propósito: a pessoa começa com um item
   cumprido, e o cartão abre com um visto, e não do zero.
-- **Os lembretes e a saúde são opcionais** (`Passo.opcional`): continuam na
+- **Os lembretes, a saúde e a cor são opcionais** (`Passo.opcional`): continuam na
   lista, porque são bons de ter, e o subtítulo começa com "Opcional ·"
   antes do porquê. Não seguram o cartão: ele se conclui quando todo item
   que não é opcional está pronto (`essencialPronto`, logic/primeirosPassos).

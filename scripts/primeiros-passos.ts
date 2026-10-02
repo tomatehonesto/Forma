@@ -12,11 +12,13 @@
    Ela afirma:
 
      1. o diário novo começa com o plano pronto e o resto por fazer;
-     2. no navegador, sem aviso nem depósito de saúde, sobram três itens;
+     2. no navegador, sem aviso nem depósito de saúde, sobram cinco itens;
      3. cada item se marca com o que de fato aconteceu — e um copo d'água
         não é check-in; quem toma comprimido registra a primeira dose; o
-        aviso e o app de saúde são opcionais, e o cartão se conclui sem
-        eles;
+        aviso, o app de saúde e a cor do aplicativo são opcionais, e o
+        cartão se conclui sem eles; a cor se marca pela escolha, mesmo a
+        da Original que já estava, e diz nos seis idiomas quantas paletas
+        existem;
      4. esconder, reabrir e concluir, e concluído vence escondido; o
         diário de exemplo não tem cartão;
      5. "Sua evolução" pede duas pesagens em dias diferentes, e os dois
@@ -47,6 +49,8 @@ import {
   lembrarMedicacao,
   type DoAparelho,
 } from '../src/logic/primeirosPassos';
+import { useStore } from '../src/logic/store';
+import { PALETAS } from '../src/theme';
 import {
   temEvolucao, temCiclo, journeySummary, journeyChanges, careState, doseContext, penStock,
   balanceRead, recommendations, radar, libraryPicks, companionSuggestions,
@@ -91,7 +95,7 @@ import { DESTINO_NO_ESTADO, DESTINO_NO_PERFIL } from '../src/logic/traducao';
 import { distanciaComSinal, codificar, ALCANCE } from '../src/ui/orbe/distancia';
 import { ALIMENTOS, dicionario, buscarAlimento } from '../src/logic/alimentos';
 import { COMIDAS, UNIDADES } from '../src/logic/comidas';
-import { trocarLocal } from '../src/logic/local';
+import { trocarLocal, DISPONIVEIS } from '../src/logic/local';
 import { contemDe, cabe } from '../src/logic/restricoes';
 import { alimentoDe } from '../src/logic/prato';
 import ALIMENTOS_DO_SERVIDOR from '../servidor/alimentos.json';
@@ -122,15 +126,15 @@ novo.onboardDone = true;
 
 console.log('\n1. O DIÁRIO NOVO');
 const nIphone = passos(novo, IPHONE);
-ok(nIphone.length === 6, `no iPhone são seis itens (${nIphone.map((p) => p.id).join(', ')})`);
+ok(nIphone.length === 7, `no iPhone são sete itens (${nIphone.map((p) => p.id).join(', ')})`);
 ok(JSON.stringify(prontos(novo, IPHONE)) === '["plano"]', 'só o plano começa pronto: o cartão abre com um visto, e não do zero');
 ok(nIphone.every((p) => p.id === 'plano' ? !p.to : !!p.to), 'todo item por fazer leva a uma tela, e o plano a nenhuma');
 ok(nIphone.find((p) => p.id === 'saude')!.titulo.includes('Apple Saúde'), 'o item da saúde diz o nome do aparelho');
 
 console.log('\n2. O NAVEGADOR');
 const nWeb = passos(novo, NAVEGADOR);
-ok(nWeb.length === 4 && !nWeb.some((p) => p.id === 'lembretes' || p.id === 'saude'),
-  'sem aviso nem depósito de saúde, sobram o plano, a aplicação, o check-in e a meta');
+ok(nWeb.length === 5 && !nWeb.some((p) => p.id === 'lembretes' || p.id === 'saude'),
+  'sem aviso nem depósito de saúde, sobram o plano, a aplicação, o check-in, a meta e a cor do aplicativo');
 
 console.log('\n3. CADA ITEM SE MARCA COM O QUE ACONTECEU');
 const aplicou = clone(novo);
@@ -158,8 +162,8 @@ const ligou = clone(novo);
 ok(prontos(ligou, IPHONE).includes('saude'), 'o Apple Saúde ligado marca a saúde');
 ok(!prontos(ligou, { ...IPHONE, aparelho: { id: 'healthConnect', nome: 'Health Connect' } }).includes('saude'),
   'no Android, quem conta é o Health Connect, e não o Apple Saúde');
-ok(JSON.stringify(nIphone.filter((p) => p.opcional).map((p) => p.id)) === '["lembretes","saude"]',
-  'o aviso e o app de saúde são os opcionais');
+ok(JSON.stringify(nIphone.filter((p) => p.opcional).map((p) => p.id)) === '["lembretes","saude","aparencia"]',
+  'o aviso, o app de saúde e a cor do aplicativo são os opcionais');
 const essencial = clone(novo);
 (essencial.injections as any[]).push({ t: +hoje, dose: 2.5 });
 (essencial.checkins as any[]).push({ t: +hoje, energia: 3 });
@@ -167,7 +171,42 @@ const semMeta = clone(essencial);
 (essencial.goals as any[]).push({ id: 'g1', ic: 'roupa', label: 'Vestir o vestido azul', indicador: null });
 ok(!essencialPronto(passos(semMeta, IPHONE)), 'sem uma meta além do peso, o essencial ainda não está pronto — ela segura o cartão');
 ok(!essencialPronto(nIphone) && essencialPronto(passos(essencial, IPHONE)) && !passos(essencial, IPHONE).every((p) => p.pronto),
-  'com a aplicação, o check-in e uma meta, o essencial está pronto — sem aviso nem app de saúde, o cartão não fica pendente para sempre');
+  'com a aplicação, o check-in e uma meta, o essencial está pronto — sem aviso, app de saúde nem cor, o cartão não fica pendente para sempre');
+
+/* A COR DO APLICATIVO (02/10/2026). A escolha passa pela loja de verdade —
+   `setPaleta` e `setTheme` são quem grava a marca —, e não por uma marca
+   escrita aqui à mão: se a chave da loja e a do item se desencontrarem, o
+   item fica por fazer para sempre, e nenhuma tela quebra. */
+const corDe = (x: State, a: DoAparelho = IPHONE) => passos(x, a).find((p) => p.id === 'aparencia');
+const cor = corDe(novo);
+ok(!!cor && cor.opcional === true && !cor.pronto && cor.to === '/aparencia' && cor.ic === 'palette'
+  && nIphone[nIphone.length - 1].id === 'aparencia' && nWeb[nWeb.length - 1].id === 'aparencia',
+  'a cor do aplicativo é o último item, no iPhone e no navegador: opcional, por fazer no diário novo, e leva à Aparência');
+const naLoja = (mexer: (loja: ReturnType<typeof useStore.getState>) => void): State => {
+  useStore.setState({ S: clone(novo) });
+  mexer(useStore.getState());
+  return useStore.getState().S;
+};
+const ficouComAOriginal = naLoja((l) => l.setPaleta('original'));
+ok((ficouComAOriginal as any).paleta === 'original' && !!corDe(ficouComAOriginal)?.pronto,
+  'escolher a Original, que já estava, também é escolha: o item fica feito');
+ok(!!corDe(naLoja((l) => l.setTheme('system')))?.pronto, 'e escolher o tema do sistema, que também já estava, idem');
+const escolheuAntes = clone(novo);
+(escolheuAntes as any).paleta = PALETAS.find((p) => p.id !== 'original')!.id;
+ok(!!corDe(escolheuAntes)?.pronto, 'outra paleta conta mesmo sem a marca: é quem escolheu antes de ela existir');
+const claroGuardado = clone(novo);
+(claroGuardado as any).theme = 'light';
+ok(!corDe(claroGuardado)?.pronto, 'um tema claro guardado sem a marca não conta — pode ser o padrão antigo, e não escolha');
+const corPorIdioma = DISPONIVEIS.map((l) => {
+  trocarLocal(l);
+  const p = corDe(novo)!;
+  return { titulo: p.titulo, sub: p.sub ?? '' };
+});
+trocarLocal(null);
+ok(corPorIdioma.every((x) => x.titulo.trim() !== '' && x.sub.includes(String(PALETAS.length)))
+  && new Set(corPorIdioma.map((x) => x.titulo)).size === DISPONIVEIS.length
+  && new Set(corPorIdioma.map((x) => x.sub)).size === DISPONIVEIS.length,
+  `a cor tem título e porquê nos ${DISPONIVEIS.length} idiomas, cada um no seu, com o número de paletas que existe (${PALETAS.length})`);
 
 console.log('\n4. ESCONDER, REABRIR E CONCLUIR');
 ok(passosNaHome(novo) && !passosParaReabrir(novo), 'o diário novo tem o cartão na Home, e nada a reabrir no Perfil');

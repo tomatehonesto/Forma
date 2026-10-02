@@ -777,8 +777,16 @@ export const home = {
     lembretesSub: 'Para o aviso da dose tocar na hora',
     saude: (app: string) => `Conecte o ${app}`,
     saudeSub: 'O peso da balança entra sozinho',
-    /* Os dois do aparelho — aviso e app de saúde — não seguram o cartão, e
-       o subtítulo diz isso antes do porquê. */
+    /* ⚠️ A COR DO APLICATIVO (02/10/2026). O título repete as palavras da
+       linha "Aparência" do Perfil, que é para onde o toque leva — e diz
+       "aplicativo", como o resto do catálogo, e não "app". O número de
+       paletas chega de fora (PALETAS, em src/theme.ts): elas já foram
+       doze, cinco e dez, e um "dez" escrito aqui mentiria na próxima
+       troca. */
+    aparencia: 'Escolha a cor do aplicativo',
+    aparenciaSub: (paletas: number) => `${paletas} paletas, no modo claro ou escuro`,
+    /* Os opcionais — o aviso, o app de saúde e a cor — não seguram o
+       cartão, e o subtítulo diz isso antes do porquê. */
     opcional: (porque: string) => `Opcional · ${porque}`,
     tudoPronto: 'Tudo pronto!',
     tudoProntoTexto: 'Seu diário está montado. Daqui em diante, é só registrar — o resto acompanhamos com você.',

@@ -13,6 +13,20 @@ import { marcarComoVistas } from './conquistas';
 const KEY = 'norte.v1';
 const clone = (s: any) => JSON.parse(JSON.stringify(s));
 
+/** ⚠️ A PRIMEIRA ESCOLHA DE APARÊNCIA FICA MARCADA (02/10/2026). O estado
+    nasce com a Original e o tema do sistema, então "escolheu a Original" e
+    "nunca abriu a Aparência" eram o mesmo estado — e o passo "Escolha as
+    cores do app", das boas-vindas, não tinha como saber se foi feito. A
+    marca mora em `apresentacoesVistas`, o mapa das outras marcas dos
+    primeiros passos, que já sobe na sincronia (parte `vistos`). Ela grava
+    uma vez, na primeira paleta ou no primeiro tema escolhido — qualquer um,
+    inclusive o que já estava. */
+const APARENCIA_ESCOLHIDA = 'aparencia-escolhida';
+const marcarAparencia = (s: any) => {
+  const m = s.apresentacoesVistas ?? (s.apresentacoesVistas = {});
+  if (m[APARENCIA_ESCOLHIDA] == null) m[APARENCIA_ESCOLHIDA] = Date.now();
+};
+
 type Store = {
   S: State;
   ready: boolean;
@@ -234,12 +248,10 @@ export const useStore = create<Store>((set, get) => ({
     esquecerSincronia().catch(() => {});
     set({ S: s });
   },
-  setTheme: (t) => get().update((s) => { s.theme = t; }),
-  /* A cor de ação mora no estado como o tema mora: é preferência, e
-     preferência sobrevive a fechar o app. */
+  setTheme: (t) => get().update((s: any) => { s.theme = t; marcarAparencia(s); }),
   /* A paleta mora no estado como o tema mora: é preferência, e
      preferência sobrevive a fechar o app. */
-  setPaleta: (id) => get().update((s: any) => { s.paleta = id; }),
+  setPaleta: (id) => get().update((s: any) => { s.paleta = id; marcarAparencia(s); }),
 
   /* ⚠️ O PAR `real` + `fingirModo` ANDA JUNTO, SEMPRE. Um sem o outro
      deixa o valor de módulo e o estado servido discordando — e quem

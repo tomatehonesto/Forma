@@ -484,6 +484,8 @@ export const home = {
     lembretesSub: 'So your dose reminder rings on time',
     saude: (app: string) => `Connect ${app}`,
     saudeSub: 'Your scale’s weight comes in on its own',
+    aparencia: 'Pick the app’s color',
+    aparenciaSub: (paletas: number) => `${paletas} palettes, in light or dark mode`,
     opcional: (porque: string) => `Optional · ${porque}`,
     tudoPronto: 'All set!',
     tudoProntoTexto: 'Your diary is set up. From here on, just log — we’ll keep track of the rest with you.',
