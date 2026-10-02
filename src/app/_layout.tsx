@@ -428,7 +428,6 @@ export default function RootLayout() {
           {/* telas internas da primeira leva — desenho em ui/internas */}
           <Stack.Screen name="marcador" />
           <Stack.Screen name="caneta" />
-          <Stack.Screen name="semana" />
           <Stack.Screen name="notas" />
           <Stack.Screen name="exportar" />
           <Stack.Screen name="pdf-consulta" />

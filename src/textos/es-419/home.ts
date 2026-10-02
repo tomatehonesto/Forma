@@ -327,16 +327,11 @@ export const home = {
   },
 
   telaSemana: {
-    titulo: 'Semana',
     semanaN: (numero: number) => `Semana ${numero}`,
-    vazio: 'Todavía no hay semanas registradas.',
-    lead: (periodo: string, dose: string) => `${periodo} · ${dose}`,
-
-    aplicacao: 'Inyección',
-    semPesagem: 'sin pesaje',
 
     comoSeSentiu: 'Cómo te sentiste',
-    diasRespondidos: (quantos: number) => `${quantos} de 7 días respondidos`,
+    /* "de N": os dias do período que já passaram — o ciclo nem sempre tem 7 */
+    diasRespondidos: (quantos: number, de: number) => `${quantos} de ${de} ${de === 1 ? 'día respondido' : 'días respondidos'}`,
     sintomaDias: (legenda: string, dias: number) =>
       `${legenda} · ${dias} ${dias === 1 ? 'día' : 'días'}`,
     energia: 'Energía',

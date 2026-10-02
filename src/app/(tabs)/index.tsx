@@ -301,7 +301,7 @@ export default function Home() {
       title: K().resumoTitulo(semanaPassada.semana),
       body: [semanaPassada.deltaPeso ? K().resumoPeso(semanaPassada.deltaPeso) : null, semanaPassada.resumo || null]
         .filter(Boolean).join(' · '),
-      cta: K().resumoCta, to: `/semana?s=${semanaPassada.semana}`,
+      cta: K().resumoCta, to: `/leitura?s=${semanaPassada.semana}`,
     }] : []),
 
     { over: brief.chapeu, title: brief.head, body: brief.body, cta: K().entendaOPorQue, to: `/companion?q=${encodeURIComponent(brief.q)}` },

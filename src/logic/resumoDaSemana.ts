@@ -159,21 +159,9 @@ export function numerosDaSemana(S: State, semana: number) {
   const checkins = (((S as any).checkins ?? []) as any[]).filter((c) => dentro(c.t));
   const prots = checkins.map((c) => c.prot).filter((v): v is number => typeof v === 'number' && v > 0);
   const aguas = Array.from({ length: 7 }, (_, k) => aguaDoDia(S, noCalendario(de, k))).filter((v) => v > 0);
-  /* Os sete dias, de segunda a domingo, também pelo calendário. */
-  const dias = Array.from({ length: 7 }, (_, k) => {
-    const ini = noCalendario(de, k);
-    const fimDoDia = noCalendario(de, k + 1);
-    const noDia = (t: number) => t >= ini && t < fimDoDia;
-    const doDia = checkins.filter((c) => noDia(c.t));
-    return {
-      t: ini,
-      checkin: doDia.some(respondido),
-      treino: doDia.some((c) => (c.exerc ?? 0) > 0),
-      pesagem: pesos.some((w) => noDia(w.t)),
-    };
-  });
   return {
-    dias,
+    /* Os sete dias, de segunda a domingo, também pelo calendário. */
+    dias: diasDoPeriodo(S, de, ate),
     deltaKg: base && fim && base !== fim ? fim.kg - base.kg : null as number | null,
     diasComCheckin: checkins.filter(respondido).length,
     treinos: checkins.filter((c) => (c.exerc ?? 0) > 0).length,
@@ -239,14 +227,91 @@ export function metricasDaSemana(S: State, semana: number): WeekMetric[] {
   return out;
 }
 
+/* ============================================================
+   UM PERÍODO QUALQUER — a semana de segunda a domingo ou o ciclo
+   ============================================================
+
+   A tela do resumo da semana (app/leitura) abre dos dois jeitos
+   (01/10/2026, pedido do dono): pelo Insights e pela Home, a semana de
+   segunda a domingo que a IA leu; pelo "Ver detalhes" da Jornada, o
+   ciclo de uma aplicação à outra (timelineWeeks). As peças abaixo servem
+   aos dois — `ini` às 00h e `fim` exclusivo, que pode ser Infinity no
+   ciclo que ainda não fechou. */
+
+/** Os dias do período, pelo calendário, até `ate` (exclusivo): se houve
+    check-in respondido, treino e pesagem em cada um. */
+export function diasDoPeriodo(S: State, ini: number, ate: number) {
+  const checkins = ((S as any).checkins ?? []) as any[];
+  const pesos = ((S as any).weights ?? []) as any[];
+  const dias: { t: number; checkin: boolean; treino: boolean; pesagem: boolean }[] = [];
+  for (let k = 0; noCalendario(ini, k) < ate; k++) {
+    const t = noCalendario(ini, k);
+    const fimDoDia = noCalendario(ini, k + 1);
+    const noDia = (x: number) => x >= t && x < fimDoDia;
+    const doDia = checkins.filter((c) => noDia(c.t));
+    dias.push({
+      t,
+      checkin: doDia.some(respondido),
+      treino: doDia.some((c) => (c.exerc ?? 0) > 0),
+      pesagem: pesos.some((w) => noDia(w.t)),
+    });
+  }
+  return dias;
+}
+
+/** A janela de um ciclo da Jornada: da aplicação até a véspera da
+    próxima — a mesma de timelineWeeks, que é a do acordeão. O ciclo que
+    não fechou vai até hoje, ou até o sétimo dia, o que vier depois.
+    `semanas` vem como timelineWeeks devolve: da mais nova à mais velha. */
+export function janelaDoCiclo<W extends { t: number }>(semanas: W[], w: W) {
+  const i = semanas.indexOf(w);
+  const ini = +startOfDay(w.t);
+  const fim = i > 0 ? +startOfDay(semanas[i - 1].t) : Infinity;
+  const ultimoDia = Number.isFinite(fim) ? noCalendario(fim, -1) : Math.max(noCalendario(ini, 6), +startOfDay(now()));
+  return { ini, fim, ultimoDia };
+}
+
+/** O ciclo da Jornada que contém a maior parte de uma semana de segunda a
+    domingo (`segunda`, a chave de uma leitura). É ele que o "Resumo da
+    semana" do Insights abre (app/leitura): a mesma tela, da mesma semana,
+    que o "Ver detalhes" do acordeão. No empate, o mais recente.
+
+    ⚠️ SÓ COM 4 DIAS OU MAIS, ou nulo — e aí a tela fica na semana de
+    segunda a domingo. Com medicação diária (Saxenda, Victoza, Rybelsus),
+    cada aplicação abre um "ciclo" de um dia, e o Insights abria o resumo
+    de um domingo só (achado da revisão de 01/10/2026). Com aplicação
+    semanal, um dos dois ciclos que dividem a semana sempre tem 4. */
+export function cicloQueCobre<W extends { t: number }>(semanas: W[], segunda: number): W | null {
+  const seg = +startOfDay(segunda + 12 * 3600e3);
+  let melhor: W | null = null;
+  let maior = 0;
+  for (const w of semanas) {
+    const { ini, fim } = janelaDoCiclo(semanas, w);
+    let dentro = 0;
+    for (let k = 0; k < 7; k++) { const d = noCalendario(seg, k); if (d >= ini && d < fim) dentro++; }
+    if (dentro > maior) { maior = dentro; melhor = w; }
+  }
+  return maior >= 4 ? melhor : null;
+}
+
+/** O que aconteceu no período, para o "dia a dia": os registros da linha
+    do tempo, menos a aplicação — que abre o ciclo e já está no topo, e
+    na semana de segunda a domingo está nos destaques. É o recorte de
+    timelineWeeks, que era o da tela da semana. */
+export const eventosDoPeriodo = (S: State, ini: number, fim: number) =>
+  timelineEvents(S).filter((e) => e.day >= ini && e.day < fim && e.kind !== 'aplicacao');
+
 /** O QUE MARCOU A SEMANA, como no acordeão: as conquistas e os
-    acontecimentos que não são rotina. Aqui entra também a aplicação —
-    no acordeão ela é o cabeçalho de cada semana, e numa semana de
-    segunda a domingo ela é um acontecimento como outro qualquer. A cor
-    vem como nome de token; quem desenha resolve. */
-export function destaquesDaSemana(S: State, semana: number): { k: string; ic: string; cor: string; titulo: string; sub: string }[] {
+    acontecimentos que não são rotina. Na semana de segunda a domingo
+    entra também a aplicação — no ciclo ela é o cabeçalho, e numa semana
+    de calendário ela é um acontecimento como outro qualquer. A cor vem
+    como nome de token; quem desenha resolve. */
+export function destaquesDaSemana(S: State, semana: number) {
   const de = +startOfDay(semana + 12 * 3600e3);
-  const ate = noCalendario(de, 7);
+  return destaquesDoPeriodo(S, de, noCalendario(de, 7), true);
+}
+
+export function destaquesDoPeriodo(S: State, de: number, ate: number, comAplicacao: boolean): { k: string; ic: string; cor: string; titulo: string; sub: string }[] {
   const dentro = (t: number) => t >= de && t < ate;
   /* ⚠️ SEM REPETIR (achado da revisão de 01/10/2026): a consulta e o exame
      são marco e acontecimento ao mesmo tempo, e apareciam duas vezes — fica
@@ -257,7 +322,7 @@ export function destaquesDaSemana(S: State, semana: number): { k: string; ic: st
   const itens = [
     ...marcos.map((m) => ({ t: m.t, k: `m-${m.t}-${m.title}`, ic: m.ic, cor: 'lime', titulo: m.title, sub: m.sub })),
     ...timelineEvents(S)
-      .filter((e) => dentro(e.day) && (e.kind === 'consulta' || e.kind === 'exame' || (e.kind === 'aplicacao' && !diasDeDoseNova.has(e.day))))
+      .filter((e) => dentro(e.day) && (e.kind === 'consulta' || e.kind === 'exame' || (comAplicacao && e.kind === 'aplicacao' && !diasDeDoseNova.has(e.day))))
       .map((e) => ({ t: e.day, k: e.key, ic: e.ic, cor: e.color, titulo: e.title, sub: e.sub })),
   ];
   /* Em ordem de data, os dois tipos juntos: eram os marcos do mais novo

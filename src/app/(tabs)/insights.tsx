@@ -9,8 +9,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../../logic/store';
 import {
   patterns, recommendations, recoBucket, companionSuggestions, recentQuestions,
-  balanceRead, balanceSeries, companionMemoria, respostaNoDia,
+  balanceRead, balanceSeries, companionMemoria, respostaNoDia, timelineWeeks,
 } from '../../logic/derive';
+import { cicloQueCobre, janelaDoCiclo } from '../../logic/resumoDaSemana';
 import { nf, fmtPeriodo, now } from '../../logic/time';
 import { leituraDaSemana, leituraLigada, aceitouALeitura } from '../../logic/leitura';
 import { semanaLida, noCalendario } from '../../logic/descobertasDaSemana';
@@ -198,6 +199,17 @@ export default function Insights() {
 
   /* O resumo da semana que acabou de fechar, se já saiu. */
   const leituraPronta = leituraDaSemana(S, semanaLida(now()).de);
+  /* ⚠️ O NOME DA SEMANA É O DA TELA QUE A LINHA ABRE: o ciclo da Jornada
+     que contém a semana da IA (app/leitura, cicloQueCobre) — "Semana 9 ·
+     20 a 26 set", e não as datas de segunda a domingo da leitura, que a
+     tela mostra como "Leitura de". Sem ciclo, as da leitura. */
+  const semanasDaJornada = useMemo(() => timelineWeeks(S), [S]);
+  const cicloDoResumo = cicloQueCobre(semanasDaJornada, semanaLida(now()).de);
+  const nomeDoResumo = leituraPronta
+    ? (cicloDoResumo
+      ? (() => { const j = janelaDoCiclo(semanasDaJornada, cicloDoResumo); return `${T.home.telaSemana.semanaN(cicloDoResumo.semana)} · ${fmtPeriodo(new Date(j.ini), new Date(j.ultimoDia))}`; })()
+      : fmtPeriodo(new Date(leituraPronta.semana), new Date(noCalendario(leituraPronta.semana, 6))))
+    : null;
   /* Os primeiros registros: um check-in respondido, uma segunda pesagem
      ou uma segunda aplicação. A pesagem e a dose do cadastro não contam —
      são o formulário, e não o diário. */
@@ -740,7 +752,7 @@ export default function Insights() {
               <>
                 <ListRow ic="spark" title={K().resumoDaSemana}
                   sub={!comRegistros ? K().disponivelDepois
-                    : leituraPronta ? K().resumoDaSemanaPronto(fmtPeriodo(new Date(leituraPronta.semana), new Date(noCalendario(leituraPronta.semana, 6))))
+                    : nomeDoResumo ? K().resumoDaSemanaPronto(nomeDoResumo)
                       /* o mesmo estado em que /leitura mostra "desligado" */
                       : !aceitouALeitura(S) ? K().resumoDaSemanaDesligado
                         : K().resumoDaSemanaToda}

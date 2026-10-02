@@ -113,6 +113,10 @@ export const descobertas = {
     nivelComeco: 'Beginnendes Muster',
     nivelRetrato: 'Aus deinem Verlauf',
     anteriores: 'Frühere Wochen',
+    /* no ciclo da Jornada, a leitura de outra janela, com as datas dela (app/leitura) */
+    leituraDe: (periodo: string): string => `Rückblick für ${periodo}`,
+    /* as outras leituras que caem no mesmo ciclo da Jornada (app/leitura) */
+    outrasLeituras: 'Weitere Rückblicke dieser Woche',
     erro: 'Ich konnte deine Woche gerade nicht lesen. Prüf die Verbindung und versuch es noch einmal.',
     erroLimite: 'Du hast das heutige Limit für KI-Auswertungen erreicht. Morgen lese ich deine Woche.',
     erroConta: 'Melde dich in deinem Konto an, damit ich deine Woche lesen kann.',
@@ -121,6 +125,5 @@ export const descobertas = {
     desligadoTitulo: 'Der Wochenrückblick ist ausgeschaltet',
     desligadoTexto: 'Eingeschaltet lese ich jeden Montag deine Einträge und erzähle dir, was ich entdeckt habe.',
     ligar: 'Wochenrückblick einschalten',
-    indisponivel: 'Der Wochenrückblick ist gerade nicht verfügbar.',
   },
 };

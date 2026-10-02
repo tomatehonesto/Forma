@@ -321,16 +321,11 @@ export const home = {
   },
 
   telaSemana: {
-    titulo: 'Week',
     semanaN: (numero: number) => `Week ${numero}`,
-    vazio: 'No weeks logged yet.',
-    lead: (periodo: string, dose: string) => `${periodo} · ${dose}`,
-
-    aplicacao: 'Shot',
-    semPesagem: 'no weigh-in',
 
     comoSeSentiu: 'How you felt',
-    diasRespondidos: (quantos: number) => `${quantos} of 7 days answered`,
+    /* "de N": os dias do período que já passaram — o ciclo nem sempre tem 7 */
+    diasRespondidos: (quantos: number, de: number) => `${quantos} of ${de} ${de === 1 ? 'day' : 'days'} answered`,
     sintomaDias: (legenda: string, dias: number) =>
       `${legenda} · ${dias} ${dias === 1 ? 'day' : 'days'}`,
     energia: 'Energy',

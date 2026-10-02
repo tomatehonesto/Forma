@@ -91,6 +91,10 @@ export const descobertas = {
     nivelComeco: 'Early pattern',
     nivelRetrato: 'From your journey',
     anteriores: 'Previous weeks',
+    /* no ciclo da Jornada, a leitura de outra janela, com as datas dela (app/leitura) */
+    leituraDe: (periodo: string): string => `Reading for ${periodo}`,
+    /* as outras leituras que caem no mesmo ciclo da Jornada (app/leitura) */
+    outrasLeituras: 'Other readings for this week',
     erro: 'I couldn’t read your week right now. Check your connection and try again.',
     erroLimite: 'You’ve reached today’s limit of AI readings. I’ll read your week tomorrow.',
     erroConta: 'Sign in to your account so I can read your week.',
@@ -99,6 +103,5 @@ export const descobertas = {
     desligadoTitulo: 'The weekly summary is off',
     desligadoTexto: 'Turn it on and every Monday I’ll read your logs and tell you what I found.',
     ligar: 'Turn on the weekly summary',
-    indisponivel: 'The weekly summary isn’t available right now.',
   },
 };

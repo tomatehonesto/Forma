@@ -348,16 +348,11 @@ export const home = {
   },
 
   telaSemana: {
-    titulo: 'Semaine',
     semanaN: (numero: number) => `Semaine ${numero}`,
-    vazio: 'Il n’y a pas encore de semaines notées.',
-    lead: (periodo: string, dose: string) => `${periodo} · ${dose}`,
-
-    aplicacao: 'Piqûre',
-    semPesagem: 'pas de pesée',
 
     comoSeSentiu: 'Comment vous vous sentiez',
-    diasRespondidos: (quantos: number) => `${quantos} jours sur 7 remplis`,
+    /* "de N": os dias do período que já passaram — o ciclo nem sempre tem 7 */
+    diasRespondidos: (quantos: number, de: number) => `${quantos} ${quantos > 1 ? 'jours' : 'jour'} sur ${de} ${quantos > 1 ? 'remplis' : 'rempli'}`,
     sintomaDias: (legenda: string, dias: number) =>
       `${legenda} · ${dias} ${dias === 1 ? 'jour' : 'jours'}`,
     energia: 'Énergie',

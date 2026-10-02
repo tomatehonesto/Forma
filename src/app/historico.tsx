@@ -109,7 +109,7 @@ export default function Historico() {
                   para sempre. */
               sub={[fmtPeriodo(new Date(w.t), new Date(w.t + 6 * DAY)), w.dose, w.site].filter(Boolean).join(' · ')}
               meta={w.resumo}
-              onPress={() => router.push(`/semana?s=${w.semana}` as any)}
+              onPress={() => router.push(`/leitura?s=${w.semana}` as any)}
             />
           ))}
         </Sanfona>

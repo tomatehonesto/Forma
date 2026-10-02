@@ -8,12 +8,13 @@ import { useStore } from '../../logic/store';
 import {
   journeySummary, journeyChanges, journeyGoals, metaDePeso, timelineWeeks, timelineEvents, timelineCounts, weightSeries,
   startWeight, curWeight, temEvolucao,
-  milestones, marcoQueEhEvento, doseCycle, penStock, nextInjectionDate, siteLabel, nextSite,
+  doseCycle, penStock, nextInjectionDate, siteLabel, nextSite,
   waterMlToday, litros, checkinToday, protocoloDaSemana, weekGrid, last7Days, M,
   sintomasDaSemana, diasDeSintomas, type Change, type TLEvent, type TLKind, type WeekMetric,
   diasAteAplicar, semanasDaGrade, temCiclo, diaDoTratamento, temHistoria,
 } from '../../logic/derive';
-import { now, fmtDate, relDay, nf, quandoEm } from '../../logic/time';
+import { now, fmtDate, relDay, nf, quandoEm, startOfDay } from '../../logic/time';
+import { destaquesDoPeriodo } from '../../logic/resumoDaSemana';
 import { Txt, Row, SectionHead, Divider, ListRow, Metric, Vazio, Rolagem } from '../../ui/kit';
 import { MetricasDaSemana, DestaquesDaSemana } from '../../ui/semanaEmNumeros';
 import { Icon } from '../../ui/Icon';
@@ -47,8 +48,6 @@ const K = () => T.home.telaJornada;
 
 const PAD = 24;
 const FEED_SEMANAS = 3;
-/* eventos que merecem virar destaque; o resto é rotina e vira contagem */
-const NOTAVEIS: TLKind[] = ['consulta', 'exame'];
 
 /* ------------------------------------------------------------------ */
 /* Painel — sangra até as bordas e é o único bloco que quebra a margem,
@@ -409,10 +408,13 @@ function Semana({ w, proxT, filtro, aberto, onToggle }: { w: any; proxT: number;
      Com um tipo escolhido nos chips a semana não vira accordion: os
      registros daquele tipo aparecem direto, porque são poucos e é isso
      que a pessoa foi buscar. */
-  /* A consulta e o exame já vêm como acontecimento (notaveis), com a cor
-     deles; o marco repetia a mesma linha logo abaixo (marcoQueEhEvento). */
-  const conquistas = filtro ? [] : milestones(S).filter((m) => m.t >= w.t && m.t < proxT && !marcoQueEhEvento(m));
-  const notaveis = (w.eventos as TLEvent[]).filter((e) => filtro ? e.kind === filtro : NOTAVEIS.includes(e.kind));
+  /* ⚠️ OS DESTAQUES SAEM DA MESMA FONTE QUE A TELA DA SEMANA
+     (destaquesDoPeriodo, em logic/resumoDaSemana), com a mesma janela por
+     dia e a mesma ordem: o "Ver detalhes" abre essa tela, e o acordeão e
+     ela mostravam destaques diferentes para o mesmo ciclo (achado da
+     revisão de 01/10/2026). Nos filtros de tipo, a lista é de registros. */
+  const destaques = filtro ? [] : destaquesDoPeriodo(S, +startOfDay(w.t), Number.isFinite(proxT) ? +startOfDay(proxT) : Infinity, false);
+  const notaveis = filtro ? (w.eventos as TLEvent[]).filter((e) => e.kind === filtro) : [];
   const metricas: WeekMetric[] = filtro ? [] : w.metricas;
   const cor = (k: string) => (c as any)[k] as string;
   const expandido = filtro ? true : aberto;
@@ -454,11 +456,11 @@ function Semana({ w, proxT, filtro, aberto, onToggle }: { w: any; proxT: number;
       <MetricasDaSemana metricas={metricas} />
 
       <DestaquesDaSemana itens={[
-        ...conquistas.map((m) => ({ k: `m-${m.t}-${m.title}`, ic: m.ic, cor: c.lime, titulo: m.title, sub: m.sub })),
+        ...destaques.map((d) => ({ ...d, cor: cor(d.cor) })),
         ...notaveis.map((ev) => ({ k: ev.key, ic: ev.ic, cor: cor(ev.color), titulo: ev.title, sub: ev.sub })),
       ]} />
 
-      {metricas.length === 0 && conquistas.length === 0 && notaveis.length === 0 && (
+      {metricas.length === 0 && destaques.length === 0 && notaveis.length === 0 && (
         <Txt v="caption" c={c.tx4}>{K().semRegistrosNaSemana}</Txt>
       )}
 
@@ -468,11 +470,12 @@ function Semana({ w, proxT, filtro, aberto, onToggle }: { w: any; proxT: number;
   if (filtro) {
     return <View style={{ paddingVertical: 16 }}>{Cabecalho}{Corpo}</View>;
   }
-  /* ⚠️ O ACORDEÃO É O RESUMO, E A TELA DA SEMANA É O DETALHE (01/10/2026,
-     pedido do dono). A "Semana N" (app/semana) — a aplicação, como se
-     sentiu, o dia a dia, a nota da consulta — só se abria pelo histórico;
-     daqui, onde a pessoa já está olhando a semana, não havia caminho. Nos
-     filtros de tipo ele não aparece: ali a lista é de registros.
+  /* ⚠️ O ACORDEÃO É O RESUMO, E O RESUMO DA SEMANA É O DETALHE (01/10/2026,
+     pedido do dono). "Ver detalhes" abre a mesma tela do "Resumo da
+     semana" do Insights (app/leitura), no ciclo N (`?s=`): os números
+     deste acordeão, os dias, os destaques, como se sentiu, o dia a dia e
+     a nota da consulta. Nos filtros de tipo ele não aparece: ali a lista
+     é de registros.
 
      ⚠️ O LINK MORA FORA DO ALVO QUE ABRE E FECHA. Dentro dele, o iOS faz
      do cartão inteiro um elemento só para o VoiceOver, e o link sumia: o
@@ -491,7 +494,7 @@ function Semana({ w, proxT, filtro, aberto, onToggle }: { w: any; proxT: number;
       </Pressable>
       {expandido ? (
         <Pressable
-          onPress={() => router.push(`/semana?s=${w.semana}` as any)}
+          onPress={() => router.push(`/leitura?s=${w.semana}` as any)}
           hitSlop={8}
           accessibilityRole="link"
           style={({ pressed }) => [{ alignSelf: 'flex-start', marginTop: 14, opacity: pressed ? 0.6 : 1 }]}

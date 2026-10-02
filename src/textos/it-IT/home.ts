@@ -436,18 +436,12 @@ export const home = {
      caporali «», il portoghese “ ”, il tedesco „ “.
      ============================================================ */
   telaSemana: {
-    titulo: 'Settimana',
     semanaN: (numero: number) => `Settimana ${numero}`,
-    vazio: 'Non ci sono ancora settimane registrate.',
-    lead: (periodo: string, dose: string) => `${periodo} · ${dose}`,
-
-    /* ---------- quello che ho fatto ---------- */
-    aplicacao: 'Puntura',
-    semPesagem: 'nessuna pesata',
 
     /* ---------- come mi sono sentita ---------- */
     comoSeSentiu: 'Come ti sei sentita',
-    diasRespondidos: (quantos: number) => `${quantos} di 7 giorni con risposta`,
+    /* "de N": os dias do período que já passaram — o ciclo nem sempre tem 7 */
+    diasRespondidos: (quantos: number, de: number) => `${quantos} di ${de} ${de === 1 ? 'giorno' : 'giorni'} con risposta`,
     sintomaDias: (legenda: string, dias: number) =>
       `${legenda} · ${dias} ${dias === 1 ? 'giorno' : 'giorni'}`,
     energia: 'Energia',

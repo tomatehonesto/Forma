@@ -145,6 +145,8 @@ function rotasComParametro() {
     com('/nota?t=', prim('notes')),
     com('/dia?t=', prim('checkins')),
     com('/favorito?nome=', encodeURIComponent((S?.favMeals ?? [])[0]?.nome ?? '')),
+    /* o resumo da semana no ciclo 1 (a antiga /semana): um ciclo antigo, que não gera leitura */
+    '/leitura?s=1',
     '/documento?id=termos',
     '/documento?id=privacidade',
     '/alimento?id=peito-frango',
@@ -172,7 +174,7 @@ const ROTAS_SIMPLES = ['/', '/jornada', '/cuidado', '/insights'].concat(
    + 'integracoes,lembretes,medico,medir-agua,medir-anotacao,medir-exame,medir-exercicio,'
    + 'medir-medidas,medir-peso,medir-refeicao,meta-clinica,metas,notas,notificacoes,parceiros,'
    + 'perfil,plano,planos,privacidade,protocolo,protocolos,registrar,registro,restricao,'
-   + 'resumo-medico,ritmo,saude,semana,sintomas,suspenso,treino,unidades')
+   + 'resumo-medico,ritmo,saude,sintomas,suspenso,treino,unidades')
     .split(',').map((r) => '/' + r),
 );
 

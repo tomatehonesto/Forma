@@ -105,6 +105,10 @@ export const descobertas = {
     nivelComeco: 'Começo de padrão',
     nivelRetrato: 'Retrato da jornada',
     anteriores: 'Semanas anteriores',
+    /* no ciclo da Jornada, a leitura de outra janela, com as datas dela (app/leitura) */
+    leituraDe: (periodo: string): string => `Leitura de ${periodo}`,
+    /* as outras leituras que caem no mesmo ciclo da Jornada (app/leitura) */
+    outrasLeituras: 'Outras leituras desta semana',
     erro: 'Não consegui ler a sua semana agora. Confira a conexão e tente de novo.',
     erroLimite: 'Você chegou ao limite de leituras com IA de hoje. Amanhã eu leio a sua semana.',
     erroConta: 'Entre na sua conta para eu ler a sua semana.',
@@ -113,6 +117,5 @@ export const descobertas = {
     desligadoTitulo: 'O resumo da semana está desligado',
     desligadoTexto: 'Ligado, toda segunda eu leio os seus registros e te conto o que descobri.',
     ligar: 'Ligar o resumo da semana',
-    indisponivel: 'O resumo da semana não está disponível agora.',
   },
 };

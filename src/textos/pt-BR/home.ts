@@ -494,18 +494,12 @@ export const home = {
      alemão sairia com aspas inglesas.
      ============================================================ */
   telaSemana: {
-    titulo: 'Semana',
     semanaN: (numero: number) => `Semana ${numero}`,
-    vazio: 'Ainda não há semanas registradas.',
-    lead: (periodo: string, dose: string) => `${periodo} · ${dose}`,
-
-    /* ---------- o que eu fiz ---------- */
-    aplicacao: 'Aplicação',
-    semPesagem: 'sem pesagem',
 
     /* ---------- como eu me senti ---------- */
     comoSeSentiu: 'Como você se sentiu',
-    diasRespondidos: (quantos: number) => `${quantos} de 7 dias respondidos`,
+    /* "de N": os dias do período que já passaram — o ciclo nem sempre tem 7 */
+    diasRespondidos: (quantos: number, de: number) => `${quantos} de ${de} ${de === 1 ? 'dia respondido' : 'dias respondidos'}`,
     sintomaDias: (legenda: string, dias: number) =>
       `${legenda} · ${dias} ${dias === 1 ? 'dia' : 'dias'}`,
     energia: 'Energia',

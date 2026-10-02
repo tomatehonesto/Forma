@@ -101,6 +101,10 @@ export const descobertas = {
     nivelComeco: 'Schema agli inizi',
     nivelRetrato: 'Dal tuo percorso',
     anteriores: 'Settimane precedenti',
+    /* no ciclo da Jornada, a leitura de outra janela, com as datas dela (app/leitura) */
+    leituraDe: (periodo: string): string => `Lettura · ${periodo}`,
+    /* as outras leituras que caem no mesmo ciclo da Jornada (app/leitura) */
+    outrasLeituras: 'Altre letture di questa settimana',
     erro: 'Non sono riuscito a leggere la tua settimana adesso. Controlla la connessione e riprova.',
     erroLimite: 'Hai raggiunto il limite di letture con IA di oggi. Domani leggo la tua settimana.',
     erroConta: 'Accedi al tuo account perché io possa leggere la tua settimana.',
@@ -109,6 +113,5 @@ export const descobertas = {
     desligadoTitulo: 'Il riepilogo della settimana è disattivato',
     desligadoTexto: 'Se lo attivi, ogni lunedì leggo i tuoi dati e ti racconto cosa ho scoperto.',
     ligar: 'Attiva il riepilogo della settimana',
-    indisponivel: 'Il riepilogo della settimana non è disponibile adesso.',
   },
 };

@@ -1,10 +1,10 @@
 import type { State } from './seed';
-import { now } from './time';
+import { now, startOfDay } from './time';
 import { aceitouAIa, recusouAIaHaPouco } from './aceiteDaIa';
 import { localAtual } from './local';
 import { paisLidoDoAparelho } from './pais';
 import { cabecalhosDaIa, motivoDaPorta, type MotivoDaPorta } from './portaDaIa';
-import { candidatasDaSemana, escolherDaSemana, semanaLida, type Lembranca, type Area, type Nivel } from './descobertasDaSemana';
+import { candidatasDaSemana, escolherDaSemana, semanaLida, noCalendario, type Lembranca, type Area, type Nivel } from './descobertasDaSemana';
 import { resumoDaSemana, temMinimoDaSemana, descobertaParaLeitura } from './resumoDaSemana';
 
 /* ============================================================
@@ -70,6 +70,30 @@ export const registrarRecusaDaLeitura = (s: any) => { s.profile.aceiteDaLeitura 
 
 export const leiturasGuardadas = (S: any): Leitura[] => ((S?.leituras ?? []) as Leitura[]).slice().sort((a, b) => a.semana - b.semana);
 export const leituraDaSemana = (S: any, semana: number) => leiturasGuardadas(S).find((l) => l.semana === semana) ?? null;
+
+/** A leitura que cobre um ciclo da Jornada: a guardada cuja semana (de
+    segunda a domingo) tem pelo menos 4 dos 7 dias dentro de [ini, fim).
+
+    ⚠️ A LEITURA É DE SEGUNDA A DOMINGO, E O CICLO NÃO. A tela do resumo
+    abre pelos dois (app/leitura), e no ciclo mostra a leitura da semana
+    que cai MAIS nele — com as datas dela escritas, porque não são as do
+    ciclo. Com aplicação no mesmo dia toda semana, cada ciclo tem uma
+    semana só com 4 dias ou mais dentro dele (sete é ímpar); num ciclo
+    curto, pode não haver nenhuma, e a leitura não aparece. */
+export function leituraQueCobre(S: any, ini: number, fim: number): Leitura | null {
+  let melhor: Leitura | null = null;
+  let maior = 3;
+  for (const l of leiturasGuardadas(S)) {
+    const seg = +startOfDay(l.semana + 12 * 3600e3);
+    let dentro = 0;
+    for (let k = 0; k < 7; k++) { const d = noCalendario(seg, k); if (d >= ini && d < fim) dentro++; }
+    /* `>=` com a lista da mais velha para a mais nova: no empate (um ciclo
+       de 14 dias tem duas semanas inteiras), fica a mais nova — as outras
+       aparecem em "Outras leituras desta semana" (app/leitura). */
+    if (dentro >= 4 && dentro >= maior) { maior = dentro; melhor = l; }
+  }
+  return melhor;
+}
 
 export function guardarLeitura(s: any, l: Leitura) {
   const outras = leiturasGuardadas(s).filter((x) => x.semana !== l.semana);
