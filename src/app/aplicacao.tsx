@@ -40,7 +40,9 @@ import { useTheme } from '../ui/useTheme';
    O aplicativo passou a conhecer medicamento que não é caneta — ver
    logic/formas. Local de aplicação e rodízio não são detalhes de um
    comprimido: são perguntas que não existem. Quem toma semaglutida oral
-   não escolhe onde aplicou, e o título nem chama isso de aplicação.
+   não escolhe onde aplicou — e o título, "Registrar dose", vale para as
+   quatro formas desde 01/10/2026 (`acao` é "dose" em todas; ver
+   textos/formas).
 
    ⚠️ O DESENHO DO CORPO SAIU DAQUI. Como SELETOR ele cobrava mira:
    alvos pequenos numa silhueta de 200 px, para uma escolha entre coisas
@@ -167,7 +169,12 @@ export default function Aplicacao() {
         const novo = s.pens[s.pens.length - 1];
         if (novo.t > t) novo.t = t;
       }
-      s.injections.push({ t, med: s.profile.med, dose, site, note: '' });
+      /* ⚠️ LOCAL SÓ NA DOSE INJETADA (01/10/2026). O estado nasce do local
+         sugerido e era gravado mesmo com o campo escondido: cada comprimido
+         ganhava um local de injeção inventado, que ia para o histórico e
+         para o PDF do médico. Os já gravados não aparecem mais
+         (logic/formas, localDaDose). */
+      s.injections.push({ t, med: s.profile.med, dose, site: vocab.injetavel ? site : '', note: '' });
       s.profile.dose = dose;
       /* Nada a decrementar: quantas doses saíram do recipiente é quantas
          aplicações caíram na janela dele. Ver `canetas` em logic/derive. */

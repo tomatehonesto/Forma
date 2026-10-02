@@ -21,7 +21,8 @@ export const cruzamentos = {
   catSono: 'Sleep',
   catSintomas: 'Symptoms',
   catPeso: 'Weight',
-  catAplicacoes: 'Shots',
+  /* "Doses", and it was "Shots" (01/10/2026): the noun for every form. */
+  catAplicacoes: 'Doses',
 
   /* ⚠️ THEY COME WITH THE PREPOSITION, not bare. Portuguese needed it to
      avoid a gendered table; English needs it because "on Sundays" is one
@@ -106,23 +107,23 @@ export const cruzamentos = {
     q: 'Why am I nauseous?',
     evid: (comSono: string, semSono: string, noites: number) =>
       ({ valor: comSono, unidade: `of ${semSono}`, legenda: `nausea after ${noites} long nights` }),
-    significa: 'This is what your logs show, not a cause: the shot cycle moves nausea more than anything else does, and it could be behind both sides of this math. Worth taking to your care team as a lead, not as a settled explanation.',
+    significa: 'This is what your logs show, not a cause: the dose cycle moves nausea more than anything else does, and it could be behind both sides of this math. Worth taking to your care team as a lead, not as a settled explanation.',
   },
 
   /* ---------- 6. the nausea window ---------- */
   /* The finding isn't that nausea exists — it's that it has a closing
      time. */
   janelaEnjoo: {
-    titulo: 'Your nausea usually clears about 48 hours after your shot',
+    titulo: 'Your nausea usually clears about 48 hours after your dose',
     texto: (perto: string, longe: string) =>
       `It sits at ${perto} for the first two days and drops to ${longe} from the third on. It isn’t the whole treatment that makes you nauseous — it’s the first 48 h of each cycle.`,
     q: 'Why am I nauseous?',
     evid: { valor: '48', unidade: 'hours', legenda: 'and then it passes' },
     /* ⚠️ THE LAST SENTENCE IS THE ONLY ONE IN THE FILE THAT SUGGESTS AN
-       ACTION, and it may: picking the shot day is the person's call
+       ACTION, and it may: picking the dose day is the person's call
        with their care team, not a change of dose or medication. */
     significa: (dias: number) =>
-      `That repeated in ${dias} of your post-shot logs. Knowing there’s a window, and that it ends, changes what you can do with it: you can pick the shot day so those 48 h land on the lightest part of your week.`,
+      `That repeated in ${dias} of your post-dose logs. Knowing there’s a window, and that it ends, changes what you can do with it: you can pick your dose day so those 48 h land on the lightest part of your week.`,
   },
 
   /* ---------- 7. water against nausea ---------- */
@@ -193,15 +194,15 @@ export const cruzamentos = {
 
   /* ---------- 11. adherence ---------- */
   adesao: {
-    tituloPerfeita: 'You haven’t been late on a single shot since the start',
-    titulo: (pct: number) => `You’ve kept ${pct}% of your shots on time`,
+    tituloPerfeita: 'You haven’t been late on a single dose since the start',
+    titulo: (pct: number) => `You’ve kept ${pct}% of your doses on time`,
     texto: (aplicacoes: number, ressalva: string) =>
-      `That’s ${aplicacoes} shots since treatment began, ${ressalva}.`,
+      `That’s ${aplicacoes} doses since treatment began, ${ressalva}.`,
     textoQuaseTodas: 'nearly all of them on the right date',
     textoComAtrasos: 'with a few late ones along the way',
     q: 'How does the medication cycle work?',
     evid: (pct: number, aplicacoes: number) =>
-      ({ valor: `${pct}%`, unidade: '', legenda: `${aplicacoes} shots since the start` }),
+      ({ valor: `${pct}%`, unidade: '', legenda: `${aplicacoes} doses since the start` }),
     significaAlta: 'That consistency is one of the factors that weighs most on a good response to the medication. The level of the substance in the body depends on regularity, not on effort — and it’s the kind of thing that only shows up when someone looks at the whole history.',
     /* ⚠️ THE LATE VERSION EXPLAINS THE COST AND DOESN'T CHARGE FOR THE
        MISS. "Each delay leaves a window where the effect drops early" is

@@ -36,7 +36,8 @@ export const tratamento = {
      hat diese Breite nicht. Die kurze Fassung muss neben eine Zahl
      passen. */
   cadenciaSemanal: 'einmal pro Woche',
-  cadenciaDiaria: 'tägliche Einnahme',
+  /* ohne den Weg zu nennen: „Einnahme“ ist die Tablette, und Saxenda wird gespritzt */
+  cadenciaDiaria: 'tägliche Anwendung',
   cadenciaOutra: (dias: number) => `alle ${dias} Tage`,
   cadenciaSemanalCurta: '1×/Woche',
   cadenciaDiariaCurta: 'täglich',
@@ -227,16 +228,20 @@ export const tratamento = {
   },
 
   /* ============================================================
-     DER INJEKTIONS-BILDSCHIRM · de-DE
+     DER DOSEN-BILDSCHIRM · de-DE
+
+     ⚠️ ER HIESS „SPRITZEN“, und wer eine Tablette nimmt, öffnete einen
+     Spritzen-Bildschirm. „Dosis“ ist das Wort für alle (01.10.2026) —
+     siehe ../pt-BR/tratamento.ts.
      ============================================================ */
   telaAplicacoes: {
-    aplicada: 'gespritzt',
-    semCulpa: 'Kein schlechtes Gewissen wegen eines verpassten Tages — wichtig ist, wieder einzusteigen. Du kannst eine frühere Spritze jederzeit nachtragen, mit dem Knopf unten.',
-    titulo: 'Spritzen',
-    registrar: 'Spritze eintragen',
+    aplicada: 'eingetragen',
+    semCulpa: 'Kein schlechtes Gewissen wegen eines verpassten Tages — wichtig ist, wieder einzusteigen. Du kannst eine frühere Dosis jederzeit nachtragen, mit dem Knopf unten.',
+    titulo: 'Dosen',
+    registrar: 'Dosis eintragen',
     lead: (med: string, molecula: string, cadencia: string) => `${med} · ${molecula} · ${cadencia}`,
 
-    proximaAplicacao: 'NÄCHSTE SPRITZE',
+    proximaAplicacao: 'NÄCHSTE DOSIS',
 
     cicloDaDose: 'Dosiszyklus',
     /* ⚠️ KEIN `toLowerCase()` AN DER PHASE: „Tag 4 von 7 · anstieg“ wäre
@@ -253,8 +258,8 @@ export const tratamento = {
     cobreSemanas: (veredito: string, semanas: number) =>
       `${veredito} — reicht rund ${semanas} ${semanas === 1 ? 'Woche' : 'Wochen'}`,
 
-    alertasDeDose: (quantos: number) => `${quantos} ${quantos === 1 ? 'Erinnerung' : 'Erinnerungen'} für die Spritze`,
-    nenhumAlerta: 'Keine Erinnerung für die Spritze',
+    alertasDeDose: (quantos: number) => `${quantos} ${quantos === 1 ? 'Erinnerung' : 'Erinnerungen'} für die Dosis`,
+    nenhumAlerta: 'Keine Erinnerung für die Dosis',
     tocaEm: (quando: string) => `Klingelt: ${quando}`,
     avisoAntes: 'Ein Hinweis vor der Dosis, zu der Uhrzeit, die du wählst',
 
@@ -276,6 +281,7 @@ export const tratamento = {
 
     historico: 'Verlauf',
     proximaEmLocal: (local: string) => `Nächste · ${local}`,
+    proximaSemLocal: 'Nächste Dosis',
   },
 
   /* ⚠️ DAS PRÄDIKATIVE ADJEKTIV FLEKTIERT IM DEUTSCHEN NICHT: „der Pen ist
@@ -399,7 +405,7 @@ export const tratamento = {
     semFaixa: 'Für dieses Medikament haben wir keinen Referenzbereich. Die Dosis bleibt die aus deinem letzten Eintrag.',
 
     localDaAplicacao: 'Einstichstelle',
-    localAjuda: 'Die Stelle jede Woche zu wechseln hilft, Reizungen und Knötchen unter der Haut zu vermeiden.',
+    localAjuda: 'Die Stelle bei jeder Dosis zu wechseln hilft, Reizungen und Knötchen unter der Haut zu vermeiden.',
     regioes: {
       braco: 'Arm',
       abd: 'Bauch',

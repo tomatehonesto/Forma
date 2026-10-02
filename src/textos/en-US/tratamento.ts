@@ -196,12 +196,12 @@ export const tratamento = {
 
   telaAplicacoes: {
     aplicada: 'logged',
-    semCulpa: 'No guilt over a day that slipped by — what counts is picking it back up. You can log an earlier shot at any time, using the button below.',
-    titulo: 'Shots',
-    registrar: 'Log a shot',
+    semCulpa: 'No guilt over a day that slipped by — what counts is picking it back up. You can log an earlier dose at any time, using the button below.',
+    titulo: 'Doses',
+    registrar: 'Log a dose',
     lead: (med: string, molecula: string, cadencia: string) => `${med} · ${molecula} · ${cadencia}`,
 
-    proximaAplicacao: 'NEXT SHOT',
+    proximaAplicacao: 'NEXT DOSE',
 
     cicloDaDose: 'Dose cycle',
     cicloSub: (dia: number, total: number, fase: string) => `Day ${dia} of ${total} · ${fase.toLowerCase()}`,
@@ -216,8 +216,8 @@ export const tratamento = {
     cobreSemanas: (veredito: string, semanas: number) =>
       `${veredito} — enough for about ${semanas} ${semanas === 1 ? 'week' : 'weeks'}`,
 
-    alertasDeDose: (quantos: number) => `${quantos} shot ${quantos === 1 ? 'reminder' : 'reminders'}`,
-    nenhumAlerta: 'No shot reminder',
+    alertasDeDose: (quantos: number) => `${quantos} dose ${quantos === 1 ? 'reminder' : 'reminders'}`,
+    nenhumAlerta: 'No dose reminder',
     tocaEm: (quando: string) => `Rings ${quando}`,
     avisoAntes: 'A heads-up before the dose, at the time you choose',
 
@@ -235,6 +235,7 @@ export const tratamento = {
 
     historico: 'History',
     proximaEmLocal: (local: string) => `Next · ${local}`,
+    proximaSemLocal: 'Next dose',
   },
 
   /* ⚠️ THE TWO SPELLINGS ARE THE SAME WORD HERE. English has no gender to
@@ -326,7 +327,7 @@ export const tratamento = {
   },
 
   telaRegistrarAplicacao: {
-    registrar: (acao: string) => `Log ${acao}`,
+    registrar: (acao: string) => `Log a ${acao}`,
     salvar: (acao: string) => `Save ${acao}`,
 
     quando: 'When',
@@ -342,7 +343,7 @@ export const tratamento = {
     semFaixa: 'We have no reference range for this medication. The dose stays whatever you logged last.',
 
     localDaAplicacao: 'Injection site',
-    localAjuda: 'Changing the site every week helps avoid irritation and lumps under the skin.',
+    localAjuda: 'Changing the site with every dose helps avoid irritation and lumps under the skin.',
     regioes: {
       braco: 'Arm',
       abd: 'Abdomen',

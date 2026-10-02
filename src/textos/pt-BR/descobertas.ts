@@ -31,7 +31,7 @@ export const descobertas = {
   fomeEmDias: (dias: number) => `A fome tende a apertar em ${dias} dias`,
   /* A molécula em minúscula porque é substância, e não marca. */
   fomeTexto: (molecula: string) =>
-    `É quando o nível da ${molecula} chega ao ponto mais baixo do ciclo, pouco antes da próxima aplicação. Passa sozinho quando você aplicar.`,
+    `É quando o nível da ${molecula} chega ao ponto mais baixo do ciclo, pouco antes da próxima dose. Passa sozinho depois dela.`,
   fomeCta: 'Ver o ciclo',
 
   aguaTitulo: 'Amanhã costuma ser o seu dia mais seco',
@@ -42,7 +42,7 @@ export const descobertas = {
 
   enjooTitulo: 'Se o enjoo aparecer agora, ele tem hora para passar',
   enjooTexto: (perto: string, longe: string) =>
-    `Nos seus registros ele fica em ${perto} nos dois primeiros dias depois da aplicação e cai para ${longe} a partir do terceiro. São as 48 h de cada ciclo, não o tratamento inteiro.`,
+    `Nos seus registros ele fica em ${perto} nos dois primeiros dias depois da dose e cai para ${longe} a partir do terceiro. São as 48 h de cada ciclo, não o tratamento inteiro.`,
   enjooCta: 'Ver os sintomas',
 
   /* ---------- os convites ---------- */

@@ -1,4 +1,4 @@
-import { T } from '../textos';
+import { T, NOMES_DO_RESUMO } from '../textos';
 import { nomeDaMolecula } from './formas';
 import type { State } from './seed';
 import {
@@ -224,10 +224,17 @@ export function resumoEmTexto(S: State): string {
 
 export const NOME_DO_DOCUMENTO = () => T.resumo.nomeDoDocumento;
 
-/** Os resumos que a própria pessoa mandou, do mais recente para o mais antigo. */
+/** Os resumos que a própria pessoa mandou, do mais recente para o mais antigo.
+
+    ⚠️⚠️ COMPARAVA COM A FUNÇÃO, e não com o nome (01/10/2026):
+    `d.name === NOME_DO_DOCUMENTO`, sem os parênteses, é sempre falso — a
+    lista vinha sempre vazia, e o "Enviado" e o "Enviar de novo" da tela
+    do resumo nunca apareciam. O nome é o dos SEIS idiomas: o documento
+    guarda o do idioma da hora do envio, e quem trocou de idioma depois
+    continua vendo o que mandou. */
 export const enviosDoResumo = (S: State) =>
   (((S as any).documents as any[]) || [])
-    .filter((d) => d.mine && d.name === NOME_DO_DOCUMENTO)
+    .filter((d) => d.mine && NOMES_DO_RESUMO.includes(d.name))
     .slice()
     .sort((a, b) => b.t - a.t);
 

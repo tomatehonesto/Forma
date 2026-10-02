@@ -153,9 +153,6 @@ export const aviso = {
     incluido: 'incluso',
     fora: 'fuori',
 
-    aplicacoes: 'Punture',
-    aplicacoesSub: (quantas: number) =>
-      `${quantas} ${quantas === 1 ? 'registro' : 'registri'} · data, dose e zona`,
     pesoEMedidas: 'Peso e misure',
     pesoEMedidasSub: (pesagens: number, medidas: number) =>
       `${pesagens} ${pesagens === 1 ? 'pesata' : 'pesate'} · ${medidas} ${medidas === 1 ? 'misura' : 'misure'}`,

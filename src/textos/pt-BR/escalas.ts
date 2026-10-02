@@ -181,17 +181,17 @@ export const escalas = {
     /* ---------- o ciclo ---------- */
     aoLongoDoCiclo: 'Ao longo do ciclo',
     aoLongoNota: (dias: number) =>
-      `Média do enjoo em cada dia depois da aplicação, de ${dias} ${dias === 1 ? 'dia respondido' : 'dias respondidos'}.`,
+      `Média do enjoo em cada dia depois da dose, de ${dias} ${dias === 1 ? 'dia respondido' : 'dias respondidos'}.`,
     /* O rótulo do dia zero na régua de barras. */
     dose: 'dose',
 
     cicloParecido: 'Nos dias respondidos até agora, o enjoo aparece parecido ao longo de todo o ciclo — ele não está seguindo a dose.',
     cicloPoucos: 'Ainda são poucos dias respondidos para dizer se o enjoo acompanha o ciclo. Respondendo mais dias, essa conta fica de pé.',
-    cicloInicio1: 'O enjoo pesa mais no dia da aplicação.',
-    cicloInicioN: (dias: number) => `O enjoo pesa mais nos ${dias} primeiros dias depois da aplicação.`,
-    cicloFim1: 'O enjoo pesa mais na véspera da próxima aplicação.',
-    cicloFimN: (dias: number) => `O enjoo pesa mais nos ${dias} dias que antecedem a próxima aplicação.`,
-    cicloDia0: 'no dia da aplicação',
+    cicloInicio1: 'O enjoo pesa mais no dia da dose.',
+    cicloInicioN: (dias: number) => `O enjoo pesa mais nos ${dias} primeiros dias depois da dose.`,
+    cicloFim1: 'O enjoo pesa mais na véspera da próxima dose.',
+    cicloFimN: (dias: number) => `O enjoo pesa mais nos ${dias} dias que antecedem a próxima dose.`,
+    cicloDia0: 'no dia da dose',
     cicloDiaN: (dia: number) => `no ${dia}º dia depois`,
     cicloEspalhado: (lista: string) => `O enjoo pesa mais ${lista}.`,
 

@@ -22,7 +22,7 @@ export const descobertas = {
   fomeAmanha: 'Hunger tends to bite tomorrow',
   fomeEmDias: (dias: number) => `Hunger tends to bite in ${dias} days`,
   fomeTexto: (molecula: string) =>
-    `That’s when ${molecula} levels reach the lowest point of the cycle, just before your next shot. It passes on its own once you take it.`,
+    `That’s when ${molecula} levels reach the lowest point of the cycle, just before your next dose. It passes on its own once you take it.`,
   fomeCta: 'View cycle',
 
   aguaTitulo: 'Tomorrow tends to be your driest day',
@@ -32,7 +32,7 @@ export const descobertas = {
 
   enjooTitulo: 'If nausea shows up now, it has an end in sight',
   enjooTexto: (perto: string, longe: string) =>
-    `In your logs it sits at ${perto} for the two days after a shot and drops to ${longe} from the third on. It’s the first 48 hours of each cycle, not the whole treatment.`,
+    `In your logs it sits at ${perto} for the two days after a dose and drops to ${longe} from the third on. It’s the first 48 hours of each cycle, not the whole treatment.`,
   enjooCta: 'View symptoms',
 
   /* ---------- the invitations ---------- */

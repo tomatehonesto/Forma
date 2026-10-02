@@ -50,15 +50,31 @@ export const cadastro = {
     pesoInicio: 'Quanto você pesava quando começou?',
     medicamentoFuturo: 'Qual medicamento você pretende usar?',
     medicamentoAgora: 'Qual medicamento você usa?',
+    /* ⚠️ A FORMA AINDA FALA EM "APLICAR", e por enquanto é verdade: só
+       chega a este passo quem tem mais de uma forma no catálogo, e hoje
+       são só os manipulados — frasco ou seringa, os dois injetáveis.
+       No dia em que entrar um manipulado oral, ou uma marca com formas de
+       vias diferentes, estes dois títulos viram função da via, como a
+       frequência logo abaixo (01/10/2026). */
     formaFuturo: 'Como você vai aplicar?',
     formaAgora: 'Como você aplica?',
     doseFuturo: 'Com qual dose você pretende começar?',
     doseAgora: 'Qual é a sua dose atual?',
-    frequenciaFuturo: 'De quanto em quanto tempo você vai aplicar?',
-    frequenciaAgora: 'De quanto em quanto tempo você aplica?',
-    /* Só quem já começou responde. A forma decide a palavra: quem toma
-       comprimido tomou uma dose, e não fez uma aplicação. */
-    ultima: (injetavel: boolean): string => (injetavel ? 'Quando foi a sua última aplicação?' : 'Quando você tomou a última dose?'),
+    /* ⚠️ O VERBO SEGUE A FORMA (01/10/2026). Este passo aparece para todo
+       medicamento definido, e perguntava "você aplica?" a quem toma
+       Rybelsus. É a frase dirigida à pessoa, sobre o que ela faz, e por
+       isso é a que muda; o substantivo, nos títulos e telas, é "dose"
+       para todos. Ver docs/superpowers/specs/2026-10-01-oral-e-diario-design.md. */
+    frequenciaFuturo: (injetavel: boolean): string => (injetavel
+      ? 'De quanto em quanto tempo você vai aplicar?'
+      : 'De quanto em quanto tempo você vai tomar?'),
+    frequenciaAgora: (injetavel: boolean): string => (injetavel
+      ? 'De quanto em quanto tempo você aplica?'
+      : 'De quanto em quanto tempo você toma?'),
+    /* Só quem já começou responde. O verbo segue a forma — quem toma
+       comprimido tomou, e não aplicou —, e o substantivo é "dose" para os
+       dois, como no resto do aplicativo (01/10/2026). */
+    ultima: (injetavel: boolean): string => (injetavel ? 'Quando você aplicou a última dose?' : 'Quando você tomou a última dose?'),
     corpo: 'Quais são suas medidas atuais?',
     meta: 'Qual é a sua meta de peso?',
     ritmo: 'Qual ritmo você quer seguir para chegar lá?',
@@ -81,7 +97,10 @@ export const cadastro = {
     tratamento: 'Só para saber onde você está agora.',
     inicio: 'Aproximado está bom. É daqui que sai a sua semana de tratamento.',
     pesoInicio: 'Aproximado está bom. É este peso que vira o começo da sua curva — e dele sai o quanto você já andou.',
-    medicamento: 'É dele que saem a escada de doses e o intervalo entre as aplicações.',
+    /* ⚠️ "ENTRE UMA DOSE E OUTRA", e não "entre as aplicações": a lista
+       logo abaixo tem comprimido, e a pessoa lê esta frase antes de
+       escolher (01/10/2026). */
+    medicamento: 'É dele que saem a escada de doses e o intervalo entre uma dose e outra.',
     forma: 'Manipulado sai da farmácia dos dois jeitos, e o que muda é o que você tem na mão na hora de aplicar.',
     doseComEscada: (med: string) => `Na ordem da titulação do ${med}.`,
     /* Sem escada não há titulação a seguir: manipulado não tem degraus de
@@ -115,10 +134,14 @@ export const cadastro = {
   outro: 'Outro',
   prefiroNaoInformar: 'Prefiro não informar',
 
+  /* ⚠️ ESTE PASSO VEM ANTES DO MEDICAMENTO, e por isso não tem verbo de
+     forma nenhuma (01/10/2026). Dizia "Já apliquei pelo menos uma dose",
+     com uma seringa ao lado — e quem toma comprimido respondia a uma
+     pergunta sobre injeção antes de o aplicativo saber o que ela usa. */
   jaIniciei: 'Já iniciei o tratamento',
-  jaInicieiSub: 'Já apliquei pelo menos uma dose',
+  jaInicieiSub: 'Já tomei ou apliquei pelo menos uma dose',
   vouComecar: 'Vou começar em breve',
-  vouComecarSub: 'Ainda não apliquei',
+  vouComecarSub: 'Ainda não comecei as doses',
 
   /* ⚠️ "AINDA NÃO SEI" APARECE DUAS VEZES, com subtítulos diferentes —
      uma no medicamento e outra na dose. O rótulo é o mesmo porque a
@@ -131,6 +154,16 @@ export const cadastro = {
      lista de baixo não é de medicamento proibido nem de medicamento pior
      — é só o que circula menos naquele lugar. */
   menosComumAqui: 'MENOS COMUM AQUI',
+  /* ⚠️ A LINHA DE BAIXO DE CADA MARCA DIZ A VIA E A CADÊNCIA (01/10/2026).
+     Só a molécula não separava Ozempic de Rybelsus — "Semaglutida" nos
+     dois —, e é justamente a diferença que muda o resto do aplicativo:
+     uma é injeção semanal, a outra comprimido todo dia. Vem em frase
+     inteira por idioma porque a ordem e a concordância mudam ("injeção
+     diária", "comprimido diário"). */
+  subDoMedicamento: (molecula: string, injetavel: boolean, diario: boolean): string =>
+    `${molecula} · ${injetavel
+      ? (diario ? 'injeção diária' : 'injeção semanal')
+      : (diario ? 'comprimido diário' : 'comprimido semanal')}`,
   manipuladoSub: 'Preparada em farmácia de manipulação',
   formaSeringaSub: 'Você aspira a dose com uma seringa',
   formaCanetaSub: 'Já vem preenchida, pronta para aplicar',
@@ -141,7 +174,13 @@ export const cadastro = {
   padrao: 'Padrão',
   outroIntervaloTitulo: 'Outro intervalo',
   outroIntervalo: 'Você diz de quantos em quantos dias',
+  /* ⚠️ O RÓTULO DO CONTADOR ESTAVA ESCRITO NA TELA, em português, e saía
+     "APLICO A CADA" nos seis idiomas e para quem toma comprimido. É
+     primeira pessoa, e por isso segue a forma (01/10/2026). */
+  aCadaRotulo: (injetavel: boolean): string => (injetavel ? 'APLICO A CADA' : 'TOMO A CADA'),
+  aCadaUnidade: (d: number): string => (d === 1 ? 'dia' : 'dias'),
 
+  alturaRotulo: 'ALTURA',
   pesoDeHoje: 'PESO DE HOJE',
   querPerder: 'Você quer perder',
   querGanhar: 'Você quer ganhar',
@@ -282,7 +321,7 @@ export const cadastro = {
     /* ---------- a dose ---------- */
     aindaADefinir: 'Ainda a definir',
     aindaADefinirTexto: 'Quando você souber o medicamento, eu monto a escada de doses e o ciclo.',
-    cicloComeca: 'O ciclo começa na primeira aplicação que você registrar.',
+    cicloComeca: 'O ciclo começa na primeira dose que você registrar.',
     cadenciaDiaria: 'todos os dias',
     cadenciaSemanal: 'uma vez por semana',
     cadenciaDias: (dias: number) => `a cada ${dias} dias`,
@@ -298,9 +337,17 @@ export const cadastro = {
     imcDeHoje: 'IMC de hoje',
     naSuaMeta: 'Na sua meta',
 
-    /* ---------- como eu te ajudo ---------- */
-    ajudaDose: 'Cada dose no lugar certo',
-    ajudaDoseSub: 'o rodízio dos locais e o ciclo da dose, sem você contar',
+    /* ---------- como eu te ajudo ----------
+
+       ⚠️ A PRIMEIRA PROMESSA SEGUE A FORMA (01/10/2026). "Cada dose no
+       lugar certo" é o rodízio dos locais de injeção, e prometer isso a
+       quem toma comprimido é prometer uma coisa que não existe para ela.
+       Para o comprimido, o que de fato fazemos é o lembrete e o histórico
+       — e é só isso que a frase diz. */
+    ajudaDose: (injetavel: boolean): string => (injetavel ? 'Cada dose no lugar certo' : 'Cada dose em dia'),
+    ajudaDoseSub: (injetavel: boolean): string => (injetavel
+      ? 'o rodízio dos locais e o ciclo da dose, sem você contar'
+      : 'o lembrete e o histórico de cada dose, sem você contar'),
     ajudaEnjoo: 'O enjoo em números',
     ajudaEnjooSub: 'o que você sente vira padrão, e o padrão vai para a consulta',
     ajudaPeso: 'A sua curva de peso',

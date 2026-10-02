@@ -10,7 +10,9 @@ import {
   diasAteAplicar, temCiclo,
 } from '../logic/derive';
 import { now, diffDays, fmtDate, relDay, doseTxt, quandoEm, maiuscula, dataComDiaDaSemana, ordemDaSemana } from '../logic/time';
-import { formaDe, nesteNesta, nomeDaMolecula, oA, FORMAS } from '../logic/formas';
+import {
+  formaDe, nesteNesta, nomeDaMolecula, oA, FORMAS, injetavelDe, iconeDaDose, localDaDose, remedioDaDose,
+} from '../logic/formas';
 import { T } from '../textos';
 
 /* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
@@ -27,7 +29,15 @@ import { useTheme } from '../ui/useTheme';
 import { radius, shadowCard } from '../theme';
 
 /* ============================================================
-   APLICAÇÕES
+   DOSES (a rota continua /aplicacoes)
+
+   ⚠️⚠️ ELA SE CHAMAVA "APLICAÇÕES", E NÃO É SÓ DE QUEM INJETA (01/10/2026).
+   Quem toma comprimido abria uma tela de injeção: título, "PRÓXIMA
+   APLICAÇÃO", uma seringa e um "Próxima · Abdômen (esq.)" no histórico, e
+   cada dose com um local que ninguém escolheu. "Dose" é o substantivo de
+   todo mundo (decisão do dono); o local e a seringa seguem a forma — a de
+   agora para a próxima dose, a de cada dose para o histórico
+   (logic/formas). O nome da rota e do arquivo é interno, e fica.
 
    A tela da caneta — e agora ela é a única. O assunto morava em quatro
    telas que não se falavam:
@@ -63,6 +73,10 @@ export default function Aplicacoes() {
   const med = M(S);
   const nd = nextInjectionDate(S);
   const ndDays = diasAteAplicar(S);
+  /* `nextSite` devolve um local para qualquer pessoa — o registro precisa
+     de um valor inicial —, e por isso a pergunta da forma vem antes de
+     mostrá-lo. */
+  const injetavel = injetavelDe(S);
   const site = nextSite(S);
   const cal = injCalendar(S);
   const k = canetaAtual(S);
@@ -104,7 +118,7 @@ export default function Aplicacoes() {
      conta certa para uma pergunta que ainda não foi feita. A GRADE
      FICA, com os dias da semana — sem "próxima": sem aplicação
      registrada, a próxima dose era hoje por recuo, e a tela a anunciava
-     em letra grande ("PRÓXIMA APLICAÇÃO · Hoje"). A primeira não tem
+     em letra grande ("PRÓXIMA DOSE · Hoje"). A primeira não tem
      data; ela é quando for registrada. Ver `temCiclo`, em derive.
 
      O que sobra é uma tela coerente de quem está começando — a primeira
@@ -310,8 +324,8 @@ export default function Aplicacoes() {
 
           Cheguei a pôr a lixeira aqui, pela mesma regra da água e do
           treino: o que o app deixa criar, ele tem de deixar desfazer. Mas
-          uma aplicação não é um copo d'água. Ela é registro de
-          medicamento injetado — o que a equipe lê na consulta, o que
+          uma dose não é um copo d'água. Ela é registro de
+          medicamento tomado — o que a equipe lê na consulta, o que
           conta a história do tratamento — e um toque errado apagando uma
           dose da semana passada some com um fato clínico.
 
@@ -320,21 +334,34 @@ export default function Aplicacoes() {
       {semAplicacao ? null : (
       <Bloco titulo={K().historico}>
         <Cartao>
+          {/* ⚠️ A PRÓXIMA SEGUE A FORMA DE AGORA (01/10/2026): seringa e
+              local sugerido para quem injeta; comprimido e só a data para
+              quem toma. Era a seringa e o local para todo mundo. */}
           <Row gap={12} style={{ paddingHorizontal: 16, paddingVertical: 13 }}>
             <View style={{
               width: 30, height: 30, borderRadius: 15, borderWidth: 1.4, borderColor: c.accent2,
               borderStyle: 'dashed', alignItems: 'center', justifyContent: 'center',
             }}>
-              <Icon name="syringe" size={14} color={c.accent2} sw={2} />
+              <Icon name={iconeDaDose(S)} size={14} color={c.accent2} sw={2} />
             </View>
             <View style={{ flex: 1 }}>
-              <Txt v="body" c={c.tx3}>{K().proximaEmLocal(siteLabel(site))}</Txt>
+              <Txt v="body" c={c.tx3}>{injetavel ? K().proximaEmLocal(siteLabel(site)) : K().proximaSemLocal}</Txt>
               <Txt v="caption" c={c.tx4} style={{ marginTop: 1 }}>
                 {maiuscula(relDay(nd))} · {fmtDate(nd)}
               </Txt>
             </View>
           </Row>
-          {S.injections.slice().reverse().map((i: any) => (
+          {S.injections.slice().reverse().map((i: any) => {
+            /* ⚠️ O LOCAL PELA DOSE, E NÃO O GRAVADO (01/10/2026). Até esta
+               data o registro gravava um local inventado em cada
+               comprimido; `localDaDose` só devolve o de dose injetada, sem
+               apagar nada do diário. */
+            const local = localDaDose(S, i);
+            /* A unidade é a do remédio DA DOSE, e o nome dele só aparece
+               quando não é o de hoje — quem trocou de remédio vê de qual
+               era cada dose antiga, sem repetir o nome em toda linha. */
+            const rem = remedioDaDose(S, i);
+            return (
             <Row key={i.t} gap={12} style={{ paddingHorizontal: 16, paddingVertical: 13 }}>
               <View style={{
                 width: 30, height: 30, borderRadius: 15, backgroundColor: c.accentWeak,
@@ -343,13 +370,14 @@ export default function Aplicacoes() {
                 <Icon name="check" size={14} color={c.accent} sw={2.4} />
               </View>
               <View style={{ flex: 1 }}>
-                <Txt v="body">{doseTxt(i.dose)} {med.unit}{i.site ? ` · ${siteLabel(i.site)}` : ''}</Txt>
+                <Txt v="body">{rem !== med ? `${rem.label} ` : ''}{doseTxt(i.dose)} {rem.unit}{local ? ` · ${siteLabel(local)}` : ''}</Txt>
                 <Txt v="caption" c={c.tx3} style={{ marginTop: 1 }}>
                   {fmtDate(new Date(i.t))} · {relDay(new Date(i.t))}
                 </Txt>
               </View>
             </Row>
-          ))}
+            );
+          })}
         </Cartao>
       </Bloco>
       )}

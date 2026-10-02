@@ -15,6 +15,7 @@ import {
 import { depoisDoCadastro } from '../logic/destaques';
 import { Screen, Txt, Row, SectionHead, CircleBtn, ListRow, Grupo, Retrato, Rolagem } from '../ui/kit';
 import { marcosDeConquista, emTratamento } from '../logic/derive';
+import { iconeDaDose } from '../logic/formas';
 import { Selo, Cartao, Linha } from '../ui/internas';
 import { tipoDaAssinatura, NOME_DO_TIPO } from '../logic/assinatura';
 import { Icon } from '../ui/Icon';
@@ -338,7 +339,8 @@ export default function Perfil() {
                 backgroundColor: c.accentWeak, borderRadius: radius.pill,
                 paddingLeft: 9, paddingRight: 11, paddingVertical: 6, alignItems: 'center',
               }}>
-                <Icon name="syringe" size={13} color={c.accent} sw={2} />
+                {/* O ícone segue a forma: seringa ou comprimido (01/10/2026). */}
+                <Icon name={iconeDaDose(S)} size={13} color={c.accent} sw={2} />
                 <Txt v="micro" c={c.accent} style={{ fontFamily: font.bodyMed }}>{dose}</Txt>
               </Row>
             </Pressable>

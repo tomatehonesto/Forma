@@ -24,7 +24,10 @@ export const ciclo = {
      slide is entirely about that, with the dose and the site. */
   aplicHead: 'The effect starts climbing over the next few hours.',
   aplicBody: 'Mild nausea may show up — smaller meals through the day tend to go down easier.',
-  aplicQ: 'What to expect on shot day?',
+  /* ⚠️ "DOSE", NOT "SHOT", ACROSS THIS FILE (01/10/2026): these lines are
+     read as plain strings, without knowing the form, and someone taking a
+     pill read "shot day". See ../pt-BR/ciclo.ts. */
+  aplicQ: 'What to expect on dose day?',
 
   /* ---------- peak ---------- */
   picoHead: 'Your appetite tends to run lower today.',
@@ -43,7 +46,7 @@ export const ciclo = {
 
   /* ---------- hunger at its peak ---------- */
   altoHeadHoje: 'Hunger at the highest point of the cycle.',
-  altoHeadComData: (quando: string) => `Hunger at the cycle’s high point — shot ${quando}.`,
+  altoHeadComData: (quando: string) => `Hunger at the cycle’s high point — next dose ${quando}.`,
   /* ⚠️ "DON'T SKIP MEALS" ASSUMES SKIPPING, and at the hunger peak the
      person least likely to skip is the hungry one. The sentence was born
      as advice and landed as a scolding; the affirmative version says the
@@ -66,7 +69,7 @@ export const ciclo = {
      The name alone — "Hunger starting to return" — is a diagnosis without
      context, and on a treatment screen that frightens instead of
      orienting. */
-  faseAplicLabel: 'Shot',
+  faseAplicLabel: 'Dose',
   faseAplicRange: 'Day 1',
   faseAplicHint: 'The effect starts climbing over the next few hours.',
 
@@ -82,7 +85,7 @@ export const ciclo = {
   faseRetornoRange: 'Days 5–6',
   faseRetornoHint: 'Your medication level starts to drop, and hunger tends to come back.',
 
-  fasePreLabel: 'Before the shot',
+  fasePreLabel: 'Before the dose',
   fasePreRange: 'Days 7+',
   fasePreHint: 'Lowest point of the cycle, until the next dose.',
 
@@ -116,11 +119,13 @@ export const ciclo = {
   faseDescidaAtencao: 'persistent vomiting or severe abdominal pain: contact your doctor',
 
   faseBaixoTitulo: 'Day 7 · lowest point',
-  faseBaixoSub: 'The day before your next shot',
+  faseBaixoSub: 'The day before your next dose',
   faseBaixoComum: 'appetite closer to usual',
   /* "The dose", not "the pen": this table is constant and doesn't know
-     the form of the medication. */
+     the form of the medication. ⚠️ But the site exists only for someone
+     who injects, so the line has a pair; app/ciclo picks one by form. */
   faseBaixoAjuda: 'having the dose and the injection site decided the night before',
+  faseBaixoAjudaSemLocal: 'having the dose decided the night before',
   tela: {
     titulo: 'Dose cycle',
     diaDepois: (dia: number, acao: string) => `Day ${dia} after\nyour ${acao}`,

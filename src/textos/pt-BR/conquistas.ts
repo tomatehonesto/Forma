@@ -9,8 +9,8 @@
 
    ⚠️ CADA TRILHA FALA EM DOIS TEMPOS, e eles não são a mesma frase:
 
-     · `desc`   o que aquele nível JÁ É — "12 aplicações registradas"
-     · `falta`  o que separa dela o próximo — "Faltam 14 aplicações"
+     · `desc`   o que aquele nível JÁ É — "12 doses registradas"
+     · `falta`  o que separa dela o próximo — "Faltam 14 doses"
 
    O primeiro é do passado e se lê com orgulho; o segundo é do futuro e
    tem de caber numa linha sem soar a cobrança. "Faltam" e não "você
@@ -23,7 +23,7 @@
 
 /* O plural do português, com o irregular dito por extenso quando existe. */
 const p = (n: number, s: string, pl = `${s}s`) => `${n} ${n === 1 ? s : pl}`;
-/* E o verbo concorda com o número: "Falta 1 aplicação", e não "Faltam 1".
+/* E o verbo concorda com o número: "Falta 1 dose", e não "Faltam 1".
    Só nas frases em que a quantidade é um número; "Faltam 2,0 kg" fica. */
 const v = (n: number, um: string, varios: string) => (n === 1 ? um : varios);
 
@@ -41,9 +41,12 @@ export const conquistas = {
   },
 
   /* ---------------- tratamento ---------------- */
-  doses: 'Aplicações',
-  dosesDesc: (a: number) => `${p(a, 'aplicação', 'aplicações')} registrada${a === 1 ? '' : 's'}`,
-  dosesFalta: (r: number) => `${v(r, 'Falta', 'Faltam')} ${p(r, 'aplicação', 'aplicações')}`,
+  /* ⚠️ "DOSES", E ERA "APLICAÇÕES" (01/10/2026): a trilha é a mesma para
+     quem injeta e para quem toma comprimido, e "dose" é o substantivo de
+     todas as formas. O ícone é que segue a forma, em logic/conquistas. */
+  doses: 'Doses',
+  dosesDesc: (a: number) => `${p(a, 'dose')} registrada${a === 1 ? '' : 's'}`,
+  dosesFalta: (r: number) => `${v(r, 'Falta', 'Faltam')} ${p(r, 'dose')}`,
 
   tempo: 'Tempo de tratamento',
   /* Abaixo de um ano conta em meses, e a partir dele em anos: "12 meses"
@@ -58,7 +61,7 @@ export const conquistas = {
 
   /* ⚠️ O RODÍZIO NÃO É ENFEITE: repetir o mesmo ponto causa nódulo, e
      alternar é orientação de bula. É a única trilha que premia uma
-     prática de segurança. */
+     prática de segurança — e só existe para quem injeta (01/10/2026). */
   rodizio: 'Rodízio',
   rodizioDesc: (a: number) => `${p(a, 'local', 'locais')} de aplicação usado${a === 1 ? '' : 's'}`,
   rodizioFalta: (r: number) => `${v(r, 'Falta', 'Faltam')} ${p(r, 'local', 'locais')}`,

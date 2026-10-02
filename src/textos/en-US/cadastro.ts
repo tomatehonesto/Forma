@@ -35,9 +35,13 @@ export const cadastro = {
     formaAgora: 'How do you take it?',
     doseFuturo: 'Which dose do you plan to start with?',
     doseAgora: 'What’s your current dose?',
-    frequenciaFuturo: 'How often will you take it?',
-    frequenciaAgora: 'How often do you take it?',
-    ultima: (injetavel: boolean): string => (injetavel ? 'When was your last shot?' : 'When did you take your last dose?'),
+    /* ⚠️ Functions of the form in pt-BR ("você aplica?" / "você toma?").
+       English "take it" already covers a pen and a pill, so both
+       branches can stay the same — the parameter is there to keep the
+       shape. The noun is "dose" for everyone. */
+    frequenciaFuturo: (_injetavel: boolean): string => 'How often will you take it?',
+    frequenciaAgora: (_injetavel: boolean): string => 'How often do you take it?',
+    ultima: (injetavel: boolean): string => (injetavel ? 'When was your last dose?' : 'When did you take your last dose?'),
     corpo: 'What are your current measurements?',
     meta: 'What’s your weight goal?',
     ritmo: 'What pace do you want to get there?',
@@ -57,7 +61,7 @@ export const cadastro = {
     tratamento: 'Just so we know where you are right now.',
     inicio: 'A rough date is fine. This is where your treatment week comes from.',
     pesoInicio: 'A rough number is fine. This weight becomes the start of your curve — and it’s how we measure how far you’ve come.',
-    medicamento: 'It’s what the dose ladder and the interval between shots come from.',
+    medicamento: 'It’s what the dose ladder and the interval between doses come from.',
     forma: 'Compounded medication comes both ways, and what changes is what you’re holding when it’s time to take it.',
     doseComEscada: (med: string) => `In ${med}’s titration order.`,
     doseSemEscada: 'Compounded medication has no standard dose ladder — the number is whatever your prescription says.',
@@ -91,6 +95,10 @@ export const cadastro = {
   aindaNaoSeiDoseSub: 'Almost everyone starts at the lowest',
 
   menosComumAqui: 'LESS COMMON HERE',
+  /* The line under each brand: molecule, route and cadence — "Semaglutide"
+     alone doesn’t tell Ozempic from Rybelsus. */
+  subDoMedicamento: (molecula: string, injetavel: boolean, diario: boolean): string =>
+    `${molecula} · ${diario ? 'daily' : 'weekly'} ${injetavel ? 'injection' : 'pill'}`,
   manipuladoSub: 'Prepared at a compounding pharmacy',
   formaSeringaSub: 'You draw the dose with a syringe',
   formaCanetaSub: 'Comes prefilled, ready to inject',
@@ -101,7 +109,11 @@ export const cadastro = {
   padrao: 'Standard',
   outroIntervaloTitulo: 'Another interval',
   outroIntervalo: 'You say how many days apart',
+  /* First person, so it follows the form (pt-BR "APLICO / TOMO A CADA"). */
+  aCadaRotulo: (injetavel: boolean): string => (injetavel ? 'I INJECT EVERY' : 'I TAKE IT EVERY'),
+  aCadaUnidade: (d: number): string => (d === 1 ? 'day' : 'days'),
 
+  alturaRotulo: 'HEIGHT',
   pesoDeHoje: 'WEIGHT TODAY',
   querPerder: 'You want to lose',
   querGanhar: 'You want to gain',
@@ -179,7 +191,7 @@ export const cadastro = {
 
     aindaADefinir: 'Still to be decided',
     aindaADefinirTexto: 'Once you know the medication, I’ll build the dose ladder and the cycle.',
-    cicloComeca: 'The cycle starts at the first shot you log.',
+    cicloComeca: 'The cycle starts at the first dose you log.',
     cadenciaDiaria: 'every day',
     cadenciaSemanal: 'once a week',
     cadenciaDias: (dias: number) => `every ${dias} days`,
@@ -193,8 +205,12 @@ export const cadastro = {
     imcDeHoje: 'BMI today',
     naSuaMeta: 'At your goal',
 
-    ajudaDose: 'Every dose in the right place',
-    ajudaDoseSub: 'rotating the sites and the dose cycle, without you counting',
+    /* ⚠️ Site rotation only exists for injections — a pill gets the
+       reminder and the log, which is what we actually do for it. */
+    ajudaDose: (injetavel: boolean): string => (injetavel ? 'Every dose in the right place' : 'Every dose on track'),
+    ajudaDoseSub: (injetavel: boolean): string => (injetavel
+      ? 'rotating the sites and the dose cycle, without you counting'
+      : 'the reminder and the log of every dose, without you counting'),
     ajudaEnjoo: 'Nausea in numbers',
     ajudaEnjooSub: 'what you feel becomes a pattern, and the pattern goes to the appointment',
     ajudaPeso: 'Your weight curve',

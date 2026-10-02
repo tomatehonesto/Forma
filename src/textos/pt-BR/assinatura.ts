@@ -109,7 +109,7 @@ export const assinatura = {
 
      ⚠️⚠️ E A LINHA DOS DADOS ANDA JUNTO, sempre. Suspender o acesso de um
      diário de tratamento é trancar alguém do lado de fora do próprio
-     peso, das próprias aplicações e dos próprios exames — e isso não
+     peso, das próprias doses e dos próprios exames — e isso não
      fazemos. Separadas, a primeira frase vira uma ameaça. */
   bomSaberTitulo: 'É bom você saber',
   bomSaberTexto: 'Caso a clínica parceira nos informe que o vínculo de tratamento foi encerrado, o acesso fica suspenso até você aderir a um plano Personal — e nenhuma cobrança acontece sem você escolher. Nada do que você registrou se perde: os registros continuam na sua conta e dá para exportar quando quiser.',
@@ -316,7 +316,7 @@ export const assinatura = {
      ============================================================ */
   suspenso: {
     clinicaGenerica: 'a clínica que acompanhava você',
-    nadaApagado: 'Nada foi apagado. Peso, aplicações, sintomas e exames continuam onde estavam.',
+    nadaApagado: 'Nada foi apagado. Peso, doses, sintomas e exames continuam onde estavam.',
     nadaCobrado: 'Nada foi cobrado, e nada vai ser sem você escolher.',
     verOsPlanos: 'Ver os planos',
     outroCodigo: 'Tenho outro código',

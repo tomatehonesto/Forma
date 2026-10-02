@@ -8,6 +8,7 @@ import { ENERGIA, FOME, HUMOR, SINTOMAS_LIDOS, grauDoSintoma, paraTela } from '.
 import { pesoTxt, aguaTxt, sistemaDe } from './medidas';
 import { localAtual } from './local';
 import { now, startOfDay, daysAgo, diffDays } from './time';
+import { formaDe, remedioDaDose, type Forma } from './formas';
 
 /* ============================================================
    O RESUMO DA JORNADA — o que a conversa do Morphi Intelligence LÊ
@@ -61,6 +62,18 @@ function secao(titulo: string, linhas: (string | false | null | undefined)[]): s
   return l.length ? `## ${titulo}\n${l.join('\n')}` : null;
 }
 
+/* ⚠️ A VIA, DITA COM TODAS AS LETRAS (01/10/2026). É a forma em uso
+   (`formaDe`, que já cai no catálogo para quem nunca respondeu), e vai
+   em português fixo pelo motivo do alto do arquivo: é para o modelo, e
+   não para a tela. O resumo da semana usa a mesma linha. */
+const VIA: Record<Forma, string> = {
+  caneta: 'injetável (caneta)',
+  frasco: 'injetável (frasco)',
+  seringa: 'injetável (seringa)',
+  comprimido: 'oral (comprimido)',
+};
+export const viaDoTratamento = (S: State) => `Via: ${VIA[formaDe(S)]}`;
+
 export function resumoDaJornada(S: State): string {
   const P = S.profile as any;
   const agora = +now();
@@ -77,26 +90,43 @@ export function resumoDaJornada(S: State): string {
   ]));
 
   /* O TRATAMENTO — o medicamento, a dose, e a história das doses pelas
-     aplicações registradas. */
+     doses registradas.
+
+     ⚠️ "DOSES", E ERA "APLICAÇÕES" (01/10/2026). Para quem toma Rybelsus,
+     o modelo lia "Aplicações registradas: 40" e "Próxima aplicação
+     prevista", e respondia sobre injeção. O rótulo agora é o substantivo
+     de todas as formas, e a VIA vai dita numa linha própria — o nome do
+     remédio sozinho obrigava o modelo a deduzir a via, e ele nem sempre
+     deduzia. Ver docs/superpowers/specs/2026-10-01-oral-e-diario-design.md. */
   const med = M(S);
-  const injs = ((S as any).injections ?? []) as { t: number; dose?: number; site?: string }[];
+  const injs = (((S as any).injections ?? []) as { t: number; dose?: number; site?: string; med?: string }[])
+    .slice().sort((a, b) => a.t - b.t);
+  /* ⚠️ CADA DOSE COM O SEU REMÉDIO (01/10/2026): numa troca (Ozempic 1 mg →
+     Rybelsus 7 mg), a lista saía toda na unidade de hoje e lia a troca como
+     um degrau da mesma escala. Agora uma linha nova nasce quando muda a dose
+     OU o remédio, e diz qual era. */
   const mudancas: string[] = [];
   let doseAnterior: number | undefined;
+  let remAnterior: ReturnType<typeof remedioDaDose> | undefined;
   for (const i of injs) {
-    if (i.dose != null && i.dose !== doseAnterior) {
-      mudancas.push(`${data(i.t)}: ${num(i.dose, 2)} ${med?.unit ?? 'mg'}`);
+    if (i.dose == null) continue;
+    const rem = remedioDaDose(S, i);
+    if (i.dose !== doseAnterior || rem !== remAnterior) {
+      mudancas.push(`${data(i.t)}: ${rem?.label ?? ''} ${num(i.dose, 2)} ${rem?.unit ?? 'mg'}`);
       doseAnterior = i.dose;
+      remAnterior = rem;
     }
   }
   const ultima = lastInjection(S) as any;
   secoes.push(secao('Tratamento', [
     med && P.med !== 'indefinido' ? `Medicamento: ${med.label} (${med.mol})` : 'Medicamento: ainda não informado',
+    med && P.med !== 'indefinido' ? viaDoTratamento(S) : null,
     med && P.med !== 'indefinido' ? `Frequência: ${cadenciaDias(S) === 1 ? 'diária' : cadenciaDias(S) === 7 ? 'semanal' : `a cada ${cadenciaDias(S)} dias`}` : null,
     temDose(S) ? `Dose atual no perfil: ${doseDoPerfil(S)}` : 'Dose: ainda não informada',
-    injs.length ? `Aplicações registradas: ${injs.length}${injs.length >= 2 ? ` (adesão ${adesao(S)}%)` : ''}` : 'Nenhuma aplicação registrada ainda',
-    mudancas.length > 1 ? `Doses ao longo do tempo (data da primeira aplicação em cada dose): ${mudancas.join('; ')}` : null,
-    ultima ? `Última aplicação: ${data(ultima.t)} (${haQuanto(ultima.t)})${ultima.dose != null ? `, ${num(ultima.dose, 2)} ${med?.unit ?? 'mg'}` : ''}` : null,
-    ultima ? `Próxima aplicação prevista: ${data(+nextInjectionDate(S))}` : null,
+    injs.length ? `Doses registradas: ${injs.length}${injs.length >= 2 ? ` (adesão ${adesao(S)}%)` : ''}` : 'Nenhuma dose registrada ainda',
+    mudancas.length > 1 ? `Doses ao longo do tempo (data do primeiro registro em cada dose): ${mudancas.join('; ')}` : null,
+    ultima ? `Última dose: ${data(ultima.t)} (${haQuanto(ultima.t)})${ultima.dose != null ? `, ${num(ultima.dose, 2)} ${med?.unit ?? 'mg'}` : ''}` : null,
+    ultima ? `Próxima dose prevista: ${data(+nextInjectionDate(S))}` : null,
   ]));
 
   /* O PESO — de onde partiu, onde está, a meta e as últimas pesagens. */

@@ -20,7 +20,10 @@ export const ciclo = {
      seguidas dando la misma noticia gastan el carrusel. */
   aplicHead: 'El efecto empieza a subir en las próximas horas.',
   aplicBody: 'Pueden aparecer náuseas leves — mejor comidas más chicas a lo largo del día.',
-  aplicQ: '¿Qué esperar el día de la inyección?',
+  /* ⚠️ "DOSIS", Y NO "INYECCIÓN", EN TODO EL ARCHIVO (01/10/2026): estas
+     líneas se leen como texto suelto, sin saber la forma, y quien toma
+     comprimido leía "día de la inyección". Ver ../pt-BR/ciclo.ts. */
+  aplicQ: '¿Qué esperar el día de la dosis?',
 
   picoHead: 'Tu apetito tiende a estar más bajo hoy.',
   picoBody: 'Pico de efecto de la medicación — buen día para entrenar y adelantar la proteína.',
@@ -35,7 +38,7 @@ export const ciclo = {
   retornoQ: '¿Por qué siento más hambre?',
 
   altoHeadHoje: 'Hambre en el punto más alto del ciclo.',
-  altoHeadComData: (quando: string) => `Hambre en el punto alto del ciclo — inyección ${quando}.`,
+  altoHeadComData: (quando: string) => `Hambre en el punto alto del ciclo — próxima dosis ${quando}.`,
   /* ⚠️ "NO TE SALTES COMIDAS" PRESUPONE QUE SE LAS SALTA, y en el punto
      alto del hambre quien menos se las salta es quien tiene hambre. La
      frase nacía como consejo y llegaba como reto — la versión afirmativa
@@ -57,7 +60,7 @@ export const ciclo = {
      nombre solo — "Inicio del retorno del hambre" — es diagnóstico sin
      contexto, y en una pantalla de tratamiento eso asusta en vez de
      orientar. */
-  faseAplicLabel: 'Inyección',
+  faseAplicLabel: 'Dosis',
   faseAplicRange: 'Día 1',
   faseAplicHint: 'El efecto empieza a subir en las próximas horas.',
 
@@ -73,7 +76,7 @@ export const ciclo = {
   faseRetornoRange: 'Días 5–6',
   faseRetornoHint: 'El nivel del medicamento empieza a bajar, y el hambre tiende a volver.',
 
-  fasePreLabel: 'Pre-inyección',
+  fasePreLabel: 'Antes de la dosis',
   fasePreRange: 'Días 7+',
   fasePreHint: 'Punto más bajo del ciclo, hasta la próxima dosis.',
 
@@ -105,12 +108,14 @@ export const ciclo = {
   faseDescidaAtencao: 'vómito persistente o dolor abdominal fuerte: habla con tu médico',
 
   faseBaixoTitulo: 'Día 7 · punto más bajo',
-  faseBaixoSub: 'Víspera de la próxima inyección',
+  faseBaixoSub: 'Víspera de la próxima dosis',
   faseBaixoComum: 'apetito más cerca de lo habitual',
   /* "La dosis", y no "la pluma": esta tabla es constante y no sabe la
      forma del medicamento — la frase sirve igual a pluma, frasco y
-     jeringa. */
+     jeringa. ⚠️ Pero el lugar solo existe para quien se inyecta, y la
+     frase tiene par: app/ciclo elige una u otra según la forma. */
   faseBaixoAjuda: 'dejar la dosis y el lugar de la inyección definidos la víspera',
+  faseBaixoAjudaSemLocal: 'dejar la dosis definida la víspera',
   tela: {
     titulo: 'Ciclo de la dosis',
     diaDepois: (dia: number, acao: string) => `Día ${dia} después\nde la ${acao}`,

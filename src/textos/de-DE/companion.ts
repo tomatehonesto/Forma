@@ -38,7 +38,7 @@ export const companion = {
       vazioSemRegistroTexto: 'Lektüren erscheinen, wenn etwas in deinen Einträgen eine verlangt. Mit deinen ersten Check-ins tauchen sie hier auf.',
     },
     fomeMotivo: (dia: number) => `Du bist an Tag ${dia} des Zyklus, wenn der Hunger zurückkommt`,
-    fomeTitulo: 'Warum der Hunger vor der Injektion zurückkommt',
+    fomeTitulo: 'Warum der Hunger vor der Dosis zurückkommt',
     /* ⚠️ „NIMMT DAS GEFÜHL EINES RÜCKFALLS“ ist der Dienst dieses Textes
        und der Grund seiner Existenz: der Hunger, der am fünften Tag
        zurückkommt, ist die Stelle, an der Leute schließen, sie hätten
@@ -46,7 +46,8 @@ export const companion = {
     fomeDesc: (molecula: string) =>
       `Der ${molecula}-Spiegel sinkt über die Woche, und die Sättigung sinkt mit. Die Kurve zu verstehen nimmt das Gefühl eines Rückfalls.`,
 
-    primeirosMotivo: (dias: number) => `Du hast vor ${dias} ${dias === 1 ? 'Tag' : 'Tagen'} gespritzt`,
+    primeirosMotivo: (dias: number, injetavel: boolean): string =>
+      `Du hast vor ${dias} ${dias === 1 ? 'Tag' : 'Tagen'} ${injetavel ? 'gespritzt' : 'deine Dosis genommen'}`,
     primeirosTitulo: 'Die ersten Tage nach der Dosis',
     primeirosDesc: 'Was im 48-Stunden-Fenster zu spüren normal ist, und was schon eine Nachricht an dein Team verdient.',
 
@@ -123,7 +124,7 @@ export const companion = {
     fechar: 'Schließen',
     irEvolucao: 'Deine Wiegungen ansehen',
     irSintomas: 'Deine Symptome ansehen',
-    irAplicacoes: 'Deine Anwendungen ansehen',
+    irAplicacoes: 'Deine Dosen ansehen',
     irAlimentacao: 'Deine Ernährung ansehen',
     irAgua: 'Das heutige Wasser ansehen',
     irExames: 'Deine Laborwerte ansehen',

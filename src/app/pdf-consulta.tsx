@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { useStore } from '../logic/store';
 import { compartilharRelatorioPdf, recortePadrao, INCLUI_PADRAO } from '../logic/relatorioPdf';
+import { localDaDose } from '../logic/formas';
 import { DAY, now, dataLonga } from '../logic/time';
 import { Txt, Row } from '../ui/kit';
 import {
@@ -48,6 +49,9 @@ export default function PdfConsulta() {
     const apos = (a: any[]) => (a || []).filter((x) => x.t >= desde).length;
     return {
       aplicacoes: apos(S.injections as any[]),
+      /* a coluna Local do papel só existe se alguma dose do período foi
+         injetada e tem local (logic/relatorioPdf) — e a linha diz o mesmo */
+      comLocal: (S.injections as any[]).some((x) => x.t >= desde && localDaDose(S, x)),
       pesagens: apos(S.weights as any[]),
       medidas: apos(S.measures as any[]),
       checkins: apos(S.checkins as any[]),
@@ -102,7 +106,12 @@ export default function PdfConsulta() {
 
       <Bloco titulo={K().oQueEntra} nota={K().oQueEntraNota}>
         <Cartao>
-          {linha('aplicacoes', K().aplicacoes, K().aplicacoesSub(conta.aplicacoes))}
+          {/* ⚠️ A LINHA DAS DOSES LÊ O CATÁLOGO DO PAPEL, e não o desta
+              tela (01/10/2026). Ela dizia "Aplicações · data, dose e local"
+              a quem toma comprimido. O nome agora é o da seção do PDF
+              ("Doses"), que é o que este interruptor liga, e o "local" só
+              entra quando a coluna vai entrar. */}
+          {linha('aplicacoes', T.resumo.relatorio.aplicacoes, T.resumo.relatorio.dosesSub(conta.aplicacoes, conta.comLocal))}
           {linha('peso', K().pesoEMedidas, K().pesoEMedidasSub(conta.pesagens, conta.medidas))}
           {linha('sintomas', K().checkins, K().checkinsSub(conta.checkins))}
           {linha('exames', K().exames, K().examesSub(conta.exames))}

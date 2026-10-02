@@ -61,7 +61,7 @@ export const companion = {
     },
     /* ---------- a fome que volta ---------- */
     fomeMotivo: (dia: number) => `Você está no dia ${dia} do ciclo, quando a fome volta`,
-    fomeTitulo: 'Por que a fome volta antes da aplicação',
+    fomeTitulo: 'Por que a fome volta antes da dose',
     /* ⚠️ "TIRA A SENSAÇÃO DE RECAÍDA" é o serviço desta leitura, e o motivo
        de ela existir: a fome voltando no quinto dia é onde as pessoas
        concluem que falharam. A molécula entra na frase em minúscula porque
@@ -70,7 +70,11 @@ export const companion = {
       `O nível da ${molecula} cai ao longo da semana, e a saciedade cai junto. Entender a curva tira a sensação de recaída.`,
 
     /* ---------- os primeiros dias ---------- */
-    primeirosMotivo: (dias: number) => `Você aplicou há ${dias} ${dias === 1 ? 'dia' : 'dias'}`,
+    /* ⚠️ A FRASE EM PRIMEIRA PESSOA SEGUE A FORMA (01/10/2026): quem toma
+       comprimido lia "Você aplicou há 2 dias". O substantivo é "dose" para
+       todos; o verbo é de `injetavel`, como `cadastro.ultima`. */
+    primeirosMotivo: (dias: number, injetavel: boolean): string =>
+      `${injetavel ? 'Você aplicou' : 'Você tomou a dose'} há ${dias} ${dias === 1 ? 'dia' : 'dias'}`,
     primeirosTitulo: 'Os primeiros dias depois da dose',
     /* "o que já merece uma mensagem para a equipe" é a metade que importa:
        a leitura existe para separar o esperado do que não espera. */
@@ -199,7 +203,9 @@ export const companion = {
     fechar: 'Fechar',
     irEvolucao: 'Ver suas pesagens',
     irSintomas: 'Ver seus sintomas',
-    irAplicacoes: 'Ver suas aplicações',
+    /* o destino /aplicacoes, que é "Doses" para todas as formas desde
+       01/10/2026 — quem toma comprimido não tem aplicações */
+    irAplicacoes: 'Ver suas doses',
     irAlimentacao: 'Ver sua alimentação',
     irAgua: 'Ver a água de hoje',
     irExames: 'Ver seus exames',

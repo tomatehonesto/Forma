@@ -16,9 +16,10 @@ export const rotina = {
   perguntas: {
     maisFome: '¿Por qué sentí más hambre hoy?',
     semFome: '¿Por qué no tengo hambre?',
-    depoisDaAplicacao: '¿Qué esperar después de la inyección?',
+    /* "Dosis", y decía "inyección" (01/10/2026). Ver ../pt-BR. */
+    depoisDaAplicacao: '¿Qué esperar después de la dosis?',
     diminuirEnjoo: '¿Cómo disminuir las náuseas?',
-    trocarODia: '¿Puedo cambiar el día de la inyección?',
+    trocarODia: '¿Puedo cambiar el día de la dosis?',
     meusExames: '¿Qué muestran mis exámenes?',
     meuProgresso: 'Analiza mi progreso',
     prepararConsulta: 'Prepara mi consulta',
@@ -59,8 +60,13 @@ export const rotina = {
 
     /* El recipiente y el artículo vienen de logic/formas: "Separa la
        pluma", "Separa el frasco". */
-    aplicacao: (recipiente: string) => `Separa ${recipiente} y elige el lugar`,
-    aplicacaoPorque: 'La inyección de la semana está llegando, y alternar el lugar reduce la irritación en la piel',
+    /* ⚠️ EL LUGAR SOLO EXISTE PARA QUIEN SE INYECTA (01/10/2026): "elige el
+       lugar" se le decía a quien toma comprimido. Ver ../pt-BR. */
+    aplicacao: (recipiente: string, injetavel: boolean): string =>
+      (injetavel ? `Separa ${recipiente} y elige el lugar` : `Separa ${recipiente}`),
+    aplicacaoPorque: (injetavel: boolean): string => (injetavel
+      ? 'Tu próxima dosis está llegando, y alternar el lugar reduce la irritación en la piel'
+      : 'Tu próxima dosis está llegando, y tener el blíster a mano ayuda a no olvidarla'),
 
     receita: 'Pide la renovación de la receta',
     /* ⚠️ La palabra "doses" vivía en el sitio de llamada. Ver ../pt-BR. */
@@ -103,14 +109,15 @@ export const rotina = {
     exercicio: (dias: number) => `Ejercitarse en ${dias} ${dias === 1 ? 'día' : 'días'} de la semana`,
     origemExercicio: 'Ejercicio',
 
-    aplicacaoUma: 'Inyección de la semana',
-    aplicacaoVarias: (quantas: number) => `${quantas} inyecciones en la semana`,
-    origemAplicacao: 'Inyecciones',
+    aplicacaoUma: 'Dosis de la semana',
+    aplicacaoVarias: (quantas: number) => `${quantas} dosis en la semana`,
+    origemAplicacao: 'Dosis',
 
     /* Lo que se cuenta en cada tarea. "1 de 1 día" no describe una
-       inyección, por eso la aplicación trae su propio par. */
+       dosis, por eso la dosis trae su propio par — que en español no
+       cambia en plural. */
     unidadeDia: ['día', 'días'] as [string, string],
-    unidadeAplicacao: ['inyección', 'inyecciones'] as [string, string],
+    unidadeAplicacao: ['dosis', 'dosis'] as [string, string],
     nota: (feito: number, alvo: number, unidade: string) => `${feito} de ${alvo} ${unidade}`,
   },
 
@@ -169,8 +176,10 @@ export const rotina = {
     pesoDe: (de: string, para: string) => `De ${de} a ${para}`,
     doseNova: (dose: string) => `Dosis a ${dose} mg`,
     doseAnterior: (dose: string) => `Venía de ${dose} mg`,
-    umaAplicacao: '1 inyección',
-    aplicacoes: (quantas: number) => `${quantas} inyecciones`,
+    remedioNovo: (remedio: string) => `Cambio a ${remedio}`,
+    remedioAnterior: (remedio: string) => `Venía de ${remedio}`,
+    umaAplicacao: '1 dosis',
+    aplicacoes: (quantas: number) => `${quantas} dosis`,
     marcadores: (quantos: number) => `${quantos} marcadores`,
     umaOrientacao: '1 indicación del equipo',
     orientacoes: (quantas: number) => `${quantas} indicaciones del equipo`,

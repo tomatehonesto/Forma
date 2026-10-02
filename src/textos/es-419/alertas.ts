@@ -6,10 +6,11 @@
    pantalla de configuración, `curto` el mismo nombre en una línea
    apretada al lado de una hora, y `desc` lo que hace, en una frase.
 
-   ⚠️ "APLICACIÓN DE LA DOSIS", y antes decía "de la pluma". La tabla no
-   sabe qué forma usa quien está leyendo, y la salida fue la frase que
-   sirve igual a pluma, frasco y jeringa. Comprimido todavía lee
-   "aplicación" aquí, y es deuda conocida.
+   ⚠️ "DOSIS DEL MEDICAMENTO", y decía "inyección de la dosis" — y antes
+   "de la pluma" (01/10/2026). La tabla no sabe qué forma usa quien está
+   leyendo, y quien toma comprimido leía "inyección". "Dosis" es el
+   sustantivo de todas las formas: sirve igual a pluma, frasco, jeringa y
+   comprimido. Ver ../pt-BR/alertas.ts.
 
    ⚠️ Y EL CHECK-IN ES EL ÚNICO QUE PREGUNTA. Los otros cuatro avisan
    sobre cosas que la persona HACE — aplicar, pesarse, tomar agua, comer.
@@ -18,8 +19,8 @@
    ============================================================ */
 
 export const alertas = {
-  dose: 'Inyección de la dosis',
-  doseCurto: 'Inyección',
+  dose: 'Dosis del medicamento',
+  doseCurto: 'Dosis',
   doseDesc: 'Un aviso antes de la próxima dosis, para mantener el tratamiento al día.',
 
   checkin: 'Check-in del día',
@@ -67,7 +68,7 @@ export const alertas = {
     oQueAvisar: 'Qué avisar',
 
     antecedencia: 'Antelación',
-    antecedenciaAjuda: 'Contada a partir de la fecha de tu próxima inyección.',
+    antecedenciaAjuda: 'Contada a partir de la fecha de tu próxima dosis.',
 
     diasDaSemana: 'Días de la semana',
     diasDaSemanaAjuda: 'Sin ninguno marcado, la alerta suena todos los días.',
@@ -112,7 +113,7 @@ export const alertas = {
     convite: 'Un aviso es una invitación, no una exigencia. Si un día se pasa, aquí no se acumula nada.',
   },
   /* NOTIFICACIONES — ver ../pt-BR/alertas.ts. El aviso de dosis reutiliza
-     `avisos`; el de existencias, el veredicto de Inyecciones. */
+     `avisos`; el de existencias, el veredicto de la pantalla de dosis. */
   telaNotificacoes: {
     titulo: 'Notificaciones',
     lead: 'Lo que te contamos en los últimos días.',

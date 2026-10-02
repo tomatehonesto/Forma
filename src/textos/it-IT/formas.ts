@@ -30,8 +30,11 @@
    ⚠️ LA PAROLA PER L'INIEZIONE È "PUNTURA", e non "iniezione". Le due
    sono corrette, ma non hanno lo stesso registro: "iniezione" è la
    parola del referto, "puntura" è quella che si usa parlando — "mi
-   faccio la puntura". L'app parla, il referto no; per questo "iniezione"
-   resta soltanto in resumo, che è scritto per chi legge il referto.
+   faccio la puntura". "Puntura" resta nei verbi in prima persona ("ho
+   fatto la puntura"); il nome di tutte le forme, in titoli, schermate e
+   documenti — referto compreso —, è "dose" (01/10/2026, vedi
+   ../pt-BR/formas.ts). "Iniezione" compare solo come descrittore (la
+   riga sotto il farmaco nel cadastro, la "zona di iniezione").
 
    ⚠️ E IL PLURALE DI "SIRINGA" È "SIRINGHE", con l'acca. Senza, la
    parola cambia suono. È la ragione per cui il plurale è un campo e non
@@ -52,10 +55,16 @@ export const formas = {
   /* ⚠️ IL PLURALE È UN CAMPO. "Siringa" fa "siringhe" e non "siringe";
      "blister" non cambia affatto. Due eccezioni su quattro parole: non
      c'è nessun calcolo da applicare. */
+  /* ⚠️ `acao` È "DOSE" PER TUTTE LE FORME (decisione del proprietario,
+     01/10/2026): finisce nei titoli e nelle conferme, e chi prende la
+     compressa leggeva "Registra la puntura". Solo la frase in prima
+     persona segue la forma, ed è funzione di `injetavel` nel catalogo di
+     ogni schermata. "Puntura" e "dose" sono femminili: l'articolo di chi
+     la riceve resta giusto. Vedi ../pt-BR/formas.ts. */
   palavras: {
-    caneta: { recipiente: 'penna', plural: 'penne', verbo: 'iniettare', acao: 'puntura' },
-    frasco: { recipiente: 'flacone', plural: 'flaconi', verbo: 'iniettare', acao: 'puntura' },
-    seringa: { recipiente: 'siringa', plural: 'siringhe', verbo: 'iniettare', acao: 'puntura' },
+    caneta: { recipiente: 'penna', plural: 'penne', verbo: 'iniettare', acao: 'dose' },
+    frasco: { recipiente: 'flacone', plural: 'flaconi', verbo: 'iniettare', acao: 'dose' },
+    seringa: { recipiente: 'siringa', plural: 'siringhe', verbo: 'iniettare', acao: 'dose' },
     comprimido: { recipiente: 'blister', plural: 'blister', verbo: 'prendere', acao: 'dose' },
   } as Record<Recipiente, { recipiente: string; plural: string; verbo: string; acao: string }>,
 

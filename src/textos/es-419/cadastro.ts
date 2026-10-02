@@ -39,9 +39,11 @@ export const cadastro = {
     formaAgora: '¿Cómo te lo aplicas?',
     doseFuturo: '¿Con qué dosis piensas empezar?',
     doseAgora: '¿Cuál es tu dosis actual?',
-    frequenciaFuturo: '¿Cada cuánto vas a aplicártelo?',
-    frequenciaAgora: '¿Cada cuánto te lo aplicas?',
-    ultima: (injetavel: boolean): string => (injetavel ? '¿Cuándo fue tu última inyección?' : '¿Cuándo tomaste tu última dosis?'),
+    /* ⚠️ EL VERBO SIGUE LA FORMA: quien toma Rybelsus no se lo "aplica".
+       El sustantivo es "dosis" para todos. Ver ../pt-BR/cadastro.ts. */
+    frequenciaFuturo: (injetavel: boolean): string => (injetavel ? '¿Cada cuánto vas a aplicártelo?' : '¿Cada cuánto vas a tomarlo?'),
+    frequenciaAgora: (injetavel: boolean): string => (injetavel ? '¿Cada cuánto te lo aplicas?' : '¿Cada cuánto lo tomas?'),
+    ultima: (injetavel: boolean): string => (injetavel ? '¿Cuándo te aplicaste la última dosis?' : '¿Cuándo tomaste tu última dosis?'),
     corpo: '¿Cuáles son tus medidas actuales?',
     meta: '¿Cuál es tu meta de peso?',
     ritmo: '¿Qué ritmo quieres seguir para llegar?',
@@ -61,7 +63,7 @@ export const cadastro = {
     tratamento: 'Solo para saber dónde estás ahora.',
     inicio: 'Aproximado está bien. De aquí sale tu semana de tratamiento.',
     pesoInicio: 'Aproximado está bien. Este peso es el comienzo de tu curva, y de él sale cuánto ya avanzaste.',
-    medicamento: 'De él salen la escalera de dosis y el intervalo entre las inyecciones.',
+    medicamento: 'De él salen la escalera de dosis y el intervalo entre una dosis y otra.',
     forma: 'El preparado magistral sale de la farmacia de las dos formas, y lo que cambia es lo que tienes en la mano a la hora de aplicártelo.',
     doseComEscada: (med: string) => `En el orden de titulación de ${med}.`,
     doseSemEscada: 'El preparado magistral no tiene escalera de dosis estándar — el número es el de tu receta.',
@@ -88,9 +90,10 @@ export const cadastro = {
   prefiroNaoInformar: 'Prefiero no decirlo',
 
   jaIniciei: 'Ya empecé el tratamiento',
-  jaInicieiSub: 'Ya me apliqué al menos una dosis',
+  /* ⚠️ ESTE PASO VIENE ANTES DEL MEDICAMENTO: ningún verbo de forma. */
+  jaInicieiSub: 'Ya tomé o me apliqué al menos una dosis',
   vouComecar: 'Voy a empezar pronto',
-  vouComecarSub: 'Todavía no me apliqué',
+  vouComecarSub: 'Todavía no empecé con las dosis',
 
   /* ⚠️ "TODAVÍA NO SÉ" APARECE DOS VECES, con subtítulos distintos — una en
      el medicamento y otra en la dosis. El rótulo es el mismo porque la
@@ -100,6 +103,12 @@ export const cadastro = {
   aindaNaoSeiDoseSub: 'Casi todo el mundo empieza por la más baja',
 
   menosComumAqui: 'MENOS COMÚN AQUÍ',
+  /* La línea de abajo de cada marca: molécula, vía y cadencia — solo
+     "Semaglutida" no distingue Ozempic de Rybelsus. */
+  subDoMedicamento: (molecula: string, injetavel: boolean, diario: boolean): string =>
+    `${molecula} · ${injetavel
+      ? (diario ? 'inyección diaria' : 'inyección semanal')
+      : (diario ? 'comprimido diario' : 'comprimido semanal')}`,
   manipuladoSub: 'Preparada en farmacia de compuestos',
   formaSeringaSub: 'Cargas la dosis con una jeringa',
   formaCanetaSub: 'Ya viene precargada, lista para aplicar',
@@ -110,7 +119,11 @@ export const cadastro = {
   padrao: 'Estándar',
   outroIntervaloTitulo: 'Otro intervalo',
   outroIntervalo: 'Tú dices cada cuántos días',
+  /* Primera persona: sigue la forma. */
+  aCadaRotulo: (injetavel: boolean): string => (injetavel ? 'ME LO APLICO CADA' : 'LO TOMO CADA'),
+  aCadaUnidade: (d: number): string => (d === 1 ? 'día' : 'días'),
 
+  alturaRotulo: 'ALTURA',
   pesoDeHoje: 'PESO DE HOY',
   querPerder: 'Quieres perder',
   querGanhar: 'Quieres ganar',
@@ -201,7 +214,7 @@ export const cadastro = {
 
     aindaADefinir: 'Todavía por definir',
     aindaADefinirTexto: 'Cuando sepas el medicamento, armo la escalera de dosis y el ciclo.',
-    cicloComeca: 'El ciclo empieza en la primera inyección que registres.',
+    cicloComeca: 'El ciclo empieza en la primera dosis que registres.',
     cadenciaDiaria: 'todos los días',
     cadenciaSemanal: 'una vez por semana',
     cadenciaDias: (dias: number) => `cada ${dias} días`,
@@ -215,8 +228,11 @@ export const cadastro = {
     imcDeHoje: 'IMC de hoy',
     naSuaMeta: 'En tu meta',
 
-    ajudaDose: 'Cada dosis en el lugar correcto',
-    ajudaDoseSub: 'la rotación de los lugares y el ciclo de la dosis, sin que cuentes',
+    /* ⚠️ La rotación de lugares solo existe para la inyección. */
+    ajudaDose: (injetavel: boolean): string => (injetavel ? 'Cada dosis en el lugar correcto' : 'Cada dosis al día'),
+    ajudaDoseSub: (injetavel: boolean): string => (injetavel
+      ? 'la rotación de los lugares y el ciclo de la dosis, sin que cuentes'
+      : 'el recordatorio y el historial de cada dosis, sin que cuentes'),
     ajudaEnjoo: 'Las náuseas en números',
     ajudaEnjooSub: 'lo que sientes se vuelve patrón, y el patrón va a la consulta',
     ajudaPeso: 'Tu curva de peso',

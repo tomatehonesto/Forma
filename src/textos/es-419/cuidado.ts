@@ -59,7 +59,7 @@ export const cuidado = {
     /* El salto de línea es a propósito: valor arriba, unidad abajo, para
        leerse de un vistazo. */
     metricaSemanas: 'semanas\nde seguimiento',
-    metricaAplicacoes: 'inyecciones\nregistradas',
+    metricaAplicacoes: 'dosis\nregistradas',
 
     /* ⚠️ "DOSIS" Y NO "APLICACIONES": esta pastilla comparte la línea con
        el pulso, y la palabra larga lo empuja a dos líneas. */
@@ -108,14 +108,13 @@ export const cuidado = {
     emDiaPulso: 'Seguimiento al día',
     comecoTitulo: 'Contamos a partir de la primera dosis.',
     comecoTexto: 'Cuando la primera dosis esté registrada, las semanas, las dosis y el ciclo se cuentan desde ahí.',
-    comecoCta: 'Registrar la primera inyección',
   },
 
   dose: {
-    aplicacaoHoje: 'Inyección hoy',
+    aplicacaoHoje: 'Dosis hoy',
     nenhumaRegistrada: 'Ninguna dosis registrada',
     primeiraARegistrar: 'Primera dosis por registrar',
-    proximaAplicacao: (quando: string) => `Próxima inyección ${quando}`,
+    proximaAplicacao: (quando: string) => `Próxima dosis ${quando}`,
     nestaDoseHa: (semanas: number) =>
       `En esta dosis desde hace ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
     /* El `quando` ya llega como "en 9 días" / "mañana", con la preposición
@@ -171,7 +170,7 @@ export const cuidado = {
     linhaDoPlano: (previstas: number, temHorizonte: boolean): [string, string, string] => [
       'Semana ',
       temHorizonte ? ` de ${previstas} rumbo a tu meta · ` : ' de tu tratamiento · ',
-      ' con la inyección al día',
+      ' con la dosis al día',
     ],
 
     ultimaOrientacao: 'ÚLTIMA ORIENTACIÓN',
@@ -195,7 +194,7 @@ export const cuidado = {
     prepararAConsulta: 'Preparar la consulta',
 
     seuTratamento: 'Tu tratamiento',
-    aplicacoesLink: 'Inyecciones',
+    aplicacoesLink: 'Dosis',
     dosesEm: (onde: string) => `Dosis ${onde}`,
     restamDe: (restam: number, total: number, semanas: number) =>
       `${restam} de ${total} · cerca de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
@@ -242,7 +241,7 @@ export const cuidado = {
 
     naoTenhoMais: 'Ya no tengo acompañamiento',
     tirarPergunta: '¿Quitar a quien te acompaña?',
-    tirarTexto: 'Todos tus registros siguen aquí — peso, inyecciones, síntomas, exámenes y anotaciones. Lo único que sale es el nombre.',
+    tirarTexto: 'Todos tus registros siguen aquí — peso, dosis, síntomas, exámenes y anotaciones. Lo único que sale es el nombre.',
     simTirar: 'Sí, quitar',
     cancelar: 'Cancelar',
   },

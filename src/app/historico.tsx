@@ -9,6 +9,7 @@ import {
   TelaInterna, Titulao, Chips, Sanfona, SanfonaLinha, Cartao, Linha, Aviso,
 } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
+import { formaAtual, iconeDaDose } from '../logic/formas';
 import { T } from '../textos';
 
 /* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
@@ -79,7 +80,7 @@ export default function Historico() {
       onAcao={() => router.push('/resumo-medico' as any)}
     >
       {/* SAIU O "TOQUE EM QUALQUER LINHA PARA ABRIR". A frase só era
-          verdade na aba de semanas: nas outras — check-ins, aplicações,
+          verdade na aba de semanas: nas outras — check-ins, doses,
           exames — as linhas são registros e não abrem nada, e o próprio
           código já as desenha sem seta. Instrução que vale em um quarto da
           tela é instrução que a pessoa testa e descobre falsa. O chevron
@@ -92,9 +93,10 @@ export default function Historico() {
       <Chips itens={chips} valor={aba} onChange={setAba} />
 
       {aba === 'semana' && !semanas.length ? (
-        /* Sem aplicação não há semana — o mesmo vazio da Jornada. */
-        <Vazio ic="syringe" titulo={J().semanasVaziasTitulo} texto={J().semanasVaziasTexto}
-          acao={J().registrarAplicacao} onAcao={() => router.push('/aplicacao' as any)} />
+        /* Sem dose não há semana — o mesmo vazio da Jornada, com o mesmo
+           desenho e o mesmo botão pela forma (01/10/2026; ver lá). */
+        <Vazio ic={iconeDaDose(S)} titulo={J().semanasVaziasTitulo} texto={J().semanasVaziasTexto}
+          acao={T.tratamento.telaRegistrarAplicacao.registrar(formaAtual(S).acao)} onAcao={() => router.push('/aplicacao' as any)} />
       ) : aba === 'semana' ? (
         <Sanfona>
           {semanas.map((w) => (

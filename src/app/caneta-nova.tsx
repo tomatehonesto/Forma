@@ -64,6 +64,11 @@ export default function CanetaNova() {
      só para quem injeta: cartela de comprimido não vence depois de aberta
      do jeito que um frasco vence. Ver o bloco de `shelf` em logic/meds. */
   const perguntaValidade = vocab.injetavel && catalogo.shelf === 0;
+  /* ⚠️ OS ATALHOS SÃO CANETAS, e quem abre uma cartela não troca de via
+     aqui (01/10/2026): numa folha chamada "Nova cartela", tocar em
+     Mounjaro faria do comprimido uma caneta. Para quem não injeta, o
+     atalho é o remédio dela, e qualquer outro passa pelo perfil ("Outro"). */
+  const atalhos = vocab.injetavel ? ATALHOS : [S.profile.med];
   /* Sem escada de bula, a dose é livre e a faixa vem da molécula na mesma
      via — ver logic/formas. */
   const faixa = catalogo.doses.length ? null : faixaDaMolecula(catalogo.mol, formaDe(S));
@@ -109,12 +114,12 @@ export default function CanetaNova() {
       <View style={{ marginTop: 18, gap: 10 }}>
         <Campo rotulo={T.tratamento.telaAplicacoes.medicamento}>
           <Opcoes>
-            {ATALHOS.map((k) => (
+            {atalhos.map((k) => (
               <Opc key={k} label={MEDS[k].label} on={med === k} onPress={() => trocarMed(k)} />
             ))}
             <Opc
               label={K().outro}
-              on={!ATALHOS.includes(med)}
+              on={!atalhos.includes(med)}
               onPress={() => { router.back(); router.push('/perfil' as any); }}
             />
           </Opcoes>
@@ -136,7 +141,11 @@ export default function CanetaNova() {
               define é a receita. */}
           {catalogo.doses.length ? (
             <Opcoes>
-              {catalogo.doses.slice(0, 4).map((d) => (
+              {/* ⚠️ A ESCADA INTEIRA (01/10/2026). Era `slice(0, 4)`, e quem
+                  abria uma caneta de Mounjaro 12,5 ou 15 mg, Wegovy 2,4 ou
+                  Saxenda 3 mg não achava a própria dose. É o que a folha de
+                  registrar já mostra; os chips quebram linha. */}
+              {catalogo.doses.map((d) => (
                 <Opc
                   key={d}
                   label={`${doseTxt(d)} ${catalogo.unit}`}

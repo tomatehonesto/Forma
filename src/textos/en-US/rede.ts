@@ -108,7 +108,9 @@ export const rede = {
     titulo: 'What the clinic will see',
     itens: {
       peso: 'Weigh-ins',
-      aplicacao: 'Doses',
+      /* ⚠️ A wording change with the same meaning, so the consent version
+         does not go up (01/10/2026). Reason in ../pt-BR/rede.ts. */
+      aplicacao: 'Medication doses',
       checkin: 'Check-ins: symptoms, sleep, hunger, water, protein and movement',
       refeicao: 'Meals',
       refeicao_favorita: 'Favorite meals',

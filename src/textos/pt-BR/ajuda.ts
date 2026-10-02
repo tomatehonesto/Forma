@@ -37,8 +37,11 @@ export const ajuda = {
      pergunta fechada da sanfona; o `a` só aparece quando ela abre. */
   qa: [
     {
+      /* "doses", e não "aplicações" (01/10/2026): é a lista do que todo
+         mundo registra, e comprimido não se aplica. Ver o alto de
+         pt-BR/resumo.ts. */
       q: 'De onde saem os números que aparecem aqui?',
-      a: 'Todos eles são contas feitas em cima do que você registrou — peso, aplicações, check-ins, refeições, exames. O aplicativo não completa o que faltou nem estima o que você não disse: dia sem resposta aparece como dia sem resposta, e não como zero.',
+      a: 'Todos eles são contas feitas em cima do que você registrou — peso, doses, check-ins, refeições, exames. O aplicativo não completa o que faltou nem estima o que você não disse: dia sem resposta aparece como dia sem resposta, e não como zero.',
     },
     {
       q: 'Posso corrigir ou apagar um registro?',

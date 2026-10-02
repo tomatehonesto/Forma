@@ -5,11 +5,11 @@
    il nome nella schermata di configurazione, lo stesso nome su una riga
    stretta accanto a un orario, e che cosa fa, in una frase.
 
-   ⚠️ "LA PUNTURA", E NON "LA PENNA". La tabella non sa che forma abbia il
-   medicinale di chi sta leggendo, e la frase che serve penna, flacone e
-   siringa allo stesso modo è quella dell'atto. Il comprimido legge
-   ancora "puntura" qui, ed è un debito noto: la parola dovrebbe venire
-   dal vocabolario di formas.
+   ⚠️ "DOSE", E ERA "LA PUNTURA" — e prima ancora "LA PENNA" (01/10/2026).
+   La tabella non sa che forma abbia il medicinale di chi sta leggendo, e
+   chi prende la compressa leggeva "puntura". "Dose" è il sostantivo di
+   tutte le forme: serve penna, flacone, siringa e compressa allo stesso
+   modo. Vedi ../pt-BR/alertas.ts.
 
    ⚠️ E IL CHECK-IN È L'UNICO CHE FA UNA DOMANDA. Gli altri quattro
    avvisano di cose che la persona FA — pungere, pesarsi, bere, mangiare.
@@ -18,8 +18,8 @@
    ============================================================ */
 
 export const alertas = {
-  dose: 'La puntura della dose',
-  doseCurto: 'Puntura',
+  dose: 'Dose del farmaco',
+  doseCurto: 'Dose',
   doseDesc: 'Un avviso prima della prossima dose, per tenere la terapia in ordine.',
 
   checkin: 'Check-in del giorno',
@@ -74,7 +74,7 @@ export const alertas = {
     oQueAvisar: 'Che cosa avvisare',
 
     antecedencia: 'Con quanto anticipo',
-    antecedenciaAjuda: 'Contato dalla data della tua prossima puntura.',
+    antecedenciaAjuda: 'Contato dalla data della tua prossima dose.',
 
     diasDaSemana: 'Giorni della settimana',
     diasDaSemanaAjuda: 'Senza nessuno selezionato, l’avviso suona tutti i giorni.',
@@ -124,7 +124,7 @@ export const alertas = {
   },
   /* NOTIFICHE — vedi ../pt-BR/alertas.ts. L'avviso della dose riprende
      `avisos`; quello della scorta, il verdetto della schermata delle
-     punture. */
+     dosi. */
   telaNotificacoes: {
     titulo: 'Notifiche',
     lead: 'Quello che ti abbiamo segnalato negli ultimi giorni.',

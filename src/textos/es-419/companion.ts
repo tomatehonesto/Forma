@@ -36,7 +36,7 @@ export const companion = {
       vazioSemRegistroTexto: 'Las lecturas aparecen cuando algo en tus registros pide una. Con tus primeros check-ins, empiezan a aparecer aquí.',
     },
     fomeMotivo: (dia: number) => `Estás en el día ${dia} del ciclo, cuando el hambre vuelve`,
-    fomeTitulo: 'Por qué el hambre vuelve antes de la aplicación',
+    fomeTitulo: 'Por qué el hambre vuelve antes de la dosis',
     /* ⚠️ "QUITA LA SENSACIÓN DE RECAÍDA" es el servicio de esta lectura y
        la razón de que exista: el hambre que vuelve al quinto día es donde
        la gente concluye que falló. La molécula va en minúscula porque es
@@ -44,7 +44,8 @@ export const companion = {
     fomeDesc: (molecula: string) =>
       `El nivel de ${molecula} baja a lo largo de la semana, y la saciedad baja con él. Entender la curva quita la sensación de recaída.`,
 
-    primeirosMotivo: (dias: number) => `Te aplicaste hace ${dias} ${dias === 1 ? 'día' : 'días'}`,
+    primeirosMotivo: (dias: number, injetavel: boolean): string =>
+      `${injetavel ? 'Te aplicaste la dosis' : 'Tomaste la dosis'} hace ${dias} ${dias === 1 ? 'día' : 'días'}`,
     primeirosTitulo: 'Los primeros días después de la dosis',
     primeirosDesc: 'Qué es esperable sentir en la ventana de 48 h y qué ya merece un mensaje a tu equipo.',
 
@@ -121,7 +122,7 @@ export const companion = {
     fechar: 'Cerrar',
     irEvolucao: 'Ver tus pesajes',
     irSintomas: 'Ver tus síntomas',
-    irAplicacoes: 'Ver tus aplicaciones',
+    irAplicacoes: 'Ver tus dosis',
     irAlimentacao: 'Ver tu alimentación',
     irAgua: 'Ver el agua de hoy',
     irExames: 'Ver tus exámenes',

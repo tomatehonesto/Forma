@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../logic/store';
 import { MEDS, CADENCE_DAYS } from '../logic/meds';
+import { FORMAS, formaDe, type Forma } from '../logic/formas';
 import type { Sistema } from '../logic/medidas';
 import {
   FAIXAS_IMC, curWeight, faixaDoIMC, indiceDoIMC, litros, planoDoPerfil,
@@ -57,6 +58,9 @@ export type DadosDoPlano = {
   ritmo: number | null;
   /** id do catálogo, ou 'indefinido' */
   med: string;
+  /** a forma respondida no cadastro; nula quando o catálogo decide —
+      ver `formaDoPlano` */
+  forma?: Forma | null;
   dose: number | null;
   /** intervalo fora do padrão da caneta, em dias */
   intervalo: number | null;
@@ -66,6 +70,19 @@ export type DadosDoPlano = {
   sistema: Sistema;
   plano: PlanoInicial;
 };
+
+/* ⚠️ A FORMA DO PLANO, e por que ela viaja nos dados (01/10/2026).
+
+   O plano tinha três seringas fixas e prometia "o rodízio dos locais" a
+   todo mundo — inclusive a quem toma comprimido, que não tem local
+   nenhum. A forma decide o ícone e essa promessa.
+
+   No cadastro ela é a resposta da tela, que ainda não é perfil; na rota,
+   a do perfil. Sem resposta, cai no que o catálogo diz do medicamento,
+   pela mesma regra de `formaDe` — e é por ela que passa, para não haver
+   duas regras para a mesma pergunta. */
+const formaDoPlano = (d: DadosDoPlano): Forma =>
+  formaDe({ profile: { med: d.med, forma: d.forma ?? undefined } });
 
 /* A LARGURA É ESTIMADA, e a estimativa foi calibrada contra o desenho
    real: no corpo micro do app, uma letra de caixa mista ocupa perto de
@@ -148,6 +165,7 @@ export function Plano({ dados: d, aoSair, rotuloSair, aoVoltar, semChegada }: {
      acaba: a tela menos o respiro lateral da seção e o do cartão. */
   const { width: largura } = useWindowDimensions();
   const med = MEDS[d.med] ?? null;
+  const vocab = FORMAS()[formaDoPlano(d)];
   const padrao = CADENCE_DAYS(d.med);
   const perder = d.peso - d.meta;
   const plano = d.plano;
@@ -297,8 +315,11 @@ export function Plano({ dados: d, aoSair, rotuloSair, aoVoltar, semChegada }: {
      montagem. */
   const fontes = FONTES();
   const SELOS = fontes.filter((x, i) => fontes.findIndex((y) => y.sigla === x.sigla) === i);
+  /* ⚠️ A PRIMEIRA PROMESSA SEGUE A FORMA: o rodízio dos locais só existe
+     para injeção, e para o comprimido a linha fala do lembrete e do
+     histórico, que é o que de fato fazemos por ele (01/10/2026). */
   const AJUDA: [string, string, string][] = [
-    ['syringe', K().ajudaDose, K().ajudaDoseSub],
+    [vocab.icone, K().ajudaDose(vocab.injetavel), K().ajudaDoseSub(vocab.injetavel)],
     ['mood', K().ajudaEnjoo, K().ajudaEnjooSub],
     ['scale', K().ajudaPeso, K().ajudaPesoSub],
     ['doc', K().ajudaResumo, K().ajudaResumoSub],
@@ -473,7 +494,10 @@ export function Plano({ dados: d, aoSair, rotuloSair, aoVoltar, semChegada }: {
                       width: 44, height: 44, borderRadius: 14, backgroundColor: c.bg2,
                       alignItems: 'center', justifyContent: 'center',
                     }}>
-                      <Icon name="syringe" size={21} color={c.tx3} sw={1.9} />
+                      {/* ⚠️ O FRASCO DE REMÉDIO, e não a seringa: sem
+                          medicamento não há forma, e a seringa dizia
+                          "injeção" a quem ainda não sabe (01/10/2026). */}
+                      <Icon name="dose" size={21} color={c.tx3} sw={1.9} />
                     </View>
                     <Txt v="body" style={{ flex: 1 }}>{K().aindaADefinir}</Txt>
                   </Row>
@@ -486,7 +510,7 @@ export function Plano({ dados: d, aoSair, rotuloSair, aoVoltar, semChegada }: {
                       width: 44, height: 44, borderRadius: 14, backgroundColor: c.accentWeak,
                       alignItems: 'center', justifyContent: 'center',
                     }}>
-                      <Icon name="syringe" size={21} color={c.accent} sw={1.9} />
+                      <Icon name={vocab.icone} size={21} color={c.accent} sw={1.9} />
                     </View>
                     <View style={{ flex: 1 }}>
                       {/* o ® só para marca registrada — ver plano acima */}
@@ -774,6 +798,7 @@ export function PlanoDaLoja({ semChegada }: { semChegada?: boolean }) {
         meta: p.goalWeight,
         ritmo: typeof p.ritmo === 'number' ? p.ritmo : null,
         med: p.med,
+        forma: formaDe(S),
         sistema: sistemaDe(S),
         dose: typeof p.dose === 'number' ? p.dose : null,
         intervalo: typeof p.intervalo === 'number' ? p.intervalo : null,

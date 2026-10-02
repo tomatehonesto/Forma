@@ -81,11 +81,19 @@ export const formas = {
      sondern Notwendigkeit: „Pens“, „Spritzen“, „Blister“ — drei
      verschiedene Endungen für drei Wörter, und „Blister“ ändert sich gar
      nicht. Es gibt keine Regel, die man anwenden könnte. */
+  /* ⚠️ `acao` IST „DOSIS“ FÜR ALLE VIER FORMEN (Entscheidung des
+     Eigentümers, 01.10.2026). Es landet in Titeln und Bestätigungen, und
+     wer eine Tablette nimmt, las „Spritze eintragen“. Nur der Satz in der
+     ersten Person folgt der Form („Ich habe die Dosis gespritzt /
+     eingenommen“), und der ist eine Funktion von `injetavel` im Katalog
+     jedes Bildschirms. „Dosis“ ist weiblich wie „Spritze“ und „Einnahme“
+     und beugt im Singular nicht: „deiner Dosis“ bleibt richtig. Siehe
+     ../pt-BR/formas.ts. */
   palavras: {
-    caneta: { recipiente: 'Pen', plural: 'Pens', verbo: 'spritzen', acao: 'Spritze' },
-    frasco: { recipiente: 'Durchstechflasche', plural: 'Durchstechflaschen', verbo: 'spritzen', acao: 'Spritze' },
-    seringa: { recipiente: 'Fertigspritze', plural: 'Fertigspritzen', verbo: 'spritzen', acao: 'Spritze' },
-    comprimido: { recipiente: 'Blister', plural: 'Blister', verbo: 'einnehmen', acao: 'Einnahme' },
+    caneta: { recipiente: 'Pen', plural: 'Pens', verbo: 'spritzen', acao: 'Dosis' },
+    frasco: { recipiente: 'Durchstechflasche', plural: 'Durchstechflaschen', verbo: 'spritzen', acao: 'Dosis' },
+    seringa: { recipiente: 'Fertigspritze', plural: 'Fertigspritzen', verbo: 'spritzen', acao: 'Dosis' },
+    comprimido: { recipiente: 'Blister', plural: 'Blister', verbo: 'einnehmen', acao: 'Dosis' },
   } as Record<Recipiente, { recipiente: string; plural: string; verbo: string; acao: string }>,
 
   /* ⚠️ ZWEI WÖRTER FÜR DREI GENERA. Das Sächliche bekommt die männliche

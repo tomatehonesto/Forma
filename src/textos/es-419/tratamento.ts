@@ -201,13 +201,13 @@ export const tratamento = {
   },
 
   telaAplicacoes: {
-    aplicada: 'aplicada',
-    semCulpa: 'Sin culpa por un día perdido — lo que cuenta es retomar. Puedes registrar una inyección anterior en cualquier momento, en el botón de abajo.',
-    titulo: 'Inyecciones',
-    registrar: 'Registrar inyección',
+    aplicada: 'registrada',
+    semCulpa: 'Sin culpa por un día perdido — lo que cuenta es retomar. Puedes registrar una dosis anterior en cualquier momento, en el botón de abajo.',
+    titulo: 'Dosis',
+    registrar: 'Registrar dosis',
     lead: (med: string, molecula: string, cadencia: string) => `${med} · ${molecula} · ${cadencia}`,
 
-    proximaAplicacao: 'PRÓXIMA INYECCIÓN',
+    proximaAplicacao: 'PRÓXIMA DOSIS',
 
     cicloDaDose: 'Ciclo de la dosis',
     cicloSub: (dia: number, total: number, fase: string) => `Día ${dia} de ${total} · ${fase.toLowerCase()}`,
@@ -222,8 +222,8 @@ export const tratamento = {
     cobreSemanas: (veredito: string, semanas: number) =>
       `${veredito} — alcanza para cerca de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
 
-    alertasDeDose: (quantos: number) => `${quantos} ${quantos === 1 ? 'alerta' : 'alertas'} de inyección`,
-    nenhumAlerta: 'Ninguna alerta de inyección',
+    alertasDeDose: (quantos: number) => `${quantos} ${quantos === 1 ? 'alerta' : 'alertas'} de dosis`,
+    nenhumAlerta: 'Ninguna alerta de dosis',
     tocaEm: (quando: string) => `Suena ${quando}`,
     avisoAntes: 'Un aviso antes de la dosis, a la hora que elijas',
 
@@ -241,6 +241,7 @@ export const tratamento = {
 
     historico: 'Historial',
     proximaEmLocal: (local: string) => `Próxima · ${local}`,
+    proximaSemLocal: 'Próxima dosis',
   },
 
   telaCaneta: {
@@ -344,7 +345,7 @@ export const tratamento = {
     semFaixa: 'No tenemos rango de referencia para este medicamento. La dosis queda como la de tu último registro.',
 
     localDaAplicacao: 'Lugar de la inyección',
-    localAjuda: 'Alternar el lugar cada semana ayuda a evitar irritación y nódulos en la piel.',
+    localAjuda: 'Alternar el lugar en cada dosis ayuda a evitar irritación y nódulos en la piel.',
     regioes: {
       braco: 'Brazo',
       abd: 'Abdomen',

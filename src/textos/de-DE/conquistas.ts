@@ -8,8 +8,8 @@
    bekommen, je nachdem, in welcher Sprache sie liest.
 
    ⚠️ JEDER PFAD SPRICHT IN ZWEI ZEITEN, und es ist nicht derselbe Satz:
-   `desc` ist, was diese Stufe SCHON IST — „12 Spritzen eingetragen“ —,
-   und `falta` ist, was von der nächsten trennt — „Noch 14 Spritzen“.
+   `desc` ist, was diese Stufe SCHON IST — „12 Dosen eingetragen“ —,
+   und `falta` ist, was von der nächsten trennt — „Noch 14 Dosen“.
 
    Das Erste steht in der Vergangenheit und liest sich mit Stolz; das
    Zweite steht in der Zukunft und muss in eine Zeile passen, ohne nach
@@ -23,7 +23,7 @@
    Dort ist der Standardfall `s + 's'` und trifft meistens zu; die
    Ausnahmen — „local/locais“, „sessão/sessões“ — sind wenige genug, dass
    man sie einzeln nennt. Im Deutschen trifft `+ 's'` fast NIE zu:
-   Spritze/Spritzen, Tag/Tage, Stelle/Stellen, Befund/Befunde, und
+   Dosis/Dosen, Tag/Tage, Stelle/Stellen, Befund/Befunde, und
    „Teller“ ändert sich gar nicht.
 
    Es gibt keine Regel, die man als Standard setzen könnte. Also gibt es
@@ -50,9 +50,11 @@ export const conquistas = {
      „registrada“ oder „registradas“ je nach Anzahl; „eingetragen“ bleibt
      „eingetragen“. Die ganzen `${a === 1 ? '' : 's'}` des Originals fallen
      hier weg — nicht aus Nachlässigkeit, sondern weil es sie nicht gibt. */
-  doses: 'Spritzen',
-  dosesDesc: (a: number) => `${p(a, 'Spritze', 'Spritzen')} eingetragen`,
-  dosesFalta: (r: number) => `Noch ${p(r, 'Spritze', 'Spritzen')}`,
+  /* ⚠️ „DOSEN“, UND ES WAR „SPRITZEN“ (01/10/2026): derselbe Pfad dient
+     dem Pen und der Tablette. Siehe ../pt-BR/conquistas.ts. */
+  doses: 'Dosen',
+  dosesDesc: (a: number) => `${p(a, 'Dosis', 'Dosen')} eingetragen`,
+  dosesFalta: (r: number) => `Noch ${p(r, 'Dosis', 'Dosen')}`,
 
   tempo: 'Behandlungsdauer',
   /* Unter einem Jahr zählt es in Monaten, ab da in Jahren: „12 Monate“
@@ -66,7 +68,8 @@ export const conquistas = {
   /* ⚠️ DER WECHSEL DER EINSTICHSTELLE IST KEIN SCHMUCK: immer dieselbe
      Stelle zu treffen macht Knoten, und zu wechseln steht in der
      Packungsbeilage. Es ist der einzige Pfad, der eine
-     Sicherheitspraxis belohnt. */
+     Sicherheitspraxis belohnt — und es gibt ihn nur, wenn gespritzt
+     wird. */
   rodizio: 'Stellenwechsel',
   rodizioDesc: (a: number) => `${p(a, 'Einstichstelle', 'Einstichstellen')} genutzt`,
   rodizioFalta: (r: number) => `Noch ${p(r, 'Stelle', 'Stellen')}`,

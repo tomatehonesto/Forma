@@ -5,6 +5,7 @@ import { pesoTxt, aguaTxt, aguaNoPasso, sistemaDe } from './medidas';
 import { localAtual } from './local';
 import { DAY, startOfDay, now } from './time';
 import { semanaLida, noCalendario, type Candidata } from './descobertasDaSemana';
+import { viaDoTratamento } from './resumoDaJornada';
 import { T } from '../textos';
 
 /* ============================================================
@@ -66,12 +67,15 @@ export function resumoDaSemana(S: State, agora: Date = now()): string {
 
   const med = M(S);
   const aplicacoes = (((S as any).injections ?? []) as any[]).filter((i) => i.t >= de && i.t < ate);
+  /* ⚠️ "DOSES", E ERA "APLICAÇÕES", e a via vai dita (01/10/2026) — os
+     motivos estão em resumoDaJornada, que escreve a mesma linha. */
   secoes.push(secao('Tratamento', [
     med && P.med !== 'indefinido' ? `Medicamento: ${med.label} (${med.mol})` : null,
+    med && P.med !== 'indefinido' ? viaDoTratamento(S) : null,
     temDose(S) ? `Dose atual no perfil: ${doseDoPerfil(S)}` : null,
     aplicacoes.length
-      ? `Aplicações na semana: ${aplicacoes.map((a) => `${data(a.t)}${a.dose != null ? ` ${num(a.dose, 2)} ${med?.unit ?? 'mg'}` : ''}`).join('; ')}`
-      : 'Nenhuma aplicação registrada na semana',
+      ? `Doses na semana: ${aplicacoes.map((a) => `${data(a.t)}${a.dose != null ? ` ${num(a.dose, 2)} ${med?.unit ?? 'mg'}` : ''}`).join('; ')}`
+      : 'Nenhuma dose registrada na semana',
     ((S as any).injections ?? []).length >= 2 ? `Adesão desde o início: ${adesao(S)}%` : null,
   ]));
 

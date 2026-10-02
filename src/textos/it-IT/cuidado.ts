@@ -65,7 +65,7 @@ export const cuidado = {
     /* I due conteggi in alto. L'a capo è di proposito: valore sopra,
        unità sotto, per la lettura di sfuggita. */
     metricaSemanas: 'settimane\ndi monitoraggio',
-    metricaAplicacoes: 'punture\nregistrate',
+    metricaAplicacoes: 'dosi\nregistrate',
 
     /* ⚠️ "DOSI" E NON "PUNTURE": questa pastiglia divide la riga con il
        polso, che può essere "3 voci in sospeso", e la parola lunga spinge
@@ -120,17 +120,16 @@ export const cuidado = {
     emDiaPulso: 'Monitoraggio in ordine',
     comecoTitulo: 'Contiamo dalla prima dose.',
     comecoTexto: 'Quando la prima dose sarà registrata, le settimane, le dosi e il ciclo si contano da lì.',
-    comecoCta: 'Registra la prima puntura',
   },
 
   /* ============================================================
      IL CONTESTO DELLA DOSE — le tre frasi corte
      ============================================================ */
   dose: {
-    aplicacaoHoje: 'Puntura oggi',
+    aplicacaoHoje: 'Dose oggi',
     nenhumaRegistrada: 'Nessuna dose registrata',
     primeiraARegistrar: 'Prima dose da registrare',
-    proximaAplicacao: (quando: string) => `Prossima puntura ${quando}`,
+    proximaAplicacao: (quando: string) => `Prossima dose ${quando}`,
     nestaDoseHa: (semanas: number) =>
       `A questa dose da ${semanas} ${semanas === 1 ? 'settimana' : 'settimane'}`,
     /* Il `quando` arriva già come "tra 9 giorni" / "domani", con la
@@ -202,7 +201,7 @@ export const cuidado = {
     linhaDoPlano: (previstas: number, temHorizonte: boolean): [string, string, string] => [
       'Settimana ',
       temHorizonte ? ` su ${previstas} verso il tuo obiettivo · ` : ' della tua terapia · ',
-      ' con la puntura fatta',
+      ' con la dose in regola',
     ],
 
     /* ---------- chi ti segue ---------- */
@@ -232,7 +231,7 @@ export const cuidado = {
        flacone, la siringa e il blister. L'`onde` arriva già pronto da
        `formas.noNa`, che concorda con il contenitore di chi legge. */
     seuTratamento: 'La tua terapia',
-    aplicacoesLink: 'Punture',
+    aplicacoesLink: 'Dosi',
     dosesEm: (onde: string) => `Dosi ${onde}`,
     restamDe: (restam: number, total: number, semanas: number) =>
       `${restam} su ${total} · circa ${semanas} ${semanas === 1 ? 'settimana' : 'settimane'}`,
@@ -308,7 +307,7 @@ export const cuidado = {
        registro. Quello che esce sono tre campi di identificazione. */
     naoTenhoMais: 'Non mi fa più seguire da nessuno',
     tirarPergunta: 'Togliere chi ti segue?',
-    tirarTexto: 'I tuoi registri restano tutti qui — peso, punture, sintomi, esami e appunti. L’unica cosa che se ne va è il nome.',
+    tirarTexto: 'I tuoi registri restano tutti qui — peso, dosi, sintomi, esami e appunti. L’unica cosa che se ne va è il nome.',
     simTirar: 'Sì, togli',
     cancelar: 'Annulla',
   },

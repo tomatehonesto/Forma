@@ -109,7 +109,10 @@ export const rede = {
     titulo: 'Lo que la clínica pasa a ver',
     itens: {
       peso: 'Pesajes',
-      aplicacao: 'Aplicaciones',
+      /* ⚠️ Decía "Aplicaciones". Cambia la palabra y no el sentido, así que
+         la versión del consentimiento no sube (01/10/2026). La razón está
+         en ../pt-BR/rede.ts. */
+      aplicacao: 'Dosis del medicamento',
       checkin: 'Check-ins: síntomas, sueño, hambre, agua, proteína y movimiento',
       refeicao: 'Comidas',
       refeicao_favorita: 'Comidas favoritas',

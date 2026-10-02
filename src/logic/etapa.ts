@@ -56,7 +56,7 @@ import {
 } from './derive';
 import type { State } from './seed';
 import { T } from '../textos';
-import { nomeDaMolecula } from './formas';
+import { nomeDaMolecula, remedioDaDose } from './formas';
 import { pesoTxt } from './medidas';
 
 export type Mensagem = {
@@ -82,6 +82,9 @@ function subiuDeDose(S: State) {
   if (injs.length < 2) return null;
   const ultima = injs[injs.length - 1], anterior = injs[injs.length - 2];
   if (ultima.dose === anterior.dose) return null;
+  /* ⚠️ TROCA DE REMÉDIO NÃO É DEGRAU (01/10/2026): de Ozempic 1 mg para
+     Rybelsus 7 mg o número sobe e a escala é outra. A Home volta ao ciclo. */
+  if (remedioDaDose(S, ultima) !== remedioDaDose(S, anterior)) return null;
   return { de: anterior.dose, para: ultima.dose, t: ultima.t };
 }
 

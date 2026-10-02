@@ -3,6 +3,8 @@ import type { State } from './seed';
 import {
   M, curWeight, medComDose, respostaNoDia, siteLabel, variacaoDe, aguaDoDia,
 } from './derive';
+import { MEDS } from './meds';
+import { localDaDose } from './formas';
 import { dataComAno, now, nf, doseTxt, startOfDay } from './time';
 import { pesoTxt, pesoV, pesoU, compTxt, aguaTxt } from './medidas';
 import { resumoDoTratamento } from './resumo';
@@ -25,8 +27,8 @@ import {
    interruptores de "o que entra". Nada entra que ela tenha tirado.
 
    A ORDEM É A DE QUEM LÊ: primeiro os números que resumem o período,
-   depois a curva do peso, depois o detalhe — medidas, aplicações,
-   sintomas, exames —, e no fim o que ela escreveu. Hábitos entram como
+   depois a curva do peso, depois o detalhe — medidas, doses, sintomas,
+   exames —, e no fim o que ela escreveu. Hábitos entram como
    médias, e não como a lista de cada copo d'água: num papel, a lista de
    cem refeições é ruído.
    ============================================================ */
@@ -120,15 +122,47 @@ export function htmlDoRelatorio(S: State, r: RecorteDoRelatorio): string {
     }
   }
 
-  /* ---- aplicações ---- */
+  /* ---- as doses ----
+
+     ⚠️⚠️ CADA DOSE COM O SEU REMÉDIO, E O LOCAL SÓ DE QUEM FOI INJETADA
+     (01/10/2026). A tabela lia a unidade de `M(S)` — o remédio de HOJE —
+     e o `site` cru de cada registro. Dois erros num papel que vai para o
+     médico:
+
+     · Quem trocou de Ozempic para Rybelsus no período via as doses antigas
+       com a unidade e o nome do remédio novo, sem nada que dissesse que
+       houve troca. Cada registro grava o `med` (app/aplicacao), e é dele
+       que sai a unidade; com mais de um remédio no período, a coluna
+       Medicamento aparece e diz qual era cada dose.
+     · Até 01/10/2026 o comprimido era gravado com um local de injeção
+       inventado, e ele chegava aqui. `localDaDose` devolve vazio para dose
+       não injetada — e a coluna Local inteira sai quando nenhuma linha do
+       período tem local, em vez de uma coluna de traços que perguntaria ao
+       médico onde se aplica um comprimido.
+
+     O registro antigo sem `med` cai no remédio de agora, como no resto do
+     app (logic/formas, formaDaDose). */
   if (r.inclui.aplicacoes) {
+    const medDe = (a: any) => MEDS[a.med] ?? med;
+    const variosRemedios = new Set(aplicacoes.map((a: any) => a.med || S.profile.med)).size > 1;
+    const comLocal = aplicacoes.some((a: any) => localDaDose(S, a));
+    const cab = [
+      { t: R.data },
+      ...(variosRemedios ? [{ t: R.medicamento }] : []),
+      { t: R.dose, num: true },
+      ...(comLocal ? [{ t: R.local }] : []),
+    ];
     corpo += secao(R.aplicacoes, aplicacoes.length ? tabela(
-      [{ t: R.data }, { t: R.dose, num: true }, { t: R.local }],
-      aplicacoes.slice().reverse().map((a: any) => [
-        esc(dataDeTabela(a.t)),
-        esc(a.dose ? `${doseTxt(a.dose)} ${med.unit}` : '—'),
-        esc(a.site ? siteLabel(a.site) : '—'),
-      ]),
+      cab,
+      aplicacoes.slice().reverse().map((a: any) => {
+        const local = localDaDose(S, a);
+        return [
+          esc(dataDeTabela(a.t)),
+          ...(variosRemedios ? [esc(medDe(a).label)] : []),
+          esc(a.dose ? `${doseTxt(a.dose)} ${medDe(a).unit}` : '—'),
+          ...(comLocal ? [esc(local ? siteLabel(local) : '—')] : []),
+        ];
+      }),
     ) : vazio, undefined, false);
   }
 

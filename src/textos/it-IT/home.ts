@@ -84,9 +84,10 @@ export const home = {
   /* ============================================================
      LA LINEA DEL TEMPO
      ============================================================ */
+  /* ⚠️ "DOSE" É O SUBSTANTIVO DE TODAS AS FORMAS (01/10/2026). Ver ../pt-BR. */
   tipos: {
     checkin: 'Check-in',
-    aplicacao: 'Punture',
+    aplicacao: 'Dosi',
     peso: 'Pesate',
     refeicao: 'Pasti',
     exercicio: 'Allenamenti',
@@ -95,7 +96,7 @@ export const home = {
   },
 
   evento: {
-    aplicacao: (dose: string, unidade: string) => `Puntura ${dose} ${unidade}`,
+    aplicacao: (dose: string, unidade: string) => `Dose ${dose} ${unidade}`,
     peso: 'Peso',
     /* La prima pesata non ha una precedente con cui confrontarsi, quindi
        al posto della variazione va quello che è. */
@@ -231,7 +232,7 @@ export const home = {
     ultimos7: 'I TUOI ULTIMI 7 GIORNI',
     doseEm: (quando: string) => `dose ${quando}`,
     diasComCheckin: (feitos: number, dias: number, aplicadas: number, vividas: number) =>
-      `${feitos} su ${dias} ${dias === 1 ? 'giorno' : 'giorni'} con check-in · ${aplicadas} su ${vividas} ${vividas === 1 ? 'settimana' : 'settimane'} con puntura`,
+      `${feitos} su ${dias} ${dias === 1 ? 'giorno' : 'giorni'} con check-in · ${aplicadas} su ${vividas} ${vividas === 1 ? 'settimana' : 'settimane'} con dose`,
     diasComCheckinSo: (feitos: number, dias: number) =>
       `${feitos} su ${dias} ${dias === 1 ? 'giorno' : 'giorni'} con check-in`,
     primeiraDose: 'Prima dose',
@@ -279,9 +280,8 @@ export const home = {
     oDiaADia: 'Giorno per giorno',
     seuTratamento: 'La tua terapia',
     /* o vazio de "Seu tratamento" e de "Suas metas" (Jornada, Histórico) */
-    semanasVaziasTitulo: 'Le settimane iniziano con la prima iniezione',
-    semanasVaziasTexto: 'Il trattamento si conta da un’iniezione all’altra. Registra la prima, e ogni settimana compare qui con quello che è successo.',
-    registrarAplicacao: 'Registra un’iniezione',
+    semanasVaziasTitulo: 'Le settimane iniziano con la prima dose',
+    semanasVaziasTexto: 'Il trattamento si conta da una dose all’altra. Registra la prima, e ogni settimana compare qui con quello che è successo.',
     metasVaziasTitulo: 'Crea un obiettivo',
     metasVaziasTexto: 'Acqua, sonno, allenamento o ciò che ha senso per te.',
     verTudo: 'Vedi tutto',
@@ -307,8 +307,8 @@ export const home = {
      ⚠️⚠️ IL CAROSELLO NON HA UN NUMERO FISSO DI SCHEDE. Ognuna ha la sua
      condizione, e chi non ha niente da dire non entra.
 
-     ⚠️ E NESSUNA SCHEDA ACCUSA LA PERSONA. "La puntura di ieri non è
-     registrata" è quello che sappiamo; "non ti sei fatta la puntura" è
+     ⚠️ E NESSUNA SCHEDA ACCUSA LA PERSONA. "La dose di ieri non è
+     registrata" è quello che sappiamo; "non hai preso la dose" è
      quello che non possiamo sapere, e sarebbe un'accusa sopra una
      supposizione. La seconda riga dà tutte e due le uscite senza
      sceglierne una — ed è la regola che si perde di più in traduzione,
@@ -321,12 +321,14 @@ export const home = {
     boaNoite: 'Buonasera',
     linhaDoDia: (dia: string, semana: number) => `${dia} • Settimana ${semana}`,
 
-    /* ---------- la puntura che non è stata registrata ---------- */
+    /* ---------- la dose che non è stata registrata ---------- */
     semRegistro: 'NESSUN REGISTRO',
-    semRegistroOntem: 'La puntura di ieri non è registrata.',
-    semRegistroDias: (dias: number) => `La puntura di ${dias} giorni fa non è registrata.`,
-    semRegistroCorpo: 'Se l’hai fatta, puoi registrarla adesso. Se non l’hai fatta, il ciclo riparte dalla prossima.',
-    semRegistroCta: 'Registra la puntura',
+    semRegistroOntem: 'La dose di ieri non è registrata.',
+    semRegistroDias: (dias: number) => `La dose di ${dias} giorni fa non è registrata.`,
+    /* a primeira pessoa segue a forma (ver ../pt-BR) */
+    semRegistroCorpo: (injetavel: boolean): string => (injetavel
+      ? 'Se l’hai fatta, puoi registrarla adesso. Se non l’hai fatta, il ciclo riparte dalla prossima.'
+      : 'Se l’hai presa, puoi registrarla adesso. Se non l’hai presa, il ciclo riparte dalla prossima.'),
 
     /* ---------- la visita di oggi o di domani ---------- */
     aConsulta: 'LA VISITA',
@@ -364,15 +366,15 @@ export const home = {
     marcoCta: 'Vedi i traguardi',
 
     /* ---------- la prossima dose ---------- */
-    proximaAplicacao: 'PROSSIMA PUNTURA',
+    proximaAplicacao: 'PROSSIMA DOSE',
     /* ⚠️ IL FARMACO NON È IL SOGGETTO. "Mounjaro è oggi" tratta la
-       scatoletta come se avesse un'agenda; a farsi la puntura è la
-       persona. */
+       scatoletta come se avesse un'agenda; la dose è della persona. */
     hojeEDiaDeAplicar: 'Oggi è il giorno della tua dose.',
     proximaDose: (quando: string) => `La tua prossima dose è ${quando}.`,
-    doseCorpo: (medicamento: string, dose: string, local: string) =>
-      `${medicamento} ${dose} · zona suggerita: ${local}.`,
-    verAplicacao: 'Vedi le tue punture',
+    /* sem local (comprimido), a frase para no medicamento — ver ../pt-BR */
+    doseCorpo: (medicamento: string, dose: string, local?: string): string =>
+      (local ? `${medicamento} ${dose} · zona suggerita: ${local}.` : `${medicamento} ${dose}.`),
+    verAplicacao: 'Vedi le tue dosi',
     criarLembrete: 'Crea un promemoria',
 
     /* ---------- il check-in e la serie ----------
@@ -452,7 +454,7 @@ export const home = {
     /* ⚠️ Senza virgola: l'italiano scrive "lunedì 3 ottobre". */
     diaComData: (diaDaSemana: string, data: string) => `${diaDaSemana} ${data}`,
     selo: {
-      aplicacao: 'puntura',
+      aplicacao: 'dose',
       checkin: 'check-in',
       peso: 'pesata',
       refeicao: 'pasto',
@@ -501,7 +503,8 @@ export const home = {
     refeicaoSub: (proteina: number, alvo: number) => `${proteina} su ${alvo} g`,
 
     levaUmMinuto: 'CI VUOLE UN MINUTO',
-    aplicacao: 'Ho fatto la dose',
+    /* a primeira pessoa segue a forma (ver ../pt-BR) */
+    aplicacao: (injetavel: boolean): string => (injetavel ? 'Ho fatto la dose' : 'Ho preso la dose'),
     peso: 'Mi sono appena pesata',
     medidas: 'Ho misurato il corpo',
     exame: 'Ho ricevuto un esame',
@@ -549,7 +552,7 @@ export const home = {
     semanaN: (n: number) => `Settimana ${n}`,
     tudoCumprido: 'tutto fatto',
     cumpridasDeTotal: (feitas: number, total: number) => `${feitas} su ${total} fatte`,
-    aplicacaoEm: (quando: string) => `puntura ${quando}`,
+    aplicacaoEm: (quando: string) => `dose ${quando}`,
 
     /* Compare solo con il legame: parlare con il team ha bisogno di un
        team dall'altra parte, e non del fatto di avere un medico. */
@@ -569,10 +572,10 @@ export const home = {
      ============================================================ */
   telaDia: {
     registrosDeste: 'Registri di questo giorno',
-    diaDeAplicacao: 'Giorno di puntura',
+    diaDeAplicacao: 'Giorno della dose',
     nadaRegistrado: 'ancora niente registrato',
 
-    aplicacao: 'Puntura',
+    aplicacao: 'Dose',
     doseLinha: (med: string, dose: string, unidade: string, estado?: string) =>
       `${med} ${dose} ${unidade}${estado ? ` · ${estado}` : ''}`,
     prevista: 'prevista per oggi',
@@ -586,7 +589,7 @@ export const home = {
     semRegistro: 'Nessuna registrazione',
 
     /* ⚠️ DUE BOLLINI PER LA STESSA PAROLA, e la differenza è il genere di
-       quello che è stato fatto: la puntura è fatta, il check-in e il peso
+       quello che è stato fatto: la dose è fatta, il check-in e il peso
        sono fatti. In tedesco tutti e due sono "erledigt", ed è per questo
        che la scelta è del catalogo e non della schermata. */
     seloFeita: 'fatta',
@@ -618,7 +621,7 @@ export const home = {
     plano: 'Il tuo piano è pronto',
     medicacao: 'Scegli il tuo farmaco',
     medicacaoSub: 'Da qui dipendono la dose, il ciclo e i promemoria',
-    aplicacao: (injetavel: boolean): string => (injetavel ? 'Registra la tua prima puntura' : 'Registra la tua prima dose'),
+    aplicacao: (_injetavel: boolean): string => 'Registra la tua prima dose',
     aplicacaoSub: 'Da lì contiamo il ciclo e la prossima dose',
     checkin: 'Fai il primo check-in',
     checkinSub: 'Come stai oggi, in meno di un minuto',

@@ -8,6 +8,7 @@ import { Txt } from '../ui/kit';
 import { TelaInterna, Titulao, Bloco, Cartao, Linha } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 import { pesoTxt, alturaTxt } from '../logic/medidas';
+import { iconeDaDose } from '../logic/formas';
 import { T } from '../textos';
 import { BlocoDaConta } from '../ui/conta';
 
@@ -104,7 +105,8 @@ export default function Dados() {
           rápido. Numa titulação, a dose sobe a cada poucas semanas. */}
       <Bloco titulo={K().tratamento}>
         <Cartao>
-          <Linha ic="syringe" titulo={K().medicamento} sub={med.label} onPress={corrige('medicamento')} />
+          {/* O ícone segue a forma: seringa ou comprimido (01/10/2026). */}
+          <Linha ic={iconeDaDose(S)} titulo={K().medicamento} sub={med.label} onPress={corrige('medicamento')} />
           {comDose ? (
             <Linha
               ic="dose" titulo={K().dose}

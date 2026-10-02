@@ -50,7 +50,7 @@ export const companion = {
 
     /* ---------- la fame che torna ---------- */
     fomeMotivo: (dia: number) => `Sei al giorno ${dia} del ciclo, quando la fame torna`,
-    fomeTitulo: 'Perché la fame torna prima della puntura',
+    fomeTitulo: 'Perché la fame torna prima della dose',
     /* ⚠️ "TOGLIE LA SENSAZIONE DI RICADUTA" è il servizio di questa
        lettura, e il motivo per cui esiste: la fame che torna al quinto
        giorno è il punto in cui le persone concludono di aver fallito. La
@@ -60,7 +60,8 @@ export const companion = {
       `Il livello di ${molecula} scende lungo la settimana, e la sazietà scende insieme. Capire la curva toglie la sensazione di ricaduta.`,
 
     /* ---------- i primi giorni ---------- */
-    primeirosMotivo: (dias: number) => `Hai fatto la puntura ${dias} ${dias === 1 ? 'giorno' : 'giorni'} fa`,
+    primeirosMotivo: (dias: number, injetavel: boolean): string =>
+      `${injetavel ? 'Hai fatto la puntura' : 'Hai preso la dose'} ${dias} ${dias === 1 ? 'giorno' : 'giorni'} fa`,
     primeirosTitulo: 'I primi giorni dopo la dose',
     primeirosDesc: 'Che cosa ci si aspetta di sentire nella finestra delle 48 ore e che cosa merita già un messaggio al team.',
 
@@ -160,7 +161,7 @@ export const companion = {
     fechar: 'Chiudi',
     irEvolucao: 'Vedi le tue pesate',
     irSintomas: 'Vedi i tuoi sintomi',
-    irAplicacoes: 'Vedi le tue somministrazioni',
+    irAplicacoes: 'Vedi le tue dosi',
     irAlimentacao: 'Vedi la tua alimentazione',
     irAgua: 'Vedi l’acqua di oggi',
     irExames: 'Vedi i tuoi esami',

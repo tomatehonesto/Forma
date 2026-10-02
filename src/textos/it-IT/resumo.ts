@@ -9,10 +9,13 @@
    sono etichette di tabella clinica, non la voce di conversazione della
    Home. Chi legge dall'altra parte ha due minuti e cerca numeri.
 
-   ⚠️ ED È PER QUESTO CHE QUI SI DICE "INIEZIONI" E NON "PUNTURE". È
-   l'unico file del catalogo italiano dove la parola clinica è quella
-   giusta: il resto dell'app parla, e chi parla dice "puntura". La
-   ragione intera sta in alto in formas.ts.
+   ⚠️ ED È PER QUESTO CHE QUI SI DICE "DOSI", E NON "PUNTURE" NÉ
+   "INIEZIONI" (01/10/2026). Qui la parola doveva essere quella clinica, e
+   prima era "Iniezioni" in un punto e "Punture" nel report — ma tutte e
+   due dicevano al medico che una compressa era stata iniettata. "Dose"
+   vale per ogni forma, ed è la parola di tutti i titoli e documenti; solo
+   la frase in prima persona segue la forma. La ragione intera sta in
+   ../pt-BR/resumo.ts.
 
    E L'ORIGINE VA INSIEME, nell'ultima riga. Chi riceve questo per
    messaggio deve sapere che è uscito da un'app di monitoraggio e non da
@@ -33,7 +36,8 @@ export const resumo = {
   cadencia: 'Cadenza',
   tempoDeTratamento: 'Durata della terapia',
   emDias: (dias: number) => `${dias} ${dias === 1 ? 'giorno' : 'giorni'}`,
-  aplicacoes: 'Iniezioni',
+  /* "previste" e "Nessuna" concordano ancora: la dose è femminile. */
+  aplicacoes: 'Dosi',
   aplicacoesValor: (feitas: number, previstas: number) => `${feitas} su ${previstas} previste`,
   aplicacoesNenhuma: 'Nessuna registrata',
 
@@ -90,16 +94,19 @@ export const resumo = {
     visaoGeral: 'Panoramica',
     pesoAtual: 'Peso attuale',
     variacao: 'Variazione nel periodo',
-    aplicacoesNoPeriodo: 'Punture nel periodo',
+    aplicacoesNoPeriodo: 'Dosi nel periodo',
     checkinsRespondidos: 'Check-in compilati',
     peso: 'Peso',
     medidas: 'Misure',
-    aplicacoes: 'Punture',
+    aplicacoes: 'Dosi',
+    dosesSub: (quantas: number, comLocal: boolean): string =>
+      `${quantas} ${quantas === 1 ? 'registro' : 'registri'} · ${comLocal ? 'data, dose e sede' : 'data e dose'}`,
     sintomas: 'Sintomi',
     exames: 'Esami',
     notas: 'Note per la visita',
     habitos: 'Pasti, liquidi e attività',
     data: 'Data',
+    medicamento: 'Farmaco',
     dose: 'Dose',
     local: 'Sede',
     proteinaMedia: 'Proteine al giorno, in media',

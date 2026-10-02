@@ -31,7 +31,7 @@ export const cruzamentos = {
   catSono: 'Sonno',
   catSintomas: 'Sintomi',
   catPeso: 'Peso',
-  catAplicacoes: 'Punture',
+  catAplicacoes: 'Dosi',
 
   /* ---------- i giorni della settimana, come entrano nella frase ---------- */
   /* ⚠️ ARRIVANO CON L'ARTICOLO, e non nudi. In italiano l'abitudine
@@ -126,23 +126,23 @@ export const cruzamentos = {
     q: 'Perché ho la nausea?',
     evid: (comSono: string, semSono: string, noites: number) =>
       ({ valor: comSono, unidade: `su ${semSono}`, legenda: `la nausea dopo ${noites} notti lunghe` }),
-    significa: 'Questo è quello che mostrano i tuoi registri, e non un rapporto di causa: il ciclo della puntura muove la nausea più di qualsiasi altra cosa, e può stare dietro tutti e due i lati del conto. Prendilo come una traccia da portare al tuo team, non come una spiegazione chiusa.',
+    significa: 'Questo è quello che mostrano i tuoi registri, e non un rapporto di causa: il ciclo della dose muove la nausea più di qualsiasi altra cosa, e può stare dietro tutti e due i lati del conto. Prendilo come una traccia da portare al tuo team, non come una spiegazione chiusa.',
   },
 
   /* ---------- 6. la finestra della nausea ---------- */
   /* La scoperta non è che la nausea esista — è che ha un'ora in cui
      finisce. */
   janelaEnjoo: {
-    titulo: 'La tua nausea di solito sparisce circa 48 ore dopo la puntura',
+    titulo: 'La tua nausea di solito sparisce circa 48 ore dopo la dose',
     texto: (perto: string, longe: string) =>
       `Resta a ${perto} nei primi due giorni e scende a ${longe} dal terzo in poi. Non è tutta la terapia a dare la nausea — sono le prime 48 ore di ogni ciclo.`,
     q: 'Perché ho la nausea?',
     evid: { valor: '48', unidade: 'ore', legenda: 'e poi passa' },
     /* ⚠️ L'ULTIMA FRASE È L'UNICA DEL FILE CHE SUGGERISCE UN'AZIONE, e
-       può: scegliere il giorno della puntura è una decisione della persona
+       può: scegliere il giorno della dose è una decisione della persona
        con il suo team, non un cambio di dose né di farmaco. */
     significa: (dias: number) =>
-      `Questo si è ripetuto in ${dias} dei tuoi registri dopo la puntura. Sapere che esiste una finestra, e che finisce, cambia che cosa farne: il giorno della puntura si può scegliere in modo che quelle 48 ore cadano nella parte più leggera della tua settimana.`,
+      `Questo si è ripetuto in ${dias} dei tuoi registri dopo la dose. Sapere che esiste una finestra, e che finisce, cambia che cosa farne: il giorno della dose si può scegliere in modo che quelle 48 ore cadano nella parte più leggera della tua settimana.`,
   },
 
   /* ---------- 7. acqua contro nausea ---------- */
@@ -224,15 +224,15 @@ export const cruzamentos = {
 
   /* ---------- 11. l'aderenza ---------- */
   adesao: {
-    tituloPerfeita: 'Non hai ritardato nessuna puntura dall’inizio',
-    titulo: (pct: number) => `Hai tenuto in ordine il ${pct}% delle punture`,
+    tituloPerfeita: 'Non hai ritardato nessuna dose dall’inizio',
+    titulo: (pct: number) => `Hai tenuto in ordine il ${pct}% delle dosi`,
     texto: (aplicacoes: number, ressalva: string) =>
-      `Sono ${aplicacoes} punture dall’inizio della terapia, ${ressalva}.`,
+      `Sono ${aplicacoes} dosi dall’inizio della terapia, ${ressalva}.`,
     textoQuaseTodas: 'praticamente tutte nella data giusta',
     textoComAtrasos: 'con qualche ritardo lungo la strada',
     q: 'Come funziona il ciclo del farmaco?',
     evid: (pct: number, aplicacoes: number) =>
-      ({ valor: `${pct}%`, unidade: '', legenda: `${aplicacoes} punture dall’inizio` }),
+      ({ valor: `${pct}%`, unidade: '', legenda: `${aplicacoes} dosi dall’inizio` }),
     significaAlta: 'Questa costanza è uno dei fattori che pesano di più su una buona risposta al farmaco. Il livello della sostanza nel corpo dipende dalla regolarità, non dall’impegno — ed è il genere di cosa che si vede solo quando qualcuno guarda tutto lo storico.',
     /* ⚠️ LA VERSIONE CON I RITARDI SPIEGA IL COSTO E NON RIMPROVERA LA
        MANCANZA. "Ogni ritardo lascia una finestra in cui l'effetto scende

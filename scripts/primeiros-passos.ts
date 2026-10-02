@@ -140,8 +140,9 @@ const oral = clone(novo);
 (oral.profile as any).forma = 'comprimido';
 const doseOral = passos(oral, IPHONE).find((p) => p.id === 'aplicacao')!;
 const doseCaneta = nIphone.find((p) => p.id === 'aplicacao')!;
-ok(doseOral.titulo.includes('dose') && doseOral.ic === 'pill' && doseCaneta.titulo.includes('aplicação') && doseCaneta.ic === 'syringe',
-  'quem toma comprimido registra a primeira dose, e quem aplica, a primeira aplicação');
+/* "Dose" para todas as formas desde 01/10/2026; o que segue a forma é o ícone. */
+ok(doseOral.titulo.includes('dose') && doseOral.ic === 'pill' && doseCaneta.titulo.includes('dose') && doseCaneta.ic === 'syringe',
+  'quem toma comprimido registra a primeira dose com o comprimido, e quem aplica também registra a primeira dose, com a seringa');
 
 const bebeu = clone(novo);
 (bebeu.checkins as any[]).push({ t: +hoje, agua: 2 });
@@ -303,8 +304,8 @@ ok(resumoEmTexto(longe).includes(T.resumo.variacao), 'com evolução, a variaç�
 ok(T.resumo.emDias(1) === '1 dia', 'um dia é "1 dia"');
 
 /* Conquistas e biblioteca (Etapa 3, grupo C). */
-ok(T.conquistas.dosesFalta(1) === 'Falta 1 aplicação' && T.conquistas.dosesFalta(3).startsWith('Faltam'),
-  '"Falta 1 aplicação", e não "Faltam 1"');
+ok(T.conquistas.dosesFalta(1) === 'Falta 1 dose' && T.conquistas.dosesFalta(3).startsWith('Faltam'),
+  '"Falta 1 dose", e não "Faltam 1"');
 const tempo0 = conquistas(zero).find((q) => q.id === 'tempo');
 const tempo5 = conquistas(aplicou5).find((q) => q.id === 'tempo');
 ok(tempo0?.falta === T.conquistas.tempoSemDose && tempo5?.falta !== T.conquistas.tempoSemDose,

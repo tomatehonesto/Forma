@@ -83,7 +83,9 @@ export const cuidado = {
     /* As duas contagens do topo. A quebra de linha é de propósito: valor
        em cima, unidade embaixo, para a leitura de relance. */
     metricaSemanas: 'semanas\nde acompanhamento',
-    metricaAplicacoes: 'aplicações\nregistradas',
+    /* ⚠️ "DOSES", E NÃO "APLICAÇÕES" (01/10/2026): dose é o substantivo de
+       todas as formas, e quem toma comprimido não aplica nada. */
+    metricaAplicacoes: 'doses\nregistradas',
 
     /* ⚠️ "DOSES" E NÃO "APLICAÇÕES": esta pastilha divide a linha com o
        pulso, que pode ser "3 itens pendentes", e a palavra longa empurra
@@ -149,18 +151,23 @@ export const cuidado = {
        quem receita. Voz do produto, o "nós". */
     comecoTitulo: 'Contamos a partir da primeira dose.',
     comecoTexto: 'Quando a primeira dose estiver registrada, as semanas, as doses e o ciclo passam a ser contados daqui.',
-    comecoCta: 'Registrar a primeira aplicação',
+    /* ⚠️ O BOTÃO NÃO MORA AQUI (01/10/2026): era "Registrar a primeira
+       aplicação", e agora é `home.primeirosPassos.aplicacao(injetavel)` —
+       o mesmo pedido, com as mesmas palavras, nos dois lugares em que ele
+       aparece. */
   },
 
   /* ============================================================
      O CONTEXTO DA DOSE — as três frases curtas
      ============================================================ */
+  /* ⚠️ "DOSE" PARA TODAS AS FORMAS (01/10/2026): eram "Aplicação hoje" e
+     "Próxima aplicação" também para quem toma comprimido. */
   dose: {
-    aplicacaoHoje: 'Aplicação hoje',
-    /* Sem aplicação registrada, a próxima é a primeira, e ela não tem data. */
+    aplicacaoHoje: 'Dose hoje',
+    /* Sem dose registrada, a próxima é a primeira, e ela não tem data. */
     nenhumaRegistrada: 'Nenhuma dose registrada',
     primeiraARegistrar: 'Primeira dose a registrar',
-    proximaAplicacao: (quando: string) => `Próxima aplicação ${quando}`,
+    proximaAplicacao: (quando: string) => `Próxima dose ${quando}`,
     nestaDoseHa: (semanas: number) =>
       `Nesta dose há ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
     /* O `quando` já chega como "em 9 dias" / "amanhã", com a preposição
@@ -234,7 +241,7 @@ export const cuidado = {
      ⚠️ `linhaDoPlano` DEVOLVE TRÊS PEDAÇOS pelo mesmo motivo de
      `cadastro.telaPlano.objetivo`: a frase tem DOIS números em negrito no
      meio dela — "Semana <b>11</b> de 15 até a sua meta · <b>10</b> com
-     aplicação em dia" —, e o que fica entre eles muda de idioma para
+     dose em dia" —, e o que fica entre eles muda de idioma para
      idioma.
 
      ⚠️ E O DENOMINADOR SÓ APARECE QUANDO EXISTE. Sem meta a perseguir não
@@ -249,7 +256,7 @@ export const cuidado = {
     linhaDoPlano: (previstas: number, temHorizonte: boolean): [string, string, string] => [
       'Semana ',
       temHorizonte ? ` de ${previstas} até a sua meta · ` : ' do seu tratamento · ',
-      ' com aplicação em dia',
+      ' com dose em dia',
     ],
 
     /* ---------- quem cuida ----------
@@ -282,7 +289,8 @@ export const cuidado = {
        cartela. O `onde` chega pronto de `formas.noNa`, que concorda com o
        recipiente de quem lê. */
     seuTratamento: 'Seu tratamento',
-    aplicacoesLink: 'Aplicações',
+    /* o nome da tela /aplicacoes, que é "Doses" desde 01/10/2026 */
+    aplicacoesLink: 'Doses',
     dosesEm: (onde: string) => `Doses ${onde}`,
     restamDe: (restam: number, total: number, semanas: number) =>
       `${restam} de ${total} · cerca de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
@@ -362,7 +370,7 @@ export const cuidado = {
        campos de identificação. */
     naoTenhoMais: 'Não tenho mais acompanhamento',
     tirarPergunta: 'Tirar quem acompanha?',
-    tirarTexto: 'Os seus registros continuam todos aqui — peso, aplicações, sintomas, exames e anotações. O que sai é só o nome.',
+    tirarTexto: 'Os seus registros continuam todos aqui — peso, doses, sintomas, exames e anotações. O que sai é só o nome.',
     simTirar: 'Sim, tirar',
     cancelar: 'Cancelar',
   },

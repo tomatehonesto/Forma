@@ -23,7 +23,7 @@ export const ajuda = {
   qa: [
     {
       q: '¿De dónde salen los números que aparecen aquí?',
-      a: 'Todos son cuentas hechas sobre lo que registraste — peso, inyecciones, check-ins, comidas, exámenes. La aplicación no completa lo que faltó ni estima lo que no dijiste: un día sin respuesta aparece como día sin respuesta, y no como cero.',
+      a: 'Todos son cuentas hechas sobre lo que registraste — peso, dosis, check-ins, comidas, exámenes. La aplicación no completa lo que faltó ni estima lo que no dijiste: un día sin respuesta aparece como día sin respuesta, y no como cero.',
     },
     {
       q: '¿Puedo corregir o borrar un registro?',

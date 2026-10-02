@@ -26,7 +26,11 @@ export const resumo = {
   cadencia: 'Cadencia',
   tempoDeTratamento: 'Tiempo de tratamiento',
   emDias: (dias: number) => `${dias} ${dias === 1 ? 'día' : 'días'}`,
-  aplicacoes: 'Inyecciones',
+  /* ⚠️ "Dosis", y no "Inyecciones" (01/10/2026): este papel va al médico,
+     y le decía que un comprimido se había inyectado. La razón está en
+     ../pt-BR/resumo.ts. "previstas" y "Ninguna" siguen concordando: la
+     dosis es femenina, como la inyección. */
+  aplicacoes: 'Dosis',
   aplicacoesValor: (feitas: number, previstas: number) => `${feitas} de ${previstas} previstas`,
   aplicacoesNenhuma: 'Ninguna registrada',
 
@@ -70,16 +74,19 @@ export const resumo = {
     visaoGeral: 'Resumen',
     pesoAtual: 'Peso actual',
     variacao: 'Variación en el período',
-    aplicacoesNoPeriodo: 'Inyecciones en el período',
+    aplicacoesNoPeriodo: 'Dosis en el período',
     checkinsRespondidos: 'Check-ins respondidos',
     peso: 'Peso',
     medidas: 'Medidas',
-    aplicacoes: 'Inyecciones',
+    aplicacoes: 'Dosis',
+    dosesSub: (quantas: number, comLocal: boolean): string =>
+      `${quantas} ${quantas === 1 ? 'registro' : 'registros'} · ${comLocal ? 'fecha, dosis y sitio' : 'fecha y dosis'}`,
     sintomas: 'Síntomas',
     exames: 'Exámenes',
     notas: 'Notas para la consulta',
     habitos: 'Comidas, líquidos y ejercicio',
     data: 'Fecha',
+    medicamento: 'Medicamento',
     dose: 'Dosis',
     local: 'Sitio',
     proteinaMedia: 'Proteína por día, en promedio',

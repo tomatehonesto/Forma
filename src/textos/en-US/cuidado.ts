@@ -56,7 +56,7 @@ export const cuidado = {
     /* The line break is deliberate: value on top, unit below, for reading
        at a glance. */
     metricaSemanas: 'weeks\nof follow-up',
-    metricaAplicacoes: 'shots\nlogged',
+    metricaAplicacoes: 'doses\nlogged',
 
     /* ⚠️ "DOSES" AND NOT "INJECTIONS": this pill shares a row with the
        pulse, and the longer word pushes the pulse onto two lines. */
@@ -103,15 +103,14 @@ export const cuidado = {
     emDiaPulso: 'Follow-up on track',
     comecoTitulo: 'We count from your first dose.',
     comecoTexto: 'Once your first dose is logged, the weeks, the doses and the cycle are counted from there.',
-    comecoCta: 'Log your first shot',
   },
 
   /* ---------- the dose context ---------- */
   dose: {
-    aplicacaoHoje: 'Shot today',
+    aplicacaoHoje: 'Dose today',
     nenhumaRegistrada: 'No dose logged yet',
     primeiraARegistrar: 'First dose to log',
-    proximaAplicacao: (quando: string) => `Next shot ${quando}`,
+    proximaAplicacao: (quando: string) => `Next dose ${quando}`,
     nestaDoseHa: (semanas: number) =>
       `On this dose for ${semanas} ${semanas === 1 ? 'week' : 'weeks'}`,
     /* `quando` already arrives as "in 9 days" / "tomorrow", preposition
@@ -167,7 +166,7 @@ export const cuidado = {
     linhaDoPlano: (previstas: number, temHorizonte: boolean): [string, string, string] => [
       'Week ',
       temHorizonte ? ` of ${previstas} toward your goal · ` : ' of your treatment · ',
-      ' with the shot taken',
+      ' with the dose taken',
     ],
 
     ultimaOrientacao: 'LATEST GUIDANCE',
@@ -187,7 +186,7 @@ export const cuidado = {
     prepararAConsulta: 'Get ready for the appointment',
 
     seuTratamento: 'Your treatment',
-    aplicacoesLink: 'Shots',
+    aplicacoesLink: 'Doses',
     dosesEm: (onde: string) => `Doses ${onde}`,
     restamDe: (restam: number, total: number, semanas: number) =>
       `${restam} of ${total} · about ${semanas} ${semanas === 1 ? 'week' : 'weeks'}`,
@@ -234,7 +233,7 @@ export const cuidado = {
 
     naoTenhoMais: 'I no longer have anyone following me',
     tirarPergunta: 'Remove who follows you?',
-    tirarTexto: 'All of your entries stay right here — weight, shots, symptoms, lab results and notes. The only thing that goes is the name.',
+    tirarTexto: 'All of your entries stay right here — weight, doses, symptoms, lab results and notes. The only thing that goes is the name.',
     simTirar: 'Yes, remove',
     cancelar: 'Cancel',
   },

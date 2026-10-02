@@ -15,9 +15,10 @@ export const rotina = {
   perguntas: {
     maisFome: 'Why was I hungrier today?',
     semFome: 'Why am I not hungry?',
-    depoisDaAplicacao: 'What to expect after my shot?',
+    /* "Dose", and it was "shot" (01/10/2026). See ../pt-BR. */
+    depoisDaAplicacao: 'What to expect after my dose?',
     diminuirEnjoo: 'How do I ease the nausea?',
-    trocarODia: 'Can I change my shot day?',
+    trocarODia: 'Can I change my dose day?',
     meusExames: 'What do my labs show?',
     meuProgresso: 'Look at my progress',
     prepararConsulta: 'Prep my appointment',
@@ -58,8 +59,13 @@ export const rotina = {
 
     /* The container and its article come from logic/formas: "Get the pen
        out", "Get the vial out". */
-    aplicacao: (recipiente: string) => `Get ${recipiente} out and pick the site`,
-    aplicacaoPorque: 'This week’s shot is coming up, and rotating the site reduces skin irritation',
+    /* ⚠️ THE SITE ONLY EXISTS FOR PEOPLE WHO INJECT (01/10/2026): "pick the
+       site" was said to people on tablets. See ../pt-BR. */
+    aplicacao: (recipiente: string, injetavel: boolean): string =>
+      (injetavel ? `Get ${recipiente} out and pick the site` : `Get ${recipiente} out`),
+    aplicacaoPorque: (injetavel: boolean): string => (injetavel
+      ? 'Your next dose is coming up, and rotating the site reduces skin irritation'
+      : 'Your next dose is coming up, and keeping the blister pack handy helps you not forget'),
 
     receita: 'Ask for a prescription refill',
     /* ⚠️ The word "doses" used to live in the call site. See ../pt-BR. */
@@ -101,12 +107,12 @@ export const rotina = {
     exercicio: (dias: number) => `Exercise on ${dias} ${dias === 1 ? 'day' : 'days'} of the week`,
     origemExercicio: 'Exercise',
 
-    aplicacaoUma: 'This week’s shot',
-    aplicacaoVarias: (quantas: number) => `${quantas} shots this week`,
-    origemAplicacao: 'Shots',
+    aplicacaoUma: 'This week’s dose',
+    aplicacaoVarias: (quantas: number) => `${quantas} doses this week`,
+    origemAplicacao: 'Doses',
 
     unidadeDia: ['day', 'days'] as [string, string],
-    unidadeAplicacao: ['shot', 'shots'] as [string, string],
+    unidadeAplicacao: ['dose', 'doses'] as [string, string],
     nota: (feito: number, alvo: number, unidade: string) => `${feito} of ${alvo} ${unidade}`,
   },
 
@@ -163,8 +169,10 @@ export const rotina = {
     pesoDe: (de: string, para: string) => `From ${de} to ${para}`,
     doseNova: (dose: string) => `Dose to ${dose} mg`,
     doseAnterior: (dose: string) => `Was on ${dose} mg`,
-    umaAplicacao: '1 shot',
-    aplicacoes: (quantas: number) => `${quantas} shots`,
+    remedioNovo: (remedio: string) => `Switched to ${remedio}`,
+    remedioAnterior: (remedio: string) => `Was on ${remedio}`,
+    umaAplicacao: '1 dose',
+    aplicacoes: (quantas: number) => `${quantas} doses`,
     marcadores: (quantos: number) => `${quantos} markers`,
     umaOrientacao: '1 note from your care team',
     orientacoes: (quantas: number) => `${quantas} notes from your care team`,

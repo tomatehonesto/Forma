@@ -103,7 +103,7 @@ export const assinatura = {
 
      ⚠️⚠️ E LA RIGA DEI DATI VA SEMPRE INSIEME. Sospendere l'accesso a un
      diario di terapia è chiudere qualcuno fuori dal proprio peso, dalle
-     proprie punture e dai propri esami — e questo non lo facciamo.
+     proprie dosi e dai propri esami — e questo non lo facciamo.
      Separate, la prima frase diventa una minaccia. */
   bomSaberTitulo: 'È bene che tu lo sappia',
   bomSaberTexto: 'Se il centro partner ci comunica che il percorso di cura è finito, l’accesso resta sospeso finché non scegli un piano Personal — e non viene addebitato niente senza che tu lo scelga. Niente di quello che hai registrato si perde: i registri restano nel tuo account e puoi esportarli quando vuoi.',
@@ -296,7 +296,7 @@ export const assinatura = {
      ============================================================ */
   suspenso: {
     clinicaGenerica: 'il centro che ti seguiva',
-    nadaApagado: 'Non è stato cancellato niente. Peso, punture, sintomi ed esami sono dove erano.',
+    nadaApagado: 'Non è stato cancellato niente. Peso, dosi, sintomi ed esami sono dove erano.',
     nadaCobrado: 'Non è stato addebitato niente, e non lo sarà senza che tu lo scelga.',
     verOsPlanos: 'Vedi i piani',
     outroCodigo: 'Ho un altro codice',

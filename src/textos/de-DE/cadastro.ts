@@ -46,9 +46,11 @@ export const cadastro = {
     formaAgora: 'Wie gibst du es dir?',
     doseFuturo: 'Mit welcher Dosis willst du anfangen?',
     doseAgora: 'Wie hoch ist deine aktuelle Dosis?',
-    frequenciaFuturo: 'In welchem Abstand wirst du spritzen?',
-    frequenciaAgora: 'In welchem Abstand spritzt du?',
-    ultima: (injetavel: boolean): string => (injetavel ? 'Wann war deine letzte Spritze?' : 'Wann hast du deine letzte Dosis genommen?'),
+    /* ⚠️ DAS VERB FOLGT DER FORM: Wer Rybelsus nimmt, „spritzt“ nicht.
+       Das Substantiv ist für alle „Dosis“. Siehe ../pt-BR/cadastro.ts. */
+    frequenciaFuturo: (injetavel: boolean): string => (injetavel ? 'In welchem Abstand wirst du spritzen?' : 'In welchem Abstand wirst du es nehmen?'),
+    frequenciaAgora: (injetavel: boolean): string => (injetavel ? 'In welchem Abstand spritzt du?' : 'In welchem Abstand nimmst du es?'),
+    ultima: (injetavel: boolean): string => (injetavel ? 'Wann hast du dir die letzte Dosis gespritzt?' : 'Wann hast du deine letzte Dosis genommen?'),
     corpo: 'Wie sind deine aktuellen Maße?',
     meta: 'Was ist dein Zielgewicht?',
     ritmo: 'In welchem Tempo willst du dorthin?',
@@ -72,7 +74,7 @@ export const cadastro = {
     tratamento: 'Nur, um zu wissen, wo du gerade stehst.',
     inicio: 'Ungefähr reicht. Daraus ergibt sich deine Behandlungswoche.',
     pesoInicio: 'Ungefähr reicht. Dieses Gewicht wird zum Anfang deiner Kurve — und daran misst sich, wie weit du schon bist.',
-    medicamento: 'Daraus kommen die Dosistreppe und der Abstand zwischen den Spritzen.',
+    medicamento: 'Daraus kommen die Dosistreppe und der Abstand zwischen zwei Dosen.',
     forma: 'Die Rezeptur kommt in beiden Formen aus der Apotheke, und was sich ändert, ist das, was du beim Spritzen in der Hand hast.',
     doseComEscada: (med: string) => `In der Reihenfolge der Aufdosierung von ${med}.`,
     doseSemEscada: 'Die Rezeptur hat keine Standard-Dosistreppe — die Zahl ist die aus deinem Rezept.',
@@ -125,6 +127,12 @@ export const cadastro = {
      schlechterer Medikamente — es ist nur das, was dort seltener
      umläuft. */
   menosComumAqui: 'HIER SELTENER',
+  /* Die Zeile unter jeder Marke: Wirkstoff, Darreichung und Rhythmus —
+     „Semaglutid“ allein unterscheidet Ozempic nicht von Rybelsus. */
+  subDoMedicamento: (molecula: string, injetavel: boolean, diario: boolean): string =>
+    `${molecula} · ${injetavel
+      ? (diario ? 'tägliche Spritze' : 'wöchentliche Spritze')
+      : (diario ? 'tägliche Tablette' : 'wöchentliche Tablette')}`,
   manipuladoSub: 'In der Apotheke angefertigt',
   formaSeringaSub: 'Du ziehst die Dosis mit einer Spritze auf',
   formaCanetaSub: 'Kommt fertig gefüllt, bereit zum Spritzen',
@@ -135,7 +143,11 @@ export const cadastro = {
   padrao: 'Standard',
   outroIntervaloTitulo: 'Anderer Abstand',
   outroIntervalo: 'Du sagst, alle wie viele Tage',
+  /* Erste Person: folgt der Form. */
+  aCadaRotulo: (injetavel: boolean): string => (injetavel ? 'ICH SPRITZE ALLE' : 'ICH NEHME ES ALLE'),
+  aCadaUnidade: (d: number): string => (d === 1 ? 'Tag' : 'Tage'),
 
+  alturaRotulo: 'GRÖSSE',
   pesoDeHoje: 'GEWICHT HEUTE',
   querPerder: 'Du willst abnehmen',
   querGanhar: 'Du willst zunehmen',
@@ -236,7 +248,7 @@ export const cadastro = {
 
     aindaADefinir: 'Noch offen',
     aindaADefinirTexto: 'Sobald du das Medikament kennst, baue ich die Dosistreppe und den Zyklus.',
-    cicloComeca: 'Der Zyklus beginnt mit der ersten Spritze, die du einträgst.',
+    cicloComeca: 'Der Zyklus beginnt mit der ersten Dosis, die du einträgst.',
     cadenciaDiaria: 'jeden Tag',
     cadenciaSemanal: 'einmal pro Woche',
     cadenciaDias: (dias: number) => `alle ${dias} Tage`,
@@ -250,8 +262,11 @@ export const cadastro = {
     imcDeHoje: 'BMI heute',
     naSuaMeta: 'Bei deinem Ziel',
 
-    ajudaDose: 'Jede Dosis an der richtigen Stelle',
-    ajudaDoseSub: 'die Rotation der Stellen und der Dosiszyklus, ohne dass du zählst',
+    /* ⚠️ Die Rotation der Stellen gibt es nur beim Spritzen. */
+    ajudaDose: (injetavel: boolean): string => (injetavel ? 'Jede Dosis an der richtigen Stelle' : 'Jede Dosis im Blick'),
+    ajudaDoseSub: (injetavel: boolean): string => (injetavel
+      ? 'die Rotation der Stellen und der Dosiszyklus, ohne dass du zählst'
+      : 'die Erinnerung und der Verlauf jeder Einnahme, ohne dass du zählst'),
     ajudaEnjoo: 'Übelkeit in Zahlen',
     ajudaEnjooSub: 'was du spürst, wird zum Muster, und das Muster geht mit zum Termin',
     ajudaPeso: 'Deine Gewichtskurve',

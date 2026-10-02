@@ -25,7 +25,7 @@ import { pontoSemPedir, type Ponto } from '../../logic/localizacao';
 import { useTheme } from '../../ui/useTheme';
 import { radius, RESPIRO_ABAS } from '../../theme';
 import { fotoDaEquipe, focoDaEquipe, fotoDaRede, focoDaRede, inicialDoNome, iniciaisDeQuemCuida } from '../../ui/retratos';
-import { noNa, formaDe, oA, FORMAS } from '../../logic/formas';
+import { noNa, formaDe, oA, FORMAS, iconeDaDose, injetavelDe } from '../../logic/formas';
 import { T } from '../../textos';
 
 /* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
@@ -174,11 +174,16 @@ function Topo() {
             pedido do dono). O cartão dizia de onde a conta vai sair e
             parava ali. O botão é de REGISTRAR, e não de começar: a frase
             continua sem pedir a dose — quando começar é decisão da pessoa
-            com quem receita —, e quem já aplicou tem onde dizer. */}
+            com quem receita —, e quem já começou tem onde dizer.
+
+            ⚠️ O TEXTO É O DOS PRIMEIROS PASSOS (01/10/2026). Era "Registrar
+            a primeira aplicação", e o mesmo pedido na Home dizia outra
+            coisa; agora é uma frase só, e ela recebe a forma (hoje sai
+            igual nas duas em todos os idiomas). */}
         {st.momento === 'comeco' ? (
           <Pressable onPress={() => router.push('/aplicacao' as any)} style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1, marginTop: 20, alignSelf: 'flex-start' }]}>
             <Row gap={8} style={{ backgroundColor: c.lime, borderRadius: radius.pill, paddingHorizontal: 20, paddingVertical: 13 }}>
-              <Txt v="label" c={c.limeInk}>{T.cuidado.estado.comecoCta}</Txt>
+              <Txt v="label" c={c.limeInk}>{T.home.primeirosPassos.aplicacao(injetavelDe(S))}</Txt>
               <Icon name="chev" size={14} color={c.limeInk} sw={2.4} />
             </Row>
           </Pressable>
@@ -729,7 +734,8 @@ function Tratamento() {
         <View style={{ padding: 22 }}>
           <Row gap={14}>
             <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: c.accentWeak, alignItems: 'center', justifyContent: 'center' }}>
-              <Icon name="syringe" size={20} color={c.accent} sw={1.8} />
+              {/* o desenho da dose segue a forma: seringa ou comprimido (01/10/2026) */}
+              <Icon name={iconeDaDose(S)} size={20} color={c.accent} sw={1.8} />
             </View>
             <View style={{ flex: 1 }}>
               <Txt v="title">{dose}</Txt>

@@ -125,7 +125,7 @@ const TODOS: Id[] = [
      de quando ele é, continua perto do que o situa. */
   'nome', 'identidade', 'nascimento', 'tratamento', 'inicio', 'pesoInicio', 'medicamento', 'forma', 'dose',
   /* ⚠️ A ÚLTIMA APLICAÇÃO VEM DEPOIS DA FREQUÊNCIA, e não junto do início.
-     A pergunta se escreve com a forma — aplicação ou dose — e é com a
+     O verbo da pergunta segue a forma — "aplicou" ou "tomou" a dose —, e é com a
      cadência que a resposta vira próxima dose; perguntar antes de saber
      as duas seria perguntar numa língua que a tela ainda não fala. */
   'frequencia', 'ultima', 'corpo', 'meta', 'ritmo', 'motivacao', 'atividade', 'restricao',
@@ -1574,6 +1574,9 @@ export default function Cadastro() {
         meta: r.meta,
         ritmo: r.ritmo,
         med: r.med ?? 'indefinido',
+        /* a resposta da forma, quando houve; sem ela, o plano cai na do
+           catálogo — ver `formaDoPlano`, em plano.tsx */
+        forma: r.forma ?? null,
         sistema: r.sistema,
         dose: r.dose,
         intervalo: r.intervalo,
@@ -1623,6 +1626,7 @@ export default function Cadastro() {
      resposta certa nesse vão: para manipulado as duas formas são
      injetáveis, então a faixa sai igual de qualquer jeito. */
   const formaEmUso: Forma = r.forma ?? MEDS[r.med ?? '']?.formas[0] ?? 'caneta';
+  const injetavelEmUso = FORMAS()[formaEmUso].injetavel;
   const faixa = (med && !med.doses.length ? faixaDaMolecula(med.mol, formaEmUso) : null)
     ?? { min: 0.25, max: 2.4 };
 
@@ -1640,9 +1644,12 @@ export default function Cadastro() {
     medicamento: futuro ? QT.medicamentoFuturo : QT.medicamentoAgora,
     forma: futuro ? QT.formaFuturo : QT.formaAgora,
     dose: futuro ? QT.doseFuturo : QT.doseAgora,
-    frequencia: futuro ? QT.frequenciaFuturo : QT.frequenciaAgora,
-    /* A forma decide a palavra: quem toma comprimido tomou uma dose. */
-    ultima: QT.ultima(FORMAS()[formaEmUso].injetavel),
+    /* ⚠️ O VERBO SEGUE A FORMA (01/10/2026): este passo aparece para todo
+       medicamento definido, e perguntava "você aplica?" a quem toma
+       Rybelsus. */
+    frequencia: futuro ? QT.frequenciaFuturo(injetavelEmUso) : QT.frequenciaAgora(injetavelEmUso),
+    /* A forma decide o verbo: quem toma comprimido tomou a dose. */
+    ultima: QT.ultima(injetavelEmUso),
     corpo: QT.corpo,
     meta: QT.meta,
     ritmo: QT.ritmo,
@@ -1965,10 +1972,15 @@ export default function Cadastro() {
           </View>
         ) : null}
 
+        {/* ⚠️ SEM SERINGA (01/10/2026): este passo vem antes do
+            medicamento, e a forma ainda não existe. A seringa fazia quem
+            toma comprimido responder a uma pergunta sobre injeção. O
+            "play" é o que já está andando, ao lado do calendário de quem
+            ainda vai começar. */}
         {id === 'tratamento' ? (
           <View style={{ gap: 10 }}>
             <Escolha
-              ic="syringe" cheia titulo={K().jaIniciei} sub={K().jaInicieiSub}
+              ic="play" cheia titulo={K().jaIniciei} sub={K().jaInicieiSub}
               on={r.emTratamento === true} onPress={() => p({ emTratamento: true })}
             />
             <Escolha
@@ -2027,8 +2039,18 @@ export default function Cadastro() {
                 /* A molécula debaixo do nome da marca informa; debaixo de
                    "Semaglutida manipulada" ela repetiria a palavra que a
                    pessoa acabou de ler. Ali o que falta dizer é de onde
-                   aquilo vem. */
-                sub={m.marca ? nomeDaMolecula(m.mol) : K().manipuladoSub}
+                   aquilo vem.
+
+                   ⚠️ E A MOLÉCULA SOZINHA NÃO SEPARAVA AS MARCAS (01/10/2026):
+                   Ozempic e Rybelsus diziam os dois "Semaglutida", e a
+                   diferença entre eles — injeção semanal, comprimido todo
+                   dia — é a que muda o resto do aplicativo. A via vem da
+                   primeira forma do catálogo (marca tem uma só), e a
+                   cadência do `cad`, que é a de bula; o intervalo que a
+                   pessoa combinou com o médico vem dois passos depois. */
+                sub={m.marca
+                  ? K().subDoMedicamento(nomeDaMolecula(m.mol), FORMAS()[m.formas[0]].injetavel, m.cad === 'daily')
+                  : K().manipuladoSub}
                 on={r.med === k}
                 /* Trocar de medicamento zera dose, forma e intervalo: a
                    escada é outra, a cadência também, e a forma pode nem
@@ -2175,10 +2197,13 @@ export default function Cadastro() {
 
             {outroIntervalo ? (
               <View>
-                <Rotulo>APLICO A CADA</Rotulo>
+                {/* ⚠️ O RÓTULO E A UNIDADE ESTAVAM ESCRITOS AQUI, em
+                    português, e saíam "APLICO A CADA … dias" nos seis
+                    idiomas e para quem toma comprimido (01/10/2026). */}
+                <Rotulo>{K().aCadaRotulo(injetavelEmUso)}</Rotulo>
                 <Contador
                   valor={String(r.intervalo)}
-                  unidade={r.intervalo === 1 ? 'dia' : 'dias'}
+                  unidade={K().aCadaUnidade(r.intervalo ?? padrao)}
                   onMenos={() => p({ intervalo: Math.max(1, (r.intervalo ?? padrao) - 1) })}
                   onMais={() => p({ intervalo: Math.min(60, (r.intervalo ?? padrao) + 1) })}
                 />
@@ -2212,7 +2237,7 @@ export default function Cadastro() {
               onChange={(v) => p({ sistema: v })}
             />
             <View>
-              <Rotulo>ALTURA</Rotulo>
+              <Rotulo>{K().alturaRotulo}</Rotulo>
               {/* ⚠️ AS FAIXAS SE DECLARAM EM MÉTRICO e saem convertidas —
                   ver logic/medidas. E a chave força o React a remontar a
                   régua quando a unidade muda: ela guarda a posição do

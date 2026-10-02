@@ -8,8 +8,10 @@
    ============================================================ */
 
 export const alertas = {
-  dose: 'Your shot',
-  doseCurto: 'Shot',
+  /* ⚠️ "DOSE", and it was "shot" (01/10/2026): "dose" is the noun for
+     every form — pen, vial, syringe and tablet. See ../pt-BR/alertas.ts. */
+  dose: 'Medication dose',
+  doseCurto: 'Dose',
   doseDesc: 'A heads-up before your next dose, to keep the treatment on track.',
 
   /* ⚠️ THE CHECK-IN IS THE ONLY ONE THAT ASKS. The other four are about
@@ -48,7 +50,11 @@ export const alertas = {
   quandoEHoras: (quando: string, horas: string) => `${quando} · ${horas}`,
 
   tela: {
-    alertaDe: (tipo: string) => `${tipo} reminder`,
+    /* ⚠️ THE TYPE OPENS THE TITLE in English, and arrives lowercased by
+       `comum.noMeio` — "medication dose reminder" at the top of a sheet.
+       The first letter goes back up here, the one place that knows the
+       word is first (01/10/2026). */
+    alertaDe: (tipo: string) => `${tipo.charAt(0).toUpperCase()}${tipo.slice(1)} reminder`,
     novoAlerta: 'New reminder',
     salvar: 'Save',
     criar: 'Create reminder',
@@ -57,7 +63,7 @@ export const alertas = {
     oQueAvisar: 'What to remind you of',
 
     antecedencia: 'How far ahead',
-    antecedenciaAjuda: 'Counted from the date of your next shot.',
+    antecedenciaAjuda: 'Counted from the date of your next dose.',
 
     diasDaSemana: 'Days of the week',
     diasDaSemanaAjuda: 'With none ticked, the reminder rings every day.',
@@ -102,7 +108,7 @@ export const alertas = {
     convite: 'An alert is an invitation, not a demand. If one slips by one day, nothing here turns into a backlog.',
   },
   /* NOTIFICATIONS — see ../pt-BR/alertas.ts. The dose notice reuses
-     `avisos`; stock reuses the verdict from Shots. */
+     `avisos`; stock reuses the verdict from the doses screen. */
   telaNotificacoes: {
     titulo: 'Notifications',
     lead: 'What we’ve told you over the last few days.',

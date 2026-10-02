@@ -39,7 +39,7 @@ export const companion = {
       vazioSemRegistroTexto: 'Les lectures arrivent quand quelque chose dans vos relevés en appelle une. Avec vos premiers check-ins, elles commencent à apparaître ici.',
     },
     fomeMotivo: (dia: number) => `Vous êtes au jour ${dia} du cycle, quand la faim revient`,
-    fomeTitulo: 'Pourquoi la faim revient avant l’injection',
+    fomeTitulo: 'Pourquoi la faim revient avant la dose',
     /* ⚠️ « ENLÈVE LA SENSATION DE RECHUTE » est le service de cette
        lecture et la raison de son existence : la faim qui revient au
        cinquième jour, c'est là que les gens concluent qu'ils ont échoué.
@@ -48,7 +48,8 @@ export const companion = {
     fomeDesc: (molecula: string) =>
       `Le niveau de ${molecula} baisse au fil de la semaine, et la satiété baisse avec lui. Comprendre la courbe enlève la sensation de rechute.`,
 
-    primeirosMotivo: (dias: number) => `Vous avez fait votre injection il y a ${dias} ${dias === 1 ? 'jour' : 'jours'}`,
+    primeirosMotivo: (dias: number, injetavel: boolean): string =>
+      `${injetavel ? 'Vous avez fait votre injection' : 'Vous avez pris votre dose'} il y a ${dias} ${dias === 1 ? 'jour' : 'jours'}`,
     primeirosTitulo: 'Les premiers jours après la dose',
     primeirosDesc: 'Ce qu’il est normal de ressentir dans la fenêtre de 48 h, et ce qui mérite déjà un message à votre équipe.',
 
@@ -125,7 +126,7 @@ export const companion = {
     fechar: 'Fermer',
     irEvolucao: 'Voir vos pesées',
     irSintomas: 'Voir vos symptômes',
-    irAplicacoes: 'Voir vos injections',
+    irAplicacoes: 'Voir vos doses',
     irAlimentacao: 'Voir votre alimentation',
     irAgua: 'Voir l’eau d’aujourd’hui',
     irExames: 'Voir vos examens',

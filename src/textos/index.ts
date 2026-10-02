@@ -410,3 +410,9 @@ export const T = new Proxy({} as Textos, {
    próprio catálogo, e não copiados: uma persona renomeada continua
    reconhecida. */
 export const NOMES_DAS_PERSONAS: readonly string[] = Object.values(CATALOGOS).map((c) => c.semente.nome);
+
+/* O nome do resumo enviado ao médico, nos seis idiomas. O documento é
+   gravado com o nome do idioma da hora do envio, e quem procura os
+   envios depois de trocar de idioma tem de reconhecer os seis (ver
+   `enviosDoResumo`, em logic/resumo). */
+export const NOMES_DO_RESUMO: readonly string[] = Object.values(CATALOGOS).map((c) => c.resumo.nomeDoDocumento);

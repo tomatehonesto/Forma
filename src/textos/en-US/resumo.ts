@@ -20,7 +20,10 @@ export const resumo = {
   cadencia: 'Cadence',
   tempoDeTratamento: 'Time in treatment',
   emDias: (dias: number) => `${dias} ${dias === 1 ? 'day' : 'days'}`,
-  aplicacoes: 'Injections',
+  /* ⚠️ "Doses", not "Injections" (01/10/2026): this sheet goes to the
+     doctor, and it was telling them that a pill had been injected. Reason
+     in ../pt-BR/resumo.ts. */
+  aplicacoes: 'Doses',
   aplicacoesValor: (feitas: number, previstas: number) => `${feitas} of ${previstas} expected`,
   aplicacoesNenhuma: 'None logged',
 
@@ -67,16 +70,19 @@ export const resumo = {
     visaoGeral: 'Overview',
     pesoAtual: 'Current weight',
     variacao: 'Change in the period',
-    aplicacoesNoPeriodo: 'Shots in the period',
+    aplicacoesNoPeriodo: 'Doses in the period',
     checkinsRespondidos: 'Check-ins answered',
     peso: 'Weight',
     medidas: 'Measurements',
-    aplicacoes: 'Shots',
+    aplicacoes: 'Doses',
+    dosesSub: (quantas: number, comLocal: boolean): string =>
+      `${quantas} ${quantas === 1 ? 'entry' : 'entries'} · ${comLocal ? 'date, dose and site' : 'date and dose'}`,
     sintomas: 'Symptoms',
     exames: 'Lab results',
     notas: 'Notes for the appointment',
     habitos: 'Meals, fluids and exercise',
     data: 'Date',
+    medicamento: 'Medication',
     dose: 'Dose',
     local: 'Site',
     proteinaMedia: 'Protein per day, on average',

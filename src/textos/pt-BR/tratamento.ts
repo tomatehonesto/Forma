@@ -104,7 +104,9 @@ export const tratamento = {
   registreORecipiente: (oRecipiente: string) =>
     `Registre ${oRecipiente}, e contamos as doses que restam.`,
   /* A aplicação que o cadastro registra só tem data: onde uma linha pede
-     o local dela, é isto que vai. */
+     o local dela, é isto que vai. ⚠️ Só em dose INJETADA: a de comprimido
+     não tem local nenhum, e "não informado" diria que faltou responder
+     (logic/formas, `doseInjetavel`). */
   localNaoInformado: 'Local não informado',
 
   /* ============================================================
@@ -278,21 +280,30 @@ export const tratamento = {
   },
 
   /* ============================================================
-     A TELA DAS APLICAÇÕES
+     A TELA DAS DOSES (a rota continua /aplicacoes)
+
+     ⚠️⚠️ ELA SE CHAMAVA "APLICAÇÕES", e quem toma comprimido abria uma
+     tela de injeção: "Registrar aplicação", "PRÓXIMA APLICAÇÃO", a casa
+     "aplicada", "alertas de aplicação". Decisão do dono (01/10/2026):
+     "dose" é o substantivo de todo mundo, em título, tela e documento. Só
+     a frase em primeira pessoa segue a forma — e nesta tela não há
+     nenhuma. O id da rota e o `S.injections` ficam: são nome interno.
      ============================================================ */
   telaAplicacoes: {
-    aplicada: 'aplicada',
+    /* A casa da grade com dose: o fato é o registro, e ele é o mesmo para
+       quem injeta e para quem toma. */
+    aplicada: 'registrada',
     /* ⚠️ "SEM CULPA POR UM DIA QUE PASSOU" É A FRASE INTEIRA, e ela é o
        motivo de a grade não ter vermelho: quem perdeu uma dose quase
        sempre perdeu porque passou mal, e uma casa vermelha num calendário
        de medicamento é o aplicativo cobrando de quem já pagou. */
-    semCulpa: 'Sem culpa por um dia perdido — o que conta é retomar. Dá para registrar uma aplicação anterior a qualquer momento, no botão lá embaixo.',
-    titulo: 'Aplicações',
-    registrar: 'Registrar aplicação',
+    semCulpa: 'Sem culpa por um dia perdido — o que conta é retomar. Dá para registrar uma dose anterior a qualquer momento, no botão lá embaixo.',
+    titulo: 'Doses',
+    registrar: 'Registrar dose',
     /* Os três chegam prontos: a marca, o princípio ativo e a cadência. */
     lead: (med: string, molecula: string, cadencia: string) => `${med} · ${molecula} · ${cadencia}`,
 
-    proximaAplicacao: 'PRÓXIMA APLICAÇÃO',
+    proximaAplicacao: 'PRÓXIMA DOSE',
 
     cicloDaDose: 'Ciclo da dose',
     cicloSub: (dia: number, total: number, fase: string) => `Dia ${dia} de ${total} · ${fase.toLowerCase()}`,
@@ -328,8 +339,8 @@ export const tratamento = {
     cobreSemanas: (veredito: string, semanas: number) =>
       `${veredito} — dá para cerca de ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`,
 
-    alertasDeDose: (quantos: number) => `${quantos} ${quantos === 1 ? 'alerta' : 'alertas'} de aplicação`,
-    nenhumAlerta: 'Nenhum alerta de aplicação',
+    alertasDeDose: (quantos: number) => `${quantos} ${quantos === 1 ? 'alerta' : 'alertas'} de dose`,
+    nenhumAlerta: 'Nenhum alerta de dose',
     tocaEm: (quando: string) => `Toca ${quando}`,
     avisoAntes: 'Um aviso antes da dose, na hora que você escolher',
 
@@ -351,6 +362,10 @@ export const tratamento = {
 
     historico: 'Histórico',
     proximaEmLocal: (local: string) => `Próxima · ${local}`,
+    /* ⚠️ A PRIMEIRA LINHA DO HISTÓRICO, SEM LOCAL (01/10/2026). Ela dizia
+       "Próxima · Abdômen (esq.)" para todo mundo, e quem toma comprimido
+       lia um lugar onde injetar. Sem local, a linha diz o que vem. */
+    proximaSemLocal: 'Próxima dose',
   },
 
   /* ============================================================
@@ -553,8 +568,12 @@ export const tratamento = {
     semFaixa: 'Não temos faixa de referência para este medicamento. A dose fica a do seu último registro.',
 
     /* ---------- o local ---------- */
+    /* Só aparece para quem injeta, então "aplicação" aqui é a palavra
+       exata, e não o substantivo da dose. */
     localDaAplicacao: 'Local da aplicação',
-    localAjuda: 'Alternar o local a cada semana ajuda a evitar irritação e nódulos na pele.',
+    /* ⚠️ "A CADA DOSE", E NÃO "A CADA SEMANA" (01/10/2026): a caneta
+       diária (Saxenda, Victoza) também roda o local, e roda todo dia. */
+    localAjuda: 'Alternar o local a cada dose ajuda a evitar irritação e nódulos na pele.',
     regioes: {
       braco: 'Braço',
       abd: 'Abdômen',

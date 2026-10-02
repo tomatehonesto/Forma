@@ -206,13 +206,13 @@ export const tratamento = {
   },
 
   telaAplicacoes: {
-    aplicada: 'faite',
-    semCulpa: 'Pas de culpabilité pour un jour manqué — ce qui compte, c’est de reprendre. Vous pouvez noter une piqûre plus ancienne à tout moment, avec le bouton en bas.',
-    titulo: 'Piqûres',
-    registrar: 'Noter une piqûre',
+    aplicada: 'notée',
+    semCulpa: 'Pas de culpabilité pour un jour manqué — ce qui compte, c’est de reprendre. Vous pouvez noter une dose plus ancienne à tout moment, avec le bouton en bas.',
+    titulo: 'Doses',
+    registrar: 'Noter une dose',
     lead: (med: string, molecula: string, cadencia: string) => `${med} · ${molecula} · ${cadencia}`,
 
-    proximaAplicacao: 'PROCHAINE PIQÛRE',
+    proximaAplicacao: 'PROCHAINE DOSE',
 
     cicloDaDose: 'Cycle de la dose',
     cicloSub: (dia: number, total: number, fase: string) => `Jour ${dia} sur ${total} · ${fase.toLowerCase()}`,
@@ -227,8 +227,8 @@ export const tratamento = {
     cobreSemanas: (veredito: string, semanas: number) =>
       `${veredito} — de quoi tenir environ ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}`,
 
-    alertasDeDose: (quantos: number) => `${quantos} ${quantos === 1 ? 'rappel' : 'rappels'} de piqûre`,
-    nenhumAlerta: 'Aucun rappel de piqûre',
+    alertasDeDose: (quantos: number) => `${quantos} ${quantos === 1 ? 'rappel' : 'rappels'} de dose`,
+    nenhumAlerta: 'Aucun rappel de dose',
     tocaEm: (quando: string) => `Sonne ${quando}`,
     avisoAntes: 'Un signal avant la dose, à l’heure que vous choisissez',
 
@@ -246,6 +246,7 @@ export const tratamento = {
 
     historico: 'Historique',
     proximaEmLocal: (local: string) => `Prochaine · ${local}`,
+    proximaSemLocal: 'Prochaine dose',
   },
 
   telaCaneta: {
@@ -352,7 +353,7 @@ export const tratamento = {
     semFaixa: 'Nous n’avons pas de plage de référence pour ce médicament. La dose reste celle de votre dernier relevé.',
 
     localDaAplicacao: 'Site d’injection',
-    localAjuda: 'Changer de site chaque semaine aide à éviter les irritations et les nodules sous la peau.',
+    localAjuda: 'Changer de site à chaque dose aide à éviter les irritations et les nodules sous la peau.',
     regioes: {
       braco: 'Bras',
       abd: 'Abdomen',

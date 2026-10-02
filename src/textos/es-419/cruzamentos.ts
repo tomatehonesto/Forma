@@ -24,7 +24,7 @@ export const cruzamentos = {
   catSono: 'Sueño',
   catSintomas: 'Síntomas',
   catPeso: 'Peso',
-  catAplicacoes: 'Inyecciones',
+  catAplicacoes: 'Dosis',
 
   /* ⚠️ VIENEN CON PREPOSICIÓN, y no sueltos. En español los siete llevan
      "los" — "los domingos", "los lunes" — sin la asimetría del portugués,
@@ -109,20 +109,20 @@ export const cruzamentos = {
     q: '¿Por qué siento náuseas?',
     evid: (comSono: string, semSono: string, noites: number) =>
       ({ valor: comSono, unidade: `de ${semSono}`, legenda: `las náuseas después de ${noites} noches largas` }),
-    significa: 'Esto es lo que muestran tus registros, y no una relación de causa: el ciclo de la inyección mueve las náuseas más que cualquier otra cosa, y puede estar detrás de los dos lados de la cuenta. Vale como pista para llevarle a tu equipo, no como explicación cerrada.',
+    significa: 'Esto es lo que muestran tus registros, y no una relación de causa: el ciclo de la dosis mueve las náuseas más que cualquier otra cosa, y puede estar detrás de los dos lados de la cuenta. Vale como pista para llevarle a tu equipo, no como explicación cerrada.',
   },
 
   janelaEnjoo: {
-    titulo: 'Tus náuseas suelen desaparecer cerca de 48 horas después de la inyección',
+    titulo: 'Tus náuseas suelen desaparecer cerca de 48 horas después de la dosis',
     texto: (perto: string, longe: string) =>
       `Se quedan en ${perto} los dos primeros días y bajan a ${longe} a partir del tercero. No es el tratamiento entero el que da náuseas — son las primeras 48 h de cada ciclo.`,
     q: '¿Por qué siento náuseas?',
     evid: { valor: '48', unidade: 'horas', legenda: 'y entonces pasa' },
     /* ⚠️ LA ÚLTIMA FRASE ES LA ÚNICA DEL ARCHIVO QUE SUGIERE UNA ACCIÓN, y
-       puede: elegir el día de la inyección es decisión de la persona con
+       puede: elegir el día de la dosis es decisión de la persona con
        su equipo, no cambio de dosis ni de medicación. */
     significa: (dias: number) =>
-      `Esto se repitió en ${dias} de tus registros posteriores a la inyección. Saber que existe una ventana, y que termina, cambia qué hacer con ella: puedes elegir el día de la inyección de forma que esas 48 h caigan en la parte más liviana de tu semana.`,
+      `Esto se repitió en ${dias} de tus registros posteriores a la dosis. Saber que existe una ventana, y que termina, cambia qué hacer con ella: puedes elegir el día de la dosis de forma que esas 48 h caigan en la parte más liviana de tu semana.`,
   },
 
   aguaEnjoo: {
@@ -194,15 +194,15 @@ export const cruzamentos = {
   },
 
   adesao: {
-    tituloPerfeita: 'No has atrasado ninguna inyección desde el comienzo',
-    titulo: (pct: number) => `Mantuviste ${pct}% de las inyecciones al día`,
+    tituloPerfeita: 'No has atrasado ninguna dosis desde el comienzo',
+    titulo: (pct: number) => `Mantuviste ${pct}% de las dosis al día`,
     texto: (aplicacoes: number, ressalva: string) =>
-      `Son ${aplicacoes} inyecciones desde el inicio del tratamiento, ${ressalva}.`,
+      `Son ${aplicacoes} dosis desde el inicio del tratamiento, ${ressalva}.`,
     textoQuaseTodas: 'prácticamente todas en la fecha correcta',
     textoComAtrasos: 'con algunos atrasos en el camino',
     q: '¿Cómo funciona el ciclo de la medicación?',
     evid: (pct: number, aplicacoes: number) =>
-      ({ valor: `${pct}%`, unidade: '', legenda: `${aplicacoes} inyecciones desde el inicio` }),
+      ({ valor: `${pct}%`, unidade: '', legenda: `${aplicacoes} dosis desde el inicio` }),
     significaAlta: 'Esa consistencia es uno de los factores que más pesan en una buena respuesta al medicamento. El nivel de la sustancia en el cuerpo depende de la regularidad, no del esfuerzo — y es el tipo de cosa que solo aparece cuando alguien mira el historial entero.',
     /* ⚠️ LA VERSIÓN CON ATRASOS EXPLICA EL COSTO Y NO RECLAMA LA FALTA.
        "Cada atraso deja una ventana en que el efecto cae antes de tiempo" es

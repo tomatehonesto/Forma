@@ -11,14 +11,14 @@
 export const etapa = {
   antesChapeu: 'ANTES DE EMPEZAR',
 
-  antesComDoseHead: 'Tu primera inyección todavía está por venir.',
+  antesComDoseHead: 'Tu primera dosis todavía está por venir.',
   /* ⚠️ LA MOLÉCULA, NO LA MARCA. Quien todavía no se aplicó está leyendo
      sobre lo que va a sentir, y lo que causa el efecto es la sustancia —
      escribir la marca aquí sonaría a publicidad en el único momento en que
      la persona aún no tiene experiencia propia para contraponer. */
   antesComDoseBody: (molecula: string) =>
     `Los primeros días con ${molecula} suelen traer menos hambre y náuseas leves. Registrar cómo te sientes desde ya es lo que da base de comparación después.`,
-  antesComDoseQ: '¿Qué esperar el día de la inyección?',
+  antesComDoseQ: '¿Qué esperar el día de la dosis?',
 
   antesSemDoseHead: 'Tu tratamiento todavía no tiene una dosis definida.',
   /* "Cuando tu equipo la defina" y no "cuando tú la definas": la dosis es
@@ -34,7 +34,7 @@ export const etapa = {
      registros suficientes, la frase cuenta el dibujo de SUS náuseas; sin
      ellos, cuenta el dibujo que suele ocurrir. */
   doseNovaBodyCom: (perto: string, longe: string) =>
-    `En tus registros las náuseas se quedan en ${perto} los dos primeros días después de aplicarte y bajan a ${longe} a partir del tercero. Cada escalón suele repetir ese dibujo.`,
+    `En tus registros las náuseas se quedan en ${perto} los dos primeros días después de la dosis y bajan a ${longe} a partir del tercero. Cada escalón suele repetir ese dibujo.`,
   doseNovaBodySem: 'Cada escalón suele traer de vuelta, por algunos días, lo que ya había pasado — las náuseas son lo más común. Tiende a ceder a medida que tu cuerpo se ajusta.',
   doseNovaQ: '¿Por qué siento náuseas?',
 
@@ -44,7 +44,7 @@ export const etapa = {
      não diagnóstico: "é comum", "costuma". */
   primeiraChapeu: (n: number): string => `PRIMERA SEMANA · DÍA ${n}`,
   primeiraDias: [
-    { head: 'Tu primera dosis está registrada.', body: 'Es común no sentir nada todavía: el cuerpo recién está conociendo el medicamento. Un check-in por la noche ya sirve de base para comparar los próximos días.', q: '¿Qué esperar el día de la inyección?' },
+    { head: 'Tu primera dosis está registrada.', body: 'Es común no sentir nada todavía: el cuerpo recién está conociendo el medicamento. Un check-in por la noche ya sirve de base para comparar los próximos días.', q: '¿Qué esperar el día de la dosis?' },
     { head: 'El hambre puede empezar a bajar.', body: 'Mucha gente nota menos ganas de comer a partir de hoy. Comer despacio y parar a la primera señal de saciedad ayuda a evitar las náuseas.', q: '¿Por qué baja el hambre?' },
     { head: 'Atención al agua.', body: 'Con menos hambre, también se toma menos agua sin darse cuenta. Mantenerla al día ayuda con las náuseas y con el intestino.', q: '¿Cuánta agua debo tomar?' },
     { head: 'Proteína primero.', body: 'Con el plato más chico, conviene empezar por la proteína: es la que ayuda a preservar la masa muscular mientras baja el peso.', q: '¿Por qué importa tanto la proteína?' },

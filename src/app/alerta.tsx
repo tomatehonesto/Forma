@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
-  CADAS, FINS, HORAS, INICIOS, LEADS, ORDEM, TIPOS, acharAlerta, horasDe,
+  CADAS, FINS, HORAS, INICIOS, LEADS, ORDEM, TIPOS, tiposDe, acharAlerta, horasDe,
   inicialDoDia, novoAlerta, proximaDe, quando, rotuloDoLead, semana,
   type Alerta, type TipoDeAlerta,
 } from '../logic/alertas';
@@ -65,7 +65,9 @@ export default function AlertaFolha() {
      explicar o que aconteceu com o que estava ali. */
   const trocarTipo = (t: TipoDeAlerta) => setA((x) => ({ ...novoAlerta(t), id: x.id }));
 
-  const t = TIPOS()[a.tipo];
+  /* A tabela desta pessoa: o ícone da dose segue a forma do remédio. */
+  const tipos = tiposDe(S);
+  const t = tipos[a.tipo];
   const fechar = () => router.back();
 
   const mexer = (p: Partial<Alerta>) => setA((x) => ({ ...x, ...p }));
@@ -126,7 +128,7 @@ export default function AlertaFolha() {
           <Campo nu rotulo={K().oQueAvisar}>
             <Grade cols={2} gap={8}>
               {ORDEM.map((k) => (
-                <Opc key={k} cheia ic={TIPOS()[k].ic} label={TIPOS()[k].curto} on={a.tipo === k} onPress={() => trocarTipo(k)} />
+                <Opc key={k} cheia ic={tipos[k].ic} label={tipos[k].curto} on={a.tipo === k} onPress={() => trocarTipo(k)} />
               ))}
             </Grade>
           </Campo>

@@ -14,7 +14,7 @@ export const etapa = {
   /* ---------- 1. non è ancora cominciata ---------- */
   antesChapeu: 'PRIMA DI INIZIARE',
 
-  antesComDoseHead: 'La tua prima puntura deve ancora arrivare.',
+  antesComDoseHead: 'La tua prima dose deve ancora arrivare.',
   /* ⚠️ LA MOLECOLA, E NON LA MARCA. Chi non ha ancora fatto la prima
      puntura sta leggendo di quello che sentirà, e a produrre l'effetto è
      la sostanza — scrivere la marca qui suonerebbe come pubblicità
@@ -22,7 +22,7 @@ export const etapa = {
      propria da opporre. */
   antesComDoseBody: (molecula: string) =>
     `I primi giorni di terapia con ${molecula} di solito portano meno fame e una nausea leggera. Registrare come ti senti fin da ora è quello che dà una base di confronto dopo.`,
-  antesComDoseQ: 'Che cosa aspettarsi il giorno della puntura?',
+  antesComDoseQ: 'Che cosa aspettarsi il giorno della dose?',
 
   antesSemDoseHead: 'La tua terapia non ha ancora una dose definita.',
   /* "Quando la definisce il tuo team" e non "quando la definisci tu": la
@@ -39,7 +39,7 @@ export const etapa = {
      abbastanza registri la frase racconta il disegno della SUA nausea;
      senza, racconta quello che di solito succede. */
   doseNovaBodyCom: (perto: string, longe: string) =>
-    `Nei tuoi registri la nausea resta a ${perto} nei primi due giorni dopo la puntura e scende a ${longe} dal terzo in poi. Ogni gradino di solito ripete questo disegno.`,
+    `Nei tuoi registri la nausea resta a ${perto} nei primi due giorni dopo la dose e scende a ${longe} dal terzo in poi. Ogni gradino di solito ripete questo disegno.`,
   doseNovaBodySem: 'Ogni gradino di solito riporta indietro, per qualche giorno, quello che era già passato — la nausea più spesso di tutto. Tende a cedere man mano che il tuo corpo si adatta.',
   doseNovaQ: 'Perché ho la nausea?',
 
@@ -50,7 +50,7 @@ export const etapa = {
      não diagnóstico: "é comum", "costuma". */
   primeiraChapeu: (n: number): string => `PRIMA SETTIMANA · GIORNO ${n}`,
   primeiraDias: [
-    { head: 'La tua prima dose è registrata.', body: 'È normale non sentire ancora nulla: il corpo sta appena conoscendo il farmaco. Un check-in stasera diventa la base per confrontare i prossimi giorni.', q: 'Che cosa aspettarsi il giorno della puntura?' },
+    { head: 'La tua prima dose è registrata.', body: 'È normale non sentire ancora nulla: il corpo sta appena conoscendo il farmaco. Un check-in stasera diventa la base per confrontare i prossimi giorni.', q: 'Che cosa aspettarsi il giorno della dose?' },
     { head: 'La fame può iniziare a calare.', body: 'Molte persone notano meno appetito da oggi. Mangiare lentamente e fermarsi al primo segnale di sazietà aiuta a evitare la nausea.', q: 'Perché la fame cala?' },
     { head: 'Occhio all’acqua.', body: 'Con meno fame, si beve anche meno senza accorgersene. Bere abbastanza aiuta con la nausea e con l’intestino.', q: 'Quanta acqua dovrei bere?' },
     { head: 'Prima le proteine.', body: 'Con il piatto più piccolo, conviene iniziare dalle proteine: aiutano a preservare i muscoli mentre il peso scende.', q: 'Perché le proteine contano così tanto?' },

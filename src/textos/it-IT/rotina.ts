@@ -17,9 +17,10 @@ export const rotina = {
   perguntas: {
     maisFome: 'Perché oggi ho avuto più fame?',
     semFome: 'Perché non ho fame?',
-    depoisDaAplicacao: 'Che cosa aspettarsi dopo la puntura?',
+    /* "Dose", ed era "puntura" (01/10/2026). Vedi ../pt-BR. */
+    depoisDaAplicacao: 'Che cosa aspettarsi dopo la dose?',
     diminuirEnjoo: 'Come far scendere la nausea?',
-    trocarODia: 'Posso cambiare il giorno della puntura?',
+    trocarODia: 'Posso cambiare il giorno della dose?',
     meusExames: 'Che cosa dicono i miei esami?',
     meuProgresso: 'Analizza i miei progressi',
     prepararConsulta: 'Prepara la mia visita',
@@ -63,8 +64,15 @@ export const rotina = {
 
     /* Il contenitore con l'articolo arriva da logic/formas: "Prepara la
        penna", "Prepara il flacone". */
-    aplicacao: (recipiente: string) => `Prepara ${recipiente} e scegli la zona`,
-    aplicacaoPorque: 'La puntura della settimana si avvicina, e cambiare zona riduce l’irritazione della pelle',
+    /* ⚠️ LA ZONA ESISTE SOLO PER CHI SI INIETTA (01/10/2026): "scegli la
+       zona" arrivava anche a chi prende la compressa. E "la prossima dose",
+       non "la puntura della settimana": la parola di tutte le forme, senza
+       affermare un ritmo. Vedi ../pt-BR. */
+    aplicacao: (recipiente: string, injetavel: boolean): string =>
+      (injetavel ? `Prepara ${recipiente} e scegli la zona` : `Prepara ${recipiente}`),
+    aplicacaoPorque: (injetavel: boolean): string => (injetavel
+      ? 'La prossima dose si avvicina, e cambiare zona riduce l’irritazione della pelle'
+      : 'La prossima dose si avvicina, e tenere il blister a portata di mano aiuta a non dimenticarla'),
 
     receita: 'Chiedi il rinnovo della ricetta',
     /* ⚠️⚠️ LA PAROLA "dosi" STAVA NEL CODICE, e non qui. Il punto di
@@ -116,14 +124,14 @@ export const rotina = {
     exercicio: (dias: number) => `Muoversi in ${dias} ${dias === 1 ? 'giorno' : 'giorni'} della settimana`,
     origemExercicio: 'Movimento',
 
-    aplicacaoUma: 'Puntura della settimana',
-    aplicacaoVarias: (quantas: number) => `${quantas} punture nella settimana`,
-    origemAplicacao: 'Punture',
+    aplicacaoUma: 'Dose della settimana',
+    aplicacaoVarias: (quantas: number) => `${quantas} dosi nella settimana`,
+    origemAplicacao: 'Dosi',
 
     /* Che cosa si conta in ogni voce. "1 di 1 giorno" non descrive
-       un'iniezione, per questo la puntura porta la sua coppia. */
+       una dose, per questo la dose porta la sua coppia. */
     unidadeDia: ['giorno', 'giorni'] as [string, string],
-    unidadeAplicacao: ['puntura', 'punture'] as [string, string],
+    unidadeAplicacao: ['dose', 'dosi'] as [string, string],
     nota: (feito: number, alvo: number, unidade: string) => `${feito} su ${alvo} ${unidade}`,
   },
 
@@ -195,8 +203,10 @@ export const rotina = {
     pesoDe: (de: string, para: string) => `Da ${de} a ${para}`,
     doseNova: (dose: string) => `Dose a ${dose} mg`,
     doseAnterior: (dose: string) => `Veniva da ${dose} mg`,
-    umaAplicacao: '1 puntura',
-    aplicacoes: (quantas: number) => `${quantas} punture`,
+    remedioNovo: (remedio: string) => `Passaggio a ${remedio}`,
+    remedioAnterior: (remedio: string) => `Veniva da ${remedio}`,
+    umaAplicacao: '1 dose',
+    aplicacoes: (quantas: number) => `${quantas} dosi`,
     marcadores: (quantos: number) => `${quantos} marcatori`,
     umaOrientacao: '1 indicazione del team',
     orientacoes: (quantas: number) => `${quantas} indicazioni del team`,

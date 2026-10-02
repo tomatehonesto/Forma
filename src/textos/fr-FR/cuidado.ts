@@ -62,7 +62,7 @@ export const cuidado = {
     /* Le saut de ligne est voulu : valeur en haut, unité en bas, pour une
        lecture d'un coup d'œil. */
     metricaSemanas: 'semaines\nde suivi',
-    metricaAplicacoes: 'piqûres\nnotées',
+    metricaAplicacoes: 'doses\nnotées',
 
     /* ⚠️ « DOSES » ET NON « INJECTIONS » : cette pastille partage la ligne
        avec le pouls, et le mot long le pousse sur deux lignes.
@@ -115,14 +115,13 @@ export const cuidado = {
     emDiaPulso: 'Suivi à jour',
     comecoTitulo: 'Nous comptons à partir de la première dose.',
     comecoTexto: 'Une fois la première dose enregistrée, les semaines, les doses et le cycle se comptent à partir de là.',
-    comecoCta: 'Enregistrer la première piqûre',
   },
 
   dose: {
-    aplicacaoHoje: 'Piqûre aujourd’hui',
+    aplicacaoHoje: 'Dose aujourd’hui',
     nenhumaRegistrada: 'Aucune dose enregistrée',
     primeiraARegistrar: 'Première dose à enregistrer',
-    proximaAplicacao: (quando: string) => `Prochaine piqûre ${quando}`,
+    proximaAplicacao: (quando: string) => `Prochaine dose ${quando}`,
     nestaDoseHa: (semanas: number) =>
       `À cette dose depuis ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}`,
     /* Le `quando` arrive déjà en « dans 9 jours » / « demain », avec la
@@ -179,7 +178,7 @@ export const cuidado = {
     linhaDoPlano: (previstas: number, temHorizonte: boolean): [string, string, string] => [
       'Semaine ',
       temHorizonte ? ` sur ${previstas} vers votre objectif · ` : ' de votre traitement · ',
-      ' avec la piqûre faite',
+      ' avec la dose prise',
     ],
 
     ultimaOrientacao: 'DERNIER CONSEIL',
@@ -199,7 +198,7 @@ export const cuidado = {
     prepararAConsulta: 'Préparer la consultation',
 
     seuTratamento: 'Votre traitement',
-    aplicacoesLink: 'Piqûres',
+    aplicacoesLink: 'Doses',
     dosesEm: (onde: string) => `Doses ${onde}`,
     restamDe: (restam: number, total: number, semanas: number) =>
       `${restam} sur ${total} · environ ${semanas} ${semanas === 1 ? 'semaine' : 'semaines'}`,
@@ -249,7 +248,7 @@ export const cuidado = {
 
     naoTenhoMais: 'Je n’ai plus de suivi',
     tirarPergunta: 'Retirer qui vous suit ?',
-    tirarTexto: 'Tous vos relevés restent ici — poids, piqûres, symptômes, analyses et notes. Ce qui part, c’est seulement le nom.',
+    tirarTexto: 'Tous vos relevés restent ici — poids, doses, symptômes, analyses et notes. Ce qui part, c’est seulement le nom.',
     simTirar: 'Oui, retirer',
     cancelar: 'Annuler',
   },

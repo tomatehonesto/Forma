@@ -8,7 +8,7 @@ import { useStore } from '../../logic/store';
 import {
   journeySummary, journeyChanges, journeyGoals, metaDePeso, timelineWeeks, timelineEvents, timelineCounts, weightSeries,
   startWeight, curWeight, temEvolucao,
-  doseCycle, penStock, nextInjectionDate, siteLabel, nextSite,
+  doseCycle, penStock, nextInjectionDate,
   waterMlToday, litros, checkinToday, protocoloDaSemana, weekGrid, last7Days, M,
   sintomasDaSemana, diasDeSintomas, type Change, type TLEvent, type TLKind, type WeekMetric,
   diasAteAplicar, semanasDaGrade, temCiclo, diaDoTratamento, temHistoria,
@@ -25,6 +25,7 @@ import { useLarguraApp } from '../../ui/useLarguraApp';
 import { useLightStatusBar } from '../../ui/useLightStatusBar';
 import { radius, alfa, RESPIRO_ABAS } from '../../theme';
 import { aguaTxt, pesoN, pesoTxt, pesoU } from '../../logic/medidas';
+import { formaAtual, iconeDaDose } from '../../logic/formas';
 import { T } from '../../textos';
 
 /* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
@@ -869,10 +870,14 @@ export default function Jornada() {
                check-ins ou refeições (`temHistoria`), mas as semanas contam
                de uma aplicação à outra: sem nenhuma, sobrava "Por semana 0"
                e um cartão em branco. É porta de entrada, então explica e
-               leva a registrar. */
+               leva a registrar.
+
+               ⚠️ O DESENHO E O BOTÃO SEGUEM A FORMA (01/10/2026): era uma
+               seringa e "Registrar aplicação" escrito à mão. O botão é o
+               título da folha que ele abre ("Registrar dose"). */
             <View style={{ backgroundColor: c.bg1, borderRadius: radius.lg, marginTop: 14 }}>
-              <Vazio ic="syringe" titulo={K().semanasVaziasTitulo} texto={K().semanasVaziasTexto}
-                acao={K().registrarAplicacao} onAcao={go('/aplicacao')} />
+              <Vazio ic={iconeDaDose(S)} titulo={K().semanasVaziasTitulo} texto={K().semanasVaziasTexto}
+                acao={T.tratamento.telaRegistrarAplicacao.registrar(formaAtual(S).acao)} onAcao={go('/aplicacao')} />
             </View>
           ) : filtro === null ? (
             /* "Por semana" é a única aba que agrupa por ciclo — é o que

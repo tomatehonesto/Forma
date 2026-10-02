@@ -26,6 +26,8 @@ import { useDitado, estadoDoDitado } from '../ui/useDitado';
 import { radius, font, alfa } from '../theme';
 import { LinearGradient } from 'expo-linear-gradient';
 import { T } from '../textos';
+import { iconeDaDose } from '../logic/formas';
+import type { State } from '../logic/seed';
 
 const K = () => T.companion.telaConversa;
 
@@ -83,11 +85,17 @@ const PAD = 24;
     CHAVE da pergunta no catálogo (T.rotina.perguntas), e não do texto:
     assim vale nos seis idiomas. Pergunta sem assunto conhecido leva o de
     tratamento. */
-const ASSUNTOS: Record<string, { ic: string; rotulo: () => string }> = {
+/* ⚠️ O ÍCONE DA DOSE SEGUE A FORMA (01/10/2026): seringa para quem injeta,
+   comprimido para quem toma. Por isso `ic` pode ser função da pessoa — a
+   tabela fica constante, e só as linhas da dose leem `S`. */
+type Icone = string | ((S: State) => string);
+const icone = (ic: Icone, S: State) => (typeof ic === 'function' ? ic(S) : ic);
+
+const ASSUNTOS: Record<string, { ic: Icone; rotulo: () => string }> = {
   maisFome: { ic: 'utensils', rotulo: () => K().assuntoApetite },
   semFome: { ic: 'utensils', rotulo: () => K().assuntoApetite },
-  depoisDaAplicacao: { ic: 'syringe', rotulo: () => K().assuntoTratamento },
-  primeiraDose: { ic: 'syringe', rotulo: () => K().assuntoTratamento },
+  depoisDaAplicacao: { ic: iconeDaDose, rotulo: () => K().assuntoTratamento },
+  primeiraDose: { ic: iconeDaDose, rotulo: () => K().assuntoTratamento },
   trocarODia: { ic: 'cal', rotulo: () => K().assuntoTratamento },
   comoFunciona: { ic: 'pill', rotulo: () => K().assuntoTratamento },
   diminuirEnjoo: { ic: 'gut', rotulo: () => K().assuntoSintomas },
@@ -97,19 +105,19 @@ const ASSUNTOS: Record<string, { ic: string; rotulo: () => string }> = {
   prepararConsulta: { ic: 'steth', rotulo: () => K().assuntoConsulta },
   oQueRegistrar: { ic: 'spark', rotulo: () => K().assuntoComeco },
 };
-const assuntoDe = (pergunta: string) => {
+const assuntoDe = (pergunta: string, S: State) => {
   const P = T.rotina.perguntas as Record<string, string>;
   const chave = Object.keys(P).find((k) => P[k] === pergunta);
   const a = (chave && ASSUNTOS[chave]) || { ic: 'aura', rotulo: () => K().assuntoTratamento };
-  return { ic: a.ic, rotulo: a.rotulo() };
+  return { ic: icone(a.ic, S), rotulo: a.rotulo() };
 };
 
 /** O que cada destino sugerido vira no botão: ícone e rótulo. As rotas
     são as de TELAS_DA_CONVERSA (logic/conversa). */
-const DESTINOS: Record<string, { ic: string; rotulo: () => string }> = {
+const DESTINOS: Record<string, { ic: Icone; rotulo: () => string }> = {
   '/evolucao': { ic: 'scale', rotulo: () => K().irEvolucao },
   '/sintomas': { ic: 'aura', rotulo: () => K().irSintomas },
-  '/aplicacoes': { ic: 'syringe', rotulo: () => K().irAplicacoes },
+  '/aplicacoes': { ic: iconeDaDose, rotulo: () => K().irAplicacoes },
   '/alimentacao': { ic: 'cutlery', rotulo: () => K().irAlimentacao },
   '/agua': { ic: 'water', rotulo: () => K().irAgua },
   '/exames': { ic: 'doc', rotulo: () => K().irExames },
@@ -635,7 +643,7 @@ export default function Companion() {
                   style={({ pressed }) => [{ marginTop: 14, opacity: pressed ? 0.7 : 1 }]}>
                   <Row gap={12} style={{ alignItems: 'center', backgroundColor: c.bg1, borderRadius: radius.lg, paddingHorizontal: 14, paddingVertical: 12 }}>
                     <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: c.bg2, alignItems: 'center', justifyContent: 'center' }}>
-                      <Icon name={DESTINOS[rota]?.ic ?? 'chev'} size={16} color={c.accent} sw={1.9} />
+                      <Icon name={DESTINOS[rota] ? icone(DESTINOS[rota].ic, S) : 'chev'} size={16} color={c.accent} sw={1.9} />
                     </View>
                     <Txt v="label" style={{ flex: 1 }}>{DESTINOS[rota]?.rotulo() ?? rota}</Txt>
                     <Icon name="chev" size={14} color={c.tx3} sw={2} />
@@ -755,7 +763,7 @@ export default function Companion() {
                   contentContainerStyle={{ paddingHorizontal: PAD, gap: 10, alignItems: 'stretch' }}
                 >
                   {sugestoes.map((s) => {
-                    const a = assuntoDe(s);
+                    const a = assuntoDe(s, S);
                     return (
                       <Pressable key={s} onPress={() => ask(s, 'sugerida')} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1, alignSelf: 'stretch' }]}>
                       {/* O CARD: o assunto numa linha discreta no alto (ícone e

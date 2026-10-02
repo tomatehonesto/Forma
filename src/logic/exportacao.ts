@@ -4,6 +4,8 @@ import { File, Paths } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import type { State } from './seed';
 import { M, cadenciaCurta, siteLabel } from './derive';
+import { MEDS } from './meds';
+import { doseInjetavel, injetavelDe, localDaDose } from './formas';
 import { now } from './time';
 import { pesoU, pesoV, compU, compV } from './medidas';
 import { ida, type Pergunta } from './traducao';
@@ -30,9 +32,12 @@ import { ida, type Pergunta } from './traducao';
    é a outra porta desta mesma tela.
 
    NOMES EM PORTUGUÊS, e não as chaves internas do estado. `kg`, `t`,
-   `site` e `prot` são o vocabulário deste código; quem abrir o arquivo
-   daqui a dois anos, ou noutro programa, lê "peso_kg", "data",
-   "local_da_aplicacao" e "proteina_g". O arquivo é para fora.
+   `injections` e `prot` são o vocabulário deste código; quem abrir o
+   arquivo daqui a dois anos, ou noutro programa, lê "peso_kg", "data",
+   "doses" e "proteina_g". O arquivo é para fora.
+
+   ⚠️ ESTE COMENTÁRIO PROMETIA "local_da_aplicacao", e a chave sempre foi
+   `local` — corrigido em 01/10/2026, junto com o bloco das doses (ver lá).
    ============================================================ */
 
 export type Recorte = {
@@ -47,6 +52,10 @@ export type Recorte = {
 
 const iso = (t: number) => new Date(t).toISOString();
 const dia = (t: number) => new Date(t).toISOString().slice(0, 10);
+/* A VIA É UM VALOR FIXO, e não a palavra do idioma: quem lê o arquivo por
+   máquina compara com 'oral', e uma exportação em alemão não pode mudar o
+   que ela compara. Só há duas — toda forma que não se injeta é comprimido. */
+const viaDe = (injetavel: boolean) => (injetavel ? 'injetavel' : 'oral');
 
 export function dadosParaExportar(S: State, r: Recorte) {
   const p: any = S.profile;
@@ -72,6 +81,8 @@ export function dadosParaExportar(S: State, r: Recorte) {
       molecula: med.mol,
       dose: p.dose || null,
       unidade_da_dose: med.unit,
+      /* sem remédio escolhido ainda, não há via a afirmar */
+      via: p.med === 'indefinido' ? null : viaDe(injetavelDe(S)),
       cadencia: cadenciaCurta(S),
       inicio: p.startT ? dia(p.startT) : null,
       peso_inicial_kg: p.startWeight || null,
@@ -79,13 +90,40 @@ export function dadosParaExportar(S: State, r: Recorte) {
     },
   };
 
+  /* ⚠️⚠️ AS DOSES, CADA UMA COM O SEU REMÉDIO E A SUA VIA (01/10/2026).
+
+     O bloco se chamava `aplicacoes` e dizia três coisas falsas para quem
+     toma comprimido ou trocou de remédio: o nome (comprimido não se
+     aplica), a unidade (a do remédio de HOJE, em toda linha) e o local (até
+     01/10/2026 o comprimido era gravado com um local de injeção inventado).
+
+     · `doses` — o substantivo de todas as formas, o mesmo do PDF. A chave
+       foi renomeada porque nada lia `aplicacoes`: nem o app, nem script,
+       nem servidor (o arquivo é só de saída). O interruptor `inclui.
+       aplicacoes` continua com o nome interno, como `S.injections`.
+     · `medicamento` e `unidade` saem do `med` gravado em cada dose, e não
+       do perfil. Vão em toda linha, e não só quando há troca: para quem lê
+       por máquina, uma coluna que some e aparece é pior do que repetida.
+     · `via` diz se a dose foi injetada ou tomada — o arquivo se descreve
+       sozinho, sem quem o lê precisar do nosso catálogo de remédios.
+     · `local` é nulo quando a dose não foi injetada (`localDaDose`), e
+       também quando foi e ninguém disse onde.
+
+     ⚠️ O DIÁRIO COMPLETO, mais abaixo, continua com o registro como está
+     guardado — é a cópia fiel —, inclusive um `site` antigo de comprimido. */
   if (r.inclui.aplicacoes) {
-    out.aplicacoes = apos(S.injections as any[]).map((x: any) => ({
-      data: iso(x.t),
-      dose: x.dose,
-      unidade: med.unit,
-      local: x.site ? siteLabel(x.site) : null,
-    }));
+    out.doses = apos(S.injections as any[]).map((x: any) => {
+      const m = MEDS[x.med] ?? med;
+      const local = localDaDose(S, x);
+      return {
+        data: iso(x.t),
+        medicamento: m.label,
+        dose: x.dose,
+        unidade: m.unit,
+        via: viaDe(doseInjetavel(S, x)),
+        local: local ? siteLabel(local) : null,
+      };
+    });
   }
 
   if (r.inclui.peso) {

@@ -1,7 +1,7 @@
 import type { State } from './seed';
 import type { Permissao } from './avisos';
 import { respostaNoDia } from './derive';
-import { FORMAS, formaDe } from './formas';
+import { iconeDaDose, injetavelDe } from './formas';
 import { T } from '../textos';
 
 /* ============================================================
@@ -48,18 +48,19 @@ const K = () => T.home.primeirosPassos;
 
 /* A ORDEM É A DO PRIMEIRO DIA: o plano, que já está feito, abre a lista
    com um visto, e não do zero; depois o que conta o tratamento (a
-   aplicação), o que conta o dia (o check-in), e por fim o que deixa o resto
+   dose), o que conta o dia (o check-in), e por fim o que deixa o resto
    automático (os lembretes e a saúde do aparelho), que são opcionais. */
 export function passos(S: State, { permissao, aparelho }: DoAparelho): Passo[] {
-  /* Quem toma comprimido registra a primeira dose, e não a primeira
-     aplicação — a forma decide a palavra e o desenho (logic/formas). */
-  const injetavel = FORMAS()[formaDe(S)].injetavel;
+  /* A forma decide o desenho (seringa ou comprimido) e ainda passa para
+     a frase: "dose" é o substantivo de todas desde 01/10/2026, mas a
+     frase fica pronta para um idioma que precise dizê-la por forma. */
+  const injetavel = injetavelDe(S);
   const lista: Passo[] = [
     /* A prancheta, e não o alvo: o alvo é o desenho das metas diárias, que
        ficam logo abaixo do cartão na mesma folha. */
     { id: 'plano', ic: 'plano', titulo: K().plano, pronto: true },
     {
-      id: 'aplicacao', ic: injetavel ? 'syringe' : 'pill', titulo: K().aplicacao(injetavel), sub: K().aplicacaoSub,
+      id: 'aplicacao', ic: iconeDaDose(S), titulo: K().aplicacao(injetavel), sub: K().aplicacaoSub,
       pronto: (S.injections?.length ?? 0) > 0, to: '/aplicacao',
     },
     {

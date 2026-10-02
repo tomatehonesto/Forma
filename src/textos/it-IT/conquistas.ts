@@ -19,8 +19,8 @@
    "-e" fa "-i" — e una funzione che appendesse una lettera sbaglierebbe
    due volte su tre. Per questo `p` vuole sempre il plurale scritto.
 
-   SECONDA: IL PARTICIPIO CONCORDA IN GENERE E IN NUMERO. "1 puntura
-   registrata", "3 punture registrate", "1 piatto registrato", "3 piatti
+   SECONDA: IL PARTICIPIO CONCORDA IN GENERE E IN NUMERO. "1 dose
+   registrata", "3 dosi registrate", "1 piatto registrato", "3 piatti
    registrati" — quattro forme per lo stesso verbo. Il portoghese ne ha
    due (la "s" finale) e l'inglese nessuna, e per questo là il ternario
    era una lettera sola. Qui ogni riga sceglie la desinenza intera.
@@ -46,9 +46,12 @@ export const conquistas = {
   },
 
   /* ---------------- terapia ---------------- */
-  doses: 'Punture',
-  dosesDesc: (a: number) => `${p(a, 'puntura', 'punture')} registrat${a === 1 ? 'a' : 'e'}`,
-  dosesFalta: (r: number) => `${v(r, 'Manca', 'Mancano')} ${p(r, 'puntura', 'punture')}`,
+  /* ⚠️ "DOSI", E ERA "PUNTURE" (01/10/2026): lo stesso percorso serve la
+     penna e la compressa. "Dose" è femminile come "puntura", e il
+     participio resta in -a/-e. Vedi ../pt-BR/conquistas.ts. */
+  doses: 'Dosi',
+  dosesDesc: (a: number) => `${p(a, 'dose', 'dosi')} registrat${a === 1 ? 'a' : 'e'}`,
+  dosesFalta: (r: number) => `${v(r, 'Manca', 'Mancano')} ${p(r, 'dose', 'dosi')}`,
 
   tempo: 'Durata della terapia',
   /* Sotto l'anno conta in mesi, e da lì in poi in anni: "12 mesi" e "1
@@ -61,7 +64,8 @@ export const conquistas = {
 
   /* ⚠️ LA ROTAZIONE NON È UN ORNAMENTO: ripetere lo stesso punto provoca
      noduli, e alternare è indicazione del foglietto. È l'unico percorso
-     che premia una pratica di sicurezza. */
+     che premia una pratica di sicurezza — ed esiste solo per chi si
+     inietta. */
   rodizio: 'Rotazione',
   rodizioDesc: (a: number) => `${p(a, 'zona', 'zone')} di iniezione usat${a === 1 ? 'a' : 'e'}`,
   rodizioFalta: (r: number) => `${v(r, 'Manca', 'Mancano')} ${p(r, 'zona', 'zone')}`,

@@ -23,7 +23,7 @@ export const ciclo = {
 
      Es war „TAG 5 DER DOSIS“, und eine Dosis ist keine Zeitspanne.
      „Nach“ behält die Zählung ohne das Soll — und es ist das Wort des
-     Zyklus-Bildschirms, „Tag 5 nach deiner Spritze“. */
+     Zyklus-Bildschirms, „Tag 5 nach deiner Dosis“. */
   chapeuDia: (dia: number) => `TAG ${dia} NACH DER DOSIS`,
   /* Ohne eingetragene Spritze gibt es keinen Zyklus, und der Hut
      erfindet keinen. */
@@ -36,7 +36,11 @@ export const ciclo = {
      Karussell. */
   aplicHead: 'Die Wirkung beginnt in den nächsten Stunden zu steigen.',
   aplicBody: 'Leichte Übelkeit kann auftreten — kleinere Mahlzeiten über den Tag gehen besser.',
-  aplicQ: 'Was ist am Tag der Spritze zu erwarten?',
+  /* ⚠️ „DOSIS“ UND NICHT „SPRITZE“ IN DER GANZEN DATEI (01.10.2026): diese
+     Zeilen werden als bloßer Text gelesen, ohne die Darreichungsform zu
+     kennen, und wer eine Tablette nimmt, las „am Tag der Spritze“. Siehe
+     ../pt-BR/ciclo.ts. */
+  aplicQ: 'Was ist am Tag der Dosis zu erwarten?',
 
   /* ---------- Gipfel ---------- */
   picoHead: 'Dein Appetit ist heute eher niedriger.',
@@ -57,7 +61,7 @@ export const ciclo = {
   /* Zwei Schlagzeilen aus demselben Grund wie am Spritzentag: wenn heute
      gespritzt wird, erzählt das die Spritzenfolie. */
   altoHeadHoje: 'Hunger am höchsten Punkt des Zyklus.',
-  altoHeadComData: (quando: string) => `Hunger am hohen Punkt des Zyklus — Spritze ${quando}.`,
+  altoHeadComData: (quando: string) => `Hunger am hohen Punkt des Zyklus — nächste Dosis ${quando}.`,
   /* ⚠️ „LASS KEINE MAHLZEIT AUS“ SETZT VORAUS, DASS SIE WELCHE AUSLÄSST,
      und am Höhepunkt des Hungers lässt am wenigsten aus, wer Hunger hat.
      Der Satz war als Rat gedacht und kam als Zurechtweisung an — die
@@ -86,7 +90,7 @@ export const ciclo = {
      Name allein — „Beginn der Rückkehr des Hungers“ — ist Diagnose ohne
      Zusammenhang, und auf einem Behandlungsbildschirm erschreckt das,
      statt zu leiten. */
-  faseAplicLabel: 'Spritze',
+  faseAplicLabel: 'Dosis',
   faseAplicRange: 'Tag 1',
   faseAplicHint: 'Die Wirkung beginnt in den nächsten Stunden zu steigen.',
 
@@ -102,7 +106,7 @@ export const ciclo = {
   faseRetornoRange: 'Tage 5–6',
   faseRetornoHint: 'Der Wirkstoffspiegel beginnt zu sinken, und der Hunger kommt meist zurück.',
 
-  fasePreLabel: 'Vor der Spritze',
+  fasePreLabel: 'Vor der Dosis',
   fasePreRange: 'Ab Tag 7',
   fasePreHint: 'Tiefster Punkt des Zyklus, bis zur nächsten Dosis.',
 
@@ -140,12 +144,15 @@ export const ciclo = {
   faseDescidaAtencao: 'anhaltendes Erbrechen oder starke Bauchschmerzen: sprich mit deiner Ärztin oder deinem Arzt',
 
   faseBaixoTitulo: 'Tag 7 · tiefster Punkt',
-  faseBaixoSub: 'Der Tag vor der nächsten Spritze',
+  faseBaixoSub: 'Der Tag vor der nächsten Dosis',
   faseBaixoComum: 'Appetit näher am Gewohnten',
   /* „Die Dosis“ und nicht „der Pen“: diese Tabelle ist konstant und kennt
      die Darreichungsform nicht — der Satz bedient Pen, Durchstechflasche
-     und Spritze gleichermaßen. Siehe logic/formas. */
+     und Spritze gleichermaßen. Siehe logic/formas. ⚠️ Die Einstichstelle
+     gibt es aber nur, wenn gespritzt wird, und deshalb hat der Satz ein
+     Paar: app/ciclo wählt nach der Form. */
   faseBaixoAjuda: 'Dosis und Einstichstelle schon am Vorabend festlegen',
+  faseBaixoAjudaSemLocal: 'die Dosis schon am Vorabend festlegen',
   tela: {
     titulo: 'Dosiszyklus',
     diaDepois: (dia: number, acao: string) => `Tag ${dia} nach\ndeiner ${acao}`,

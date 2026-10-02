@@ -22,9 +22,11 @@ export const rotina = {
   perguntas: {
     maisFome: 'Por que senti mais fome hoje?',
     semFome: 'Por que estou sem fome?',
-    depoisDaAplicacao: 'O que esperar depois da aplicação?',
+    /* "Dose", e era "aplicação" (01/10/2026): o substantivo de todas as
+       formas. A chave fica — o companion a lê para escolher o assunto. */
+    depoisDaAplicacao: 'O que esperar depois da dose?',
     diminuirEnjoo: 'Como diminuir o enjoo?',
-    trocarODia: 'Posso trocar o dia da aplicação?',
+    trocarODia: 'Posso trocar o dia da dose?',
     meusExames: 'O que meus exames mostram?',
     meuProgresso: 'Analise meu progresso',
     prepararConsulta: 'Prepare minha consulta',
@@ -73,9 +75,20 @@ export const rotina = {
 
     /* O recipiente e o artigo vêm de logic/formas: "Separe a caneta",
        "Separe o frasco". A frase é a mesma; o que muda é a forma do
-       medicamento. */
-    aplicacao: (recipiente: string) => `Separe ${recipiente} e escolha o local`,
-    aplicacaoPorque: 'A aplicação da semana está chegando, e alternar o local reduz irritação na pele',
+       medicamento.
+
+       ⚠️ E O LOCAL SÓ EXISTE PARA QUEM INJETA (01/10/2026). Era "Separe a
+       cartela e escolha o local" para quem toma comprimido — uma pergunta
+       sem sentido. Por isso as duas recebem `injetavel`.
+
+       ⚠️ "A PRÓXIMA DOSE", E ERA "A APLICAÇÃO DA SEMANA": o substantivo de
+       todas as formas, e sem afirmar uma cadência que a caneta diária
+       (Saxenda, Victoza) não tem. */
+    aplicacao: (recipiente: string, injetavel: boolean): string =>
+      (injetavel ? `Separe ${recipiente} e escolha o local` : `Separe ${recipiente}`),
+    aplicacaoPorque: (injetavel: boolean): string => (injetavel
+      ? 'A próxima dose está chegando, e alternar o local reduz irritação na pele'
+      : 'A próxima dose está chegando, e a cartela à mão ajuda a não esquecer'),
 
     receita: 'Peça a renovação da receita',
     /* ⚠️⚠️ A PALAVRA "doses" ESTAVA NO CÓDIGO, e não aqui. O sítio de
@@ -129,14 +142,16 @@ export const rotina = {
     exercicio: (dias: number) => `Se exercitar em ${dias} ${dias === 1 ? 'dia' : 'dias'} da semana`,
     origemExercicio: 'Exercício',
 
-    aplicacaoUma: 'Aplicação da semana',
-    aplicacaoVarias: (quantas: number) => `${quantas} aplicações na semana`,
-    origemAplicacao: 'Aplicações',
+    /* "Dose", e era "aplicação" (01/10/2026): o substantivo de todas as
+       formas. O ícone da tarefa é que segue a forma, em logic/derive. */
+    aplicacaoUma: 'Dose da semana',
+    aplicacaoVarias: (quantas: number) => `${quantas} doses na semana`,
+    origemAplicacao: 'Doses',
 
     /* O que se conta em cada tarefa. "1 de 1 dia" não descreve uma
-       injeção, por isso a aplicação traz o par dela. */
+       dose, por isso a dose traz o par dela. */
     unidadeDia: ['dia', 'dias'] as [string, string],
-    unidadeAplicacao: ['aplicação', 'aplicações'] as [string, string],
+    unidadeAplicacao: ['dose', 'doses'] as [string, string],
     nota: (feito: number, alvo: number, unidade: string) => `${feito} de ${alvo} ${unidade}`,
   },
 
@@ -206,8 +221,15 @@ export const rotina = {
     pesoDe: (de: string, para: string) => `De ${de} para ${para}`,
     doseNova: (dose: string) => `Dose para ${dose} mg`,
     doseAnterior: (dose: string) => `Vinha de ${dose} mg`,
-    umaAplicacao: '1 aplicação',
-    aplicacoes: (quantas: number) => `${quantas} aplicações`,
+    /* ⚠️ A TROCA DE REMÉDIO NÃO É AJUSTE (01/10/2026). Ozempic 1 mg →
+       Rybelsus 7 mg saía "Dose para 7 mg · Vinha de 1 mg", como se a dose
+       tivesse subido sete vezes. `remedio` já chega com nome, dose e
+       unidade ("Rybelsus 7 mg"). */
+    remedioNovo: (remedio: string) => `Troca para ${remedio}`,
+    remedioAnterior: (remedio: string) => `Vinha de ${remedio}`,
+    /* "Doses", e era "aplicações" (01/10/2026); o ícone segue a forma. */
+    umaAplicacao: '1 dose',
+    aplicacoes: (quantas: number) => `${quantas} doses`,
     marcadores: (quantos: number) => `${quantos} marcadores`,
     umaOrientacao: '1 orientação da equipe',
     orientacoes: (quantas: number) => `${quantas} orientações da equipe`,

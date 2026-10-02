@@ -29,7 +29,7 @@ export const descobertas = {
   /* La molécule en minuscule parce que c'est une substance, pas une
      marque. */
   fomeTexto: (molecula: string) =>
-    `C’est le moment où le niveau de ${molecula} atteint son point le plus bas du cycle, juste avant la prochaine piqûre. Ça passe tout seul une fois la piqûre faite.`,
+    `C’est le moment où le niveau de ${molecula} atteint son point le plus bas du cycle, juste avant la prochaine dose. Ça passe tout seul une fois la dose prise.`,
   fomeCta: 'Voir le cycle',
 
   aguaTitulo: 'Demain est souvent votre journée la plus sèche',
@@ -39,7 +39,7 @@ export const descobertas = {
 
   enjooTitulo: 'Si les nausées arrivent maintenant, elles ont une heure pour passer',
   enjooTexto: (perto: string, longe: string) =>
-    `Dans vos relevés, elles restent à ${perto} les deux premiers jours après la piqûre et descendent à ${longe} à partir du troisième. Ce sont les 48 h de chaque cycle, pas le traitement entier.`,
+    `Dans vos relevés, elles restent à ${perto} les deux premiers jours après la dose et descendent à ${longe} à partir du troisième. Ce sont les 48 h de chaque cycle, pas le traitement entier.`,
   enjooCta: 'Voir les symptômes',
 
   chapeuConvite: 'UNE INVITATION',

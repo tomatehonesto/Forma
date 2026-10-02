@@ -3,6 +3,7 @@ import { MEDS } from './meds';
 import { DAY, startOfDay, now, diffDays, nf, doseTxt } from './time';
 import { T } from '../textos';
 import { pesoTxt, compTxt } from './medidas';
+import { iconeDaDose, injetavelDe, localDaDose } from './formas';
 
 /* ESTE ARQUIVO NÃO IMPORTA O DERIVE, e o derive importa este. O caminho
    tem uma direção só de propósito: o derive já chama as conquistas — a
@@ -163,7 +164,12 @@ const inteiro = (n: number) => String(Math.ceil(n));
  * ------------------------------------------------------------------ */
 
 type Trilha = {
-  id: string; familia: Familia; ic: string; titulo: string;
+  id: string; familia: Familia; titulo: string;
+  /* ⚠️ O ÍCONE PODE DEPENDER DA PESSOA (01/10/2026): o da trilha de doses
+     é seringa para quem injeta e comprimido para quem toma. Função só
+     onde precisa; as outras continuam com o nome do ícone. Quem lê passa
+     por `icDe`. */
+  ic: string | ((S: State) => string);
   /** as alturas da trilha, em ordem crescente */
   niveis: number[];
   /** o que aquele nível representa, escrito por extenso */
@@ -179,6 +185,8 @@ type Trilha = {
   vale?: (S: State) => boolean;
 };
 
+const icDe = (t: Trilha, S: State) => (typeof t.ic === 'function' ? t.ic(S) : t.ic);
+
 /* ⚠️ O PLURAL SAIU DAQUI. Ele era gramática do português — "local" vira
    "locais", "sessão" vira "sessões" — escrita dentro da lógica, e agora
    mora no catálogo, um por idioma. Ver src/textos/pt-BR/conquistas.
@@ -188,7 +196,10 @@ type Trilha = {
 const CATALOGO = (): Trilha[] => [
   /* ---------------- tratamento ---------------- */
   {
-    id: 'doses', familia: 'tratamento', ic: 'syringe', titulo: T.conquistas.doses,
+    /* "Doses" para todas as formas, e o ícone da forma de agora
+       (01/10/2026). Os níveis ainda são os da dose semanal — contar dias
+       com dose para quem toma todo dia é a parte B. */
+    id: 'doses', familia: 'tratamento', ic: (S) => iconeDaDose(S), titulo: T.conquistas.doses,
     niveis: [1, 4, 12, 26, 52, 104],
     desc: (a) => T.conquistas.dosesDesc(a),
     falta: (r) => T.conquistas.dosesFalta(r),
@@ -216,16 +227,29 @@ const CATALOGO = (): Trilha[] => [
        prática de segurança, e a única com um teto natural — são seis
        locais, e não há sétimo. */
     id: 'rodizio', familia: 'tratamento', ic: 'troca', titulo: T.conquistas.rodizio,
+    /* ⚠️ SÓ PARA QUEM INJETA (01/10/2026). Para quem toma comprimido o
+       rodízio não é uma meta difícil: é uma pergunta que não existe — e a
+       trilha aparecia "a caminho", com "Faltam 2 locais", para quem não
+       tem local nenhum. Some da lista, como a titulação some de quem não
+       tem escada. */
+    /* ⚠️ E QUEM TROCOU PARA COMPRIMIDO NÃO PERDE O QUE GANHOU: os locais
+       reais das doses injetadas de antes (localDaDose) contam, a partir do
+       primeiro nível. Só não se pede mais nada a quem não injeta. */
+    vale: (S) => injetavelDe(S)
+      || new Set((S.injections as any[]).map((i) => localDaDose(S, i)).filter(Boolean)).size >= 2,
     niveis: [2, 4, 6],
     desc: (a) => T.conquistas.rodizioDesc(a),
-    falta: (r) => T.conquistas.rodizioFalta(r),
+    falta: (r, _a, S) => (injetavelDe(S) ? T.conquistas.rodizioFalta(r) : ''),
     medida: (S) => {
       const vistos = new Set<string>();
       const quando = new Map<number, number>();
       for (const i of S.injections as any[]) {
-        /* Aplicação sem local (a do cadastro) não é um local a mais. */
-        if (!i.site) continue;
-        vistos.add(i.site);
+        /* Aplicação sem local (a do cadastro) não é um local a mais — nem o
+           local que o registro inventava para um comprimido até 01/10/2026,
+           que `localDaDose` não devolve (logic/formas). */
+        const site = localDaDose(S, i);
+        if (!site) continue;
+        vistos.add(site);
         if (!quando.has(vistos.size)) quando.set(vistos.size, i.t);
       }
       return { feito: vistos.size, quando: (a) => quando.get(a) ?? null };
@@ -435,7 +459,7 @@ const CATALOGO = (): Trilha[] => [
 /* A TITULAÇÃO TEM OS NÍVEIS DO MEDICAMENTO, e não uma escada escrita
    aqui: cada caneta tem a sua, e o catálogo de medicamentos é quem sabe.
    A primeira dose não entra como nível — chegar nela é o próprio começo,
-   e já é a primeira aplicação. */
+   e já conta na trilha de doses. */
 const niveisDaTrilha = (t: Trilha, S: State): number[] =>
   (t.id === 'titulacao' ? (M(S).doses ?? []).slice(1) : t.niveis);
 
@@ -457,7 +481,7 @@ export function conquistas(S: State): Conquista[] {
       const anterior = nivel > 0 ? niveis[nivel - 1] : 0;
 
       return {
-        id: t.id, familia: t.familia, ic: t.ic, titulo: t.titulo,
+        id: t.id, familia: t.familia, ic: icDe(t, S), titulo: t.titulo,
         nivel, niveis: niveis.length,
         desc: t.desc(atual ?? niveis[0] ?? 0, S),
         t: atual != null ? quando(atual) : null,
@@ -489,7 +513,7 @@ export function degrausDe(S: State, id: string) {
   for (const alvo of niveis) if (feito >= alvo) nivel++;
   const proximo = nivel < niveis.length ? niveis[nivel] : null;
   return {
-    id: t.id, titulo: t.titulo, ic: t.ic, nivel,
+    id: t.id, titulo: t.titulo, ic: icDe(t, S), nivel,
     degraus: niveis.map((alvo) => ({
       alvo, desc: t.desc(alvo, S),
       /* A data existe só para o degrau passado. Guardar a de um degrau
@@ -511,7 +535,7 @@ export function textoDeNivel(S: State, id: string, alvo: number, resta: number |
   const t = CATALOGO().find((x) => x.id === id);
   if (!t) return null;
   return {
-    titulo: t.titulo, ic: t.ic, desc: t.desc(alvo, S),
+    titulo: t.titulo, ic: icDe(t, S), desc: t.desc(alvo, S),
     falta: resta != null && proximo != null ? t.falta(resta, proximo, S) : '',
   };
 }

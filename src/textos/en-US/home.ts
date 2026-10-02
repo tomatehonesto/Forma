@@ -60,9 +60,10 @@ export const home = {
      direction, and that's the word. It is neither good news nor bad. */
   estavel: 'Steady',
 
+  /* ⚠️ "DOSE" É O SUBSTANTIVO DE TODAS AS FORMAS (01/10/2026). Ver ../pt-BR. */
   tipos: {
     checkin: 'Check-ins',
-    aplicacao: 'Shots',
+    aplicacao: 'Doses',
     peso: 'Weight',
     refeicao: 'Meals',
     exercicio: 'Workouts',
@@ -71,7 +72,7 @@ export const home = {
   },
 
   evento: {
-    aplicacao: (dose: string, unidade: string) => `Shot ${dose} ${unidade}`,
+    aplicacao: (dose: string, unidade: string) => `Dose ${dose} ${unidade}`,
     peso: 'Weight',
     pesoInicial: 'Starting weight',
     checkin: 'Check-in',
@@ -179,7 +180,7 @@ export const home = {
     ultimos7: 'YOUR LAST 7 DAYS',
     doseEm: (quando: string) => `dose ${quando}`,
     diasComCheckin: (feitos: number, dias: number, aplicadas: number, vividas: number) =>
-      `${feitos} of ${dias} ${dias === 1 ? 'day' : 'days'} with a check-in · ${aplicadas} of ${vividas} ${vividas === 1 ? 'week' : 'weeks'} with a shot`,
+      `${feitos} of ${dias} ${dias === 1 ? 'day' : 'days'} with a check-in · ${aplicadas} of ${vividas} ${vividas === 1 ? 'week' : 'weeks'} with a dose`,
     diasComCheckinSo: (feitos: number, dias: number) =>
       `${feitos} of ${dias} ${dias === 1 ? 'day' : 'days'} with a check-in`,
     primeiraDose: 'First dose',
@@ -218,9 +219,8 @@ export const home = {
     oDiaADia: 'Day to day',
     seuTratamento: 'Your treatment',
     /* o vazio de "Seu tratamento" e de "Suas metas" (Jornada, Histórico) */
-    semanasVaziasTitulo: 'Weeks start with your first injection',
-    semanasVaziasTexto: 'Treatment is counted from one injection to the next. Log the first one, and each week shows up here with what happened in it.',
-    registrarAplicacao: 'Log an injection',
+    semanasVaziasTitulo: 'Weeks start with your first dose',
+    semanasVaziasTexto: 'Treatment is counted from one dose to the next. Log the first one, and each week shows up here with what happened in it.',
     metasVaziasTitulo: 'Create a goal',
     metasVaziasTexto: 'Water, sleep, workouts or whatever makes sense for you.',
     verTudo: 'See all',
@@ -243,10 +243,11 @@ export const home = {
     linhaDoDia: (dia: string, semana: number) => `${dia} • Week ${semana}`,
 
     semRegistro: 'NOT LOGGED',
-    semRegistroOntem: 'Yesterday’s shot isn’t logged.',
-    semRegistroDias: (dias: number) => `The shot from ${dias} days ago isn’t logged.`,
-    semRegistroCorpo: 'If you took it, you can log it now. If you didn’t, the cycle picks back up with your next shot.',
-    semRegistroCta: 'Log the shot',
+    semRegistroOntem: 'Yesterday’s dose isn’t logged.',
+    semRegistroDias: (dias: number) => `The dose from ${dias} days ago isn’t logged.`,
+    /* "took" serve à injeção e ao comprimido: o inglês não se divide. */
+    semRegistroCorpo: (_injetavel: boolean): string =>
+      'If you took it, you can log it now. If you didn’t, the cycle picks back up with your next dose.',
 
     aConsulta: 'YOUR APPOINTMENT',
     consultaHoje: 'Your appointment is today.',
@@ -276,12 +277,13 @@ export const home = {
     marcoCorpo: (trilha: string, n: number, de: number): string => `${trilha} · level ${n} of ${de}`,
     marcoCta: 'See achievements',
 
-    proximaAplicacao: 'NEXT SHOT',
-    hojeEDiaDeAplicar: 'Today is shot day.',
+    proximaAplicacao: 'NEXT DOSE',
+    hojeEDiaDeAplicar: 'Today is dose day.',
     proximaDose: (quando: string) => `Your next dose is ${quando}.`,
-    doseCorpo: (medicamento: string, dose: string, local: string) =>
-      `${medicamento} ${dose} · ${local} suggested.`,
-    verAplicacao: 'See your shots',
+    /* sem local (comprimido), a frase para no medicamento — ver ../pt-BR */
+    doseCorpo: (medicamento: string, dose: string, local?: string): string =>
+      (local ? `${medicamento} ${dose} · ${local} suggested.` : `${medicamento} ${dose}.`),
+    verAplicacao: 'See your doses',
     criarLembrete: 'Set a reminder',
 
     checkinFeito: 'Check-in done',
@@ -334,7 +336,7 @@ export const home = {
     diaADia: 'Day by day',
     diaComData: (diaDaSemana: string, data: string) => `${diaDaSemana}, ${data}`,
     selo: {
-      aplicacao: 'shot',
+      aplicacao: 'dose',
       checkin: 'check-in',
       peso: 'weigh-in',
       refeicao: 'meal',
@@ -369,7 +371,8 @@ export const home = {
     refeicaoSub: (proteina: number, alvo: number) => `${proteina} of ${alvo} g`,
 
     levaUmMinuto: 'TAKES A MINUTE',
-    aplicacao: 'I took my dose',
+    /* "took" serve às duas formas: o inglês já era neutro (ver ../pt-BR) */
+    aplicacao: (_injetavel: boolean): string => 'I took my dose',
     peso: 'I just weighed myself',
     medidas: 'I measured my body',
     exame: 'I got a lab result',
@@ -400,7 +403,7 @@ export const home = {
     semanaN: (n: number) => `Week ${n}`,
     tudoCumprido: 'all done',
     cumpridasDeTotal: (feitas: number, total: number) => `${feitas} of ${total} done`,
-    aplicacaoEm: (quando: string) => `shot ${quando}`,
+    aplicacaoEm: (quando: string) => `dose ${quando}`,
 
     falarComEquipe: 'Talk to the team',
 
@@ -414,10 +417,10 @@ export const home = {
   },
   telaDia: {
     registrosDeste: 'Entries for this day',
-    diaDeAplicacao: 'Shot day',
+    diaDeAplicacao: 'Dose day',
     nadaRegistrado: 'nothing logged yet',
 
-    aplicacao: 'Shot',
+    aplicacao: 'Dose',
     doseLinha: (med: string, dose: string, unidade: string, estado?: string) =>
       `${med} ${dose} ${unidade}${estado ? ` · ${estado}` : ''}`,
     prevista: 'due today',
@@ -456,7 +459,7 @@ export const home = {
     plano: 'Your plan is ready',
     medicacao: 'Choose your medication',
     medicacaoSub: 'Your dose, cycle and reminders all come from it',
-    aplicacao: (injetavel: boolean): string => (injetavel ? 'Log your first shot' : 'Log your first dose'),
+    aplicacao: (_injetavel: boolean): string => 'Log your first dose',
     aplicacaoSub: 'We count your cycle and next dose from it',
     checkin: 'Do your first check-in',
     checkinSub: 'How you’re feeling today, in under a minute',

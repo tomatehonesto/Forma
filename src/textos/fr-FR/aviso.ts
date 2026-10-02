@@ -115,9 +115,6 @@ export const aviso = {
     incluido: 'inclus',
     fora: 'dehors',
 
-    aplicacoes: 'Piqûres',
-    aplicacoesSub: (quantas: number) =>
-      `${quantas} ${quantas === 1 ? 'relevé' : 'relevés'} · date, dose et endroit`,
     pesoEMedidas: 'Poids et mesures',
     pesoEMedidasSub: (pesagens: number, medidas: number) =>
       `${pesagens} ${pesagens === 1 ? 'pesée' : 'pesées'} · ${medidas} ${medidas === 1 ? 'mesure' : 'mesures'}`,

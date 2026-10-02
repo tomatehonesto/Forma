@@ -32,7 +32,9 @@ export const cruzamentos = {
   catSono: 'Sono',
   catSintomas: 'Sintomas',
   catPeso: 'Peso',
-  catAplicacoes: 'Aplicações',
+  /* "Doses", e era "Aplicações" (01/10/2026): a chave fica, o rótulo é o
+     substantivo de todas as formas. */
+  catAplicacoes: 'Doses',
 
   /* ---------- os dias da semana, como eles entram na frase ---------- */
   /* ⚠️ VÊM COM PREPOSIÇÃO, e não soltos. "A sua hidratação cai domingo"
@@ -129,22 +131,26 @@ export const cruzamentos = {
     q: 'Por que sinto enjoo?',
     evid: (comSono: string, semSono: string, noites: number) =>
       ({ valor: comSono, unidade: `de ${semSono}`, legenda: `o enjoo depois de ${noites} noites longas` }),
-    significa: 'Isto é o que os seus registros mostram, e não uma relação de causa: o ciclo da aplicação mexe no enjoo mais do que qualquer outra coisa, e ele pode estar por trás dos dois lados da conta. Vale como pista para levar à sua equipe, não como explicação fechada.',
+    significa: 'Isto é o que os seus registros mostram, e não uma relação de causa: o ciclo da dose mexe no enjoo mais do que qualquer outra coisa, e ele pode estar por trás dos dois lados da conta. Vale como pista para levar à sua equipe, não como explicação fechada.',
   },
 
   /* ---------- 6. a janela do enjoo ---------- */
-  /* O achado não é que existe enjoo — é que ele tem hora para acabar. */
+  /* O achado não é que existe enjoo — é que ele tem hora para acabar.
+
+     ⚠️ "DOSE", E ERA "APLICAÇÃO" (01/10/2026): o substantivo de todas as
+     formas. Que o achado só faça sentido com dose semanal é outra
+     conversa, e é a da cadência (parte B do desenho de 01/10/2026). */
   janelaEnjoo: {
-    titulo: 'Seu enjoo costuma sumir cerca de 48 horas depois da aplicação',
+    titulo: 'Seu enjoo costuma sumir cerca de 48 horas depois da dose',
     texto: (perto: string, longe: string) =>
       `Ele fica em ${perto} nos dois primeiros dias e cai para ${longe} a partir do terceiro. Não é o tratamento inteiro que enjoa — são as primeiras 48 h de cada ciclo.`,
     q: 'Por que sinto enjoo?',
     evid: { valor: '48', unidade: 'horas', legenda: 'e então ele passa' },
     /* ⚠️ A ÚLTIMA FRASE É A ÚNICA DO ARQUIVO QUE SUGERE UMA AÇÃO, e ela
-       pode: escolher o dia da aplicação é decisão da pessoa com a equipe,
-       não mudança de dose nem de medicação. */
+       pode: escolher o dia da dose é decisão da pessoa com a equipe, não
+       mudança de dose nem de medicação. */
     significa: (dias: number) =>
-      `Isso se repetiu em ${dias} dos seus registros pós-aplicação. Saber que existe uma janela, e que ela acaba, muda o que fazer com ela: dá para escolher o dia da aplicação de forma que essas 48 h caiam no seu período mais leve da semana.`,
+      `Isso se repetiu em ${dias} dos seus registros depois da dose. Saber que existe uma janela, e que ela acaba, muda o que fazer com ela: dá para escolher o dia da dose de forma que essas 48 h caiam no seu período mais leve da semana.`,
   },
 
   /* ---------- 7. água contra enjoo ---------- */
@@ -205,7 +211,8 @@ export const cruzamentos = {
 
      O motivo de estarem marcados assim está em logic/derive — eram os
      únicos sem condição em volta, e abriam a aba, para quem tinha acabado
-     de instalar, com "Você manteve 0% das aplicações em dia".
+     de instalar, com "Você manteve 0% das aplicações em dia" (a frase de
+     então).
      ============================================================ */
 
   /* ---------- 10. o ritmo ---------- */
@@ -238,16 +245,19 @@ export const cruzamentos = {
   },
 
   /* ---------- 11. a adesão ---------- */
+  /* ⚠️ "DOSES", E ERA "APLICAÇÕES" (01/10/2026): o retrato é o mesmo para
+     quem injeta e para quem toma comprimido. O número chega sempre a 3 ou
+     mais (o limiar está em logic/derive), e por isso o plural é fixo. */
   adesao: {
-    tituloPerfeita: 'Você não atrasou nenhuma aplicação desde o começo',
-    titulo: (pct: number) => `Você manteve ${pct}% das aplicações em dia`,
+    tituloPerfeita: 'Você não atrasou nenhuma dose desde o começo',
+    titulo: (pct: number) => `Você manteve ${pct}% das doses em dia`,
     texto: (aplicacoes: number, ressalva: string) =>
-      `São ${aplicacoes} aplicações desde o início do tratamento, ${ressalva}.`,
+      `São ${aplicacoes} doses desde o início do tratamento, ${ressalva}.`,
     textoQuaseTodas: 'praticamente todas na data certa',
     textoComAtrasos: 'com alguns atrasos pelo caminho',
     q: 'Como funciona o ciclo da medicação?',
     evid: (pct: number, aplicacoes: number) =>
-      ({ valor: `${pct}%`, unidade: '', legenda: `${aplicacoes} aplicações desde o início` }),
+      ({ valor: `${pct}%`, unidade: '', legenda: `${aplicacoes} doses desde o início` }),
     significaAlta: 'Essa consistência é um dos fatores que mais pesam numa boa resposta ao medicamento. O nível da substância no corpo depende de regularidade, não de esforço — e é o tipo de coisa que só aparece quando alguém olha o histórico inteiro.',
     /* ⚠️ A VERSÃO COM ATRASOS EXPLICA O CUSTO E NÃO COBRA A FALTA. "Cada
        atraso deixa uma janela em que o efeito cai antes da hora" é o

@@ -137,9 +137,6 @@ export const aviso = {
     incluido: 'drin',
     fora: 'draußen',
 
-    aplicacoes: 'Spritzen',
-    aplicacoesSub: (quantas: number) =>
-      `${quantas} ${quantas === 1 ? 'Eintrag' : 'Einträge'} · Datum, Dosis und Stelle`,
     pesoEMedidas: 'Gewicht und Maße',
     pesoEMedidasSub: (pesagens: number, medidas: number) =>
       `${pesagens} ${pesagens === 1 ? 'Wiegung' : 'Wiegungen'} · ${medidas} ${medidas === 1 ? 'Maß' : 'Maße'}`,

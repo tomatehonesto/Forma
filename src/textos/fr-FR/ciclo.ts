@@ -27,7 +27,7 @@ export const ciclo = {
 
      C'était « JOUR 5 DE LA DOSE », et une dose n'est pas une durée.
      « Après » garde le compte sans le quota — et c'est le mot de l'écran
-     du cycle, « Jour 5 après votre piqûre ». */
+     du cycle, « Jour 5 après votre dose ». */
   chapeuDia: (dia: number) => `JOUR ${dia} APRÈS LA DOSE`,
   chapeuSemCiclo: 'POUR AUJOURD’HUI',
 
@@ -36,7 +36,11 @@ export const ciclo = {
      cartes de suite qui donnent la même nouvelle gaspillent le carrousel. */
   aplicHead: 'L’effet commence à monter dans les prochaines heures.',
   aplicBody: 'Une nausée légère peut apparaître — mieux vaut des repas plus petits au fil de la journée.',
-  aplicQ: 'À quoi s’attendre le jour de la piqûre ?',
+  /* ⚠️ « DOSE », ET NON « PIQÛRE », DANS TOUT LE FICHIER (01/10/2026) : ces
+     lignes sont lues comme du texte brut, sans connaître la forme, et qui
+     prend un comprimé lisait « le jour de la piqûre ». Voir
+     ../pt-BR/ciclo.ts. */
+  aplicQ: 'À quoi s’attendre le jour de la dose ?',
 
   picoHead: 'Votre appétit a tendance à être plus bas aujourd’hui.',
   picoBody: 'Pic d’effet du médicament — bonne journée pour s’entraîner et prendre de l’avance sur les protéines.',
@@ -51,7 +55,7 @@ export const ciclo = {
   retornoQ: 'Pourquoi ai-je plus faim ?',
 
   altoHeadHoje: 'Faim au point le plus haut du cycle.',
-  altoHeadComData: (quando: string) => `Faim au point haut du cycle — piqûre ${quando}.`,
+  altoHeadComData: (quando: string) => `Faim au point haut du cycle — prochaine dose ${quando}.`,
   /* ⚠️ « NE SAUTEZ PAS DE REPAS » PRÉSUPPOSE QU'ELLE EN SAUTE, et au point
      haut de la faim, celle qui en saute le moins est celle qui a faim. La
      phrase naissait comme un conseil et arrivait comme un reproche — la
@@ -74,7 +78,7 @@ export const ciclo = {
      nom seul — « Début du retour de la faim » — est un diagnostic sans
      contexte, et sur un écran de traitement ça effraie au lieu
      d'orienter. */
-  faseAplicLabel: 'Piqûre',
+  faseAplicLabel: 'Dose',
   faseAplicRange: 'Jour 1',
   faseAplicHint: 'L’effet commence à monter dans les prochaines heures.',
 
@@ -90,7 +94,7 @@ export const ciclo = {
   faseRetornoRange: 'Jours 5–6',
   faseRetornoHint: 'Le niveau du médicament commence à baisser, et la faim a tendance à revenir.',
 
-  fasePreLabel: 'Avant la piqûre',
+  fasePreLabel: 'Avant la dose',
   fasePreRange: 'Jours 7+',
   fasePreHint: 'Point le plus bas du cycle, jusqu’à la prochaine dose.',
 
@@ -123,12 +127,15 @@ export const ciclo = {
   faseDescidaAtencao: 'vomissements persistants ou douleur abdominale forte : parlez-en à votre médecin',
 
   faseBaixoTitulo: 'Jour 7 · point le plus bas',
-  faseBaixoSub: 'Veille de la prochaine piqûre',
+  faseBaixoSub: 'Veille de la prochaine dose',
   faseBaixoComum: 'appétit plus proche de l’habitude',
   /* « La dose », et non « le stylo » : cette table est constante et ne
      connaît pas la forme du médicament — la phrase sert au stylo, au
-     flacon et à la seringue. */
+     flacon et à la seringue. ⚠️ Mais le site n'existe que pour qui
+     s'injecte, et la phrase a une paire : app/ciclo choisit selon la
+     forme. */
   faseBaixoAjuda: 'préparer la dose et le site de la piqûre la veille',
+  faseBaixoAjudaSemLocal: 'préparer la dose la veille',
   tela: {
     titulo: 'Cycle de la dose',
     diaDepois: (dia: number, acao: string) => `Jour ${dia} après\nvotre ${acao}`,

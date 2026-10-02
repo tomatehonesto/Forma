@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { canetaAtual, siteLabel, M } from '../logic/derive';
-import { FORMAS, formaDe, concordar, oA } from '../logic/formas';
+import { FORMAS, formaDe, concordar, oA, iconeDaDose, doseInjetavel } from '../logic/formas';
 import { doseTxt, fmtDate, fmtPeriodo, dataComDiaDaSemana, dataLonga, maiuscula } from '../logic/time';
 import {
   TelaInterna, Titulao, Bloco, Progresso, Grade2, Metrica, Aviso, Cartao, Linha,
@@ -59,6 +59,20 @@ export default function Caneta() {
   const total = atual?.total ?? 4;
   const dose = atual?.dose ?? S.profile.dose;
 
+  /* ⚠️⚠️ VALIDADE E LOCAL SÓ PARA QUEM INJETA (01/10/2026).
+
+     `shelf: 0` quer dizer duas coisas no catálogo, e esta tela só lia
+     uma: no manipulado injetável é "não sabemos" — quem prepara define —,
+     e no comprimido é "não se aplica" (ver o bloco de `shelf` em
+     logic/meds). Quem toma Rybelsus via "Validade após aberta: não
+     informada · quem prepara define o prazo", uma pergunta sem sentido
+     para uma cartela. É a mesma guarda que /caneta-nova já usa.
+
+     O local é por DOSE, e não pela forma de agora: quem trocou de caneta
+     para comprimido continua vendo onde aplicou as doses da caneta. */
+  const injetavel = vocab.injetavel;
+  const doseEm = new Map(((S.injections ?? []) as any[]).map((i) => [i.t, i]));
+
   return (
     <TelaInterna
       titulo={T.tratamento.telaAplicacoes.medicamento}
@@ -89,7 +103,9 @@ export default function Caneta() {
       ) : (
         <Cartao>
           <Linha
-            ic="pill"
+            /* O ícone segue a forma: seringa para o recipiente de quem
+               injeta, comprimido para a cartela. */
+            ic={iconeDaDose(S)}
             titulo={maiuscula(vocab.recipiente)}
             sub={T.tratamento.registreORecipiente(`${oA(forma)} ${vocab.recipiente}`)}
             onPress={() => router.push('/caneta-nova' as any)}
@@ -97,6 +113,9 @@ export default function Caneta() {
         </Cartao>
       )}
 
+      {/* Sem validade (comprimido) e sem recipiente não sobra cartão: a
+          grade não entra, em vez de deixar um vão na tela. */}
+      {injetavel || atual ? (
       <Grade2>
         {/* ⚠️ "NÃO INFORMADA" É UM ESTADO, e não um vazio. Manipulado não
             tem prazo de bula, e quem não respondeu no registro do
@@ -119,6 +138,7 @@ export default function Caneta() {
             afirmando que a coisa venceu no dia em que foi aberta. */}
         {/* Sem recipiente, a validade é a do produto: o prazo de bula
             quando existe, e "não informada" só quando nem ele existe. */}
+        {injetavel ? (
         <Metrica
           ic="clock"
           nome={k.vence ? K().venceEm : K().validadeApos(aberto)}
@@ -131,6 +151,7 @@ export default function Caneta() {
               : K().validadeNaoInformada}
           nota={k.vence || k.validadeDias ? undefined : K().quemPreparaDefine}
         />
+        ) : null}
         {atual ? (
           <Metrica
             ic="pill"
@@ -140,12 +161,13 @@ export default function Caneta() {
           />
         ) : null}
       </Grade2>
+      ) : null}
 
       {/* A caneta pode vencer antes de a última dose sair dela — com 14 dias
           de validade e quatro doses semanais, isso é a regra, não a exceção.
           O aviso constata e para por aí: o que fazer com a dose que sobra é
-          conversa de médico, não decisão de app. */}
-      {k.venceAntesDoFim ? (
+          conversa de médico, não decisão de app. Cartela não vence assim. */}
+      {injetavel && k.venceAntesDoFim ? (
         <Aviso
           ic="clock"
           titulo={K().venceAntes(`${maiuscula(oA(forma))} ${vocab.recipiente}`)}
@@ -177,7 +199,16 @@ export default function Caneta() {
               sub={p.estado === 'uso'
                 ? K().itemEmUso(maiuscula(p.jaEmUso ? registrado : aberto), fmtDate(p.abertaEm!), p.usadas, p.total)
                 : K().itemEncerrado(fmtPeriodo(new Date(p.abertaEm!), new Date(p.ultimaEm!)), p.usadas, p.total)}
-              itens={p.aplicacoes.map((a) => [fmtDate(a.t), T.comum.noMeio(a.site ? siteLabel(a.site) : T.tratamento.localNaoInformado)] as [string, string])}
+              /* A segunda coluna é o local da dose injetada — e "não
+                 informado" só nela, que é quem tem local a informar. A dose
+                 de comprimido não tem local nenhum: a coluna diz a dose.
+                 `a.site` já chega vazio para ela (`canetas`, em derive). */
+              itens={p.aplicacoes.map((a) => [
+                fmtDate(a.t),
+                a.site ? T.comum.noMeio(siteLabel(a.site))
+                  : doseInjetavel(S, doseEm.get(a.t)) ? T.comum.noMeio(T.tratamento.localNaoInformado)
+                    : `${doseTxt(a.dose)} ${p.unit}`,
+              ] as [string, string])}
             />
           ))}
         </Sanfona>

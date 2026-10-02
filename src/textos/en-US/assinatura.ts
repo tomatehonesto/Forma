@@ -57,7 +57,7 @@ export const assinatura = {
   /* ⚠️ "IF THE PARTNER CLINIC TELLS US" — not "if the link ends". Nobody
      here finds out on their own that someone stopped being a patient. And
      the line about the data always travels with it: locking someone out
-     of their own weight, shots and labs is not something we do. */
+     of their own weight, doses and labs is not something we do. */
   bomSaberTitulo: 'Worth knowing',
   bomSaberTexto: 'If the partner clinic tells us your treatment link has ended, access is suspended until you start a Personal plan — and nothing is charged without you choosing it. Nothing you logged is lost: your entries stay in your account and you can export them whenever you want.',
 
@@ -198,7 +198,7 @@ export const assinatura = {
 
   suspenso: {
     clinicaGenerica: 'the clinic that was following your care',
-    nadaApagado: 'Nothing was deleted. Weight, shots, symptoms and labs are right where they were.',
+    nadaApagado: 'Nothing was deleted. Weight, doses, symptoms and labs are right where they were.',
     nadaCobrado: 'Nothing was charged, and nothing will be without you choosing it.',
     verOsPlanos: 'View plans',
     outroCodigo: 'I have another code',

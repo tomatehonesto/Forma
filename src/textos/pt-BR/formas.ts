@@ -40,10 +40,27 @@ export const formas = {
   /* ⚠️ O PLURAL É CAMPO, e não `recipiente + 's'`. Os quatro de hoje são
      regulares e a conta daria certo — e é exatamente assim que o quinto,
      irregular, entra sem ninguém notar. */
+  /* ⚠️⚠️ `acao` É "DOSE" PARA TODAS AS FORMAS (decisão do dono, 01/10/2026).
+     Era "aplicação" nas três injetáveis, e quem lê o campo o põe em
+     título e confirmação — "Registrar aplicação", "Aplicação registrada",
+     "Dia 3 depois da aplicação", "A sua aplicação é hoje" — que quem toma
+     comprimido lia como se injetasse. "Dose" serve às quatro, e o dono
+     escolheu a mesma palavra para todo mundo.
+
+     O que segue a forma é só a frase em PRIMEIRA PESSOA ("Apliquei a
+     dose" / "Tomei a dose", "Se você aplicou/tomou…"), e ela não sai
+     daqui: é função de `injetavel` no catálogo de cada tela, como
+     `cadastro.ultima(injetavel)`. Um substantivo não conjuga verbo.
+
+     O campo fica, e não vira constante, porque um idioma pode precisar de
+     outra palavra para uma forma (o francês usou "prise" para o
+     comprimido até 01/10/2026). Hoje é "dose" nas quatro formas e nos
+     seis idiomas — e é feminina em todos, então o artigo de quem a recebe
+     ("da", "la", "deiner") continua certo. */
   palavras: {
-    caneta: { recipiente: 'caneta', plural: 'canetas', verbo: 'aplicar', acao: 'aplicação' },
-    frasco: { recipiente: 'frasco', plural: 'frascos', verbo: 'aplicar', acao: 'aplicação' },
-    seringa: { recipiente: 'seringa', plural: 'seringas', verbo: 'aplicar', acao: 'aplicação' },
+    caneta: { recipiente: 'caneta', plural: 'canetas', verbo: 'aplicar', acao: 'dose' },
+    frasco: { recipiente: 'frasco', plural: 'frascos', verbo: 'aplicar', acao: 'dose' },
+    seringa: { recipiente: 'seringa', plural: 'seringas', verbo: 'aplicar', acao: 'dose' },
     comprimido: { recipiente: 'cartela', plural: 'cartelas', verbo: 'tomar', acao: 'dose' },
   } as Record<Recipiente, { recipiente: string; plural: string; verbo: string; acao: string }>,
 

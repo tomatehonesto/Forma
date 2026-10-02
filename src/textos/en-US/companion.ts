@@ -29,7 +29,7 @@ export const companion = {
       vazioSemRegistroTexto: 'Readings show up when something in your logs calls for one. With your first check-ins, they start showing up here.',
     },
     fomeMotivo: (dia: number) => `You’re on day ${dia} of the cycle, when hunger comes back`,
-    fomeTitulo: 'Why hunger comes back before your injection',
+    fomeTitulo: 'Why hunger comes back before your dose',
     /* ⚠️ "TAKES AWAY THE FEELING OF HAVING SLIPPED" is what this reading
        is for: hunger returning on day five is where people conclude they
        failed. The molecule stays lowercase — it is a substance, not a
@@ -37,7 +37,8 @@ export const companion = {
     fomeDesc: (molecula: string) =>
       `${molecula} levels fall across the week, and fullness falls with them. Understanding the curve takes away the feeling of having slipped.`,
 
-    primeirosMotivo: (dias: number) => `You injected ${dias} ${dias === 1 ? 'day' : 'days'} ago`,
+    primeirosMotivo: (dias: number, injetavel: boolean): string =>
+      `${injetavel ? 'You injected' : 'You took your dose'} ${dias} ${dias === 1 ? 'day' : 'days'} ago`,
     primeirosTitulo: 'The first days after your dose',
     primeirosDesc: 'What’s expected to feel in the first 48 hours, and what already deserves a message to your care team.',
 

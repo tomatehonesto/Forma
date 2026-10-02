@@ -25,7 +25,16 @@ export const resumo = {
   cadencia: 'Cadência',
   tempoDeTratamento: 'Tempo de tratamento',
   emDias: (dias: number) => `${dias} ${dias === 1 ? 'dia' : 'dias'}`,
-  aplicacoes: 'Aplicações',
+  /* ⚠️⚠️ "DOSES", E NÃO "APLICAÇÕES" (01/10/2026, decisão do dono). Este
+     papel dizia "Aplicações" a quem toma comprimido — e "Injections",
+     "Spritzen", "Piqûres" nos outros idiomas, para o médico ler que um
+     comprimido foi injetado. "Dose" serve a todas as formas, e é a palavra
+     de todos os títulos e documentos; só a frase em primeira pessoa
+     ("Apliquei/Tomei a dose") segue a forma, e aqui não há nenhuma.
+     A chave fica `aplicacoes`, o nome interno, como `S.injections`.
+     Ver docs/superpowers/specs/2026-10-01-oral-e-diario-design.md. */
+  aplicacoes: 'Doses',
+  /* "previstas" e "Nenhuma" concordam com "doses", feminino como era. */
   aplicacoesValor: (feitas: number, previstas: number) => `${feitas} de ${previstas} previstas`,
   /* Sem dose prevista, a conta não tem pergunta: "0 de 0 previstas" saía
      no documento que vai para o médico. */
@@ -95,16 +104,25 @@ export const resumo = {
     visaoGeral: 'Visão geral',
     pesoAtual: 'Peso atual',
     variacao: 'Variação no período',
-    aplicacoesNoPeriodo: 'Aplicações no período',
+    /* "Doses", pela mesma razão do alto deste arquivo. */
+    aplicacoesNoPeriodo: 'Doses no período',
     checkinsRespondidos: 'Check-ins respondidos',
     peso: 'Peso',
     medidas: 'Medidas',
-    aplicacoes: 'Aplicações',
+    aplicacoes: 'Doses',
+    /* O subtítulo da linha "Doses" no ajuste do PDF (app/pdf-consulta).
+       ⚠️ "LOCAL" SÓ QUANDO HÁ LOCAL: a coluna sai do papel quando nenhuma
+       dose do período foi injetada, e a linha não promete o que não vem. */
+    dosesSub: (quantas: number, comLocal: boolean): string =>
+      `${quantas} ${quantas === 1 ? 'registro' : 'registros'} · ${comLocal ? 'data, dose e local' : 'data e dose'}`,
     sintomas: 'Sintomas',
     exames: 'Exames',
     notas: 'Anotações para a consulta',
     habitos: 'Refeições, água e exercício',
     data: 'Data',
+    /* A coluna que só aparece quando o período tem mais de um remédio —
+       quem trocou de Ozempic para Rybelsus no meio (logic/relatorioPdf). */
+    medicamento: 'Medicamento',
     dose: 'Dose',
     local: 'Local',
     proteinaMedia: 'Proteína por dia, em média',

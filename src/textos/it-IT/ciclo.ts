@@ -29,7 +29,7 @@ export const ciclo = {
 
      Era "GIORNO 5 DELLA DOSE", e una dose non è un intervallo di giorni.
      "Dopo" tiene il conto senza la quota — ed è la parola della
-     schermata del ciclo, "Giorno 5 dopo la puntura". */
+     schermata del ciclo, "Giorno 5 dopo la dose". */
   chapeuDia: (dia: number) => `GIORNO ${dia} DOPO LA DOSE`,
   /* Senza una puntura registrata non c'è ciclo, e il cappello non se lo
      inventa. */
@@ -40,7 +40,10 @@ export const ciclo = {
      successiva della Home parla solo di quello, con la dose e la zona. */
   aplicHead: 'L’effetto comincia a salire nelle prossime ore.',
   aplicBody: 'Può comparire una nausea leggera — meglio pasti più piccoli lungo la giornata.',
-  aplicQ: 'Che cosa aspettarsi il giorno della puntura?',
+  /* ⚠️ "DOSE", E NON "PUNTURA", IN TUTTO IL FILE (01/10/2026): queste righe
+     si leggono come testo semplice, senza sapere la forma, e chi prende la
+     compressa leggeva "il giorno della puntura". Vedi ../pt-BR/ciclo.ts. */
+  aplicQ: 'Che cosa aspettarsi il giorno della dose?',
 
   /* ---------- picco ---------- */
   picoHead: 'Oggi il tuo appetito tende a restare più basso.',
@@ -59,7 +62,7 @@ export const ciclo = {
 
   /* ---------- punto alto della fame ---------- */
   altoHeadHoje: 'Fame al punto più alto del ciclo.',
-  altoHeadComData: (quando: string) => `Fame al punto alto del ciclo — puntura ${quando}.`,
+  altoHeadComData: (quando: string) => `Fame al punto alto del ciclo — prossima dose ${quando}.`,
   /* ⚠️ "NON SALTARE I PASTI" DÀ PER SCONTATO CHE LI SALTI, e nel punto
      alto della fame chi salta di meno è proprio chi ha fame. La frase
      nasceva come consiglio e arrivava come rimprovero. */
@@ -82,7 +85,7 @@ export const ciclo = {
      contesto, e in una schermata di terapia questo spaventa invece di
      orientare.
      ============================================================ */
-  faseAplicLabel: 'Puntura',
+  faseAplicLabel: 'Dose',
   faseAplicRange: 'Giorno 1',
   faseAplicHint: 'L’effetto comincia a salire nelle prossime ore.',
 
@@ -98,7 +101,7 @@ export const ciclo = {
   faseRetornoRange: 'Giorni 5–6',
   faseRetornoHint: 'Il livello del farmaco comincia a scendere, e la fame tende a tornare.',
 
-  fasePreLabel: 'Prima della puntura',
+  fasePreLabel: 'Prima della dose',
   fasePreRange: 'Giorni 7+',
   fasePreHint: 'Punto più basso del ciclo, fino alla dose successiva.',
 
@@ -133,11 +136,13 @@ export const ciclo = {
   faseDescidaAtencao: 'vomito che non passa o dolore forte alla pancia: parlane con il tuo medico',
 
   faseBaixoTitulo: 'Giorno 7 · punto più basso',
-  faseBaixoSub: 'Vigilia della prossima puntura',
+  faseBaixoSub: 'Vigilia della prossima dose',
   faseBaixoComum: 'appetito più vicino al solito',
   /* "La dose", e non "la penna": questa tabella è costante e non sa che
-     forma abbia il farmaco. */
+     forma abbia il farmaco. ⚠️ Ma la zona esiste solo per chi si inietta,
+     e la frase ha una coppia: app/ciclo sceglie in base alla forma. */
   faseBaixoAjuda: 'lasciare decise la sera prima la dose e la zona della puntura',
+  faseBaixoAjudaSemLocal: 'lasciare decisa la sera prima la dose',
 
   /* ============================================================
      CICLO DELLA DOSE — la schermata che risponde "perché è tornata la
@@ -146,10 +151,11 @@ export const ciclo = {
      ⚠️ L'A CAPO VIVE NEL TESTO, ed era scritto nel JSX: "dopo\nla
      puntura" è la larghezza dell'italiano, e il tedesco spezza altrove.
 
-     ⚠️ E LA PAROLA DELL'ATTO ARRIVA DA FUORI. In italiano le due uscite
-     di `formas.palavras[…].acao` sono femminili — "puntura" e "dose" —,
-     quindi l'articolo in mezzo è sicuro. Vale come in portoghese e al
-     contrario di quello che accadrebbe con una terza forma maschile.
+     ⚠️ E LA PAROLA DELL'ATTO ARRIVA DA FUORI. Dal 01/10/2026
+     `formas.palavras[…].acao` è "dose" per tutte le forme (decisione del
+     proprietario), ed è femminile, quindi l'articolo in mezzo è sicuro.
+     Vale come in portoghese e al contrario di quello che accadrebbe con
+     una forma maschile.
      ============================================================ */
   tela: {
     titulo: 'Ciclo della dose',

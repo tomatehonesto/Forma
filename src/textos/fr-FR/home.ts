@@ -64,9 +64,10 @@ export const home = {
      mauvaise nouvelle. */
   estavel: 'Stable',
 
+  /* ⚠️ "DOSE" É O SUBSTANTIVO DE TODAS AS FORMAS (01/10/2026). Ver ../pt-BR. */
   tipos: {
     checkin: 'Check-ins',
-    aplicacao: 'Piqûres',
+    aplicacao: 'Doses',
     peso: 'Pesées',
     refeicao: 'Repas',
     exercicio: 'Séances',
@@ -75,7 +76,7 @@ export const home = {
   },
 
   evento: {
-    aplicacao: (dose: string, unidade: string) => `Piqûre ${dose} ${unidade}`,
+    aplicacao: (dose: string, unidade: string) => `Dose ${dose} ${unidade}`,
     peso: 'Poids',
     /* La première pesée n'a pas de précédente à comparer, donc à la place
        de la variation il y a ce qu'elle est. */
@@ -192,7 +193,7 @@ export const home = {
     ultimos7: 'VOS 7 DERNIERS JOURS',
     doseEm: (quando: string) => `dose ${quando}`,
     diasComCheckin: (feitos: number, dias: number, aplicadas: number, vividas: number) =>
-      `${feitos} ${feitos > 1 ? 'jours' : 'jour'} sur ${dias} avec un check-in · ${aplicadas} ${aplicadas > 1 ? 'semaines' : 'semaine'} sur ${vividas} avec une piqûre`,
+      `${feitos} ${feitos > 1 ? 'jours' : 'jour'} sur ${dias} avec un check-in · ${aplicadas} ${aplicadas > 1 ? 'semaines' : 'semaine'} sur ${vividas} avec une dose`,
     diasComCheckinSo: (feitos: number, dias: number) =>
       `${feitos} ${feitos > 1 ? 'jours' : 'jour'} sur ${dias} avec un check-in`,
     primeiraDose: 'Première dose',
@@ -231,9 +232,8 @@ export const home = {
     oDiaADia: 'Le quotidien',
     seuTratamento: 'Votre traitement',
     /* o vazio de "Seu tratamento" e de "Suas metas" (Jornada, Histórico) */
-    semanasVaziasTitulo: 'Les semaines commencent avec la première injection',
-    semanasVaziasTexto: 'Le traitement se compte d’une injection à l’autre. Enregistrez la première, et chaque semaine apparaîtra ici avec ce qui s’y est passé.',
-    registrarAplicacao: 'Enregistrer une injection',
+    semanasVaziasTitulo: 'Les semaines commencent avec la première dose',
+    semanasVaziasTexto: 'Le traitement se compte d’une dose à l’autre. Enregistrez la première, et chaque semaine apparaîtra ici avec ce qui s’y est passé.',
     metasVaziasTitulo: 'Créer un objectif',
     metasVaziasTexto: 'Eau, sommeil, entraînement ou ce qui a du sens pour vous.',
     verTudo: 'Tout voir',
@@ -266,10 +266,11 @@ export const home = {
     linhaDoDia: (dia: string, semana: number) => `${dia} • Semaine ${semana}`,
 
     semRegistro: 'PAS DE RELEVÉ',
-    semRegistroOntem: 'La piqûre d’hier n’est pas notée.',
-    semRegistroDias: (dias: number) => `La piqûre d’il y a ${dias} jours n’est pas notée.`,
-    semRegistroCorpo: 'Si vous l’avez faite, vous pouvez la noter maintenant. Sinon, le cycle repart à la prochaine.',
-    semRegistroCta: 'Noter une piqûre',
+    semRegistroOntem: 'La dose d’hier n’est pas notée.',
+    semRegistroDias: (dias: number) => `La dose d’il y a ${dias} jours n’est pas notée.`,
+    semRegistroCorpo: (injetavel: boolean): string => (injetavel
+      ? 'Si vous l’avez injectée, vous pouvez la noter maintenant. Sinon, le cycle repart à la prochaine.'
+      : 'Si vous l’avez prise, vous pouvez la noter maintenant. Sinon, le cycle repart à la prochaine.'),
 
     aConsulta: 'LA CONSULTATION',
     consultaHoje: 'Votre consultation est aujourd’hui.',
@@ -299,16 +300,17 @@ export const home = {
     marcoCorpo: (trilha: string, n: number, de: number): string => `${trilha} · niveau ${n} sur ${de}`,
     marcoCta: 'Voir les réussites',
 
-    proximaAplicacao: 'PROCHAINE PIQÛRE',
+    proximaAplicacao: 'PROCHAINE DOSE',
     hojeEDiaDeAplicar: 'Aujourd’hui, c’est le jour de votre dose.',
     proximaDose: (quando: string) => `Votre prochaine dose est ${quando}.`,
     /* ⚠️ LE SITE VIENT APRÈS LES DEUX-POINTS, AVEC SON NOM DEVANT.
        « Cuisse (d.) suggéré » faisait la faute une semaine sur trois : le
        participe s'accordait avec « site », absent de la phrase, et non
        avec « cuisse », qui y était. Voir ../pt-BR/home.ts. */
-    doseCorpo: (medicamento: string, dose: string, local: string) =>
-      `${medicamento} ${dose} · site suggéré : ${local}.`,
-    verAplicacao: 'Voir vos piqûres',
+    /* sem local (comprimido), a frase para no medicamento — ver ../pt-BR */
+    doseCorpo: (medicamento: string, dose: string, local?: string): string =>
+      (local ? `${medicamento} ${dose} · site suggéré : ${local}.` : `${medicamento} ${dose}.`),
+    verAplicacao: 'Voir vos doses',
     criarLembrete: 'Créer un rappel',
 
     checkinFeito: 'Check-in fait',
@@ -361,7 +363,7 @@ export const home = {
     diaADia: 'Jour après jour',
     diaComData: (diaDaSemana: string, data: string) => `${diaDaSemana}, ${data}`,
     selo: {
-      aplicacao: 'piqûre',
+      aplicacao: 'dose',
       checkin: 'check-in',
       peso: 'pesée',
       refeicao: 'repas',
@@ -397,7 +399,8 @@ export const home = {
     refeicaoSub: (proteina: number, alvo: number) => `${proteina} sur ${alvo} g`,
 
     levaUmMinuto: 'ÇA PREND UNE MINUTE',
-    aplicacao: 'J’ai fait ma dose',
+    /* a primeira pessoa segue a forma (ver ../pt-BR) */
+    aplicacao: (injetavel: boolean): string => (injetavel ? 'J’ai injecté ma dose' : 'J’ai pris ma dose'),
     peso: 'Je viens de me peser',
     medidas: 'J’ai pris mes mesures',
     exame: 'J’ai reçu une analyse',
@@ -428,7 +431,7 @@ export const home = {
     semanaN: (n: number) => `Semaine ${n}`,
     tudoCumprido: 'tout est fait',
     cumpridasDeTotal: (feitas: number, total: number) => `${feitas} sur ${total} faites`,
-    aplicacaoEm: (quando: string) => `piqûre ${quando}`,
+    aplicacaoEm: (quando: string) => `dose ${quando}`,
 
     falarComEquipe: 'Parler à l’équipe',
 
@@ -442,10 +445,10 @@ export const home = {
   },
   telaDia: {
     registrosDeste: 'Relevés de ce jour',
-    diaDeAplicacao: 'Jour de piqûre',
+    diaDeAplicacao: 'Jour de la dose',
     nadaRegistrado: 'rien de noté pour l’instant',
 
-    aplicacao: 'Piqûre',
+    aplicacao: 'Dose',
     doseLinha: (med: string, dose: string, unidade: string, estado?: string) =>
       `${med} ${dose} ${unidade}${estado ? ` · ${estado}` : ''}`,
     prevista: 'prévue aujourd’hui',
@@ -484,7 +487,8 @@ export const home = {
     plano: 'Votre plan est prêt',
     medicacao: 'Choisissez votre traitement',
     medicacaoSub: 'La dose, le cycle et les rappels en dépendent',
-    aplicacao: (injetavel: boolean): string => (injetavel ? 'Enregistrez votre première piqûre' : 'Enregistrez votre première prise'),
+    /* "dose" pour les quatre formes, comme le `acao` de ./formas */
+    aplicacao: (_injetavel: boolean): string => 'Enregistrez votre première dose',
     aplicacaoSub: 'C’est à partir d’elle que nous comptons le cycle et la prochaine dose',
     checkin: 'Faites votre premier check-in',
     checkinSub: 'Comment vous allez aujourd’hui, en moins d’une minute',

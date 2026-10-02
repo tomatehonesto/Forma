@@ -3,7 +3,7 @@ import { View, Pressable, Switch, Linking, Platform, AppState, StyleSheet } from
 import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import {
-  ORDEM, TIPOS, proximaDe, quando, resumoDe, type Alerta,
+  ORDEM, tiposDe, proximaDe, quando, resumoDe, type Alerta,
 } from '../logic/alertas';
 import { Txt, Row, Vazio } from '../ui/kit';
 import { TelaInterna, Titulao, Cartao, Aviso, Botao } from '../ui/internas';
@@ -104,6 +104,8 @@ export default function Lembretes() {
   const grupos = ORDEM
     .map((tipo) => ({ tipo, itens: alertas.filter((a) => a.tipo === tipo) }))
     .filter((g) => g.itens.length);
+  /* A tabela desta pessoa: o ícone da dose segue a forma do remédio. */
+  const tipos = tiposDe(S);
 
   const Linha = ({ a, primeiro }: { a: Alerta; primeiro: boolean }) => {
     /* Ligado é a vontade da pessoa; avisar mesmo depende do aparelho. */
@@ -185,8 +187,8 @@ export default function Lembretes() {
           {grupos.map((g) => (
             <View key={g.tipo}>
               <Row gap={9} style={{ paddingHorizontal: 16, paddingTop: 14, paddingBottom: 4, alignItems: 'center' }}>
-                <Icon name={TIPOS()[g.tipo].ic} size={15} color={c.tx3} sw={2} />
-                <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1 }}>{TIPOS()[g.tipo].titulo.toUpperCase()}</Txt>
+                <Icon name={tipos[g.tipo].ic} size={15} color={c.tx3} sw={2} />
+                <Txt v="micro" c={c.tx3} style={{ letterSpacing: 1 }}>{tipos[g.tipo].titulo.toUpperCase()}</Txt>
               </Row>
               {g.itens.map((a, i) => <Linha key={a.id} a={a} primeiro={i === 0} />)}
             </View>
@@ -198,7 +200,7 @@ export default function Lembretes() {
         <Vazio
           ic="bell"
           titulo={K().vazio}
-          texto={K().vazioTexto(maiuscula(T.comum.lista(ORDEM.map((t) => T.comum.noMeio(TIPOS()[t].curto)))))}
+          texto={K().vazioTexto(maiuscula(T.comum.lista(ORDEM.map((t) => T.comum.noMeio(tipos[t].curto)))))}
         />
       )}
 

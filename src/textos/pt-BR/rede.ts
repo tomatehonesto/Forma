@@ -197,7 +197,21 @@ export const rede = {
     titulo: 'O que a clínica passa a ver',
     itens: {
       peso: 'Pesagens',
-      aplicacao: 'Aplicações',
+      /* ⚠️⚠️ "DOSES DO MEDICAMENTO", E A VERSÃO NÃO SOBE (01/10/2026).
+
+         Dizia "Aplicações" — e "Injections", "Injektionen", "Iniezioni",
+         "Aplicaciones" nos outros idiomas —, e quem toma comprimido lia que
+         a clínica veria as "aplicações" dele. O registro é o mesmo de
+         sempre (`aplicacao` no banco, com data, dose, remédio e local), e a
+         clínica vê exatamente o que via: a troca é de PALAVRA, para servir
+         a todas as formas, e não de conteúdo. O inglês já dizia "Doses".
+
+         Por isso VERSAO_DO_COMPARTILHAMENTO (logic/compartilhamento) fica
+         onde está: ela sobe quando muda o que a clínica passa a ver, ou o
+         que se diz dela de forma relevante, e é isso que pediria um aceite
+         novo a quem já conectou. Mesmo sentido em outras palavras não pede.
+         Ver docs/superpowers/specs/2026-10-01-oral-e-diario-design.md, A3. */
+      aplicacao: 'Doses do medicamento',
       checkin: 'Check-ins: sintomas, sono, fome, água, proteína e movimento',
       refeicao: 'Refeições',
       refeicao_favorita: 'Refeições favoritas',

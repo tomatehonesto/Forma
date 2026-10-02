@@ -2,6 +2,7 @@ import type { State } from './seed';
 import { nextInjectionDate, temCiclo } from './derive';
 import { WD, diasDaSemana, addDays, hm, now, startOfDay, quandoEm, maiuscula, ordemDaSemana } from './time';
 import { T } from '../textos';
+import { iconeDaDose } from './formas';
 
 /* ============================================================
    ALERTAS — os lembretes deixam de ser quatro interruptores
@@ -58,7 +59,7 @@ export type Alerta = {
   ate: number;
   /** dias da semana, 0 = domingo. Vazio quer dizer todo dia. */
   dias: number[];
-  /** só a dose usa: quantos dias antes da aplicação */
+  /** só a dose usa: quantos dias antes da próxima dose */
   lead?: number;
 };
 
@@ -85,7 +86,7 @@ export function horasDe(a: Alerta): number[] {
 /* O QUE CADA ASSUNTO É, e o que ele deixa configurar.
 
    A dose não tem dia da semana porque ela não acontece num dia da semana
-   — acontece antes da próxima aplicação, que anda. Os outros três não
+   — acontece antes da próxima dose, que anda. Os outros três não
    têm antecedência porque não há evento a anteceder: eles são o próprio
    evento. É a mesma estrutura com dois campos que se alternam, e não dois
    tipos de alerta. */
@@ -100,12 +101,16 @@ export const TIPOS = (): Record<TipoDeAlerta, {
   ic: string; desc: string; temDias: boolean; temLead: boolean;
 }> => ({
   dose: {
-    /* ⚠️ "DA DOSE", E ERA "DA CANETA". Esta tabela é constante, fora de
-       qualquer função, e não tem `S` para consultar a forma — a saída foi
-       a frase que serve a caneta, frasco e seringa igualmente.
-       Comprimido ainda lê "aplicação" aqui, e é dívida conhecida: a
-       palavra teria de vir do vocabulário, e para isso a tabela
-       precisaria virar função. */
+    /* ⚠️ "DOSE", E ERA "APLICAÇÃO" — e antes ainda "DA CANETA" (01/10/2026).
+       "Dose" é o substantivo de todas as formas (decisão do dono, ver
+       docs/superpowers/specs/2026-10-01-oral-e-diario-design.md), e por
+       isso o título não precisa de `S`: serve a caneta, frasco, seringa e
+       comprimido igualmente.
+
+       ⚠️ O ÍCONE É O QUE PRECISA DE `S`, e esta tabela não o tem: a seringa
+       daqui é a de quem não tem forma conhecida. Quem desenha a lista de
+       uma pessoa lê por `tiposDe(S)`, logo abaixo, que troca pelo
+       comprimido quando é o caso. */
     titulo: T.alertas.dose, curto: T.alertas.doseCurto, ic: 'syringe',
     desc: T.alertas.doseDesc,
     temDias: false, temLead: true,
@@ -138,6 +143,15 @@ export const TIPOS = (): Record<TipoDeAlerta, {
   },
 });
 
+/* ⚠️ A TABELA DE UMA PESSOA: a mesma de `TIPOS()`, com o ícone da dose
+   pela forma do remédio dela — seringa ou comprimido (01/10/2026). Função
+   nova, e não um parâmetro em `TIPOS`, porque as telas que leem `TIPOS()`
+   continuam valendo sem mudar; quem tem `S` à mão passa a ler daqui. */
+export const tiposDe = (S: State): ReturnType<typeof TIPOS> => {
+  const t = TIPOS();
+  return { ...t, dose: { ...t.dose, ic: iconeDaDose(S) } };
+};
+
 /* A ORDEM É A DO CICLO, e não a do alfabeto nem a da idade do recurso:
    dose e check-in são o que o aplicativo pede por si — um por semana, um
    por dia —, e peso, água e proteína são as medidas que acompanham. */
@@ -156,7 +170,7 @@ export const ORDEM: TipoDeAlerta[] = ['dose', 'checkin', 'peso', 'agua', 'protei
    quinta fileira — uma peça órfã embaixo de uma grade cheia. O que se
    perdeu foi um horário em que nenhum dos quatro assuntos faz sentido:
    pesar às dez da noite, beber água antes de dormir, ou saber às 22h que
-   a aplicação era hoje. */
+   a dose era hoje. */
 export const HORAS = [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21];
 
 export const LEADS = [0, 1, 2, 3];
@@ -258,7 +272,7 @@ export function proximasDe(S: State, a: Alerta, quantas = 1): Date[] {
   const horas = horasDe(a);
 
   if (a.tipo === 'dose') {
-    /* ⚠️ SEM CICLO, O AVISO DA DOSE ESPERA. Antes da primeira aplicação
+    /* ⚠️ SEM CICLO, O AVISO DA DOSE ESPERA. Antes da primeira dose
        registrada, `nextInjectionDate` é HOJE por recuo — e o aviso tocava
        às nove "é hoje", todo dia em que o app abrisse cedo, para quem
        ainda nem começou. Ele passa a contar da primeira dose registrada,

@@ -22,10 +22,16 @@
 type Recipiente = 'caneta' | 'frasco' | 'seringa' | 'comprimido';
 
 export const formas = {
+  /* ⚠️ `acao` IS "DOSE" FOR EVERY FORM (owner's decision, 01/10/2026). It
+     goes into titles and confirmations — "Log shot", "Shot logged" — and
+     someone taking a pill read them as if they injected. Only the
+     first-person phrase follows the form ("I took / injected my dose"),
+     and that one is a function of `injetavel` in each screen's catalog.
+     Reasons in ../pt-BR/formas.ts. */
   palavras: {
-    caneta: { recipiente: 'pen', plural: 'pens', verbo: 'inject', acao: 'shot' },
-    frasco: { recipiente: 'vial', plural: 'vials', verbo: 'inject', acao: 'shot' },
-    seringa: { recipiente: 'syringe', plural: 'syringes', verbo: 'inject', acao: 'shot' },
+    caneta: { recipiente: 'pen', plural: 'pens', verbo: 'inject', acao: 'dose' },
+    frasco: { recipiente: 'vial', plural: 'vials', verbo: 'inject', acao: 'dose' },
+    seringa: { recipiente: 'syringe', plural: 'syringes', verbo: 'inject', acao: 'dose' },
     comprimido: { recipiente: 'blister pack', plural: 'blister packs', verbo: 'take', acao: 'dose' },
   } as Record<Recipiente, { recipiente: string; plural: string; verbo: string; acao: string }>,
 

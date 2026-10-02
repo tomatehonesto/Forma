@@ -85,7 +85,7 @@ export const assinatura = {
 
      ⚠️⚠️ Y LA LÍNEA DE LOS DATOS VA JUNTO, siempre. Suspender el acceso de
      un diario de tratamiento es dejar a alguien afuera de su propio peso,
-     de sus propias inyecciones y de sus propios exámenes — y eso no lo
+     de sus propias dosis y de sus propios exámenes — y eso no lo
      hacemos. Separadas, la primera frase se vuelve una amenaza. */
   bomSaberTitulo: 'Conviene que sepas',
   bomSaberTexto: 'Si la clínica socia nos informa que el vínculo de tratamiento terminó, el acceso queda suspendido hasta que contrates un plan Personal — y no se cobra nada sin que lo elijas. Nada de lo que registraste se pierde: tus registros siguen en tu cuenta y puedes exportarlos cuando quieras.',
@@ -254,7 +254,7 @@ export const assinatura = {
      líneas de abajo son la diferencia entre un aviso y una amenaza. */
   suspenso: {
     clinicaGenerica: 'la clínica que te acompañaba',
-    nadaApagado: 'No se borró nada. Peso, inyecciones, síntomas y exámenes siguen donde estaban.',
+    nadaApagado: 'No se borró nada. Peso, dosis, síntomas y exámenes siguen donde estaban.',
     nadaCobrado: 'No se cobró nada, y nada se va a cobrar sin que lo elijas.',
     verOsPlanos: 'Ver los planes',
     outroCodigo: 'Tengo otro código',

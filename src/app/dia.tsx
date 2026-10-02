@@ -8,6 +8,7 @@ import { Txt, SheetScreen } from '../ui/kit';
 import { Cartao, Linha } from '../ui/internas';
 import { useTheme } from '../ui/useTheme';
 import { useTrocarDeTela } from '../ui/useTrocarDeTela';
+import { remedioDaDose } from '../logic/formas';
 import { pesoTxt } from '../logic/medidas';
 import { T } from '../textos';
 
@@ -71,8 +72,9 @@ export default function Dia() {
         <Cartao>
           <Linha
             titulo={K().aplicacao}
+            /* uma dose registrada leva o remédio dela, que pode não ser o de hoje */
             sub={aplicou
-              ? K().doseLinha(med.label, doseTxt(aplicou.dose), med.unit)
+              ? K().doseLinha(remedioDaDose(S, aplicou).label, doseTxt(aplicou.dose), remedioDaDose(S, aplicou).unit)
               : K().doseLinha(med.label, doseTxt(S.profile.dose), med.unit,
                 prevista ? K().prevista : K().semRegistroMinusculo)}
             selo={aplicou ? K().seloFeita : K().seloRegistrar}

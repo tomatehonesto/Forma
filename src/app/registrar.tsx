@@ -13,6 +13,7 @@ import { useTheme } from '../ui/useTheme';
 import { radius, ty } from '../theme';
 import { useFolhaAberta, Cobertura, TocarParaFechar } from '../ui/folhas';
 import { aguaN, aguaTxt } from '../logic/medidas';
+import { iconeDaDose, injetavelDe } from '../logic/formas';
 import { T } from '../textos';
 
 /* ⚠️ É FUNÇÃO, e não constante de módulo: ela lê o catálogo, e constante
@@ -161,8 +162,13 @@ export default function Registrar() {
      (esq.)", "último: 75,1 kg"), que a tela seguinte mostra de novo duas
      linhas depois. Seis linhas de leitura para zero decisão, e cento e
      vinte pixels de altura num sheet que já não cabia na tela. */
+  /* ⚠️ A DOSE SEGUE A FORMA, NO VERBO E NO DESENHO (01/10/2026). Era
+     "Apliquei a dose" com uma seringa para todo mundo, e quem toma
+     comprimido abria o "+" e lia o tratamento de outra pessoa. O verbo
+     vem inteiro do catálogo ("Apliquei" / "Tomei"), e o ícone de
+     `iconeDaDose` — ver logic/formas. */
   const completos: Item[] = [
-    { ic: 'syringe', titulo: K().aplicacao, to: '/aplicacao' },
+    { ic: iconeDaDose(S), titulo: K().aplicacao(injetavelDe(S)), to: '/aplicacao' },
     { ic: 'scale', titulo: K().peso, to: '/medir-peso' },
     { ic: 'utensils', titulo: K().refeicao, to: '/medir-refeicao' },
     { ic: 'ruler', titulo: K().medidas, to: '/medir-medidas' },

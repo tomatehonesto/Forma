@@ -34,7 +34,10 @@ export const resumo = {
   cadencia: 'Rhythmus',
   tempoDeTratamento: 'Behandlungsdauer',
   emDias: (dias: number) => `${dias} ${dias === 1 ? 'Tag' : 'Tage'}`,
-  aplicacoes: 'Injektionen',
+  /* ⚠️ „Dosen“, nicht „Injektionen“ (01.10.2026): dieses Blatt geht an die
+     Ärztin, und es sagte ihr, eine Tablette sei gespritzt worden. Der
+     Grund steht in ../pt-BR/resumo.ts. */
+  aplicacoes: 'Dosen',
   aplicacoesValor: (feitas: number, previstas: number) => `${feitas} von ${previstas} vorgesehenen`,
   aplicacoesNenhuma: 'Keine eingetragen',
 
@@ -83,16 +86,19 @@ export const resumo = {
     visaoGeral: 'Überblick',
     pesoAtual: 'Aktuelles Gewicht',
     variacao: 'Veränderung im Zeitraum',
-    aplicacoesNoPeriodo: 'Spritzen im Zeitraum',
+    aplicacoesNoPeriodo: 'Dosen im Zeitraum',
     checkinsRespondidos: 'Beantwortete Check-ins',
     peso: 'Gewicht',
     medidas: 'Körpermaße',
-    aplicacoes: 'Spritzen',
+    aplicacoes: 'Dosen',
+    dosesSub: (quantas: number, comLocal: boolean): string =>
+      `${quantas} ${quantas === 1 ? 'Eintrag' : 'Einträge'} · ${comLocal ? 'Datum, Dosis und Stelle' : 'Datum und Dosis'}`,
     sintomas: 'Beschwerden',
     exames: 'Laborwerte',
     notas: 'Notizen für den Termin',
     habitos: 'Mahlzeiten, Getränke und Bewegung',
     data: 'Datum',
+    medicamento: 'Medikament',
     dose: 'Dosis',
     local: 'Stelle',
     proteinaMedia: 'Eiweiß pro Tag, im Schnitt',

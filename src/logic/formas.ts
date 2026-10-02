@@ -1,5 +1,5 @@
 import { T } from '../textos';
-import { MEDS, type Forma } from './meds';
+import { MEDS, type Forma, type Med } from './meds';
 
 export type { Forma };
 
@@ -31,7 +31,7 @@ export type { Forma };
 
 /* ⚠️⚠️ A TABELA TEM DUAS METADES, E SÓ UMA DELAS É TEXTO.
 
-   `injetavel` e `estoque` são ESTRUTURA: valem em qualquer idioma, e
+   `injetavel`, `icone` e `estoque` são ESTRUTURA: valem em qualquer idioma, e
    mudá-las apaga ou acende telas inteiras. Ficam aqui.
 
    `recipiente`, `plural`, `verbo` e `acao` são PALAVRA: mudam de idioma
@@ -46,24 +46,44 @@ export type { Forma };
 export const FORMAS = (): Record<Forma, {
   /** decide se existem local de aplicação e rodízio */
   injetavel: boolean;
+  /** o ícone de uma dose desta forma — seringa ou comprimido */
+  icone: 'syringe' | 'pill';
   /** como se chama o que guarda o medicamento */
   recipiente: string;
   /** o plural dele, que é campo e não `recipiente + 's'` */
   plural: string;
   /** o verbo da ação: "aplicar" ou "tomar" */
   verbo: string;
-  /** o substantivo dela: "aplicação" ou "dose" — títulos e confirmações */
+  /** o substantivo dela — títulos e confirmações ("Registrar dose").
+      ⚠️ Desde 01/10/2026 é "dose" em todas as formas e em todos os
+      idiomas (decisão do dono), e por isso NÃO serve para separar
+      injeção de comprimido. A frase em primeira pessoa ("Apliquei a dose"
+      / "Tomei a dose", "Se você aplicou/tomou…") é função de `injetavel`
+      no catálogo, como `cadastro.ultima(injetavel)`. */
   acao: string;
   /** como o estoque se conta */
   estoque: 'doses' | 'volume' | 'unidades' | 'comprimidos';
 }> => {
   const p = T.formas.palavras;
   return {
-    caneta: { injetavel: true, estoque: 'doses', ...p.caneta },
-    frasco: { injetavel: true, estoque: 'volume', ...p.frasco },
-    seringa: { injetavel: true, estoque: 'unidades', ...p.seringa },
-    comprimido: { injetavel: false, estoque: 'comprimidos', ...p.comprimido },
+    caneta: { ...ESTRUTURA.caneta, ...p.caneta },
+    frasco: { ...ESTRUTURA.frasco, ...p.frasco },
+    seringa: { ...ESTRUTURA.seringa, ...p.seringa },
+    comprimido: { ...ESTRUTURA.comprimido, ...p.comprimido },
   };
+};
+
+/* A METADE ESTRUTURAL, sem catálogo: é o que as contas leem (uma por dose,
+   em listas de centenas), e não precisa passar pelo idioma.
+
+   ⚠️ O ÍCONE É ESTRUTURA (01/10/2026): eram ~25 seringas fixas, e quem
+   toma comprimido via uma seringa no "+", na Home, na Jornada e no PDF.
+   Ver docs/superpowers/specs/2026-10-01-oral-e-diario-design.md. */
+const ESTRUTURA: Record<Forma, { injetavel: boolean; icone: 'syringe' | 'pill'; estoque: 'doses' | 'volume' | 'unidades' | 'comprimidos' }> = {
+  caneta: { injetavel: true, icone: 'syringe', estoque: 'doses' },
+  frasco: { injetavel: true, icone: 'syringe', estoque: 'volume' },
+  seringa: { injetavel: true, icone: 'syringe', estoque: 'unidades' },
+  comprimido: { injetavel: false, icone: 'pill', estoque: 'comprimidos' },
 };
 
 /* ⚠️⚠️ É FUNÇÃO, E NÃO UM CAMPO LIDO DIRETO — e a diferença é quem já está
@@ -127,6 +147,57 @@ export const oA = (f: Forma) => T.formas.oA(f);
 
 /** O que a forma em uso implica, em uma linha. */
 export const formaAtual = (S: { profile: { med: string; forma?: Forma } }) => FORMAS()[formaDe(S)];
+
+/** A forma em uso é injetável? — a pergunta mais comum, sem catálogo. */
+export const injetavelDe = (S: { profile: { med: string; forma?: Forma } }) => ESTRUTURA[formaDe(S)].injetavel;
+
+/** O ícone de uma dose da forma em uso: seringa ou comprimido. */
+export const iconeDaDose = (S: { profile: { med: string; forma?: Forma } }) => ESTRUTURA[formaDe(S)].icone;
+
+/* ============================================================
+   A FORMA DE UMA DOSE JÁ REGISTRADA
+
+   ⚠️ É POR DOSE, E NÃO PELO PERFIL (01/10/2026). A pessoa troca de
+   remédio — Ozempic → Rybelsus — e as doses de antes continuam sendo
+   injeções, com local; as de depois são comprimidos, sem. Cada dose grava
+   o `med` (app/aplicacao), e é por ele que se sabe a via. Só o remédio de
+   agora usa a forma do perfil, porque é nele que um manipulado diz se é
+   frasco ou seringa.
+
+   ⚠️ E É ISTO QUE APAGA OS LOCAIS INVENTADOS. Até 01/10/2026 o registro
+   gravava um local de injeção em toda dose, inclusive de comprimido (o
+   estado nascia de `nextSite` e era salvo com o campo escondido), e ele
+   ia parar no histórico e no PDF do médico. Quem lê o local por
+   `localDaDose` não vê esses locais — sem apagar nada do diário.
+   ============================================================ */
+export const formaDaDose = (
+  S: { profile: { med: string; forma?: Forma } },
+  dose: { med?: string } | null | undefined,
+): Forma => {
+  const med = dose?.med;
+  if (!med || med === S.profile.med) return formaDe(S);
+  return MEDS[med]?.formas[0] ?? formaDe(S);
+};
+
+/** A dose foi injetada? (e por isso tem local) */
+export const doseInjetavel = (S: { profile: { med: string; forma?: Forma } }, dose: { med?: string } | null | undefined) =>
+  ESTRUTURA[formaDaDose(S, dose)].injetavel;
+
+/** O local de uma dose — vazio quando ela não foi injetada. */
+export const localDaDose = (S: { profile: { med: string; forma?: Forma } }, dose: { med?: string; site?: string } | null | undefined) =>
+  (dose?.site && doseInjetavel(S, dose) ? dose.site : '');
+
+/** O ícone de uma dose já registrada. */
+export const iconeDeDose = (S: { profile: { med: string; forma?: Forma } }, dose: { med?: string } | null | undefined) =>
+  ESTRUTURA[formaDaDose(S, dose)].icone;
+
+/* ⚠️ O REMÉDIO DE UMA DOSE JÁ REGISTRADA (01/10/2026) — nome, molécula e
+   unidade. As listas de doses liam tudo de `M(S)`, o remédio de HOJE: quem
+   trocou Ozempic por Rybelsus via as semanas da caneta escritas "Rybelsus
+   1 mg". A dose antiga sem `med` é do remédio do perfil, a mesma regra de
+   `formaDaDose`. */
+export const remedioDaDose = (S: { profile: { med: string } }, dose: { med?: string } | null | undefined): Med =>
+  MEDS[dose?.med || S.profile.med] ?? MEDS[S.profile.med];
 
 /* ============================================================
    A FAIXA DA MOLÉCULA, para quem não tem escada.

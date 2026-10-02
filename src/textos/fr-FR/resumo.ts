@@ -26,7 +26,11 @@ export const resumo = {
   cadencia: 'Cadence',
   tempoDeTratamento: 'Durée du traitement',
   emDias: (dias: number) => `${dias} ${dias > 1 ? 'jours' : 'jour'}`,
-  aplicacoes: 'Injections',
+  /* ⚠️ « Doses », et non « Injections » (01/10/2026) : ce document va au
+     médecin, et il lui disait qu'un comprimé avait été injecté. La raison
+     est dans ../pt-BR/resumo.ts. « prévues » et « Aucune » s'accordent
+     toujours : la dose est féminine, comme l'injection. */
+  aplicacoes: 'Doses',
   aplicacoesValor: (feitas: number, previstas: number) => `${feitas} sur ${previstas} prévues`,
   aplicacoesNenhuma: 'Aucune enregistrée',
 
@@ -70,16 +74,19 @@ export const resumo = {
     visaoGeral: 'Vue d’ensemble',
     pesoAtual: 'Poids actuel',
     variacao: 'Variation sur la période',
-    aplicacoesNoPeriodo: 'Piqûres sur la période',
+    aplicacoesNoPeriodo: 'Doses sur la période',
     checkinsRespondidos: 'Check-ins remplis',
     peso: 'Poids',
     medidas: 'Mensurations',
-    aplicacoes: 'Piqûres',
+    aplicacoes: 'Doses',
+    dosesSub: (quantas: number, comLocal: boolean): string =>
+      `${quantas} ${quantas > 1 ? 'relevés' : 'relevé'} · ${comLocal ? 'date, dose et site' : 'date et dose'}`,
     sintomas: 'Symptômes',
     exames: 'Analyses',
     notas: 'Notes pour la consultation',
     habitos: 'Repas, boissons et activité',
     data: 'Date',
+    medicamento: 'Médicament',
     dose: 'Dose',
     local: 'Site',
     proteinaMedia: 'Protéines par jour, en moyenne',

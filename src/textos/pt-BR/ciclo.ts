@@ -21,7 +21,7 @@ export const ciclo = {
 
      Era "DIA 5 DA DOSE", e dose não é um intervalo de dias. "Depois"
      mantém a contagem sem a meta — e é a palavra da tela do ciclo, "Dia 5
-     depois da aplicação". As cinco irmãs já tinham trocado. */
+     depois da dose". As cinco irmãs já tinham trocado. */
   chapeuDia: (dia: number) => `DIA ${dia} DEPOIS DA DOSE`,
   /* Sem aplicação registrada não há ciclo, e o chapéu não inventa um. */
   chapeuSemCiclo: 'PARA HOJE',
@@ -33,7 +33,13 @@ export const ciclo = {
      diz, que é o que acontece no corpo depois de aplicar. */
   aplicHead: 'O efeito começa a subir nas próximas horas.',
   aplicBody: 'Enjoo leve pode aparecer — refeições menores ao longo do dia costumam cair melhor.',
-  aplicQ: 'O que esperar no dia da aplicação?',
+  /* ⚠️ "DOSE", E NÃO "APLICAÇÃO", NESTE ARQUIVO INTEIRO (01/10/2026). As
+     frases daqui são lidas como string em logic/derive, sem saber a forma,
+     e quem toma comprimido lia "dia da aplicação", "Pré-aplicação" e
+     "véspera da próxima aplicação". "Dose" é o substantivo de todo mundo
+     (decisão do dono); a única frase que muda com a forma é a do local,
+     mais abaixo. */
+  aplicQ: 'O que esperar no dia da dose?',
 
   /* ---------- pico ---------- */
   picoHead: 'Seu apetite tende a ficar mais baixo hoje.',
@@ -54,7 +60,7 @@ export const ciclo = {
   /* Duas manchetes pela mesma razão do dia da aplicação: quando a
      aplicação é hoje, quem conta isso é o slide da aplicação. */
   altoHeadHoje: 'Fome no ponto mais alto do ciclo.',
-  altoHeadComData: (quando: string) => `Fome no ponto alto do ciclo — aplicação ${quando}.`,
+  altoHeadComData: (quando: string) => `Fome no ponto alto do ciclo — próxima dose ${quando}.`,
   /* ⚠️ "NÃO PULE REFEIÇÕES" PRESSUPÕE QUE ELA PULA, e no ponto alto da
      fome quem menos pula é quem está com fome. A frase nasceu como
      conselho e chegava como repreensão — a versão afirmativa diz a mesma
@@ -84,7 +90,7 @@ export const ciclo = {
      ⚠️ E A PERGUNTA DE CADA ETAPA NÃO MORA AQUI: são as mesmas que as
      manchetes acima mandam para o companion, e estão declaradas lá.
      ============================================================ */
-  faseAplicLabel: 'Aplicação',
+  faseAplicLabel: 'Dose',
   faseAplicRange: 'Dia 1',
   faseAplicHint: 'O efeito começa a subir nas próximas horas.',
 
@@ -100,7 +106,7 @@ export const ciclo = {
   faseRetornoRange: 'Dias 5–6',
   faseRetornoHint: 'O nível do remédio começa a cair, e a fome tende a voltar.',
 
-  fasePreLabel: 'Pré-aplicação',
+  fasePreLabel: 'Antes da dose',
   fasePreRange: 'Dias 7+',
   fasePreHint: 'Ponto mais baixo do ciclo, até a próxima dose.',
 
@@ -140,12 +146,19 @@ export const ciclo = {
   faseDescidaAtencao: 'vômito persistente ou dor abdominal forte: fale com seu médico',
 
   faseBaixoTitulo: 'Dia 7 · ponto mais baixo',
-  faseBaixoSub: 'Véspera da próxima aplicação',
+  faseBaixoSub: 'Véspera da próxima dose',
   faseBaixoComum: 'apetite mais próximo do habitual',
   /* "A dose", e não "a caneta": esta tabela é constante e não sabe a forma
      do medicamento — a frase serve caneta, frasco e seringa igualmente.
-     Ver logic/formas. */
+     Ver logic/formas.
+
+     ⚠️⚠️ MAS O LOCAL SÓ EXISTE PARA QUEM INJETA (01/10/2026), e por isso
+     a frase tem par. A tabela é lida como string em logic/derive
+     (`cicloFasesFixas`, sem `State`), então a escolha não acontece aqui:
+     app/ciclo troca uma pela outra com a forma de quem lê. Quem toma
+     comprimido não tem local nenhum a definir. */
   faseBaixoAjuda: 'deixar a dose e o local da aplicação definidos na véspera',
+  faseBaixoAjudaSemLocal: 'deixar a dose definida na véspera',
   /* ============================================================
      CICLO DA DOSE — a tela que responde "por que a fome voltou?"
 
@@ -154,10 +167,10 @@ export const ciclo = {
      outro lugar.
 
      ⚠️ E A PALAVRA DA AÇÃO VEM DE FORA. A manchete dizia "aplicação" em
-     duro, e quem toma comprimido não aplica nada: `formas.palavras` já
-     tem a palavra certa para cada recipiente. Nos cinco idiomas as duas
-     saídas são femininas — aplicação/dose, injection/prise,
-     Injektion/Dosis —, então o artigo do meio é seguro.
+     duro, e quem toma comprimido não aplica nada. Desde 01/10/2026
+     `formas.palavras[…].acao` é "dose" para todas as formas (decisão do
+     dono), nos seis idiomas. Em todos a
+     palavra é feminina, então o artigo do meio é seguro.
      ============================================================ */
   tela: {
     titulo: 'Ciclo da dose',

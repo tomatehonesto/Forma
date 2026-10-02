@@ -14,14 +14,14 @@ export const etapa = {
   /* ---------- 1. ainda não começou ---------- */
   antesChapeu: 'ANTES DE COMEÇAR',
 
-  antesComDoseHead: 'Sua primeira aplicação ainda está por vir.',
+  antesComDoseHead: 'Sua primeira dose ainda está por vir.',
   /* ⚠️ A MOLÉCULA, E NÃO A MARCA. Quem ainda não aplicou está lendo sobre
      o que vai sentir, e o que causa o efeito é a substância — escrever a
      marca aqui soaria a propaganda no único momento em que a pessoa ainda
      não tem experiência própria para contrapor. */
   antesComDoseBody: (molecula: string) =>
     `Os primeiros dias com ${molecula} costumam trazer menos fome e um enjoo leve. Registrar como você se sente desde já é o que dá base de comparação depois.`,
-  antesComDoseQ: 'O que esperar no dia da aplicação?',
+  antesComDoseQ: 'O que esperar no dia da dose?',
 
   antesSemDoseHead: 'Seu tratamento ainda não tem uma dose definida.',
   /* "Quando sua equipe definir" e não "quando você definir": dose é
@@ -39,7 +39,7 @@ export const etapa = {
      desenho que costuma acontecer. As duas dizem a mesma coisa, e só uma
      delas é sobre ela. */
   doseNovaBodyCom: (perto: string, longe: string) =>
-    `Nos seus registros o enjoo fica em ${perto} nos dois primeiros dias depois de aplicar e cai para ${longe} a partir do terceiro. Cada degrau costuma repetir esse desenho.`,
+    `Nos seus registros o enjoo fica em ${perto} nos dois primeiros dias depois da dose e cai para ${longe} a partir do terceiro. Cada degrau costuma repetir esse desenho.`,
   doseNovaBodySem: 'Cada degrau costuma trazer de volta, por alguns dias, o que já tinha passado — o enjoo é o mais comum. Tende a ceder à medida que o corpo se ajusta.',
   doseNovaQ: 'Por que sinto enjoo?',
 
@@ -50,7 +50,7 @@ export const etapa = {
      não diagnóstico: "é comum", "costuma". */
   primeiraChapeu: (n: number): string => `PRIMEIRA SEMANA · DIA ${n}`,
   primeiraDias: [
-    { head: 'Sua primeira dose está registrada.', body: 'É comum não sentir nada ainda — o corpo está começando a conhecer o remédio. Um check-in à noite já vira a base para comparar os próximos dias.', q: 'O que esperar no dia da aplicação?' },
+    { head: 'Sua primeira dose está registrada.', body: 'É comum não sentir nada ainda — o corpo está começando a conhecer o remédio. Um check-in à noite já vira a base para comparar os próximos dias.', q: 'O que esperar no dia da dose?' },
     { head: 'A fome pode começar a diminuir.', body: 'Muita gente percebe menos vontade de comer a partir de hoje. Comer devagar e parar no primeiro sinal de saciedade ajuda a evitar o enjoo.', q: 'Por que a fome diminui?' },
     { head: 'Atenção à água.', body: 'Com menos fome, também se bebe menos sem perceber. Manter a água em dia ajuda com o enjoo e com o intestino.', q: 'Quanta água devo beber?' },
     { head: 'Proteína primeiro.', body: 'Com o prato menor, vale começar pela proteína: é ela que ajuda a preservar a massa muscular enquanto o peso desce.', q: 'Por que a proteína importa tanto?' },

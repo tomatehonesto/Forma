@@ -109,7 +109,10 @@ export const rede = {
     titulo: 'Ce que la clinique pourra voir',
     itens: {
       peso: 'Pesées',
-      aplicacao: 'Injections',
+      /* ⚠️ Disait « Injections ». Le mot change, pas le sens : la version
+         du consentement ne monte pas (01/10/2026). La raison est dans
+         ../pt-BR/rede.ts. */
+      aplicacao: 'Doses du médicament',
       checkin: 'Check-ins : symptômes, sommeil, faim, eau, protéines et activité',
       refeicao: 'Repas',
       refeicao_favorita: 'Repas favoris',

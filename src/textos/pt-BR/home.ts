@@ -82,10 +82,16 @@ export const home = {
 
      Os sete tipos são o filtro da tela, e cada chip carrega a contagem
      dele. Os rótulos estão no plural porque nomeiam o conjunto.
+
+     ⚠️ "DOSE" É O SUBSTANTIVO DE TODAS AS FORMAS (01/10/2026, decisão do
+     dono). Era "Aplicações" e "Aplicação 7 mg": quem toma comprimido via
+     a própria dose chamada de injeção. Só a frase em primeira pessoa
+     segue a forma ("Apliquei" / "Tomei"), e essa é função de `injetavel`.
+     Ver docs/superpowers/specs/2026-10-01-oral-e-diario-design.md.
      ============================================================ */
   tipos: {
     checkin: 'Check-ins',
-    aplicacao: 'Aplicações',
+    aplicacao: 'Doses',
     peso: 'Pesagens',
     refeicao: 'Refeições',
     exercicio: 'Exercícios',
@@ -94,7 +100,7 @@ export const home = {
   },
 
   evento: {
-    aplicacao: (dose: string, unidade: string) => `Aplicação ${dose} ${unidade}`,
+    aplicacao: (dose: string, unidade: string) => `Dose ${dose} ${unidade}`,
     peso: 'Peso',
     /* A primeira pesagem não tem anterior para comparar, então no lugar da
        variação vai o que ela é. */
@@ -246,10 +252,10 @@ export const home = {
     ultimos7: 'SEUS ÚLTIMOS 7 DIAS',
     doseEm: (quando: string) => `dose ${quando}`,
     diasComCheckin: (feitos: number, dias: number, aplicadas: number, vividas: number) =>
-      `${feitos} de ${dias} ${dias === 1 ? 'dia' : 'dias'} com check-in · ${aplicadas} de ${vividas} ${vividas === 1 ? 'semana' : 'semanas'} com aplicação`,
-    /* Sem aplicação registrada, a linha conta só o check-in: "0 de 1
-       semanas com aplicação" media um tratamento que ainda não começou a
-       ser registrado. */
+      `${feitos} de ${dias} ${dias === 1 ? 'dia' : 'dias'} com check-in · ${aplicadas} de ${vividas} ${vividas === 1 ? 'semana' : 'semanas'} com dose`,
+    /* Sem dose registrada, a linha conta só o check-in: "0 de 1 semanas
+       com dose" media um tratamento que ainda não começou a ser
+       registrado. */
     diasComCheckinSo: (feitos: number, dias: number) =>
       `${feitos} de ${dias} ${dias === 1 ? 'dia' : 'dias'} com check-in`,
     /* A faixa da fase, antes de haver fase: de onde o ciclo vai contar. */
@@ -308,10 +314,12 @@ export const home = {
     metas: 'Metas',
     oDiaADia: 'O dia a dia',
     seuTratamento: 'Seu tratamento',
-    /* o vazio de "Seu tratamento" e de "Suas metas" (Jornada, Histórico) */
-    semanasVaziasTitulo: 'As semanas começam na primeira aplicação',
-    semanasVaziasTexto: 'O tratamento é contado de uma aplicação à outra. Registre a primeira, e cada semana aparece aqui com o que aconteceu nela.',
-    registrarAplicacao: 'Registrar aplicação',
+    /* o vazio de "Seu tratamento" e de "Suas metas" (Jornada, Histórico).
+       ⚠️ O BOTÃO NÃO MORA AQUI (01/10/2026): era "Registrar aplicação"
+       escrito à mão, e agora é `tratamento.telaRegistrarAplicacao
+       .registrar(acao)` — o mesmo título da folha que ele abre. */
+    semanasVaziasTitulo: 'As semanas começam na primeira dose',
+    semanasVaziasTexto: 'O tratamento é contado de uma dose à outra. Registre a primeira, e cada semana aparece aqui com o que aconteceu nela.',
     metasVaziasTitulo: 'Crie uma meta',
     metasVaziasTexto: 'Água, sono, treino ou o que fizer sentido para você.',
     verTudo: 'Ver tudo',
@@ -342,8 +350,8 @@ export const home = {
      frases daqui vêm em famílias soltas, e não numa lista ordenada: a
      ordem é da tela, a redação é daqui.
 
-     ⚠️ E NENHUM CARTÃO ACUSA A PESSOA. "A aplicação de ontem não está
-     registrada" é o que sabemos; "você não aplicou" é o que não temos
+     ⚠️ E NENHUM CARTÃO ACUSA A PESSOA. "A dose de ontem não está
+     registrada" é o que sabemos; "você não tomou" é o que não temos
      como saber, e seria acusação em cima de um palpite. A segunda linha
      dá as duas saídas sem escolher uma — e essa é a regra que mais se
      perde na tradução, porque a versão acusadora costuma ser a mais
@@ -356,12 +364,21 @@ export const home = {
     boaNoite: 'Boa noite',
     linhaDoDia: (dia: string, semana: number) => `${dia} • Semana ${semana}`,
 
-    /* ---------- a aplicação que não foi registrada ---------- */
+    /* ---------- a dose que não foi registrada ----------
+
+       ⚠️ O SUBSTANTIVO É "DOSE" PARA TODOS, E SÓ O VERBO SEGUE A FORMA
+       (01/10/2026). "Se você aplicou" para quem toma comprimido era a
+       tela descrevendo outro tratamento; o par vem escrito por inteiro,
+       como `cadastro.titulos.ultima`, porque o particípio flexionado
+       ("aplicou" / "tomou") não sai de um infinitivo em nenhuma língua.
+       O botão é `tratamento.telaRegistrarAplicacao.registrar(acao)`, o
+       título da folha que ele abre. */
     semRegistro: 'SEM REGISTRO',
-    semRegistroOntem: 'A aplicação de ontem não está registrada.',
-    semRegistroDias: (dias: number) => `A aplicação de ${dias} dias atrás não está registrada.`,
-    semRegistroCorpo: 'Se você aplicou, dá para registrar agora. Se não aplicou, o ciclo se refaz a partir da próxima.',
-    semRegistroCta: 'Registrar aplicação',
+    semRegistroOntem: 'A dose de ontem não está registrada.',
+    semRegistroDias: (dias: number) => `A dose de ${dias} dias atrás não está registrada.`,
+    semRegistroCorpo: (injetavel: boolean): string => (injetavel
+      ? 'Se você aplicou, dá para registrar agora. Se não aplicou, o ciclo se refaz a partir da próxima.'
+      : 'Se você tomou, dá para registrar agora. Se não tomou, o ciclo se refaz a partir da próxima.'),
 
     /* ---------- a consulta de hoje ou de amanhã ---------- */
     aConsulta: 'A CONSULTA',
@@ -405,21 +422,32 @@ export const home = {
     marcoCorpo: (trilha: string, n: number, de: number): string => `${trilha} · nível ${n} de ${de}`,
     marcoCta: 'Ver conquistas',
 
-    /* ---------- a próxima dose ---------- */
-    proximaAplicacao: 'PRÓXIMA APLICAÇÃO',
+    /* ---------- a próxima dose ----------
+
+       ⚠️ CHAPÉU, TÍTULO E BOTÃO SÃO NEUTROS (01/10/2026): "PRÓXIMA
+       APLICAÇÃO" e "Hoje é dia de aplicar sua dose" falavam de injeção a
+       quem toma comprimido. "Dose" serve às quatro formas, e o slide não
+       tem frase em primeira pessoa. */
+    proximaAplicacao: 'PRÓXIMA DOSE',
     /* ⚠️ O REMÉDIO NÃO É O SUJEITO. "Mounjaro é hoje" trata a caixinha
-       como se ela tivesse agenda; quem aplica é a pessoa. */
-    hojeEDiaDeAplicar: 'Hoje é dia de aplicar sua dose.',
+       como se ela tivesse agenda; a dose é da pessoa. */
+    hojeEDiaDeAplicar: 'Hoje é dia da sua dose.',
     proximaDose: (quando: string) => `Sua próxima dose é ${quando}.`,
     /* ⚠️ O LOCAL VEM DEPOIS DOS DOIS-PONTOS, COM O NOME DITO ANTES.
        "Coxa (dir.) sugerido" errava o gênero uma semana em cada três: o
        particípio concordava com "local", que não estava na frase, e não
        com "coxa", que estava. Com "local sugerido:" na frente, a
        concordância é com a palavra escrita — e o francês e o italiano,
-       que tinham o mesmo defeito, seguem a mesma forma. */
-    doseCorpo: (medicamento: string, dose: string, local: string) =>
-      `${medicamento} ${dose} · local sugerido: ${local}.`,
-    verAplicacao: 'Ver suas aplicações',
+       que tinham o mesmo defeito, seguem a mesma forma.
+
+       ⚠️ E SEM LOCAL A FRASE PARA NO MEDICAMENTO (01/10/2026). O local é
+       opcional porque comprimido não tem onde aplicar: a Home sempre
+       mandava o próximo do rodízio, e quem toma Rybelsus lia "local
+       sugerido: Abdômen (esq.)". Quem chama passa vazio quando a forma
+       não é injetável. */
+    doseCorpo: (medicamento: string, dose: string, local?: string): string =>
+      (local ? `${medicamento} ${dose} · local sugerido: ${local}.` : `${medicamento} ${dose}.`),
+    verAplicacao: 'Ver suas doses',
     criarLembrete: 'Criar um lembrete',
 
     /* ---------- o check-in e a sequência ----------
@@ -509,7 +537,7 @@ export const home = {
     diaADia: 'Dia a dia',
     diaComData: (diaDaSemana: string, data: string) => `${diaDaSemana}, ${data}`,
     selo: {
-      aplicacao: 'aplicação',
+      aplicacao: 'dose',
       checkin: 'check-in',
       peso: 'pesagem',
       refeicao: 'refeição',
@@ -559,7 +587,11 @@ export const home = {
     refeicaoSub: (proteina: number, alvo: number) => `${proteina} de ${alvo} g`,
 
     levaUmMinuto: 'LEVA UM MINUTO',
-    aplicacao: 'Apliquei a dose',
+    /* ⚠️ A PRIMEIRA PESSOA SEGUE A FORMA (01/10/2026). Era "Apliquei a
+       dose" para todo mundo, com uma seringa — e o "+" é a porta que mais
+       se toca no aplicativo. O substantivo fica "dose" nas duas; o verbo
+       vem por inteiro, como em `cadastro.titulos.ultima`. */
+    aplicacao: (injetavel: boolean): string => (injetavel ? 'Apliquei a dose' : 'Tomei a dose'),
     peso: 'Acabei de me pesar',
     medidas: 'Medi meu corpo',
     exame: 'Recebi um exame',
@@ -609,7 +641,7 @@ export const home = {
     semanaN: (n: number) => `Semana ${n}`,
     tudoCumprido: 'tudo cumprido',
     cumpridasDeTotal: (feitas: number, total: number) => `${feitas} de ${total} cumpridas`,
-    aplicacaoEm: (quando: string) => `aplicação ${quando}`,
+    aplicacaoEm: (quando: string) => `dose ${quando}`,
 
     /* Só aparece com vínculo: falar com a equipe precisa de equipe do
        outro lado, e não do fato de ter médico. */
@@ -628,15 +660,16 @@ export const home = {
 
      "Peso" e "Check-in" NÃO estão aqui: são `evento.peso` e
      `evento.checkin`, o nome do registro na linha do tempo, e é o mesmo
-     fato. Só "Aplicação" mora aqui, porque em `evento` aquele nome já é
-     uma função que leva dose e unidade.
+     fato. Só "Dose" mora aqui, porque em `evento` aquele nome já é uma
+     função que leva dose e unidade. (Era "Aplicação" até 01/10/2026 —
+     "dose" é o substantivo de todas as formas.)
      ============================================================ */
   telaDia: {
     registrosDeste: 'Registros deste dia',
-    diaDeAplicacao: 'Dia de aplicação',
+    diaDeAplicacao: 'Dia da dose',
     nadaRegistrado: 'nada registrado ainda',
 
-    aplicacao: 'Aplicação',
+    aplicacao: 'Dose',
     doseLinha: (med: string, dose: string, unidade: string, estado?: string) =>
       `${med} ${dose} ${unidade}${estado ? ` · ${estado}` : ''}`,
     prevista: 'prevista para hoje',
@@ -649,7 +682,7 @@ export const home = {
     semRegistro: 'Sem registro',
 
     /* ⚠️ DOIS SELOS PARA A MESMA PALAVRA, e a diferença é o gênero do que
-       foi feito: a aplicação é feita, o check-in e o peso são feitos. Em
+       foi feito: a dose é feita, o check-in e o peso são feitos. Em
        alemão os dois são "erledigt", e é por isso que a escolha é do
        catálogo e não da tela. */
     seloFeita: 'feita',
@@ -686,10 +719,13 @@ export const home = {
      ⚠️ O NOME DO APLICATIVO DE SAÚDE VEM DO APARELHO ("Apple Saúde" ou
      "Health Connect"), e não se traduz. Por isso o item é função.
 
-     ⚠️ E A FORMA DECIDE A PALAVRA DA APLICAÇÃO: quem toma comprimido
-     registra a primeira dose. As duas frases vêm escritas por inteiro,
-     como no catálogo das formas — trocar só o substantivo é como a
-     concordância quebra no primeiro idioma com gênero diferente.
+     ⚠️ E A FORMA AINDA RECEBE A FRASE, mesmo com "dose" para todos desde
+     01/10/2026 — hoje as duas saem iguais nos seis idiomas, e a função
+     fica para o idioma que precise separá-las. As
+     duas frases vêm escritas por inteiro, como no catálogo das formas —
+     trocar só o substantivo é como a concordância quebra no primeiro
+     idioma com gênero diferente. O Cuidado usa a mesma, no botão de
+     antes da primeira dose.
 
      ⚠️ "TUDO PRONTO" FALA NA VOZ DO PRODUTO, o "nós": quem acompanha
      somos nós, e não a tela.
@@ -701,7 +737,7 @@ export const home = {
     plano: 'Seu plano está pronto',
     medicacao: 'Defina a sua medicação',
     medicacaoSub: 'É dela que saem a dose, o ciclo e os lembretes',
-    aplicacao: (injetavel: boolean): string => (injetavel ? 'Registre a sua primeira aplicação' : 'Registre a sua primeira dose'),
+    aplicacao: (_injetavel: boolean): string => 'Registre a sua primeira dose',
     aplicacaoSub: 'É dela que contamos o ciclo e a próxima dose',
     checkin: 'Faça o primeiro check-in',
     checkinSub: 'Como você está hoje, em menos de um minuto',

@@ -7,10 +7,14 @@
      · `curto`   o mesmo nome numa linha apertada, ao lado de um horário
      · `desc`    o que ele faz, em uma frase
 
-   ⚠️ "APLICAÇÃO DA DOSE", E ERA "DA CANETA". A tabela não sabe a forma do
-   medicamento de quem está lendo, e a saída foi a frase que serve caneta,
-   frasco e seringa igualmente. Comprimido ainda lê "aplicação" aqui, e é
-   dívida conhecida: a palavra teria de vir do vocabulário de formas.
+   ⚠️ "DOSE DO MEDICAMENTO", E ERA "APLICAÇÃO DA DOSE" — e antes ainda "DA
+   CANETA" (01/10/2026). A tabela não sabe a forma do medicamento de quem
+   está lendo, e quem toma comprimido lia "aplicação". "Dose" é o
+   substantivo de todas as formas (decisão do dono, ver
+   docs/superpowers/specs/2026-10-01-oral-e-diario-design.md): serve
+   caneta, frasco, seringa e comprimido sem precisar saber qual é. Só a
+   frase em primeira pessoa ("apliquei" / "tomei") segue a forma, e aqui
+   não há nenhuma.
 
    ⚠️ E O CHECK-IN É O ÚNICO QUE PERGUNTA. Os outros quatro avisam sobre
    coisas que a pessoa FAZ — aplicar, pesar, beber, comer. Justamente por
@@ -18,8 +22,8 @@
    ============================================================ */
 
 export const alertas = {
-  dose: 'Aplicação da dose',
-  doseCurto: 'Aplicação',
+  dose: 'Dose do medicamento',
+  doseCurto: 'Dose',
   doseDesc: 'Um aviso antes da próxima dose, para manter o tratamento em dia.',
 
   checkin: 'Check-in do dia',
@@ -79,7 +83,7 @@ export const alertas = {
     oQueAvisar: 'O que avisar',
 
     antecedencia: 'Antecedência',
-    antecedenciaAjuda: 'Contada a partir da data da sua próxima aplicação.',
+    antecedenciaAjuda: 'Contada a partir da data da sua próxima dose.',
 
     diasDaSemana: 'Dias da semana',
     diasDaSemanaAjuda: 'Sem nenhum marcado, o alerta toca todo dia.',
@@ -118,7 +122,7 @@ export const alertas = {
     desligado: 'Desligado',
     guardado: 'Guardado — os avisos saem pelo celular',
     semAviso: 'Sem aviso enquanto estiver bloqueado',
-    /* O aviso da dose conta da primeira aplicação registrada; antes dela a
+    /* O aviso da dose conta da primeira dose registrada; antes dela a
        linha diz isso, e não que o aparelho bloqueou. */
     doseDepoisDaPrimeira: 'Começa a contar da primeira dose registrada',
 
@@ -142,7 +146,7 @@ export const alertas = {
 
      O aviso de dose não tem texto aqui: ele é o mesmo da tela de
      bloqueio, em `avisos`, porque esta lista conta o que chegou. Nem o
-     de estoque, que usa o veredito de Aplicações; nem as pastilhas de
+     de estoque, que usa o veredito da tela de doses; nem as pastilhas de
      Insights, Conquistas e Exames, que usam o nome da tela para onde o
      toque leva.
      ============================================================ */

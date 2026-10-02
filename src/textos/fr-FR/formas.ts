@@ -47,11 +47,18 @@ export const formas = {
      d'aujourd'hui sont réguliers et le calcul tomberait juste — et c'est
      exactement comme ça que le cinquième, irrégulier, passe sans que
      personne le remarque. */
+  /* ⚠️ `acao` EST « DOSE » POUR LES QUATRE FORMES (décision du
+     propriétaire, 01/10/2026) : c'est le nom commun de tous dans les
+     titres, les écrans et les documents. Seule la phrase à la première
+     personne suit la forme (« J'ai injecté / J'ai pris ma dose », « Si
+     vous l'avez injectée / prise »). « Dose » est féminin, comme l'étaient
+     « piqûre » et « prise » : l'article de celui qui le reçoit reste juste.
+     Voir ../pt-BR/formas.ts. */
   palavras: {
-    caneta: { recipiente: 'stylo', plural: 'stylos', verbo: 'injecter', acao: 'piqûre' },
-    frasco: { recipiente: 'flacon', plural: 'flacons', verbo: 'injecter', acao: 'piqûre' },
-    seringa: { recipiente: 'seringue', plural: 'seringues', verbo: 'injecter', acao: 'piqûre' },
-    comprimido: { recipiente: 'plaquette', plural: 'plaquettes', verbo: 'prendre', acao: 'prise' },
+    caneta: { recipiente: 'stylo', plural: 'stylos', verbo: 'injecter', acao: 'dose' },
+    frasco: { recipiente: 'flacon', plural: 'flacons', verbo: 'injecter', acao: 'dose' },
+    seringa: { recipiente: 'seringue', plural: 'seringues', verbo: 'injecter', acao: 'dose' },
+    comprimido: { recipiente: 'plaquette', plural: 'plaquettes', verbo: 'prendre', acao: 'dose' },
   } as Record<Recipiente, { recipiente: string; plural: string; verbo: string; acao: string }>,
 
   concordar: (r: Recipiente, masc: string, fem: string) => (f(r) ? fem : masc),

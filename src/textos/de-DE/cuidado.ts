@@ -72,7 +72,7 @@ export const cuidado = {
     /* Die beiden Zählungen oben. Der Zeilenumbruch ist Absicht: Wert
        oben, Einheit unten, für den Blick im Vorbeigehen. */
     metricaSemanas: 'Wochen\nBetreuung',
-    metricaAplicacoes: 'Spritzen\neingetragen',
+    metricaAplicacoes: 'Dosen\neingetragen',
 
     /* ⚠️ „DOSEN“ UND NICHT „INJEKTIONEN“: diese Pastille teilt sich die
        Zeile mit dem Puls, der „3 offene Punkte“ heißen kann, und das lange
@@ -139,17 +139,16 @@ export const cuidado = {
     emDiaPulso: 'Betreuung auf Stand',
     comecoTitulo: 'Wir zählen ab der ersten Dosis.',
     comecoTexto: 'Sobald die erste Dosis eingetragen ist, zählen wir von dort die Wochen, die Dosen und den Zyklus.',
-    comecoCta: 'Erste Spritze eintragen',
   },
 
   /* ============================================================
      DER ZUSAMMENHANG DER DOSIS — die drei kurzen Sätze
      ============================================================ */
   dose: {
-    aplicacaoHoje: 'Spritze heute',
+    aplicacaoHoje: 'Dosis heute',
     nenhumaRegistrada: 'Noch keine Dosis eingetragen',
     primeiraARegistrar: 'Erste Dosis noch einzutragen',
-    proximaAplicacao: (quando: string) => `Nächste Spritze ${quando}`,
+    proximaAplicacao: (quando: string) => `Nächste Dosis ${quando}`,
     nestaDoseHa: (semanas: number) =>
       `Bei dieser Dosis seit ${semanas} ${semanas === 1 ? 'Woche' : 'Wochen'}`,
     /* `quando` kommt schon als „in 9 Tagen“ / „morgen“ an, mit der
@@ -211,7 +210,7 @@ export const cuidado = {
     linhaDoPlano: (previstas: number, temHorizonte: boolean): [string, string, string] => [
       'Woche ',
       temHorizonte ? ` von ${previstas} bis zu deinem Ziel · ` : ' deiner Behandlung · ',
-      ' mit Spritze nach Plan',
+      ' mit Dosis nach Plan',
     ],
 
     ultimaOrientacao: 'LETZTER HINWEIS',
@@ -231,7 +230,7 @@ export const cuidado = {
     prepararAConsulta: 'Den Termin vorbereiten',
 
     seuTratamento: 'Deine Behandlung',
-    aplicacoesLink: 'Spritzen',
+    aplicacoesLink: 'Dosen',
     dosesEm: (onde: string) => `Dosen ${onde}`,
     restamDe: (restam: number, total: number, semanas: number) =>
       `${restam} von ${total} · rund ${semanas} ${semanas === 1 ? 'Woche' : 'Wochen'}`,
@@ -283,7 +282,7 @@ export const cuidado = {
 
     naoTenhoMais: 'Ich habe keine Begleitung mehr',
     tirarPergunta: 'Die Begleitung entfernen?',
-    tirarTexto: 'Alle deine Einträge bleiben hier — Gewicht, Spritzen, Symptome, Befunde und Notizen. Weg geht nur der Name.',
+    tirarTexto: 'Alle deine Einträge bleiben hier — Gewicht, Dosen, Symptome, Befunde und Notizen. Weg geht nur der Name.',
     simTirar: 'Ja, entfernen',
     cancelar: 'Abbrechen',
   },

@@ -6,10 +6,12 @@
    le nom sur l'écran de réglages, `curto` le même nom sur une ligne
    serrée à côté d'une heure, et `desc` ce qu'il fait, en une phrase.
 
-   ⚠️ « INJECTION DE LA DOSE », et avant c'était « du stylo ». La table ne
-   sait pas quelle forme utilise la personne qui lit, et la sortie a été
-   la phrase qui sert aussi bien au stylo, au flacon et à la seringue. Le
-   comprimé lit encore « piqûre » ici, et c'est une dette connue.
+   ⚠️ « DOSE DU MÉDICAMENT », et c'était « piqûre de la dose » — et avant
+   encore « du stylo » (01/10/2026). La table ne sait pas quelle forme
+   utilise la personne qui lit, et qui prend un comprimé lisait
+   « piqûre ». « Dose » est le nom de toutes les formes : il sert aussi
+   bien au stylo, au flacon, à la seringue et au comprimé. Voir
+   ../pt-BR/alertas.ts.
 
    ⚠️ ET LE CHECK-IN EST LE SEUL QUI POSE UNE QUESTION. Les quatre autres
    préviennent pour des choses que la personne FAIT. C'est pour ça qu'il
@@ -17,8 +19,8 @@
    ============================================================ */
 
 export const alertas = {
-  dose: 'Piqûre de la dose',
-  doseCurto: 'Piqûre',
+  dose: 'Dose du médicament',
+  doseCurto: 'Dose',
   doseDesc: 'Un rappel avant la prochaine dose, pour garder le traitement à jour.',
 
   checkin: 'Check-in du jour',
@@ -67,7 +69,7 @@ export const alertas = {
     oQueAvisar: 'Quoi rappeler',
 
     antecedencia: 'Combien de temps avant',
-    antecedenciaAjuda: 'Comptée à partir de la date de votre prochaine piqûre.',
+    antecedenciaAjuda: 'Comptée à partir de la date de votre prochaine dose.',
 
     diasDaSemana: 'Jours de la semaine',
     diasDaSemanaAjuda: 'Si aucun n’est coché, le rappel sonne tous les jours.',
@@ -112,7 +114,7 @@ export const alertas = {
     convite: 'Une alerte est une invitation, pas une exigence. Si un jour elle passe à la trappe, rien ici ne s’accumule.',
   },
   /* NOTIFICATIONS — voir ../pt-BR/alertas.ts. L'avis de dose reprend
-     `avisos` ; celui du stock, le verdict de l'écran des piqûres. */
+     `avisos` ; celui du stock, le verdict de l'écran des doses. */
   telaNotificacoes: {
     titulo: 'Notifications',
     lead: 'Ce que nous vous avons signalé ces derniers jours.',

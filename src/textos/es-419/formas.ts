@@ -37,10 +37,16 @@ const f = (r: Recipiente) => GENERO[r] === 'f';
 export const formas = {
   /* ⚠️ EL PLURAL ES CAMPO, y no `recipiente + 's'`. "Blíster" hace
      "blísteres" y no "blísters" — la cuenta fácil ya falla en el cuarto. */
+  /* ⚠️ `acao` ES "DOSIS" EN LAS CUATRO FORMAS (decisión del dueño,
+     01/10/2026): va a títulos y confirmaciones, y quien toma comprimido
+     leía "Registrar inyección". Solo la frase en primera persona sigue la
+     forma, y es función de `injetavel` en el catálogo de cada pantalla.
+     "Inyección" y "dosis" son femeninas: el artículo de quien la recibe
+     sigue bien. Ver ../pt-BR/formas.ts. */
   palavras: {
-    caneta: { recipiente: 'pluma', plural: 'plumas', verbo: 'aplicar', acao: 'inyección' },
-    frasco: { recipiente: 'frasco', plural: 'frascos', verbo: 'aplicar', acao: 'inyección' },
-    seringa: { recipiente: 'jeringa', plural: 'jeringas', verbo: 'aplicar', acao: 'inyección' },
+    caneta: { recipiente: 'pluma', plural: 'plumas', verbo: 'aplicar', acao: 'dosis' },
+    frasco: { recipiente: 'frasco', plural: 'frascos', verbo: 'aplicar', acao: 'dosis' },
+    seringa: { recipiente: 'jeringa', plural: 'jeringas', verbo: 'aplicar', acao: 'dosis' },
     comprimido: { recipiente: 'blíster', plural: 'blísteres', verbo: 'tomar', acao: 'dosis' },
   } as Record<Recipiente, { recipiente: string; plural: string; verbo: string; acao: string }>,
 

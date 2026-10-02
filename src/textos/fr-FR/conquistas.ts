@@ -10,12 +10,12 @@
    différents selon la langue dans laquelle elle lit.
 
    CHAQUE PARCOURS PARLE À DEUX TEMPS, et ce ne sont pas la même phrase :
-   `desc` est ce que ce niveau EST DÉJÀ — « 12 piqûres notées » —, et
+   `desc` est ce que ce niveau EST DÉJÀ — « 12 doses notées » —, et
    `falta` est ce qui la sépare du suivant. « Il manque » et non « il vous
    faut » : le sujet est la distance, pas la personne.
 
    ⚠️⚠️ ET L'ACCORD DU PARTICIPE EST LE PIÈGE DE CE FICHIER EN FRANÇAIS.
-   « 12 piqûres notées » s'accorde avec « piqûres », féminin pluriel ;
+   « 12 doses notées » s’accorde avec « doses », féminin pluriel ;
    « 12 jours notés » avec « jours », masculin. Le portugais fait pareil et
    s'en sort avec un `'s'` conditionnel parce que le genre y est fixe par
    ligne ; le français doit écrire les quatre formes à la main, parce que
@@ -41,9 +41,12 @@ export const conquistas = {
     acompanhamento: 'Suivi',
   },
 
-  doses: 'Piqûres',
-  dosesDesc: (a: number) => `${p(a, 'piqûre')} notée${a === 1 ? '' : 's'}`,
-  dosesFalta: (r: number) => `Il manque ${p(r, 'piqûre')}`,
+  /* ⚠️ « DOSES », et c'était « piqûres » (01/10/2026) : le même parcours
+     sert au stylo et au comprimé. « Dose » est féminin comme « piqûre »,
+     et l'accord ne bouge pas. Voir ../pt-BR/conquistas.ts. */
+  doses: 'Doses',
+  dosesDesc: (a: number) => `${p(a, 'dose')} notée${a === 1 ? '' : 's'}`,
+  dosesFalta: (r: number) => `Il manque ${p(r, 'dose')}`,
 
   tempo: 'Durée du traitement',
   /* En dessous d'un an on compte en mois, au-delà en années : « 12 mois »
@@ -56,7 +59,8 @@ export const conquistas = {
 
   /* ⚠️ LA ROTATION N'EST PAS UN ORNEMENT : répéter le même point cause des
      nodules, et alterner est une consigne de notice. C'est le seul
-     parcours qui récompense une pratique de sécurité. */
+     parcours qui récompense une pratique de sécurité — et il n'existe que
+     pour qui s'injecte. */
   rodizio: 'Rotation',
   rodizioDesc: (a: number) => `${p(a, 'site')} d’injection utilisé${a === 1 ? '' : 's'}`,
   rodizioFalta: (r: number) => `Il manque ${p(r, 'site')}`,

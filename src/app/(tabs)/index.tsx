@@ -218,6 +218,11 @@ export default function Home() {
      concordam com ele — ver logic/formas. */
   const forma = formaDe(S);
   const recipiente = FORMAS()[forma].recipiente;
+  /* ⚠️ E DECIDE O VERBO, O DESENHO E O LOCAL DA DOSE (01/10/2026). Quem
+     toma comprimido lia "Se você aplicou", via uma seringa e recebia um
+     "local sugerido" do rodízio de injeção. O substantivo é "dose" para
+     todos; o resto vem daqui. */
+  const vocab = FORMAS()[forma];
 
   /* Carrossel do hero — as leituras do dia, todas com dado real.
 
@@ -233,15 +238,18 @@ export default function Home() {
        entrassem depois, a pessoa precisaria passar por dois cartões
        informativos para descobrir que a dose de ontem não foi registrada.
 
-       ⚠️ E NENHUM DELES DIZ QUE ELA FALHOU. "A aplicação de ontem não está
-       registrada" é o que o aplicativo sabe; "você não aplicou" é o que
-       ele não tem como saber, e seria acusação em cima de um palpite. A
-       segunda linha dá as duas saídas sem escolher uma. */
+       ⚠️ E NENHUM DELES DIZ QUE ELA FALHOU. "A dose de ontem não está
+       registrada" é o que o aplicativo sabe; "você não tomou" é o que ele
+       não tem como saber, e seria acusação em cima de um palpite. A
+       segunda linha dá as duas saídas sem escolher uma.
+
+       ⚠️ O BOTÃO É O TÍTULO DA FOLHA QUE ELE ABRE ("Registrar dose"), e
+       não um texto próprio — eram dois nomes para o mesmo lugar. */
     ...(atraso >= 1 ? [{
       over: K().semRegistro,
       title: atraso === 1 ? K().semRegistroOntem : K().semRegistroDias(atraso),
-      body: K().semRegistroCorpo,
-      cta: K().semRegistroCta, to: '/aplicacao', ic: 'syringe',
+      body: K().semRegistroCorpo(vocab.injetavel),
+      cta: T.tratamento.telaRegistrarAplicacao.registrar(vocab.acao), to: '/aplicacao', ic: vocab.icone,
     }] : []),
 
     ...(temConsulta(S) && diffDays(new Date(S.consult.t), now()) <= 1 ? [{
@@ -316,19 +324,19 @@ export default function Home() {
       cta: KL.pedirSim, to: '/aceite-ia?leitura=1',
       ia: true,
     }] : []),
-    /* A PRÓXIMA APLICAÇÃO SÓ ENTRA QUANDO EXISTE UMA.
+    /* A PRÓXIMA DOSE SÓ ENTRA QUANDO EXISTE UMA.
 
        Quem respondeu "ainda não sei" no medicamento sai do cadastro sem
-       dose, e este slide anunciava a data de uma aplicação que ninguém
+       dose, e este slide anunciava a data de uma dose que ninguém
        marcou — quando não quebrava a Home inteira ao formatar um número
        que era nulo. Sem dose, o carrossel simplesmente tem um slide a
        menos, que é o que a verdade sobre esse dia é. */
     /* ⚠️ SAI DE CENA QUANDO HÁ ATRASO. `quandoEm` trata dia negativo como
-       "hoje", então este cartão diria "hoje é dia de aplicar sua dose"
+       "hoje", então este cartão diria "hoje é dia da sua dose"
        para quem está três dias atrasada — verdade pela metade, ao lado de
        um cartão que conta a outra metade. Um assunto, um cartão.
 
-       ⚠️ E SÓ COM CICLO (`temCiclo`). Sem aplicação registrada a data é
+       ⚠️ E SÓ COM CICLO (`temCiclo`). Sem dose registrada a data é
        hoje por recuo, e o cartão dizia "Hoje é dia de aplicar sua dose"
        logo depois de um que dizia "Sua primeira aplicação ainda está por
        vir". A primeira não tem data, e quem fala dela é o destaque do dia. */
@@ -336,16 +344,19 @@ export default function Home() {
       over: K().proximaAplicacao,
       /* ⚠️ O REMÉDIO NÃO É O SUJEITO DA FRASE. "Mounjaro é hoje" trata a
          caixinha como se ela tivesse agenda, e obriga quem lê a traduzir
-         para o que a frase queria dizer: que hoje ela aplica. O nome do
+         para o que a frase queria dizer: que hoje é a dose dela. O nome do
          medicamento não some — desce para a linha de baixo, junto da dose
          e do local, que é onde ele é informação e não manchete. */
       title: quandoEm(nd).hoje ? K().hojeEDiaDeAplicar : K().proximaDose(quandoEm(nd).label),
-      body: K().doseCorpo(med.label, doseDoPerfil(S), siteLabel(nextSite(S))),
+      /* ⚠️ LOCAL SÓ PARA INJEÇÃO (01/10/2026). `nextSite` sempre devolve
+         um dos seis locais do rodízio, e quem toma comprimido lia "local
+         sugerido: Abdômen (esq.)". Sem local, a frase para no remédio. */
+      body: K().doseCorpo(med.label, doseDoPerfil(S), vocab.injetavel ? siteLabel(nextSite(S)) : undefined),
       /* ⚠️ A SEGUNDA AÇÃO DEPENDE DE ELA JÁ TER A PRIMEIRA. Oferecer
          "criar um lembrete" a quem já tem um lembrete de dose ligado é uma
          porta que não leva a nada novo — e a lista de alertas sabe
          responder isso numa linha. Quem já tem continua indo para a tela
-         da aplicação, que é onde se registra a dose. */
+         das doses, que é onde se registra a dose. */
       ...(temLembreteDeDose
         ? { cta: K().verAplicacao, to: '/aplicacoes' }
         : { cta: K().criarLembrete, to: '/lembretes', ic: 'bell' }),

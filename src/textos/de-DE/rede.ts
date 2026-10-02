@@ -108,7 +108,10 @@ export const rede = {
     titulo: 'Was die Praxis sehen wird',
     itens: {
       peso: 'Wiegungen',
-      aplicacao: 'Injektionen',
+      /* ⚠️ Hieß „Injektionen“. Das Wort ändert sich, nicht der Sinn — die
+         Version der Einwilligung steigt nicht (01.10.2026). Der Grund steht
+         in ../pt-BR/rede.ts. */
+      aplicacao: 'Dosen deines Medikaments',
       checkin: 'Check-ins: Symptome, Schlaf, Hunger, Wasser, Eiweiß und Bewegung',
       refeicao: 'Mahlzeiten',
       refeicao_favorita: 'Lieblingsmahlzeiten',

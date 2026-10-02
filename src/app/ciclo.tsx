@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { cicloFases, M } from '../logic/derive';
 import { dataComDiaDaSemana } from '../logic/time';
-import { FORMAS, formaDe, nomeDaMolecula } from '../logic/formas';
+import { FORMAS, formaDe, injetavelDe, nomeDaMolecula } from '../logic/formas';
 import { T } from '../textos';
 import { Txt } from '../ui/kit';
 import {
@@ -25,7 +25,7 @@ const K = () => T.ciclo.tela;
    acontece com todo mundo.
 
    Por isso a tela abre dizendo o DIA, não a fase: "Dia 5 depois da
-   aplicação" é o fato que ela pode conferir; "descida" é a interpretação,
+   dose" é o fato que ela pode conferir; "descida" é a interpretação,
    e vem logo abaixo, na linha que já está aberta.
 
    A versão anterior tinha anel, stepper horizontal, carrossel de sintomas
@@ -42,6 +42,11 @@ export default function Ciclo() {
   const cic = cicloFases(S);
   const med = M(S);
   const vocab = FORMAS()[formaDe(S)];
+  /* ⚠️ O LOCAL SÓ PARA QUEM INJETA (01/10/2026). A tabela das fases é
+     lida em logic/derive sem a forma, e a última dizia "deixar a dose e o
+     local da aplicação definidos na véspera" a quem toma comprimido. A
+     frase tem par no catálogo, e a escolha é daqui. */
+  const injetavel = injetavelDe(S);
 
   return (
     <TelaInterna
@@ -74,7 +79,8 @@ export default function Ciclo() {
       <Bloco titulo={K().asQuatroFases}>
         <Sanfona>
           {cic.fases.map((f) => {
-            const itens: [string, string][] = [[K().comum, f.comum], [K().ajuda, f.ajuda]];
+            const ajuda = f.key === 'baixo' && !injetavel ? T.ciclo.faseBaixoAjudaSemLocal : f.ajuda;
+            const itens: [string, string][] = [[K().comum, f.comum], [K().ajuda, ajuda]];
             if (f.atencao) itens.push([K().atencao, f.atencao]);
             return (
               <SanfonaLinha

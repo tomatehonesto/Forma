@@ -52,9 +52,11 @@ export const cadastro = {
     formaAgora: 'Come fai la puntura?',
     doseFuturo: 'Con che dose pensi di cominciare?',
     doseAgora: 'Qual è la tua dose attuale?',
-    frequenciaFuturo: 'Ogni quanto farai la puntura?',
-    frequenciaAgora: 'Ogni quanto fai la puntura?',
-    ultima: (injetavel: boolean): string => (injetavel ? 'Quando hai fatto l’ultima puntura?' : 'Quando hai preso l’ultima dose?'),
+    /* ⚠️ IL VERBO SEGUE LA FORMA: chi prende Rybelsus non "fa la puntura".
+       Il sostantivo è "dose" per tutti. Vedi ../pt-BR/cadastro.ts. */
+    frequenciaFuturo: (injetavel: boolean): string => (injetavel ? 'Ogni quanto farai la puntura?' : 'Ogni quanto lo prenderai?'),
+    frequenciaAgora: (injetavel: boolean): string => (injetavel ? 'Ogni quanto fai la puntura?' : 'Ogni quanto lo prendi?'),
+    ultima: (injetavel: boolean): string => (injetavel ? 'Quando hai iniettato l’ultima dose?' : 'Quando hai preso l’ultima dose?'),
     corpo: 'Quali sono le tue misure attuali?',
     meta: 'Qual è il tuo obiettivo di peso?',
     ritmo: 'Che ritmo vuoi tenere per arrivarci?',
@@ -77,7 +79,7 @@ export const cadastro = {
     tratamento: 'Solo per sapere a che punto sei adesso.',
     inicio: 'Una data approssimativa va bene. Da qui esce la tua settimana di terapia.',
     pesoInicio: 'Un valore approssimativo va bene. È questo peso a diventare l’inizio della tua curva, e da lì si misura quanta strada hai fatto.',
-    medicamento: 'Da lui escono la scala delle dosi e l’intervallo fra le punture.',
+    medicamento: 'Da lui escono la scala delle dosi e l’intervallo fra una dose e l’altra.',
     forma: 'La preparazione magistrale esce dalla farmacia in tutte e due le forme, e quello che cambia è ciò che hai in mano al momento di farla.',
     doseComEscada: (med: string) => `Nell’ordine della titolazione di ${med}.`,
     /* Senza scala non c'è titolazione da seguire: una preparazione
@@ -113,9 +115,10 @@ export const cadastro = {
   prefiroNaoInformar: 'Preferisco non dirlo',
 
   jaIniciei: 'Ho già cominciato la terapia',
+  /* ⚠️ QUESTO PASSO VIENE PRIMA DEL FARMACO: nessun verbo di forma. */
   jaInicieiSub: 'Ho già fatto almeno una dose',
   vouComecar: 'Comincio a breve',
-  vouComecarSub: 'Non ho ancora fatto punture',
+  vouComecarSub: 'Non ho ancora cominciato le dosi',
 
   /* ⚠️ "NON LO SO ANCORA" COMPARE DUE VOLTE, con sottotitoli diversi —
      una nel farmaco e una nella dose. L'etichetta è la stessa perché
@@ -128,6 +131,12 @@ export const cadastro = {
      L'elenco qui sotto non è di farmaci vietati né di farmaci peggiori —
      è solo quello che circola di meno in quel posto. */
   menosComumAqui: 'MENO COMUNE QUI',
+  /* La riga sotto ogni marca: molecola, via e cadenza — "Semaglutide"
+     da sola non distingue Ozempic da Rybelsus. */
+  subDoMedicamento: (molecula: string, injetavel: boolean, diario: boolean): string =>
+    `${molecula} · ${injetavel
+      ? (diario ? 'iniezione giornaliera' : 'iniezione settimanale')
+      : (diario ? 'compressa giornaliera' : 'compressa settimanale')}`,
   manipuladoSub: 'Preparata in farmacia galenica',
   formaSeringaSub: 'Aspiri la dose con una siringa',
   formaCanetaSub: 'Arriva già riempita, pronta per la puntura',
@@ -138,7 +147,11 @@ export const cadastro = {
   padrao: 'Standard',
   outroIntervaloTitulo: 'Un altro intervallo',
   outroIntervalo: 'Dici tu ogni quanti giorni',
+  /* Prima persona: segue la forma. */
+  aCadaRotulo: (injetavel: boolean): string => (injetavel ? 'FACCIO LA PUNTURA OGNI' : 'LO PRENDO OGNI'),
+  aCadaUnidade: (d: number): string => (d === 1 ? 'giorno' : 'giorni'),
 
+  alturaRotulo: 'ALTEZZA',
   pesoDeHoje: 'PESO DI OGGI',
   querPerder: 'Vuoi perdere',
   querGanhar: 'Vuoi prendere',
@@ -268,7 +281,7 @@ export const cadastro = {
     /* ---------- la dose ---------- */
     aindaADefinir: 'Ancora da definire',
     aindaADefinirTexto: 'Appena saprai il farmaco, costruisco io la scala delle dosi e il ciclo.',
-    cicloComeca: 'Il ciclo comincia dalla prima puntura che registri.',
+    cicloComeca: 'Il ciclo comincia dalla prima dose che registri.',
     cadenciaDiaria: 'tutti i giorni',
     cadenciaSemanal: 'una volta a settimana',
     cadenciaDias: (dias: number) => `ogni ${dias} giorni`,
@@ -285,8 +298,11 @@ export const cadastro = {
     naSuaMeta: 'Al tuo obiettivo',
 
     /* ---------- come ti aiuto ---------- */
-    ajudaDose: 'Ogni dose al posto giusto',
-    ajudaDoseSub: 'la rotazione delle zone e il ciclo della dose, senza che tu conti',
+    /* ⚠️ La rotazione delle zone esiste solo per la puntura. */
+    ajudaDose: (injetavel: boolean): string => (injetavel ? 'Ogni dose al posto giusto' : 'Ogni dose sotto controllo'),
+    ajudaDoseSub: (injetavel: boolean): string => (injetavel
+      ? 'la rotazione delle zone e il ciclo della dose, senza che tu conti'
+      : 'il promemoria e lo storico di ogni dose, senza che tu conti'),
     ajudaEnjoo: 'La nausea in numeri',
     ajudaEnjooSub: 'quello che senti diventa uno schema, e lo schema va alla visita',
     ajudaPeso: 'La tua curva di peso',

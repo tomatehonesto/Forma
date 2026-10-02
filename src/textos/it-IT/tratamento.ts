@@ -264,22 +264,26 @@ export const tratamento = {
   },
 
   /* ============================================================
-     LA SCHERMATA DELLE PUNTURE
+     LA SCHERMATA DELLE DOSI
+
+     ⚠️ SI CHIAMAVA "PUNTURE", e chi prende la compressa apriva una
+     schermata di iniezioni. "Dose" è la parola di tutti (01/10/2026) —
+     vedi ../pt-BR/tratamento.ts.
      ============================================================ */
   telaAplicacoes: {
-    aplicada: 'fatta',
+    aplicada: 'registrata',
     /* ⚠️ "NIENTE SENSI DI COLPA PER UN GIORNO CHE È PASSATO" È TUTTA LA
        FRASE, ed è il motivo per cui la griglia non ha il rosso: chi ha
        saltato una dose quasi sempre l'ha saltata perché stava male, e una
        casella rossa in un calendario di farmaci è l'app che rimprovera
        chi ha già pagato. */
-    semCulpa: 'Niente sensi di colpa per un giorno saltato — quello che conta è riprendere. Puoi registrare una puntura precedente in qualsiasi momento, con il pulsante qui sotto.',
-    titulo: 'Punture',
-    registrar: 'Registra la puntura',
+    semCulpa: 'Niente sensi di colpa per un giorno saltato — quello che conta è riprendere. Puoi registrare una dose precedente in qualsiasi momento, con il pulsante qui sotto.',
+    titulo: 'Dosi',
+    registrar: 'Registra la dose',
     /* I tre arrivano pronti: la marca, il principio attivo e la cadenza. */
     lead: (med: string, molecula: string, cadencia: string) => `${med} · ${molecula} · ${cadencia}`,
 
-    proximaAplicacao: 'PROSSIMA PUNTURA',
+    proximaAplicacao: 'PROSSIMA DOSE',
 
     cicloDaDose: 'Ciclo della dose',
     cicloSub: (dia: number, total: number, fase: string) => `Giorno ${dia} su ${total} · ${fase.toLowerCase()}`,
@@ -296,8 +300,8 @@ export const tratamento = {
     cobreSemanas: (veredito: string, semanas: number) =>
       `${veredito} — basta per circa ${semanas} ${semanas === 1 ? 'settimana' : 'settimane'}`,
 
-    alertasDeDose: (quantos: number) => `${quantos} ${quantos === 1 ? 'avviso' : 'avvisi'} per la puntura`,
-    nenhumAlerta: 'Nessun avviso per la puntura',
+    alertasDeDose: (quantos: number) => `${quantos} ${quantos === 1 ? 'avviso' : 'avvisi'} per la dose`,
+    nenhumAlerta: 'Nessun avviso per la dose',
     tocaEm: (quando: string) => `Suona ${quando}`,
     avisoAntes: 'Un avviso prima della dose, all’ora che scegli tu',
 
@@ -319,6 +323,7 @@ export const tratamento = {
 
     historico: 'Storico',
     proximaEmLocal: (local: string) => `Prossima · ${local}`,
+    proximaSemLocal: 'Prossima dose',
   },
 
   /* ============================================================
@@ -447,8 +452,8 @@ export const tratamento = {
   },
 
   telaRegistrarAplicacao: {
-    registrar: (acao: string) => `Registra ${acao}`,
-    salvar: (acao: string) => `Salva ${acao}`,
+    registrar: (acao: string) => `Registra la ${acao}`,
+    salvar: (acao: string) => `Salva la ${acao}`,
 
     /* ---------- quando ---------- */
     quando: 'Quando',
@@ -468,7 +473,7 @@ export const tratamento = {
 
     /* ---------- la zona ---------- */
     localDaAplicacao: 'Zona della puntura',
-    localAjuda: 'Cambiare zona ogni settimana aiuta a evitare irritazioni e noduli sotto la pelle.',
+    localAjuda: 'Cambiare zona a ogni dose aiuta a evitare irritazioni e noduli sotto la pelle.',
     regioes: {
       braco: 'Braccio',
       abd: 'Addome',

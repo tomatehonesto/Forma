@@ -26,7 +26,7 @@ export const ajuda = {
   qa: [
     {
       q: 'Da dove escono i numeri che vedo qui?',
-      a: 'Sono tutti conti fatti su quello che hai registrato — peso, punture, check-in, pasti, esami. L’app non completa quello che è mancato e non stima quello che non hai detto: un giorno senza risposta compare come giorno senza risposta, e non come zero.',
+      a: 'Sono tutti conti fatti su quello che hai registrato — peso, dosi, check-in, pasti, esami. L’app non completa quello che è mancato e non stima quello che non hai detto: un giorno senza risposta compare come giorno senza risposta, e non come zero.',
     },
     {
       q: 'Posso correggere o cancellare un registro?',

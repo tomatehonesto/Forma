@@ -157,17 +157,17 @@ export const escalas = {
     /* ---------- il ciclo ---------- */
     aoLongoDoCiclo: 'Lungo il ciclo',
     aoLongoNota: (dias: number) =>
-      `Media della nausea in ogni giorno dopo la puntura, su ${dias} ${dias === 1 ? 'giorno con risposta' : 'giorni con risposta'}.`,
+      `Media della nausea in ogni giorno dopo la dose, su ${dias} ${dias === 1 ? 'giorno con risposta' : 'giorni con risposta'}.`,
     /* L'etichetta del giorno zero sul metro a barre. */
     dose: 'dose',
 
     cicloParecido: 'Nei giorni con risposta finora, la nausea si presenta simile lungo tutto il ciclo — non sta seguendo la dose.',
     cicloPoucos: 'I giorni con risposta sono ancora troppo pochi per dire se la nausea segue il ciclo. Rispondi ancora qualche giorno e questo conto regge.',
-    cicloInicio1: 'La nausea pesa di più il giorno della puntura.',
-    cicloInicioN: (dias: number) => `La nausea pesa di più nei primi ${dias} giorni dopo la puntura.`,
-    cicloFim1: 'La nausea pesa di più la vigilia della prossima puntura.',
-    cicloFimN: (dias: number) => `La nausea pesa di più nei ${dias} giorni che precedono la prossima puntura.`,
-    cicloDia0: 'il giorno della puntura',
+    cicloInicio1: 'La nausea pesa di più il giorno della dose.',
+    cicloInicioN: (dias: number) => `La nausea pesa di più nei primi ${dias} giorni dopo la dose.`,
+    cicloFim1: 'La nausea pesa di più la vigilia della prossima dose.',
+    cicloFimN: (dias: number) => `La nausea pesa di più nei ${dias} giorni che precedono la prossima dose.`,
+    cicloDia0: 'il giorno della dose',
     cicloDiaN: (dia: number) => `il ${dia}º giorno dopo`,
     cicloEspalhado: (lista: string) => `La nausea pesa di più ${lista}.`,
 

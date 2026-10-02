@@ -21,7 +21,7 @@ export const etapa = {
   /* ---------- 1. es hat noch nicht angefangen ---------- */
   antesChapeu: 'VOR DEM START',
 
-  antesComDoseHead: 'Deine erste Spritze steht noch bevor.',
+  antesComDoseHead: 'Deine erste Dosis steht noch bevor.',
   /* ⚠️ DER WIRKSTOFF, NICHT DIE MARKE. Wer noch nicht gespritzt hat,
      liest darüber, was sie spüren wird, und was die Wirkung macht, ist die
      Substanz — die Marke hier zu schreiben klänge nach Werbung, in dem
@@ -32,7 +32,7 @@ export const etapa = {
      und auf Portugiesisch geschrieben an — siehe ../de-DE/descobertas. */
   antesComDoseBody: (molecula: string) =>
     `Die ersten Tage mit ${molecula} bringen meist weniger Hunger und eine leichte Übelkeit. Schon jetzt festzuhalten, wie es dir geht, ist das, was später die Vergleichsgrundlage gibt.`,
-  antesComDoseQ: 'Was ist am Tag der Spritze zu erwarten?',
+  antesComDoseQ: 'Was ist am Tag der Dosis zu erwarten?',
 
   antesSemDoseHead: 'Für deine Behandlung steht noch keine Dosis fest.',
   /* „Wenn dein Team sie festlegt“ und nicht „wenn du sie festlegst“: die
@@ -50,7 +50,7 @@ export const etapa = {
      ohne sie erzählt er das Muster, das üblicherweise auftritt. Beide
      sagen dasselbe, und nur einer davon handelt von ihr. */
   doseNovaBodyCom: (perto: string, longe: string) =>
-    `In deinen Aufzeichnungen liegt die Übelkeit an den ersten beiden Tagen nach der Spritze bei ${perto} und fällt ab dem dritten auf ${longe}. Jede Stufe wiederholt dieses Muster meist.`,
+    `In deinen Aufzeichnungen liegt die Übelkeit an den ersten beiden Tagen nach der Dosis bei ${perto} und fällt ab dem dritten auf ${longe}. Jede Stufe wiederholt dieses Muster meist.`,
   doseNovaBodySem: 'Jede Stufe bringt für ein paar Tage zurück, was schon vorbei war — Übelkeit am häufigsten. Sie lässt in der Regel nach, während dein Körper sich einstellt.',
   doseNovaQ: 'Warum ist mir übel?',
 
@@ -61,7 +61,7 @@ export const etapa = {
      não diagnóstico: "é comum", "costuma". */
   primeiraChapeu: (n: number): string => `ERSTE WOCHE · TAG ${n}`,
   primeiraDias: [
-    { head: 'Deine erste Dosis ist eingetragen.', body: 'Es ist normal, noch nichts zu spüren – dein Körper lernt das Medikament gerade erst kennen. Ein Check-in am Abend wird zur Grundlage für die nächsten Tage.', q: 'Was ist am Tag der Spritze zu erwarten?' },
+    { head: 'Deine erste Dosis ist eingetragen.', body: 'Es ist normal, noch nichts zu spüren – dein Körper lernt das Medikament gerade erst kennen. Ein Check-in am Abend wird zur Grundlage für die nächsten Tage.', q: 'Was ist am Tag der Dosis zu erwarten?' },
     { head: 'Der Hunger kann nachlassen.', body: 'Viele merken ab heute weniger Appetit. Langsam essen und beim ersten Sättigungsgefühl aufhören hilft gegen Übelkeit.', q: 'Warum lässt der Hunger nach?' },
     { head: 'Denk ans Wasser.', body: 'Mit weniger Hunger trinkt man oft auch weniger, ohne es zu merken. Genug zu trinken hilft gegen Übelkeit und für die Verdauung.', q: 'Wie viel Wasser sollte ich trinken?' },
     { head: 'Eiweiß zuerst.', body: 'Bei kleineren Portionen lohnt es sich, mit Eiweiß anzufangen: Es hilft, die Muskeln zu erhalten, während das Gewicht sinkt.', q: 'Warum ist Eiweiß so wichtig?' },

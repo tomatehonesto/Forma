@@ -6,11 +6,11 @@
    Einstellungen, `curto` derselbe Name in einer engen Zeile neben einer
    Uhrzeit, `desc` sagt in einem Satz, was sie tut.
 
-   ⚠️ „INJEKTION“ UND NICHT „PEN“. Die Tabelle kennt die Darreichungsform
-   der lesenden Person nicht, also muss der Satz Pen, Durchstechflasche
-   und Spritze gleichermaßen bedienen. Der Blister liest hier weiterhin
-   „Spritze“, und das ist bekannte Schuld — das Wort müsste aus dem
-   Vokabular von formas kommen.
+   ⚠️ „DOSIS“, UND ES WAR „SPRITZE“ — davor sogar „PEN“ (01/10/2026). Die
+   Tabelle kennt die Darreichungsform der lesenden Person nicht, und wer
+   Tabletten nimmt, las hier „Spritze“. „Dosis“ ist das Substantiv aller
+   Formen: es bedient Pen, Durchstechflasche, Fertigspritze und Tablette
+   gleichermaßen. Siehe ../pt-BR/alertas.ts.
 
    ⚠️ UND DAS CHECK-IN IST DAS EINZIGE, DAS FRAGT. Die anderen vier
    erinnern an Dinge, die man TUT — spritzen, wiegen, trinken, essen.
@@ -19,8 +19,8 @@
    ============================================================ */
 
 export const alertas = {
-  dose: 'Spritze der Dosis',
-  doseCurto: 'Spritze',
+  dose: 'Medikamentendosis',
+  doseCurto: 'Dosis',
   doseDesc: 'Eine Erinnerung vor der nächsten Dosis, damit die Behandlung im Takt bleibt.',
 
   checkin: 'Check-in des Tages',
@@ -40,7 +40,7 @@ export const alertas = {
   proteinaDesc: 'Erinnerung, dem Eiweiß in den Mahlzeiten des Tages den Vortritt zu lassen.',
 
   /* ---------- wann ---------- */
-  /* Der Vorlauf der Spritzenerinnerung: am Tag selbst, oder so viele
+  /* Der Vorlauf der Dosiserinnerung: am Tag selbst, oder so viele
      Tage vorher.
 
      ⚠️ „EIN TAG“ UND „ZWEI TAGE“ — der Plural steht ausgeschrieben, nicht
@@ -70,7 +70,7 @@ export const alertas = {
 
   /* ⚠️ HIER ZAHLT SICH `alertaDe` ALS FUNKTION AUS. Das Portugiesische
      stellt die Art hinten an — „Alerta de aplicação“ —, das Deutsche
-     baut ein Kompositum oder stellt sie voran: „Erinnerung: Spritze“.
+     baut ein Kompositum oder stellt sie voran: „Erinnerung: Medikamentendosis“.
      Und `comum.noMeio` gibt im Deutschen zurück, was es bekommt, damit
      das Substantiv seine Großschreibung behält. */
   tela: {
@@ -83,7 +83,7 @@ export const alertas = {
     oQueAvisar: 'Woran erinnern',
 
     antecedencia: 'Wie lange vorher',
-    antecedenciaAjuda: 'Gerechnet ab dem Datum deiner nächsten Spritze.',
+    antecedenciaAjuda: 'Gerechnet ab dem Datum deiner nächsten Dosis.',
 
     diasDaSemana: 'Wochentage',
     diasDaSemanaAjuda: 'Ist keiner markiert, klingelt die Erinnerung jeden Tag.',
@@ -128,7 +128,7 @@ export const alertas = {
     convite: 'Eine Erinnerung ist eine Einladung, keine Forderung. Geht eine mal unter, staut sich hier nichts auf.',
   },
   /* BENACHRICHTIGUNGEN — siehe ../pt-BR/alertas.ts. Der Dosis-Hinweis
-     nimmt `avisos`, der Vorrat das Urteil aus dem Spritzen-Bildschirm. */
+     nimmt `avisos`, der Vorrat das Urteil aus dem Dosen-Bildschirm. */
   telaNotificacoes: {
     titulo: 'Benachrichtigungen',
     lead: 'Was wir dir in den letzten Tagen mitgeteilt haben.',

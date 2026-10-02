@@ -5,7 +5,9 @@ import {
 } from './time';
 import { MEDS, CADENCE_DAYS, SHELF_DAYS } from './meds';
 import { numeroEnxuto, primeiroDiaDaSemana } from './local';
-import { FORMAS, formaDe, oA, noNa, nomeDaMolecula } from './formas';
+import {
+  FORMAS, formaDe, oA, noNa, nomeDaMolecula, injetavelDe, iconeDaDose, iconeDeDose, localDaDose, remedioDaDose,
+} from './formas';
 import { T, type SobreOMarcador, type JeitoDeAjudar } from '../textos';
 import { conquistas, eventosDeConquista, feitas } from './conquistas';
 import { faixaTxt } from './unidadesDeExame';
@@ -766,10 +768,28 @@ export function milestones(S: State): Milestone[] {
   const out: Milestone[] = [];
   const K = T.tratamento.marcos;
   out.push({ t: S.profile.startT, ic: 'leaf', title: K.inicio, sub: `${MEDS[S.profile.med].label} · ${pesoTxt(S, S.profile.startWeight)}`, to: '/historico' });
-  let prev: number | null = null;
-  for (const inj of S.injections as any[]) {
-    if (prev != null && inj.dose !== prev) out.push({ t: inj.t, ic: 'dose', title: K.doseAjustada(doseTxt(inj.dose)), sub: K.titulacao, to: '/aplicacoes' });
-    prev = inj.dose;
+  /* ⚠️ TROCA DE REMÉDIO NÃO É TITULAÇÃO (01/10/2026). Comparando só o
+     número, Ozempic 1 mg → Rybelsus 7 mg virava "Dose ajustada para 7 mg ·
+     Titulação" — duas escalas diferentes lidas como um degrau. Pela ordem
+     de data (um registro retroativo vai para o fim da lista), e com o
+     remédio de cada dose (remedioDaDose): mudou o remédio, o marco é a
+     troca; mudou só a dose, é a titulação. */
+  let prev: any = null;
+  for (const inj of (S.injections as any[]).slice().sort((a, b) => a.t - b.t)) {
+    if (prev) {
+      const rem = remedioDaDose(S, inj), remAntes = remedioDaDose(S, prev);
+      if (rem !== remAntes) {
+        out.push({
+          t: inj.t, ic: iconeDeDose(S, inj),
+          title: T.rotina.periodo.remedioNovo(`${rem.label} ${doseTxt(inj.dose)} ${rem.unit}`),
+          sub: T.rotina.periodo.remedioAnterior(`${remAntes.label} ${doseTxt(prev.dose)} ${remAntes.unit}`),
+          to: '/aplicacoes',
+        });
+      } else if (inj.dose !== prev.dose) {
+        out.push({ t: inj.t, ic: 'dose', title: K.doseAjustada(doseTxt(inj.dose)), sub: K.titulacao, to: '/aplicacoes' });
+      }
+    }
+    prev = inj;
   }
   const w5 = S.weights.find((w: any) => (S.profile.startWeight - w.kg) / S.profile.startWeight >= 0.05);
   if (w5) out.push({ t: w5.t, ic: 'trend', title: K.cincoPorCento, sub: K.cincoPorCentoSub, to: '/marcador?m=peso' });
@@ -829,15 +849,26 @@ export type LocalDoRodizio = {
   proximo: boolean;
 };
 
+/* ⚠️ O LOCAL É LIDO POR `localDaDose`, E NÃO DIRETO DE `i.site` (01/10/2026).
+   Até esta data o registro gravava um local de injeção em toda dose,
+   inclusive de comprimido (o estado nascia de `nextSite` e era salvo com o
+   campo escondido). Lido cru, um comprimido de ontem "ocupava" o abdômen e
+   empurrava o rodízio de quem voltou para a caneta. Pela dose, o local
+   inventado não existe — e nada do diário é apagado. Ver logic/formas.
+
+   E SEM "PRÓXIMO" PARA QUEM TOMA COMPRIMIDO: não há local sugerido para uma
+   dose que não se injeta. A lista continua com os seis, para a tela de quem
+   trocou de remédio não quebrar; quem decide mostrá-la é a forma. */
 export function rodizioDeLocais(S: State): LocalDoRodizio[] {
-  const prox = nextSite(S);
+  const prox = injetavelDe(S) ? nextSite(S) : null;
   const hoje = +startOfDay(now());
   const ultimaDe = new Map<string, number>();
   for (const i of S.injections as any[]) {
     /* Aplicação sem local (a do cadastro) não conta para local nenhum. */
-    if (!i.site) continue;
+    const site = localDaDose(S, i);
+    if (!site) continue;
     const t = +startOfDay(new Date(i.t));
-    if (!ultimaDe.has(i.site) || t > (ultimaDe.get(i.site) as number)) ultimaDe.set(i.site, t);
+    if (!ultimaDe.has(site) || t > (ultimaDe.get(site) as number)) ultimaDe.set(site, t);
   }
   /* ⚠️ ERA `Object.keys(SITE_LABEL)`, E A TABELA VIROU FUNÇÃO. Chaves de
      uma função são zero, então a lista inteira de locais virou vazia — sem
@@ -855,8 +886,14 @@ export function rodizioDeLocais(S: State): LocalDoRodizio[] {
   }).sort((a, b) => (a.ultima ?? -1) - (b.ultima ?? -1));
 }
 
+/* ⚠️ O SUGERIDO SÓ VALE PARA DOSE INJETÁVEL, e esta função não sabe disso:
+   ela devolve um local para qualquer pessoa, porque várias telas a chamam
+   e uma delas (o registro) precisa de um valor inicial. Quem a mostra guarda
+   com `injetavelDe` (logic/formas). E os locais lidos aqui são os de
+   `localDaDose`: o local inventado de um comprimido antigo não conta como
+   "usado" (01/10/2026). */
 export function nextSite(S: State) {
-  const used = S.injections.slice(-3).map((i: any) => i.site);
+  const used = S.injections.slice(-3).map((i: any) => localDaDose(S, i));
   const all = ['abd-e', 'abd-d', 'coxa-e', 'coxa-d', 'braco-e', 'braco-d'];
   return all.find((s) => !used.includes(s)) || all[0];
 }
@@ -1359,8 +1396,10 @@ export function doseCycle(S: State) {
      frase, mesmo destino —, e duas cópias divergem na primeira vez que
      alguém melhorar uma delas. */
   const F = T.ciclo;
+  /* O ícone da fase da dose segue a forma: seringa ou comprimido
+     (01/10/2026). Os textos da fase moram em textos/ciclo. */
   const phases: Phase[] = [
-    { key: 'aplic', label: F.faseAplicLabel, ic: 'syringe', range: F.faseAplicRange, hint: F.faseAplicHint, q: F.aplicQ },
+    { key: 'aplic', label: F.faseAplicLabel, ic: iconeDaDose(S), range: F.faseAplicRange, hint: F.faseAplicHint, q: F.aplicQ },
     { key: 'pico', label: F.fasePicoLabel, ic: 'rocket', range: F.fasePicoRange, hint: F.fasePicoHint, q: F.picoQ },
     { key: 'estab', label: F.faseEstabLabel, ic: 'shield', range: F.faseEstabRange, hint: F.faseEstabHint, q: F.estabQ },
     { key: 'retorno', label: F.faseRetornoLabel, ic: 'waves', range: F.faseRetornoRange, hint: F.faseRetornoHint, q: F.retornoQ },
@@ -1842,10 +1881,15 @@ export function patterns(S: State): Pattern[] {
 
   const ade = adesao(S);
   /* Três aplicações é o mínimo para a palavra "manteve" significar algo:
-     com uma, a porcentagem é 0% ou 100% e nenhum dos dois é um hábito. */
+     com uma, a porcentagem é 0% ou 100% e nenhum dos dois é um hábito.
+
+     ⚠️ "DOSES", E ERA "APLICAÇÕES" (01/10/2026): o retrato é o mesmo para
+     quem injeta e para quem toma comprimido, e o substantivo de todos é
+     "dose" — ver docs/superpowers/specs/2026-10-01-oral-e-diario-design.md.
+     Só o ícone segue a forma. */
   const D = T.cruzamentos.adesao;
   if (S.injections.length >= 3) out.push({
-    ...daCategoria('aplicacoes'), ic: 'syringe', cor: 'accent2', surpresa: 0,
+    ...daCategoria('aplicacoes'), ic: iconeDaDose(S), cor: 'accent2', surpresa: 0,
     titulo: ade >= 100 ? D.tituloPerfeita : D.titulo(ade),
     texto: D.texto(S.injections.length, ade >= 90 ? D.textoQuaseTodas : D.textoComAtrasos),
     q: D.q,
@@ -2504,7 +2548,7 @@ export function libraryPicks(S: State): Leitura[] {
     out.push({ motivo: L.fomeMotivo(dia), titulo: L.fomeTitulo, desc: L.fomeDesc(T.comum.noMeio(nomeDaMolecula(m.mol))), ic: 'drop2', min: 3 });
   }
   if (comCiclo && (cyc.phase.key === 'aplic' || cyc.phase.key === 'pico')) {
-    out.push({ motivo: L.primeirosMotivo(dia), titulo: L.primeirosTitulo, desc: L.primeirosDesc, ic: 'dose', min: 3 });
+    out.push({ motivo: L.primeirosMotivo(dia, injetavelDe(S)), titulo: L.primeirosTitulo, desc: L.primeirosDesc, ic: 'dose', min: 3 });
   }
 
   const enjoo = cs.slice(-5).reduce((s, c) => s + c.nausea, 0) / Math.max(1, Math.min(5, cs.length));
@@ -2701,11 +2745,16 @@ export function recommendations(S: State): Reco[] {
   /* Só com ciclo: sem aplicação registrada, `nd` é zero por recuo, e
      "a aplicação da semana está chegando" seria dito a quem ainda não
      começou. */
+  /* ⚠️ PARA COMPRIMIDO, NADA DE LOCAL (01/10/2026). Era "Separe a cartela e
+     escolha o local" para quem toma Rybelsus — uma pergunta que não existe
+     para uma dose que não se injeta. O texto e o porquê recebem
+     `injetavel`; o prazo continua o mesmo (a cadência é a parte B). */
   if (temCiclo(S) && nd >= 0 && nd <= 3) {
+    const injetavel = injetavelDe(S);
     out.push({
-      emDias: nd, ic: 'syringe',
-      texto: E.aplicacao(`${oA(formaDe(S))} ${FORMAS()[formaDe(S)].recipiente}`),
-      porque: E.aplicacaoPorque,
+      emDias: nd, ic: iconeDaDose(S),
+      texto: E.aplicacao(`${oA(formaDe(S))} ${FORMAS()[formaDe(S)].recipiente}`, injetavel),
+      porque: E.aplicacaoPorque(injetavel),
       to: '/aplicacoes',
     });
   }
@@ -2996,16 +3045,23 @@ const V = () => T.home.evento;
 
 export function timelineEvents(S: State): TLEvent[] {
   const out: TLEvent[] = [];
-  const med = M(S);
-  const D = (t: number) => +startOfDay(new Date(t));
+  const D =(t: number) => +startOfDay(new Date(t));
 
   for (const inj of S.injections as any[]) {
+    /* ⚠️ O ÍCONE E O LOCAL SÃO DA DOSE, e não do perfil (01/10/2026): quem
+       trocou a caneta pelo comprimido continua vendo as injeções de antes
+       com seringa e local, e as doses de agora com comprimido e sem local.
+       O local inventado que o registro gravava em comprimido até esta data
+       some aqui, por `localDaDose` — ver logic/formas. */
+    const local = localDaDose(S, inj);
+    /* A unidade e a molécula também são da dose (`remedioDaDose`). */
+    const med = remedioDaDose(S, inj);
     out.push({
       key: `inj-${inj.t}`, kind: 'aplicacao', day: D(inj.t), ordemNoDia: '09:00',
-      ic: 'syringe', color: 'accent', title: V().aplicacao(doseTxt(inj.dose), med.unit),
+      ic: iconeDeDose(S, inj), color: 'accent', title: V().aplicacao(doseTxt(inj.dose), med.unit),
       /* O local só quando foi dito — a aplicação do cadastro não tem. */
-      sub: [nomeDaMolecula(med.mol), inj.site ? siteLabel(inj.site) : ''].filter(Boolean).join(' · '),
-      detalhe: [`${doseTxt(inj.dose)} ${med.unit}`, nomeDaMolecula(med.mol), inj.site ? siteLabel(inj.site) : ''].filter(Boolean).join(' · '),
+      sub: [nomeDaMolecula(med.mol), local ? siteLabel(local) : ''].filter(Boolean).join(' · '),
+      detalhe: [`${doseTxt(inj.dose)} ${med.unit}`, nomeDaMolecula(med.mol), local ? siteLabel(local) : ''].filter(Boolean).join(' · '),
       value: '', valueColor: 'tx3',
     });
   }
@@ -3157,7 +3213,6 @@ export function temHistoria(S: State): boolean {
 export function timelineWeeks(S: State): JourneyWeek[] {
   const evs = timelineEvents(S);
   const injs = (S.injections as any[]).slice().sort((a, b) => a.t - b.t);
-  const med = M(S);
   const out: JourneyWeek[] = [];
 
   /* Médias do ciclo — o que o corpo recebeu naquela semana. Calculadas
@@ -3249,13 +3304,20 @@ export function timelineWeeks(S: State): JourneyWeek[] {
       });
     }
 
+    /* ⚠️ O REMÉDIO É O DA DOSE, e não o do perfil (01/10/2026): quem
+       trocou de remédio via as semanas antigas com o nome do novo. E a
+       troca não é "dose ajustada" — Ozempic 1 mg → Rybelsus 3 mg não é um
+       ajuste, e o rótulo da semana já diz o remédio novo. */
+    const rem = remedioDaDose(S, injs[i]);
+    const trocou = i > 0 && rem !== remedioDaDose(S, injs[i - 1]);
     out.push({
       semana: i + 1 + deslocamento, t: injs[i].t,
-      dose: `${med.label} ${doseTxt(injs[i].dose)} ${med.unit}`,
-      site: injs[i].site ? siteLabel(injs[i].site) : '',
+      dose: `${rem.label} ${doseTxt(injs[i].dose)} ${rem.unit}`,
+      /* O local pela dose: o de um comprimido não existe (logic/formas). */
+      site: localDaDose(S, injs[i]) ? siteLabel(localDaDose(S, injs[i])) : '',
       eventos, deltaPeso,
       resumo: resumo || W.semRegistros,
-      mudouDose: i > 0 && injs[i].dose !== injs[i - 1].dose,
+      mudouDose: i > 0 && !trocou && injs[i].dose !== injs[i - 1].dose,
       metricas,
     });
   }
@@ -4343,7 +4405,8 @@ const MEDIDAS: Record<string, (S: State, alvo: number) => {
       texto: alvo === 1 ? K().aplicacaoUma : K().aplicacaoVarias(alvo),
       unidade: K().unidadeAplicacao,
       feito: Math.min(feito, alvo),
-      origem: K().origemAplicacao, para: '/aplicacoes', ic: 'syringe',
+      /* O ícone segue a forma; o texto diz "dose" para todos (01/10/2026). */
+      origem: K().origemAplicacao, para: '/aplicacoes', ic: iconeDaDose(S),
     };
   },
 };
@@ -6287,7 +6350,9 @@ export function canetas(S: State): Caneta[] {
       abertaEm: ab.t,
       jaEmUso: !!ab.usadasAntes,
       ultimaEm: bl.length ? bl[bl.length - 1].t : null,
-      aplicacoes: bl.map((x) => ({ t: x.t, site: x.site, dose: x.dose })),
+      /* O local pela dose: o que o registro gravava num comprimido até
+         01/10/2026 era inventado, e some aqui (logic/formas). */
+      aplicacoes: bl.map((x) => ({ t: x.t, site: localDaDose(S, x), dose: x.dose })),
     };
   });
   /* A de cima é a mais nova. */
@@ -6497,16 +6562,46 @@ export function periodoDaConsulta(S: State, t: number): PeriodoDaConsulta | null
      Só o ajuste, e não a dose de cada aplicação: uma lista de dez linhas
      iguais dizendo "5 mg" é ruído; a linha que importa é aquela em que o
      número mudou. */
+  /* ⚠️⚠️ A TROCA DE REMÉDIO NÃO É AJUSTE DE DOSE (01/10/2026). Cada dose
+     grava o `med`, e esta leitura só comparava o número: Ozempic 1 mg →
+     Rybelsus 7 mg virava "Dose para 7 mg · Vinha de 1 mg", um ajuste que
+     não houve, num resumo que vai para o médico. Agora a mudança de `med`
+     é uma linha própria ("Troca para Rybelsus 7 mg"), e um ajuste só conta
+     se veio DEPOIS da última troca — o de antes era dose de outro remédio.
+
+     A dose antiga sem `med` é do remédio do perfil (`remedioDaDose`, a
+     mesma regra de `formaDaDose`): sem isso, todo diário de antes de o
+     `med` ser gravado acusaria uma troca na primeira dose nova. */
+  const medDe = (inj: any): string => inj.med || S.profile.med;
+  const rotuloDe = (inj: any) => {
+    const m = remedioDaDose(S, inj);
+    return `${m.label} ${doseTxt(inj.dose)} ${m.unit}`;
+  };
   const injs = ((S.injections ?? []) as any[]).slice().sort((a, b) => a.t - b.t);
-  let anterior: number | null = null;
+  let anterior: any = null;
   let ajuste: { de: number; para: number } | null = null;
+  let troca: { de: any; para: any } | null = null;
   let aplicacoes = 0;
+  let ultimaDentro: any = null;
   for (const inj of injs) {
     if (dentro(inj.t)) {
       aplicacoes++;
-      if (anterior != null && inj.dose !== anterior) ajuste = { de: anterior, para: inj.dose };
+      ultimaDentro = inj;
+      if (anterior && medDe(inj) !== medDe(anterior)) {
+        troca = { de: anterior, para: inj };
+        ajuste = null;
+      } else if (anterior && inj.dose !== anterior.dose) {
+        ajuste = { de: anterior.dose, para: inj.dose };
+      }
     }
-    if (inj.t <= ate) anterior = inj.dose;
+    if (inj.t <= ate) anterior = inj;
+  }
+  if (troca) {
+    mudancas.push({
+      id: 'remedio', ic: iconeDeDose(S, troca.para),
+      titulo: C_.remedioNovo(rotuloDe(troca.para)),
+      sub: C_.remedioAnterior(rotuloDe(troca.de)),
+    });
   }
   if (ajuste) {
     mudancas.push({
@@ -6515,9 +6610,12 @@ export function periodoDaConsulta(S: State, t: number): PeriodoDaConsulta | null
       sub: C_.doseAnterior(doseTxt(ajuste.de)),
     });
   }
+  /* "N doses", para todas as formas, e o ícone da dose mais recente do
+     período — quem trocou de remédio no meio dele termina na forma de
+     agora (01/10/2026). */
   if (aplicacoes) {
     mudancas.push({
-      id: 'aplicacoes', ic: 'syringe',
+      id: 'aplicacoes', ic: iconeDeDose(S, ultimaDentro),
       titulo: aplicacoes === 1 ? C_.umaAplicacao : C_.aplicacoes(aplicacoes),
     });
   }

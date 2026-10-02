@@ -33,9 +33,11 @@ export const conquistas = {
   },
 
   /* ---------------- treatment ---------------- */
-  doses: 'Shots',
-  dosesDesc: (a: number) => `${p(a, 'shot')} logged`,
-  dosesFalta: (r: number) => `${p(r, 'shot')} to go`,
+  /* ⚠️ "DOSES", and it was "shots" (01/10/2026): the same track serves
+     pens and tablets. See ../pt-BR/conquistas.ts. */
+  doses: 'Doses',
+  dosesDesc: (a: number) => `${p(a, 'dose')} logged`,
+  dosesFalta: (r: number) => `${p(r, 'dose')} to go`,
 
   tempo: 'Time in treatment',
   /* Under a year it counts in months, from there in years: "12 months"
@@ -48,7 +50,7 @@ export const conquistas = {
 
   /* ⚠️ ROTATION ISN'T DECORATION: repeating the same spot causes lumps,
      and alternating is label guidance. It's the only track that rewards a
-     safety practice. */
+     safety practice — and it only exists for people who inject. */
   rodizio: 'Rotation',
   rodizioDesc: (a: number) => `${p(a, 'injection site')} used`,
   rodizioFalta: (r: number) => `${p(r, 'site')} to go`,

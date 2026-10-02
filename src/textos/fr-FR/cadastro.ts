@@ -49,9 +49,12 @@ export const cadastro = {
     formaAgora: 'Comment le prenez-vous ?',
     doseFuturo: 'Avec quelle dose pensez-vous commencer ?',
     doseAgora: 'Quelle est votre dose actuelle ?',
-    frequenciaFuturo: 'À quelle fréquence allez-vous le prendre ?',
-    frequenciaAgora: 'À quelle fréquence le prenez-vous ?',
-    ultima: (injetavel: boolean): string => (injetavel ? 'Quand avez-vous fait votre dernière piqûre ?' : 'Quand avez-vous pris votre dernière dose ?'),
+    /* ⚠️ Fonctions de la forme en pt-BR (« você aplica ? » / « você toma ? »).
+       « Le prendre » couvre déjà le stylo et le comprimé : les deux
+       branches restent les mêmes. Le nom est « dose » pour tout le monde. */
+    frequenciaFuturo: (_injetavel: boolean): string => 'À quelle fréquence allez-vous le prendre ?',
+    frequenciaAgora: (_injetavel: boolean): string => 'À quelle fréquence le prenez-vous ?',
+    ultima: (injetavel: boolean): string => (injetavel ? 'À quand remonte votre dernière dose ?' : 'Quand avez-vous pris votre dernière dose ?'),
     corpo: 'Quelles sont vos mesures actuelles ?',
     meta: 'Quel est votre objectif de poids ?',
     ritmo: 'Quel rythme voulez-vous suivre pour y arriver ?',
@@ -71,7 +74,7 @@ export const cadastro = {
     tratamento: 'Juste pour savoir où vous en êtes.',
     inicio: 'Une date approximative suffit. C’est de là que sort votre semaine de traitement.',
     pesoInicio: 'Un chiffre approximatif suffit. C’est ce poids qui devient le début de votre courbe — et qui mesure le chemin parcouru.',
-    medicamento: 'C’est de lui que viennent l’escalier des doses et l’intervalle entre les piqûres.',
+    medicamento: 'C’est de lui que viennent l’escalier des doses et l’intervalle entre deux doses.',
     forma: 'La préparation magistrale sort de la pharmacie sous les deux formes, et ce qui change, c’est ce que vous avez en main au moment de le prendre.',
     doseComEscada: (med: string) => `Dans l’ordre de titration de ${med}.`,
     doseSemEscada: 'La préparation magistrale n’a pas d’escalier de doses standard — le chiffre est celui de votre ordonnance.',
@@ -119,6 +122,12 @@ export const cadastro = {
   aindaNaoSeiMedSub: 'Vous pourrez le définir plus tard dans votre profil',
   aindaNaoSeiDoseSub: 'Presque tout le monde commence par la plus basse',
 
+  /* La ligne sous chaque marque : molécule, voie et rythme — « Sémaglutide »
+     seul ne distingue pas Ozempic de Rybelsus. */
+  subDoMedicamento: (molecula: string, injetavel: boolean, diario: boolean): string =>
+    `${molecula} · ${injetavel
+      ? (diario ? 'injection quotidienne' : 'injection hebdomadaire')
+      : (diario ? 'comprimé quotidien' : 'comprimé hebdomadaire')}`,
   manipuladoSub: 'Préparé en pharmacie',
   formaSeringaSub: 'Vous prélevez la dose avec une seringue',
   formaCanetaSub: 'Arrive prérempli, prêt à injecter',
@@ -129,7 +138,11 @@ export const cadastro = {
   padrao: 'Standard',
   outroIntervaloTitulo: 'Autre intervalle',
   outroIntervalo: 'Vous dites tous les combien de jours',
+  /* Première personne : elle suit la forme. */
+  aCadaRotulo: (injetavel: boolean): string => (injetavel ? 'J’INJECTE TOUS LES' : 'JE LE PRENDS TOUS LES'),
+  aCadaUnidade: (d: number): string => (d === 1 ? 'jour' : 'jours'),
 
+  alturaRotulo: 'TAILLE',
   pesoDeHoje: 'POIDS AUJOURD’HUI',
   querPerder: 'Vous voulez perdre',
   querGanhar: 'Vous voulez prendre',
@@ -224,7 +237,7 @@ export const cadastro = {
 
     aindaADefinir: 'Encore à définir',
     aindaADefinirTexto: 'Quand vous saurez le médicament, je construis l’escalier des doses et le cycle.',
-    cicloComeca: 'Le cycle commence à la première piqûre que vous notez.',
+    cicloComeca: 'Le cycle commence à la première dose que vous notez.',
     cadenciaDiaria: 'tous les jours',
     cadenciaSemanal: 'une fois par semaine',
     cadenciaDias: (dias: number) => `tous les ${dias} jours`,
@@ -238,8 +251,11 @@ export const cadastro = {
     imcDeHoje: 'IMC d’aujourd’hui',
     naSuaMeta: 'À votre objectif',
 
-    ajudaDose: 'Chaque dose au bon endroit',
-    ajudaDoseSub: 'la rotation des endroits et le cycle de la dose, sans que vous comptiez',
+    /* ⚠️ La rotation des endroits n’existe que pour l’injection. */
+    ajudaDose: (injetavel: boolean): string => (injetavel ? 'Chaque dose au bon endroit' : 'Chaque dose suivie'),
+    ajudaDoseSub: (injetavel: boolean): string => (injetavel
+      ? 'la rotation des endroits et le cycle de la dose, sans que vous comptiez'
+      : 'le rappel et l’historique de chaque dose, sans que vous comptiez'),
     ajudaEnjoo: 'La nausée en chiffres',
     ajudaEnjooSub: 'ce que vous ressentez devient un schéma, et le schéma part en consultation',
     ajudaPeso: 'Votre courbe de poids',

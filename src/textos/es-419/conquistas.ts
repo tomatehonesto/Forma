@@ -9,7 +9,7 @@
    lengua en que lee.
 
    CADA CAMINO HABLA EN DOS TIEMPOS, y no son la misma frase: `desc` es lo
-   que ese nivel YA ES — "12 inyecciones registradas" —, y `falta` es lo
+   que ese nivel YA ES — "12 dosis registradas" —, y `falta` es lo
    que la separa del próximo. "Faltan" y no "necesitas": el sujeto es la
    distancia, no la persona.
 
@@ -36,9 +36,12 @@ export const conquistas = {
     acompanhamento: 'Seguimiento',
   },
 
-  doses: 'Inyecciones',
-  dosesDesc: (a: number) => `${p(a, 'inyección', 'inyecciones')} registrada${a === 1 ? '' : 's'}`,
-  dosesFalta: (r: number) => `${v(r, 'Falta', 'Faltan')} ${p(r, 'inyección', 'inyecciones')}`,
+  /* ⚠️ "DOSIS", y decía "inyecciones" (01/10/2026): el mismo camino sirve
+     a la pluma y al comprimido. "Dosis" no cambia en plural; el
+     participio, sí. Ver ../pt-BR/conquistas.ts. */
+  doses: 'Dosis',
+  dosesDesc: (a: number) => `${p(a, 'dosis', 'dosis')} registrada${a === 1 ? '' : 's'}`,
+  dosesFalta: (r: number) => `${v(r, 'Falta', 'Faltan')} ${p(r, 'dosis', 'dosis')}`,
 
   tempo: 'Tiempo de tratamiento',
   /* Abajo de un año cuenta en meses, y a partir de ahí en años: "12 meses"
@@ -51,7 +54,7 @@ export const conquistas = {
 
   /* ⚠️ LA ROTACIÓN NO ES ADORNO: repetir el mismo punto causa nódulos, y
      alternar es indicación de prospecto. Es el único camino que premia una
-     práctica de seguridad. */
+     práctica de seguridad — y solo existe para quien se inyecta. */
   rodizio: 'Rotación',
   rodizioDesc: (a: number) => `${p(a, 'lugar', 'lugares')} de inyección usado${a === 1 ? '' : 's'}`,
   rodizioFalta: (r: number) => `${v(r, 'Falta', 'Faltan')} ${p(r, 'lugar', 'lugares')}`,

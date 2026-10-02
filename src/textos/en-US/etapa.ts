@@ -13,10 +13,10 @@ export const etapa = {
   /* ---------- 1. hasn't started yet ---------- */
   antesChapeu: 'BEFORE YOU START',
 
-  antesComDoseHead: 'Your first shot is still ahead of you.',
+  antesComDoseHead: 'Your first dose is still ahead of you.',
   antesComDoseBody: (molecula: string) =>
     `The first days on ${molecula} usually bring less hunger and mild nausea. Logging how you feel from the start is what gives you something to compare against later.`,
-  antesComDoseQ: 'What to expect on shot day?',
+  antesComDoseQ: 'What to expect on dose day?',
 
   antesSemDoseHead: 'Your treatment doesn’t have a dose set yet.',
   antesSemDoseBody: 'Once your care team sets it, it goes here — it’s what we build the weekly cycle and the reminders from.',
@@ -27,7 +27,7 @@ export const etapa = {
   doseNovaHead: (dose: string, unidade: string) =>
     `You moved up to ${dose} ${unidade} this week.`,
   doseNovaBodyCom: (perto: string, longe: string) =>
-    `In your own logs, nausea sits at ${perto} for the two days after a shot and drops to ${longe} from the third on. Each step up tends to repeat that shape.`,
+    `In your own logs, nausea sits at ${perto} for the two days after a dose and drops to ${longe} from the third on. Each step up tends to repeat that shape.`,
   doseNovaBodySem: 'Each step up tends to bring back, for a few days, what had already passed — nausea most often. It usually eases as your body adjusts.',
   doseNovaQ: 'Why am I nauseous?',
 
@@ -38,7 +38,7 @@ export const etapa = {
      não diagnóstico: "é comum", "costuma". */
   primeiraChapeu: (n: number): string => `FIRST WEEK · DAY ${n}`,
   primeiraDias: [
-    { head: 'Your first dose is logged.', body: 'It’s common not to feel anything yet — your body is just getting to know the medication. An evening check-in becomes the baseline for the days ahead.', q: 'What to expect on shot day?' },
+    { head: 'Your first dose is logged.', body: 'It’s common not to feel anything yet — your body is just getting to know the medication. An evening check-in becomes the baseline for the days ahead.', q: 'What to expect on dose day?' },
     { head: 'Your hunger may start to ease.', body: 'Many people notice less appetite from today on. Eating slowly and stopping at the first sign of fullness helps avoid nausea.', q: 'Why does hunger go down?' },
     { head: 'Keep an eye on water.', body: 'With less hunger, it’s easy to drink less without noticing. Staying hydrated helps with nausea and digestion.', q: 'How much water should I drink?' },
     { head: 'Protein first.', body: 'With smaller plates, start with protein: it helps preserve muscle while your weight goes down.', q: 'Why does protein matter so much?' },

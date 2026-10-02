@@ -21,9 +21,10 @@ export const rotina = {
   perguntas: {
     maisFome: 'Warum hatte ich heute mehr Hunger?',
     semFome: 'Warum habe ich keinen Hunger?',
-    depoisDaAplicacao: 'Was ist nach der Spritze zu erwarten?',
+    /* „Dosis“, und es war „Spritze“ (01/10/2026). Siehe ../pt-BR. */
+    depoisDaAplicacao: 'Was ist nach der Dosis zu erwarten?',
     diminuirEnjoo: 'Wie bekomme ich die Übelkeit kleiner?',
-    trocarODia: 'Kann ich den Tag der Spritze wechseln?',
+    trocarODia: 'Kann ich den Tag der Dosis wechseln?',
     meusExames: 'Was zeigen meine Befunde?',
     /* Diese beiden sind keine Fragen, sondern Aufträge: der Companion
        baut die Auswertung und stellt die Übersicht zusammen. */
@@ -78,10 +79,19 @@ export const rotina = {
        Portugiesischen fiel das nie auf, weil dort der Imperativ vorne
        steht. Der erste Buchstabe wird hier großgeschrieben, und zwar an
        dieser einen Stelle — es ist der einzige Satz des Katalogs, der
-       mit `oA` anfängt. */
-    aplicacao: (recipiente: string) =>
-      `${recipiente.charAt(0).toUpperCase()}${recipiente.slice(1)} ist dran — such dir die Stelle aus`,
-    aplicacaoPorque: 'Die Spritze der Woche steht an, und ein Wechsel der Stelle schont die Haut',
+       mit `oA` anfängt.
+
+       ⚠️ DIE STELLE GIBT ES NUR BEIM SPRITZEN (01/10/2026): „such dir die
+       Stelle aus“ ging auch an Leute mit Tabletten. Und „die nächste
+       Dosis“ statt „die Spritze der Woche“: das Wort aller Formen, ohne
+       einen Rhythmus zu behaupten. Siehe ../pt-BR. */
+    aplicacao: (recipiente: string, injetavel: boolean): string => {
+      const R = `${recipiente.charAt(0).toUpperCase()}${recipiente.slice(1)}`;
+      return injetavel ? `${R} ist dran — such dir die Stelle aus` : `${R} ist dran`;
+    },
+    aplicacaoPorque: (injetavel: boolean): string => (injetavel
+      ? 'Die nächste Dosis steht an, und ein Wechsel der Stelle schont die Haut'
+      : 'Die nächste Dosis steht an, und der Blister in Reichweite hilft, sie nicht zu vergessen'),
 
     receita: 'Frag das neue Rezept an',
     /* ⚠️ HIER KOMMEN DIE ZAHL UND DER ORT GETRENNT AN, und das Wort
@@ -131,14 +141,14 @@ export const rotina = {
     exercicio: (dias: number) => `An ${dias} ${dias === 1 ? 'Tag' : 'Tagen'} der Woche Sport machen`,
     origemExercicio: 'Bewegung',
 
-    aplicacaoUma: 'Spritze der Woche',
-    aplicacaoVarias: (quantas: number) => `${quantas} Spritzen in der Woche`,
-    origemAplicacao: 'Spritzen',
+    aplicacaoUma: 'Dosis der Woche',
+    aplicacaoVarias: (quantas: number) => `${quantas} Dosen in der Woche`,
+    origemAplicacao: 'Dosen',
 
     /* Was in jeder Aufgabe gezählt wird. „1 von 1 Tag“ beschreibt keine
-       Spritze, deshalb bringt die Spritze ihr eigenes Paar mit. */
+       Dosis, deshalb bringt die Dosis ihr eigenes Paar mit. */
     unidadeDia: ['Tag', 'Tagen'] as [string, string],
-    unidadeAplicacao: ['Spritze', 'Spritzen'] as [string, string],
+    unidadeAplicacao: ['Dosis', 'Dosen'] as [string, string],
     /* ⚠️ DER PLURAL STEHT IM DATIV — „2 von 7 Tagen“, nicht „von 7 Tage“.
        Deshalb ist die Pluralform oben „Tagen“ und nicht „Tage“: sie
        erscheint an genau einer Stelle, und die Stelle regiert den Dativ. */
@@ -204,8 +214,10 @@ export const rotina = {
     pesoDe: (de: string, para: string) => `Von ${de} auf ${para}`,
     doseNova: (dose: string) => `Dosis auf ${dose} mg`,
     doseAnterior: (dose: string) => `Kam von ${dose} mg`,
-    umaAplicacao: '1 Spritze',
-    aplicacoes: (quantas: number) => `${quantas} Spritzen`,
+    remedioNovo: (remedio: string) => `Wechsel zu ${remedio}`,
+    remedioAnterior: (remedio: string) => `Kam von ${remedio}`,
+    umaAplicacao: '1 Dosis',
+    aplicacoes: (quantas: number) => `${quantas} Dosen`,
     marcadores: (quantos: number) => `${quantos} Marker`,
     umaOrientacao: '1 Empfehlung des Teams',
     orientacoes: (quantas: number) => `${quantas} Empfehlungen des Teams`,

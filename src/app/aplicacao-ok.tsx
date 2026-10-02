@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../logic/store';
 import { M, lastInjection, siteLabel, penStock, nextInjectionDate } from '../logic/derive';
 import { diffDays, now, doseTxt, dataComDiaDaSemana, maiuscula } from '../logic/time';
-import { FORMAS, formaDe, umOutro, oA } from '../logic/formas';
+import { FORMAS, formaDe, umOutro, oA, localDaDose } from '../logic/formas';
 import { SheetScreen } from '../ui/kit';
 import { Confirmacao, Cartao, Linha, Botao } from '../ui/internas';
 import { T } from '../textos';
@@ -13,7 +13,7 @@ import { T } from '../textos';
 const K = () => T.tratamento.telaAplicacaoOk;
 
 /* ============================================================
-   APLICAÇÃO REGISTRADA
+   DOSE REGISTRADA
 
    A folha de fim de fluxo. O que ela NÃO faz é comemorar: aplicar a dose
    é obrigação da semana, não conquista, e um confete aqui envelhece na
@@ -52,6 +52,9 @@ export default function AplicacaoOk() {
 
   const acabou = est.left <= 0;
   const vocab = FORMAS()[formaDe(S)];
+  /* O local pela DOSE, e não pela forma de agora nem pelo campo gravado:
+     é vazio quando ela não foi injetada (logic/formas). */
+  const local = localDaDose(S, li);
   /* "outra caneta", "another pen" — quem concorda é o idioma, e o inglês
      devolve "another" sem olhar o gênero. As palavras estavam aqui, em
      português, dentro de `concordar(forma, 'novo', 'nova')`. */
@@ -76,15 +79,21 @@ export default function AplicacaoOk() {
       <Confirmacao
         /* ⚠️ ESTA LINHA SAÍA METADE EM CADA IDIOMA: "Shot registrada". O
            substantivo vinha de FORMAS, traduzido, e o particípio estava
-           escrito aqui, em português. */
+           escrito aqui, em português.
+
+           ⚠️ E É "DOSE REGISTRADA" PARA TODO MUNDO (01/10/2026): `acao`
+           passou a ser "dose" nas quatro formas — ver textos/formas. */
         titulo={K().registrada(maiuscula(vocab.acao))}
-        /* O local só entra na frase de quem injeta — ver logic/formas.
+        /* O local só entra na frase da dose injetada — ver logic/formas,
+           `localDaDose`. Ele lia `li.site` cru, guardado pela forma de
+           agora; a regra passou a ser a mesma de toda tela que mostra o
+           local de uma dose gravada: decide a dose, pelo `med` dela.
 
            ⚠️ E ELE NÃO DESCE PARA MINÚSCULA À MÃO. O `.toLowerCase()` que
            morava aqui escrevia "oberschenkel (re.)" em alemão, onde todo
            substantivo é maiúsculo. `comum.noMeio` é quem sabe: minúscula
            em português, o nome intacto em alemão. */
-        texto={`${quando} · ${med.label} ${doseTxt(li?.dose ?? S.profile.dose)} ${med.unit}${vocab.injetavel && li?.site ? ` · ${T.comum.noMeio(siteLabel(li.site))}` : ''}.`}
+        texto={`${quando} · ${med.label} ${doseTxt(li?.dose ?? S.profile.dose)} ${med.unit}${local ? ` · ${T.comum.noMeio(siteLabel(local))}` : ''}.`}
       >
         <Cartao>
           <Linha
