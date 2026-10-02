@@ -294,7 +294,8 @@ export default function Home() {
       over: KL.chapeu,
       title: KL.slideProntoTitulo,
       body: KL.slideProntoTexto,
-      cta: KL.slideProntoCta, to: `/leitura?semana=${leitura.leitura.semana}`,
+      /* sem parâmetro: a semana do topo da Jornada, a mesma do Insights (app/leitura) */
+      cta: KL.slideProntoCta, to: '/leitura',
       ia: true,
     }] : semanaPassada ? [{
       over: K().resumoChapeu,

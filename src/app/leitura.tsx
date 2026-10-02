@@ -48,16 +48,17 @@ const KS = () => T.home.telaSemana;
    mesmos números do acordeão:
 
      · pela Jornada e pelo histórico (`?s=N`), o ciclo N;
-     · pelo Insights, pelo aceite e pela Home (sem parâmetro, ou
-       `?semana=` de uma leitura), o ciclo que contém a maior parte da
-       semana que a IA lê (cicloQueCobre). É a mesma tela que o "Ver
-       detalhes" desse ciclo abre.
+     · pelo Insights, pelo aceite e pela Home (sem parâmetro), a semana do
+       topo da Jornada — a atual, a primeira da lista. É a mesma tela que o
+       "Ver detalhes" dela abre;
+     · `?semana=` (uma leitura antiga), o ciclo que mais a cobre.
 
    A LEITURA DA IA CONTINUA DE SEGUNDA A DOMINGO — é como ela é pedida e
-   guardada (logic/leitura) — e aparece no ciclo que cobre a maior parte
-   da semana dela (leituraQueCobre), com as datas dela escritas quando não
-   são as do ciclo. É nesse ciclo que a tela gera a leitura, mostra o
-   "lendo", o erro e o desligar.
+   guardada (logic/leitura). A mais recente mora na semana do topo, com as
+   datas dela escritas: é ali que a tela a gera, mostra o "lendo", o erro e
+   o desligar, e o cartão "A semana" está sempre na primeira semana que a
+   pessoa abre. As outras aparecem no ciclo que cobre a maior parte da
+   semana delas (leituraQueCobre).
 
    SEM CICLO QUE COBRE 4 DIAS DA SEMANA DA IA, a semana é a de segunda a
    domingo: sem aplicação registrada (a Jornada também não tem semanas) e
@@ -92,19 +93,27 @@ export default function ResumoDaSemana() {
   const { s, semana } = useLocalSearchParams<{ s?: string; semana?: string }>();
   const semanas = useMemo(() => timelineWeeks(S), [S]);
   const atual = semanaLida(now()).de;
-  /* O ciclo que a semana da IA cobre: é ele que o Insights abre, e é nele
-     que a leitura é gerada. */
-  const cicloDaLeitura = cicloQueCobre(semanas, atual);
+  /* ⚠️ SEM PARÂMETRO, A SEMANA DO TOPO DA JORNADA — a atual, a primeira
+     que a pessoa toca em "Seu tratamento" (01/10/2026, pedido do dono).
+     Abria o ciclo que a semana da IA cobre, que é o anterior: pela Jornada
+     a pessoa tocava a semana de cima e não achava o cartão "A semana" que
+     via pelo Insights. Agora é a mesma, e a leitura mais recente mora nela
+     (DoCiclo, daLeituraAtual).
+
+     Só com ciclo semanal: com medicação diária cada "ciclo" é de um dia, e
+     nenhum cobre 4 dias da semana da IA (cicloQueCobre) — aí a semana é a
+     de segunda a domingo (DaSemanaLida). */
+  const cicloDoTopo = cicloQueCobre(semanas, atual) ? semanas[0] : null;
   /* Um ciclo que não existe mais (a aplicação foi apagada) abre o mais
      recente, como a "Semana N" fazia. */
   const ciclo = s
     ? (semanas.find((x) => x.semana === Number(s)) ?? semanas[0] ?? null)
-    : semana ? cicloQueCobre(semanas, Number(semana)) : cicloDaLeitura;
+    : semana ? cicloQueCobre(semanas, Number(semana)) : cicloDoTopo;
   /* `?semana=` também escolhe A LEITURA: num ciclo com duas semanas da IA
      (aplicação a cada 14 dias, dose atrasada), é ela que mostra a outra. */
   const pedida = !s && semana ? leituraDaSemana(S, Number(semana)) : null;
   return ciclo
-    ? <DoCiclo key={`${ciclo.semana}-${pedida?.semana ?? ''}`} ciclo={ciclo} semanas={semanas} daLeituraAtual={ciclo === cicloDaLeitura} pedida={pedida} />
+    ? <DoCiclo key={`${ciclo.semana}-${pedida?.semana ?? ''}`} ciclo={ciclo} semanas={semanas} daLeituraAtual={!!cicloDoTopo && ciclo === cicloDoTopo} pedida={pedida} />
     : <DaSemanaLida />;
 }
 
@@ -118,11 +127,13 @@ function DoCiclo({ ciclo, semanas, daLeituraAtual, pedida }: {
   const S = useStore((s) => s.S);
   const { ini, fim, ultimoDia } = janelaDoCiclo(semanas, ciclo);
   const periodo = fmtPeriodo(new Date(ini), new Date(ultimoDia));
-  /* ⚠️ NO CICLO DA LEITURA DE AGORA, SÓ ELA — ou os estados dela (gerar,
-     lendo, erro, vazios). Uma leitura antiga que também caísse nele (ciclo
-     de 14 dias) ocupava o lugar e impedia a geração (achado da revisão de
-     01/10/2026); ela fica em "Outras leituras desta semana", embaixo. Nos
-     outros ciclos, a que o cobre (leituraQueCobre). */
+  /* ⚠️ NA SEMANA DO TOPO, A LEITURA DE AGORA — ou os estados dela (gerar,
+     lendo, erro, vazios) —, mesmo que ela seja da semana de antes: é a
+     leitura mais recente, e o cartão "A semana" tem de estar na semana que
+     a pessoa abre primeiro (as datas dela aparecem em "Leitura de"). Uma
+     leitura antiga que também caísse aqui (ciclo de 14 dias) não toma o
+     lugar dela; fica em "Outras leituras desta semana". Nos outros ciclos,
+     a que o cobre (leituraQueCobre). */
   const l = pedida ?? (daLeituraAtual ? leituraDaSemana(S, semanaLida(now()).de) : leituraQueCobre(S, ini, fim));
   const { ia, pe, rodape } = useIaDaSemana(l, daLeituraAtual && !pedida);
   /* ⚠️ TODA LEITURA GUARDADA TEM UMA PORTA. A lista "Semanas anteriores"

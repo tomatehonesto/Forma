@@ -199,12 +199,12 @@ export default function Insights() {
 
   /* O resumo da semana que acabou de fechar, se já saiu. */
   const leituraPronta = leituraDaSemana(S, semanaLida(now()).de);
-  /* ⚠️ O NOME DA SEMANA É O DA TELA QUE A LINHA ABRE: o ciclo da Jornada
-     que contém a semana da IA (app/leitura, cicloQueCobre) — "Semana 9 ·
-     20 a 26 set", e não as datas de segunda a domingo da leitura, que a
-     tela mostra como "Leitura de". Sem ciclo, as da leitura. */
+  /* ⚠️ O NOME DA SEMANA É O DA TELA QUE A LINHA ABRE: a semana do topo da
+     Jornada (app/leitura) — "Semana 10 · 27 set a 3 out", e não as datas
+     de segunda a domingo da leitura, que a tela mostra como "Leitura de".
+     Sem ciclo semanal, as da leitura. */
   const semanasDaJornada = useMemo(() => timelineWeeks(S), [S]);
-  const cicloDoResumo = cicloQueCobre(semanasDaJornada, semanaLida(now()).de);
+  const cicloDoResumo = cicloQueCobre(semanasDaJornada, semanaLida(now()).de) ? semanasDaJornada[0] : null;
   const nomeDoResumo = leituraPronta
     ? (cicloDoResumo
       ? (() => { const j = janelaDoCiclo(semanasDaJornada, cicloDoResumo); return `${T.home.telaSemana.semanaN(cicloDoResumo.semana)} · ${fmtPeriodo(new Date(j.ini), new Date(j.ultimoDia))}`; })()
