@@ -25,6 +25,14 @@
    `npx expo prebuild --clean`, porque ícone alternativo entra pelo
    projeto nativo.
 
+   ⚠️ DEPOIS DA LOJA, UM ÍCONE NÃO SAI MAIS DO app.json. No Android cada
+   ícone é uma porta do aplicativo (um apelido da MainActivity), e quem
+   estiver com a porta de uma paleta que saiu, se ela sumir do manifesto,
+   fica sem o aplicativo na tela inicial — a padrão foi desligada na
+   troca. Este gerador só escreve as paletas de PALETAS: quem tirar uma
+   paleta mantém a entrada dela à mão, com o desenho da sucessora
+   (PALETA_QUE_SAIU). Ver o item 9 das pendências.
+
    ⚠️ E ELE NÃO GERA NADA SE AS PALETAS NÃO PASSAREM NA TRAVA (02/10/2026).
    scripts/paletas.ts roda primeiro. O ícone é o lugar onde a paleta vai
    mais longe — até a tela inicial do telefone, e só sai de lá com um
@@ -74,6 +82,21 @@ async function paletas() {
   const re = /id: '([^']+)'[\s\S]*?acaoClara: '([^']+)'[\s\S]*?alcancado: '([^']+)'/g;
   return [...bloco.matchAll(re)].map((m) => ({ id: m[1], acao: m[2], alcancado: m[3] }));
 }
+
+/* ⚠️ O NOME DO ÍCONE É O ID EM PASCALCASE, e não o id (achado de
+   02/10/2026). O expo-alternate-app-icons converte todo nome que começa
+   em minúscula, nas duas plataformas — o apelido do Android e o
+   appiconset do iOS nascem "Amora", e é "Amora" que o sistema procura.
+   Escrito em minúscula, o app.json mentia sobre o nome registrado, e o
+   aplicativo pedia "amora" a um Android que não tinha porta com esse
+   nome. A conversão é a `toPascalCase` da biblioteca (plugin/src/utils.ts),
+   a mesma de `nomeDoIcone` em src/logic/icone.ts. Os ARQUIVOS seguem com
+   o id: o plugin os acha pelo caminho, e não pelo nome. */
+const nomeDoIcone = (id) => id
+  .replace(/[\s\-_]+/g, ' ')
+  .replace(/([A-Z])/g, ' $1')
+  .replace(/\w+/g, (p) => p[0].toUpperCase() + p.slice(1).toLowerCase())
+  .replace(/\s+/g, '');
 
 let CAMINHO = '';
 
@@ -145,7 +168,7 @@ async function main() {
     bytes += ios.length + frente.length;
 
     entradas.push({
-      name: p.id,
+      name: nomeDoIcone(p.id),
       ios: `./assets/icones/${p.id}.png`,
       android: {
         foregroundImage: `./assets/icones/${p.id}-frente.png`,

@@ -19,6 +19,7 @@ import { chaveDosAvisos } from '../logic/alertas';
 import { reagendar } from '../logic/avisos';
 import { juntarPesagens, pesagensDoAparelho } from '../logic/saude-do-aparelho';
 import { novosNiveis } from '../logic/conquistas';
+import { trocarIconeAoSair } from '../logic/icone';
 import { light, APP_MAX_W } from '../theme';
 import { SombraDasFolhas } from '../ui/folhas';
 import { segurarEntradas } from '../ui/cascata';
@@ -319,6 +320,18 @@ function VigiaDeConquistas() {
   return null;
 }
 
+/* QUEM TROCA O ÍCONE NO ANDROID.
+
+   A Aparência guarda a paleta escolhida, e o ícone da tela inicial troca
+   quando o aplicativo vai para o fundo — o primeiro momento em que alguém
+   o vê. Mora na raiz porque se sai do aplicativo de qualquer tela. Por
+   que não troca na hora, e quando a troca espera: logic/icone. No iOS não
+   faz nada — lá a troca é na hora. */
+function TrocaDoIcone() {
+  useEffect(() => trocarIconeAoSair(), []);
+  return null;
+}
+
 export default function RootLayout() {
   const hydrate = useStore((s) => s.hydrate);
   const ready = useStore((s) => s.ready);
@@ -385,6 +398,7 @@ export default function RootLayout() {
         <Sincronizador />
         <SaudeDoAparelho />
         <VigiaDeConquistas />
+        <TrocaDoIcone />
         {/* ⚠️ A ÁRVORE É REMONTADA QUANDO O IDIOMA MUDA. O React não sabe
             que o valor do local mudou — ele não está no estado dele —, e
             uma tela já desenhada continuaria com os nomes de mês antigos.

@@ -733,9 +733,100 @@ node scripts/gerar-icones.mjs
 node scripts/gerar-aurora.mjs
 ```
 
-A troca de ícone não roda no navegador nem no Expo Go — a tela de
-Aparência diz isso na própria tela quando é o caso, e as cores mudam do
-mesmo jeito. **Confirmar em aparelho** que o ícone troca de verdade.
+A troca de ícone não roda no navegador nem no Expo Go, e lá ela é
+silenciosa: as cores mudam do mesmo jeito (ver `src/logic/icone.ts`).
+
+### ✅ O que a leitura da biblioteca consertou (02/10/2026)
+
+Nada disto foi visto num aparelho: foi achado lendo o código da 8.0.0 e
+conferido no manifesto que o `prebuild` do Android gera. O iOS foi
+conferido só na leitura do plugin — o `prebuild` dele não roda no Windows.
+
+1. **O nome é PascalCase nas duas plataformas.** O plugin converte
+   "amora" em "Amora" antes de escrever o apelido do Android e o
+   appiconset do iOS, e o código nativo procura o nome exato. O aplicativo
+   pedia "amora": no Android a troca estourava sempre (a porta
+   `MainActivityamora` não existe), e no iOS a chave não existia. Agora o
+   `app.json` — e o `plugin.json` do gerador — escreve "Amora", e
+   `nomeDoIcone` converte o id da paleta.
+2. **A MainActivity não se desliga mais.** A biblioteca desligava a
+   MainActivity na primeira troca, e com ela todo link `morphi://` (o
+   filtro do esquema só existe nela — é o issue #260 da biblioteca) e a
+   própria tela aberta: componente desligado tem as atividades encerradas
+   pelo sistema, com DONT_KILL_APP ou sem. Agora a MainActivity fica só
+   com os links, e quem põe o aplicativo na tela inicial é o apelido
+   `.MainActivityPadrao` (`plugins/porta-padrao-do-icone.js`). A
+   biblioteca só troca um apelido por outro.
+3. **Uma segunda troca deixaria dois ícones.** A biblioteca desliga a
+   porta pela qual a tela atual entrou, e a tela não fica sabendo da
+   troca. No Android a escolha é guardada e aplicada quando o aplicativo
+   vai para o fundo — só a última cor tocada —, e só quando a porta da
+   tela é a acesa (`src/logic/icone.ts`). O preço: **quem troca de cor,
+   sai, volta e troca de novo, sem o aplicativo ter fechado, vê a segunda
+   troca só depois de abri-lo do zero.** O conserto de verdade é no
+   código nativo — o PR #267 da biblioteca, ainda aberto.
+
+### Confirmar em aparelho
+
+**iOS**
+
+- Tocar numa cor troca o ícone na hora, com o aviso do sistema. Se não
+  trocar, ler o erro pelo Metro: `trocarIcone` engole tudo e devolve
+  `false`.
+
+**Android** — a troca acontece no fundo: sair do aplicativo e olhar a
+tela inicial (alguns lançadores demoram uns segundos).
+
+- Escolher uma cor e sair troca o ícone. Com cinco cores tocadas antes de
+  sair, vale a última. Se não trocar, ler pelo Metro o que
+  `getAppIconName()` devolve com o aplicativo aberto pelo ícone: tem de
+  ser "Padrao" (ou o nome da cor acesa). `null` ali quer dizer que a tela
+  não sabe por qual porta entrou — e aí a trava de `src/logic/icone.ts`
+  não troca nunca.
+- **Um ícone do Morphi só**, na gaveta, sempre — inclusive depois de
+  trocar duas vezes na mesma sessão e de reabrir do zero (aí a segunda
+  troca aparece).
+- O aplicativo **não fecha** quando o ícone troca, nem quando a troca
+  acontece com a câmera, o Health Connect ou o login por cima.
+- **Os links seguem vivos** depois de uma troca:
+  `adb shell am start -a android.intent.action.VIEW -d "morphi://documento?id=privacidade"`
+  abre a política; o "a" do Metro abre o dev client (`exp+morphi://`);
+  tocar num lembrete abre o aplicativo; o link da política dentro do
+  Health Connect também.
+- Aberto por um link, trocar de cor não troca o ícone até o aplicativo
+  ser aberto pelo ícone. É de propósito: a tela entrou pela MainActivity,
+  e a biblioteca a desligaria.
+- No desenvolvimento: trocar, sair, voltar, apertar "r" no Metro, trocar
+  de novo e sair — continua um ícone só.
+- `npx expo run:android` ainda abre o aplicativo: o Expo CLI não acha
+  mais LAUNCHER na MainActivity e cai nela pelo nome.
+- **O atalho da tela inicial.** A maioria dos lançadores tira da tela
+  inicial o atalho da porta desligada, e o ícone novo fica só na gaveta.
+  É assim em todo aplicativo que troca de ícone no Android — falta
+  decidir se a Aparência diz isso a quem escolhe uma cor.
+
+### ⚠️ O que não se pode fazer depois da loja
+
+- **Tirar um ícone do `app.json`.** No Android cada ícone é uma porta do
+  aplicativo, e quem estiver com a porta que sumiu fica sem ele na tela
+  inicial — a padrão foi desligada na troca. Uma paleta que sair mantém a
+  entrada, com o desenho da sucessora (`PALETA_QUE_SAIU`). E
+  `gerar-icones.mjs` só escreve as paletas de `PALETAS`: essa entrada é à
+  mão.
+- **Dar a uma paleta o id "padrao".** É o nome da porta padrão; o plugin
+  se recusa a rodar.
+- **Usar `android.intentFilters`** sem tirar os filtros dos apelidos: a
+  biblioteca os copia para cada um, e um link atendido por duas portas
+  abre a pergunta "abrir com". O plugin avisa no `prebuild`.
+
+### ⚠️ O ícone principal ainda é o do modelo do Expo
+
+`assets/images/icon.png` e o ícone adaptativo do Android
+(`assets/images/android-icon-*.png`, fundo `#E6F4FE`) são os do modelo do
+Expo, desde o primeiro commit. É o que a porta padrão e o iOS mostram até
+a primeira troca de cor — e para sempre, para quem nunca abrir a
+Aparência. O desenho da paleta Original já existe
+(`assets/icones/original.png` e `original-frente.png`).
 
 ---
 
@@ -890,7 +981,7 @@ assets/icones/<id>-frente.png        camada de frente do Android
 |---|---|
 | `src/theme.ts` › `PALETAS` | a lista, e a fonte de tudo |
 | `src/ui/aurora.ts` | o mapa de `require`, escrito à mão |
-| `app.json` › `expo-alternate-app-icons` | uma entrada por ícone |
+| `app.json` › `expo-alternate-app-icons` | uma entrada por ícone, com o nome em PascalCase ("Amora") |
 | `assets/icones/plugin.json` | o mesmo, gerado |
 
 Os dois geradores leem `PALETAS` e escrevem o resto:
@@ -914,7 +1005,8 @@ e sem ícone.
   Os dois geradores se recusam a rodar se ela falhar.
 - **Um id que sai da lista precisa de uma sucessora em `PALETA_QUE_SAIU`**
   (src/theme.ts), que `ensureDefaults` aplica — ou cai na original. Sem ela
-  a pessoa perde a escolha em silêncio.
+  a pessoa perde a escolha em silêncio. **E, depois da loja, o ícone dele
+  não sai do `app.json`** — no Android ele é uma porta do aplicativo (item 9).
 
 ---
 

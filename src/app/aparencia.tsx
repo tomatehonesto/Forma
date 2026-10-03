@@ -125,7 +125,8 @@ export default function Aparencia() {
 
   /* A PALETA MUDA NA HORA, E O ÍCONE TENTA. A cor do app não espera o
      sistema responder: se o aparelho recusar a troca do ícone, o
-     aplicativo já está da cor nova. Ver src/logic/icone.ts. */
+     aplicativo já está da cor nova. No Android o ícone troca quando o
+     aplicativo sai da tela, com a última cor tocada. Ver src/logic/icone.ts. */
   const escolher = (id: string) => { setPaleta(id); trocarIcone(id); };
 
   return (

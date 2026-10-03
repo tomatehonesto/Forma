@@ -106,11 +106,12 @@ const withPortas = (config) =>
 
    · NO NAVEGADOR, quando há endereço público (ver o cabeçalho).
    · PELA ROTA DO APLICATIVO, quando não há. Ela entra pela porta de
-     entrada que estiver LIGADA, e não pela MainActivity pelo nome: com um
-     ícone alternativo escolhido, o expo-alternate-app-icons desliga a
-     MainActivity e deixa só o alias do ícone — e um link procurado pelo
-     filtro dela não acharia ninguém. O expo-router leva à rota, e a rota
-     do documento passa pelas trancas do _layout mesmo antes do cadastro. */
+     entrada que estiver LIGADA — a padrão ou a do ícone da paleta, que
+     são apelidos da MainActivity; a MainActivity mesma não tem mais
+     porta de lançador, só os links, e nunca é desligada (ver
+     plugins/porta-padrao-do-icone.js). O expo-router leva à rota, e a
+     rota do documento passa pelas trancas do _layout mesmo antes do
+     cadastro. */
 const comoAbrir = (endereco) =>
   endereco.startsWith('https://')
     ? `Intent(Intent.ACTION_VIEW, Uri.parse("${endereco}"))
