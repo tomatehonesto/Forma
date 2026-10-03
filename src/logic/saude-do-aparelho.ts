@@ -1,4 +1,5 @@
-import { Platform } from 'react-native';
+import { Linking, Platform } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { startOfDay } from './time';
 
@@ -47,8 +48,12 @@ export type Pesagem = { t: number; kg: number };
 export type EstadoDaSaude =
   /** o aparelho tem o depósito e o app pode falar com ele */
   | 'pronto'
-  /** iOS ou Android sem o app de saúde instalado ou atualizado */
+  /** Android sem o Health Connect instalado, ou com ele desatualizado —
+      a Google Play resolve */
   | 'sem-app'
+  /** o aparelho não pode ter o depósito: Android anterior ao 9, iPad
+      anterior ao iPadOS 17, Mac. Não há o que instalar */
+  | 'sem-suporte'
   /** navegador, ou build sem o módulo nativo (Expo Go) */
   | 'indisponivel';
 
@@ -82,6 +87,28 @@ const hc = () => {
 const TIPO_IOS = 'HKQuantityTypeIdentifierBodyMass' as const;
 const TIPO_ANDROID = 'Weight' as const;
 
+/* E, NO ANDROID, O HISTÓRICO. O Health Connect só deixa ler até 30 dias
+   antes da primeira autorização — e pedir mais do que isso não volta
+   vazio, volta ERRO, que aqui virava "nada para trazer". A leitura vai
+   até o início do tratamento (ver `janelaDaLeitura`), e para isso pedimos
+   junto a permissão de histórico. Ela é uma linha à parte no pedido do
+   sistema, e quem não a der continua trazendo os últimos 30 dias, pelo
+   recuo em `pesagensDoAparelho`.
+
+   ⚠️ AS DUAS ESTÃO DECLARADAS EM app.json (android.permissions). Permissão
+   que não está no manifesto nem aparece no pedido: o Android devolve
+   "nada liberado" sem abrir tela nenhuma. */
+const HISTORICO_ANDROID = 'ReadHealthDataHistory' as const;
+const DIA = 86400000;
+
+/* QUANDO O ANDROID LIBEROU. Sem o histórico, o limite dos 30 dias conta
+   a partir da PRIMEIRA autorização, e não de hoje. Guardar quando ela veio
+   deixa o recuo ir até lá: recuar só até "hoje menos 29" perderia as
+   pesagens de quem passou seis semanas sem abrir o aplicativo enquanto a
+   balança mandava números. É um detalhe do Health Connect, e por isso
+   mora aqui, fora do diário. */
+const CHAVE_DA_LIBERACAO = 'norte.health-connect.liberado-em.v1';
+
 /* O TRY COBRE A BUSCA DO MÓDULO JUNTO COM A CHAMADA. Ele cobria só a
    chamada, com o `hk()` de fora, e uma biblioteca que estoura ao ser
    carregada passa por esse buraco — foi assim que a tela quebrou no Expo
@@ -92,14 +119,19 @@ export async function estadoDaSaude(): Promise<EstadoDaSaude> {
     if (ios) {
       const m = hk();
       if (!m) return 'indisponivel';
-      return (await m.isHealthDataAvailable()) ? 'pronto' : 'sem-app';
+      /* O iPhone tem o Saúde sempre. Quem responde "não" é um iPad antigo
+         ou um Mac — e para esses não há o que instalar. */
+      return (await m.isHealthDataAvailable()) ? 'pronto' : 'sem-suporte';
     }
     if (android) {
       const m = hc();
       if (!m) return 'indisponivel';
-      /* 3 é SDK_AVAILABLE. 1 e 2 são "não tem" e "precisa atualizar" — os
-         dois levam a pessoa para a loja, e não para uma permissão. */
-      return (await m.getSdkStatus()) === 3 ? 'pronto' : 'sem-app';
+      /* 3 é SDK_AVAILABLE. 2 é "não instalado ou desatualizado", e a loja
+         resolve. 1 é "este aparelho não roda": o Health Connect pede o
+         Android 9 em diante, e o nosso mínimo é o 8 — a documentação manda
+         esconder a integração, e não mandar instalar o que não instala. */
+      const s = await m.getSdkStatus();
+      return s === 3 ? 'pronto' : s === 2 ? 'sem-app' : 'sem-suporte';
     }
   } catch { /* cai no indisponível abaixo */ }
   return 'indisponivel';
@@ -122,42 +154,184 @@ export async function pedirAcesso(): Promise<boolean> {
       const m = hc();
       if (!m) return false;
       await m.initialize();
-      const dadas = await m.requestPermission([{ accessType: 'read', recordType: TIPO_ANDROID }]);
-      return (dadas ?? []).some((p: any) => p.recordType === TIPO_ANDROID);
+      /* Um Health Connect que não conheça o histórico não falha: ele
+         deixa a linha de fora do pedido, e o peso vem igual. */
+      const dadas = await m.requestPermission([
+        { accessType: 'read', recordType: TIPO_ANDROID },
+        { accessType: 'read', recordType: HISTORICO_ANDROID },
+      ]);
+      /* ⚠️ A RESPOSTA NÃO DIZ SE O HISTÓRICO VEIO — a biblioteca só devolve
+         as permissões de tipo de dado. Quem descobre é a leitura. */
+      const ok = (dadas ?? []).some((p: any) => p.recordType === TIPO_ANDROID);
+      if (ok) AsyncStorage.setItem(CHAVE_DA_LIBERACAO, String(Date.now())).catch(() => {});
+      return ok;
     }
   } catch { /* cai no false abaixo */ }
   return false;
 }
 
-/** As pesagens do depósito do aparelho, dos últimos `dias`. */
-export async function pesagensDoAparelho(dias = 180): Promise<Pesagem[]> {
-  const ate = new Date();
-  const de = new Date(+ate - dias * 86400000);
+/* ============================================================
+   DESDE QUANDO LER — o começo do tratamento
+
+   A leitura pedia "os últimos 180 dias", e no iPhone nem isso: o filtro
+   de data estava escrito com nomes que a biblioteca não conhece, e vinha
+   o histórico inteiro do Saúde, de anos. As duas coisas punham na curva
+   do tratamento pesagens de antes dele — e o marco dos 5% procura a
+   primeira pesagem 5% abaixo do peso inicial, então podia cair numa
+   pesagem antiga, antes da primeira dose.
+
+   O que entra é o que aconteceu desde o primeiro dia — o DIA, e não a
+   hora: quem se pesou na manhã da primeira dose já se pesou no
+   tratamento. Sem começo conhecido (zero, antes do cadastro) ou com o
+   começo no futuro, não há o que ler.
+   ============================================================ */
+export function janelaDaLeitura(inicio: number, agora = Date.now()): { de: Date; ate: Date } | null {
+  if (!Number.isFinite(inicio) || inicio <= 0) return null;
+  const de = startOfDay(new Date(inicio));
+  if (+de >= agora) return null;
+  return { de, ate: new Date(agora) };
+}
+
+/* ============================================================
+   O QUE A LEITURA RESPONDE — e "nada" não é uma resposta só
+
+   Ela devolvia uma lista, e lista vazia queria dizer três coisas: não
+   havia pesagem, a leitura não estava liberada, ou o depósito não
+   respondeu. A tela dizia a mesma frase para as três, e para duas delas
+   a frase era falsa. Agora cada uma tem o seu nome, e a tela, o seu
+   recado:
+     · { ok: true }              — leu; a lista pode vir vazia
+     · { ok: false, sem-acesso } — o Android diz que o peso não está
+                                   liberado (o iPhone nunca diz: ver
+                                   `pedirAcesso`)
+     · { ok: false, falhou }     — tentar de novo resolve
+   ============================================================ */
+export type Leitura =
+  | { ok: true; pesagens: Pesagem[] }
+  | { ok: false; porque: 'sem-acesso' | 'falhou' };
+
+/** As pesagens do depósito do aparelho desde o começo do tratamento —
+    `inicio` é o `profile.startT`. */
+export async function pesagensDoAparelho(inicio: number): Promise<Leitura> {
+  const janela = janelaDaLeitura(inicio);
+  if (!janela) return { ok: true, pesagens: [] };
+  const { de, ate } = janela;
 
   try {
     if (ios) {
       const m = hk();
-      if (!m) return [];
+      if (!m) return { ok: false, porque: 'falhou' };
+      /* ⚠️ startDate E endDate, e não from e to. O filtro de data da
+         biblioteca só conhece os dois primeiros; com os outros ele não
+         filtrava nada, e o TypeScript não viu porque o módulo chega por
+         `require`, sem tipo. Conferido em DateFilter, no
+         @react-native-healthkit/core. */
       const amostras = await m.queryQuantitySamples(TIPO_IOS, {
         limit: 0,
         unit: 'kg',
-        filter: { date: { from: de, to: ate } },
+        filter: { date: { startDate: de, endDate: ate } },
       });
-      return (amostras ?? []).map((a: any) => ({ t: +new Date(a.endDate ?? a.startDate), kg: a.quantity }));
+      return {
+        ok: true,
+        pesagens: (amostras ?? []).map((a: any) => ({ t: +new Date(a.endDate ?? a.startDate), kg: a.quantity })),
+      };
     }
 
     if (android) {
       const m = hc();
-      if (!m) return [];
+      if (!m) return { ok: false, porque: 'falhou' };
       await m.initialize();
-      const r = await m.readRecords(TIPO_ANDROID, {
-        timeRangeFilter: { operator: 'between', startTime: de.toISOString(), endTime: ate.toISOString() },
-      });
-      return (r?.records ?? []).map((x: any) => ({ t: +new Date(x.time), kg: x.weight?.inKilograms }));
+      /* Liberado ou não, o Android conta — e quem revogou nas
+         configurações dele precisa do caminho até lá, e não de um
+         "tente de novo". */
+      const dadas = await m.getGrantedPermissions();
+      if (!(dadas ?? []).some((p: any) => p.accessType === 'read' && p.recordType === TIPO_ANDROID)) {
+        return { ok: false, porque: 'sem-acesso' };
+      }
+      return { ok: true, pesagens: await lerComRecuo(m, de, ate) };
     }
-  } catch { /* sem leitura é lista vazia, e a tela já diz o estado */ }
+  } catch { /* cai no "falhou" abaixo */ }
 
-  return [];
+  return { ok: false, porque: 'falhou' };
+}
+
+/* O RECUO. Sem a permissão de histórico, um começo anterior ao que o
+   Health Connect deixa ler faz a leitura INTEIRA dar erro. Tenta-se do
+   começo do tratamento; não dando, de 29 dias antes da liberação (a
+   folga de um dia cobre o relógio); não dando — a pessoa revogou e
+   liberou de novo, e o limite andou —, de 29 dias antes de hoje. Cada
+   tentativa só acontece se começar depois da anterior. */
+async function lerComRecuo(m: any, de: Date, ate: Date): Promise<Pesagem[]> {
+  const liberadoEm = Number(await AsyncStorage.getItem(CHAVE_DA_LIBERACAO).catch(() => null)) || 0;
+  const inicios = [+de];
+  /* Uma liberação "no futuro" é relógio trocado: vale como hoje. */
+  for (const marco of [Math.min(liberadoEm, +ate), +ate]) {
+    if (!marco) continue;
+    const t = Math.max(+de, marco - 29 * DIA);
+    if (t > inicios[inicios.length - 1]) inicios.push(t);
+  }
+
+  let erro: unknown;
+  for (const t of inicios) {
+    try { return await lerHealthConnect(m, new Date(t), ate); } catch (e) { erro = e; }
+  }
+  throw erro;
+}
+
+/* O Health Connect entrega em páginas de mil. Uma balança que pesa duas
+   vezes por dia passa disso em um ano e meio de tratamento, e só a
+   primeira página vinha. O fim vem como token vazio OU ausente, conforme
+   a versão do Health Connect — a documentação dele avisa. */
+async function lerHealthConnect(m: any, de: Date, ate: Date): Promise<Pesagem[]> {
+  const fora: Pesagem[] = [];
+  let pageToken: string | undefined;
+  for (let pagina = 0; pagina < 100; pagina++) {
+    const r = await m.readRecords(TIPO_ANDROID, {
+      timeRangeFilter: { operator: 'between', startTime: de.toISOString(), endTime: ate.toISOString() },
+      ...(pageToken ? { pageToken } : {}),
+    });
+    for (const x of r?.records ?? []) fora.push({ t: +new Date(x.time), kg: x.weight?.inKilograms });
+    pageToken = r?.pageToken || undefined;
+    if (!pageToken) break;
+  }
+  return fora;
+}
+
+/* ============================================================
+   QUANDO A RESPOSTA É "VÁ AO SISTEMA"
+
+   Permissão negada duas vezes não volta a ser perguntada: o Android
+   passa a responder "nada liberado" sem mostrar tela nenhuma. A partir
+   daí, o único lugar em que dá para mudar é o próprio Health Connect —
+   e um recado que diz "nas configurações" sem levar até elas deixa a
+   pessoa procurando.
+
+   NO IPHONE NÃO HÁ ENDEREÇO OFICIAL para as permissões do Saúde, e a
+   função devolve false: a tela diz o caminho em vez de abrir.
+   ============================================================ */
+export function abrirPermissoes(): boolean {
+  try {
+    if (android) {
+      const m = hc();
+      if (!m) return false;
+      m.openHealthConnectSettings();
+      return true;
+    }
+  } catch { /* cai no false abaixo */ }
+  return false;
+}
+
+/** Android sem o Health Connect, ou com ele desatualizado: a página dele
+    na Google Play — os dois casos se resolvem lá. O endereço de loja é o
+    que a documentação do Health Connect indica; sem a loja instalada,
+    vale a página da web. */
+export async function abrirNaLoja(): Promise<void> {
+  const id = 'com.google.android.apps.healthdata';
+  try {
+    await Linking.openURL(`market://details?id=${id}&url=healthconnect%3A%2F%2Fonboarding`);
+  } catch {
+    await Linking.openURL(`https://play.google.com/store/apps/details?id=${id}`).catch(() => {});
+  }
 }
 
 /* ============================================================

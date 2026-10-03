@@ -210,15 +210,21 @@ export const aviso = {
     atualizarAgora: 'Actualiser maintenant',
     lendo: 'Lecture…',
     nadaNovo: 'Rien de neuf là-bas — vos pesées étaient déjà toutes ici.',
+    nadaEncontrado: (aparelho: string) =>
+      `Nous n’avons trouvé aucune pesée dans ${aparelho} depuis le début du traitement. Si vous en attendiez, vérifiez dans ${aparelho} que nous pouvons lire votre poids.`,
     trazidas: (quantas: number, aparelho: string) =>
       `${quantas} ${quantas === 1 ? 'pesée récupérée' : 'pesées récupérées'} depuis ${aparelho}.`,
     naoDeuParaLer: 'Impossible de lire à l’instant. Réessayez dans un moment.',
     acessoNegado: 'L’accès n’a pas été autorisé. Vous pouvez changer cela dans les réglages de l’appareil.',
+    abrirAparelho: (aparelho: string) => `Ouvrir ${aparelho}`,
 
     semAparelhoTitulo: 'L’application santé de l’appareil apparaît sur le téléphone',
     semAparelhoTexto: 'Apple Santé sur iPhone, Health Connect sur Android. Dans le navigateur il n’y a rien à activer.',
     semAppTitulo: (aparelho: string) => `${aparelho} n’est pas disponible sur cet appareil`,
     semAppTexto: 'Health Connect est fourni à partir d’Android 14 et peut s’installer sur les versions antérieures. Une fois installé, revenez ici.',
+    semSuporteApple: 'Apple Santé existe sur l’iPhone et, sur l’iPad, à partir d’iPadOS 17. Sur cet appareil, vous continuez à saisir votre poids vous-même.',
+    semSuporteAndroid: 'Health Connect nécessite Android 9 ou une version plus récente. Sur cet appareil, vous continuez à saisir votre poids vous-même.',
+    abrirNaLoja: 'Ouvrir dans Google Play',
     semBuildTitulo: 'Cette version de l’application ne lit pas encore l’appareil',
     semBuildTexto: 'Lire Apple Santé et Health Connect demande une version installée de l’application, et non l’aperçu. Dans Expo Go elle n’existe pas.',
 

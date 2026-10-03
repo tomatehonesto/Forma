@@ -241,15 +241,21 @@ export const aviso = {
     atualizarAgora: 'Jetzt aktualisieren',
     lendo: 'Wird gelesen…',
     nadaNovo: 'Nichts Neues dort — deine Wiegungen waren schon alle hier.',
+    nadaEncontrado: (aparelho: string) =>
+      `Wir haben seit Beginn der Behandlung keine Wiegungen in ${aparelho} gefunden. Wenn du welche erwartet hast, schau nach, ob ${aparelho} uns dein Gewicht lesen lässt.`,
     trazidas: (quantas: number, aparelho: string) =>
       `${quantas} ${quantas === 1 ? 'Wiegung geholt' : 'Wiegungen geholt'} aus ${aparelho}.`,
     naoDeuParaLer: 'Gerade ließ es sich nicht lesen. Versuch es gleich noch einmal.',
     acessoNegado: 'Der Zugriff wurde nicht erlaubt. Das lässt sich in den Einstellungen des Geräts ändern.',
+    abrirAparelho: (aparelho: string) => `${aparelho} öffnen`,
 
     semAparelhoTitulo: 'Die Gesundheits-App des Geräts erscheint auf dem Telefon',
     semAparelhoTexto: 'Apple Health auf dem iPhone, Health Connect auf Android. Im Browser gibt es nichts einzuschalten.',
     semAppTitulo: (aparelho: string) => `${aparelho} ist auf diesem Gerät nicht verfügbar`,
     semAppTexto: 'Health Connect kommt ab Android 14 mit und lässt sich auf älteren Versionen installieren. Komm nach der Installation wieder hierher.',
+    semSuporteApple: 'Apple Health gibt es auf dem iPhone und auf dem iPad ab iPadOS 17. Auf diesem Gerät trägst du dein Gewicht weiter selbst ein.',
+    semSuporteAndroid: 'Health Connect braucht Android 9 oder neuer. Auf diesem Gerät trägst du dein Gewicht weiter selbst ein.',
+    abrirNaLoja: 'In Google Play öffnen',
     semBuildTitulo: 'Diese Version der App liest das Gerät noch nicht',
     semBuildTexto: 'Apple Health und Health Connect zu lesen braucht eine installierte Version der App und nicht die Vorschau. In Expo Go gibt es sie nicht.',
 

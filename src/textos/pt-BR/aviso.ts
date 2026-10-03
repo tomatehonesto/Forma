@@ -330,16 +330,25 @@ export const aviso = {
   /* ============================================================
      A TELA DE INTEGRAÇÕES
 
-     ⚠️ CADA MOTIVO TEM O SEU RECADO. "Não disponível" serve para as três
+     ⚠️ CADA MOTIVO TEM O SEU RECADO. "Não disponível" serve para todas as
      situações e não resolve nenhuma: quem está no navegador precisa saber
-     que é o navegador, quem está na prévia precisa saber que é o build, e
+     que é o navegador, quem está na prévia precisa saber que é o build,
      quem está num Android sem Health Connect precisa saber que dá para
-     instalar.
+     instalar — e quem tem um aparelho que não roda o depósito (Android 8,
+     iPad antigo, Mac) precisa saber que não há o que instalar
+     (`semSuporteAndroid`, `semSuporteApple`).
 
      ⚠️ E O NÚMERO É O RECADO DA LEITURA. "Sincronizado" não diz se veio
      alguma coisa, e zero é uma resposta legítima: quem nunca se pesou
      fora do aplicativo precisa saber que a ligação funcionou e que não
      havia o que trazer, em vez de achar que falhou em silêncio.
+
+     ⚠️ MAS NADA LIDO NÃO É "NADA NOVO". O iPhone não conta se a pessoa
+     negou a leitura, e para ela a leitura volta vazia. `nadaNovo` é para
+     quando veio pesagem e todas já estavam aqui; `nadaEncontrado`, para
+     quando não veio nenhuma — e ele diz onde conferir, porque pode ser a
+     permissão. O "desde o início do tratamento" é a janela da leitura
+     (ver `janelaDaLeitura`, em logic/saude-do-aparelho).
 
      ⚠️ OS NOMES DE MARCA FICAM NO CÓDIGO. Health Connect, Garmin, Fitbit
      e Withings não se traduzem; só "Apple Saúde" muda, porque é a própria
@@ -355,15 +364,21 @@ export const aviso = {
     atualizarAgora: 'Atualizar agora',
     lendo: 'Lendo…',
     nadaNovo: 'Nada novo por lá — as suas pesagens já estavam todas aqui.',
+    nadaEncontrado: (aparelho: string) =>
+      `Não encontramos pesagens no ${aparelho} desde o início do tratamento. Se você esperava alguma, confira se o ${aparelho} nos deixa ler o seu peso.`,
     trazidas: (quantas: number, aparelho: string) =>
       `${quantas} ${quantas === 1 ? 'pesagem trazida' : 'pesagens trazidas'} do ${aparelho}.`,
     naoDeuParaLer: 'Não deu para ler agora. Tente de novo em instantes.',
     acessoNegado: 'O acesso não foi liberado. Dá para mudar isso nas configurações do aparelho.',
+    abrirAparelho: (aparelho: string) => `Abrir o ${aparelho}`,
 
     semAparelhoTitulo: 'O aplicativo de saúde do aparelho aparece no celular',
     semAparelhoTexto: 'Apple Saúde no iPhone, Health Connect no Android. No navegador não há o que ligar.',
     semAppTitulo: (aparelho: string) => `${aparelho} não está disponível neste aparelho`,
     semAppTexto: 'O Health Connect vem no Android 14 em diante e pode ser instalado nas versões anteriores. Depois de instalar, volte aqui.',
+    semSuporteApple: 'O Apple Saúde existe no iPhone e, no iPad, a partir do iPadOS 17. Neste aparelho, o peso continua sendo digitado por você.',
+    semSuporteAndroid: 'O Health Connect precisa do Android 9 ou mais novo. Neste aparelho, o peso continua sendo digitado por você.',
+    abrirNaLoja: 'Abrir na Google Play',
     semBuildTitulo: 'Esta versão do aplicativo ainda não lê o aparelho',
     semBuildTexto: 'A leitura do Apple Saúde e do Health Connect precisa de uma versão instalada do aplicativo, e não da prévia. No Expo Go ela não existe.',
 

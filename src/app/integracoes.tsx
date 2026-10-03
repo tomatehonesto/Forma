@@ -3,10 +3,11 @@ import { View, Pressable, Switch, Platform, AppState } from 'react-native';
 import { useStore } from '../logic/store';
 import { CONTAS, aparelhoDaVez, type Integracao } from '../logic/integracoes';
 import {
-  estadoDaSaude, juntarPesagens, pedirAcesso, pesagensDoAparelho, type EstadoDaSaude,
+  abrirNaLoja, abrirPermissoes, estadoDaSaude, juntarPesagens, pedirAcesso, pesagensDoAparelho,
+  type EstadoDaSaude,
 } from '../logic/saude-do-aparelho';
 import { Txt, Row } from '../ui/kit';
-import { TelaInterna, Titulao, Bloco, Cartao, Aviso } from '../ui/internas';
+import { TelaInterna, Titulao, Bloco, Cartao, Aviso, Botao } from '../ui/internas';
 import { CoracaoDeSaude } from '../ui/marca';
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../ui/useTheme';
@@ -75,6 +76,9 @@ export default function Integracoes() {
 
   const [lendo, setLendo] = React.useState(false);
   const [recado, setRecado] = React.useState<string | null>(null);
+  /* O recado pede uma ida às permissões do sistema — e, no Android, ganha
+     o botão que leva até lá. */
+  const [levarAoSistema, setLevarAoSistema] = React.useState(false);
 
   /* LER É O MESMO CAMINHO DE LIGAR E DE ATUALIZAR, e por isso é uma função
      só. Ligar pede permissão e importa; tocar de novo com a chave ligada
@@ -82,14 +86,31 @@ export default function Integracoes() {
   const importar = async () => {
     setLendo(true);
     setRecado(null);
+    setLevarAoSistema(false);
     try {
-      const pesagens = await pesagensDoAparelho();
-      let novas = 0;
-      update((s: any) => {
-        const r = juntarPesagens(s.weights ?? [], pesagens);
-        s.weights = r.lista;
-        novas = r.novas;
-      });
+      const r = await pesagensDoAparelho(useStore.getState().S.profile.startT);
+      /* SEM ACESSO E SEM RESPOSTA SÃO RECADOS DIFERENTES: um leva às
+         permissões do sistema, o outro pede para tentar de novo. Ver
+         `Leitura`, em logic/saude-do-aparelho. */
+      if (!r.ok) {
+        const semAcesso = r.porque === 'sem-acesso';
+        setRecado(semAcesso ? K().acessoNegado : K().naoDeuParaLer);
+        setLevarAoSistema(semAcesso);
+        return;
+      }
+      const pesagens = r.pesagens;
+      /* NADA LIDO NÃO É "NADA NOVO". O iPhone não conta se a pessoa negou
+         a leitura — de propósito, ver `pedirAcesso` —, e para quem negou a
+         leitura volta vazia, igual à de quem nunca se pesou fora do app.
+         "As suas pesagens já estavam todas aqui" seria falso para os dois;
+         o que vale para os dois é dizer que não veio nada e onde conferir. */
+      if (!pesagens.length) {
+        setRecado(K().nadaEncontrado(aparelho?.nome ?? ''));
+        setLevarAoSistema(true);
+        return;
+      }
+      const novas = juntarPesagens(useStore.getState().S.weights ?? [], pesagens).novas;
+      if (novas) update((s: any) => { s.weights = juntarPesagens(s.weights ?? [], pesagens).lista; });
       /* O NÚMERO É O RECADO. "Sincronizado" não diz se veio alguma coisa,
          e zero é uma resposta legítima — quem nunca se pesou fora do app
          precisa saber que a ligação funcionou e que não havia o que
@@ -115,10 +136,11 @@ export default function Integracoes() {
          Desligar quer dizer "pare de trazer", e não "esqueça". */
       update((s: any) => { s.integrations[aparelho.id] = false; });
       setRecado(null);
+      setLevarAoSistema(false);
       return;
     }
     const ok = await pedirAcesso();
-    if (!ok) { setRecado(K().acessoNegado); return; }
+    if (!ok) { setRecado(K().acessoNegado); setLevarAoSistema(true); return; }
     update((s: any) => { s.integrations[aparelho.id] = true; });
     await importar();
   };
@@ -167,26 +189,42 @@ export default function Integracoes() {
           {recado ? (
             <Txt v="caption" c={c.tx3} style={{ marginTop: 10, paddingHorizontal: 2, lineHeight: 19 }}>{recado}</Txt>
           ) : null}
+          {/* Só no Android: no iPhone não há endereço oficial para as
+              permissões do Saúde, e o recado diz onde conferir. */}
+          {recado && levarAoSistema && Platform.OS === 'android' ? (
+            <View style={{ marginTop: 12 }}>
+              <Botao label={K().abrirAparelho(aparelho.nome)} tom="fantasma" onPress={() => { abrirPermissoes(); }} />
+            </View>
+          ) : null}
         </Bloco>
       ) : (
-        /* CADA MOTIVO TEM O SEU RECADO. "Não disponível" serve para as três
+        /* CADA MOTIVO TEM O SEU RECADO. "Não disponível" serve para todas as
            situações e não resolve nenhuma: quem está no navegador precisa
            saber que é o navegador, quem está no Expo Go precisa saber que
            é o build, e quem está num Android sem Health Connect precisa
-           saber que dá para instalar. */
+           saber que dá para instalar — e ganha o botão que leva à loja.
+           Quem tem um aparelho que não roda o depósito (Android 8, iPad
+           antigo, Mac) não ganha botão nenhum: não há o que instalar. */
         <Aviso
           ic="info"
           titulo={
             !aparelho ? K().semAparelhoTitulo
-              : estado === 'sem-app' ? K().semAppTitulo(aparelho.nome)
+              : estado === 'sem-app' || estado === 'sem-suporte' ? K().semAppTitulo(aparelho.nome)
                 : K().semBuildTitulo
           }
           texto={
             !aparelho ? K().semAparelhoTexto
               : estado === 'sem-app' ? K().semAppTexto
-                : K().semBuildTexto
+                : estado === 'sem-suporte' ? (Platform.OS === 'ios' ? K().semSuporteApple : K().semSuporteAndroid)
+                  : K().semBuildTexto
           }
-        />
+        >
+          {aparelho && estado === 'sem-app' && Platform.OS === 'android' ? (
+            <View style={{ marginTop: 12 }}>
+              <Botao label={K().abrirNaLoja} tom="fantasma" onPress={() => { abrirNaLoja(); }} />
+            </View>
+          ) : null}
+        </Aviso>
       )}
 
       <Bloco

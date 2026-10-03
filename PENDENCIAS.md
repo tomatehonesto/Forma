@@ -713,7 +713,8 @@ confirmado.
 
 `expo-notifications`, `@kingstinct/react-native-healthkit` e
 `react-native-health-connect` também não existem no Expo Go. Confirmar os
-lembretes tocando e a leitura de peso chegando, em build de verdade.
+lembretes tocando e a leitura de peso chegando, em build de verdade. O
+roteiro da leitura de peso está no item 41.
 
 ---
 
@@ -2917,3 +2918,98 @@ desde 02/10/2026), /clinica cai no mesmo texto de quem não tem vínculo:
 "Você não tem clínica vinculada…". Para uma clínica aberta pela vitrine isso
 é falso. Precisa de um estado próprio — "não conseguimos carregar agora", com
 tentar de novo —, nos seis idiomas.
+
+---
+
+## 🟡 41. Apple Saúde e Health Connect: o que falta depois do código
+
+Em 02/10/2026 a leitura de peso foi conferida contra as bibliotecas
+instaladas e corrigida. O que mudou:
+
+- **iPhone**: o filtro de data usava nomes que a biblioteca não conhece e
+  trazia o histórico inteiro do Saúde.
+- **Os dois**: a leitura vai desde o início do tratamento, em vez de 180
+  dias fixos.
+- **Android**:
+  - declara a permissão de peso (sem ela o pedido nem aparecia) e pede a
+    de histórico;
+  - sem o histórico, recua até 29 dias antes da liberação (guardada no
+    aparelho) e, se nem isso der, até 29 dias antes de hoje;
+  - lê todas as páginas;
+  - Android 8 (o Health Connect pede o 9) tem recado próprio, sem o botão
+    da loja.
+- **A tela**: "não veio nada", "sem acesso" e "não deu para ler" são três
+  recados diferentes.
+- **Link de "política de privacidade" no Health Connect**: abre a nossa
+  política (`plugins/politica-no-health-connect.js`).
+- **iPhone, configuração**:
+  - saiu a entrega em segundo plano;
+  - os textos de escrita no Saúde e de movimento ficaram, porque as
+    bibliotecas citam essas APIs e a App Store cobra a presença deles, mas
+    agora dizem a verdade: não escrevemos, não usamos;
+  - os textos de permissão saem nos seis idiomas (`permissoes/*.json`). O
+    `pt.json` vale mais que o `app.json` no aparelho: mudou um, muda o
+    outro.
+
+Nada disso rodou num aparelho ainda. Falta:
+
+**1. O roteiro no aparelho** (build de desenvolvimento, item 8):
+- Android 14 ou mais novo (Health Connect embutido) e Android 13 com o app
+  do Health Connect instalado; Android sem ele mostra o botão da Google
+  Play, e Android 8 (num emulador) mostra o recado de "precisa do Android
+  9", sem botão.
+- Ligar a chave: o pedido do sistema aparece com o peso e com o histórico.
+  Negar duas vezes e conferir o botão "Abrir o Health Connect". Revogar o
+  peso nas configurações do Health Connect e tocar "Atualizar agora": o
+  recado é o de acesso, com o botão.
+- Tratamento começado há mais de 30 dias: com o histórico liberado vem
+  tudo desde o início; com ele negado, vêm os últimos 29 dias (o recuo).
+- Uma pesagem feita em outro app (ou à mão, no próprio Saúde / Health
+  Connect) chega ao abrir o aplicativo e ao tocar "Atualizar agora". Dia
+  que já tem peso digitado fica como está. Balança em libras chega em kg.
+- iPhone negando a leitura: o recado é o de "não encontramos pesagens", e
+  não o de "já estavam todas aqui".
+- O link de política: no Android 13, o link no pedido do Health Connect;
+  no 14 em diante, Configurações › Health Connect › permissões do app ›
+  Morphi › política. Os dois têm de abrir /documento?id=privacidade.
+- iPhone com o aparelho em inglês (e em outro idioma dos seis): o texto
+  de permissão sai no idioma do aparelho.
+
+**2. A política de privacidade.** A seção 9 diz que lemos só o peso e
+nunca escrevemos, mas não diz para onde a pesagem trazida vai. A Apple
+(regra 5.1.3) e o Google exigem dizer. Texto proposto para a revisão
+jurídica, depois do segundo parágrafo:
+> As pesagens trazidas entram no seu diário como as que você digita: vão
+> para a sua conta e, quando você se conecta a uma clínica, a equipe dela
+> as vê, como o resto do diário (seção 6). Elas nunca são usadas para
+> publicidade nem vendidas.
+
+**3. As lojas.**
+- **App Store:** a descrição do aplicativo precisa citar a integração com
+  o app Saúde (regra 2.5.1). A capacidade HealthKit no App ID o EAS liga
+  sozinho, no primeiro build.
+- **Play Console:** o formulário de acesso ao Health Connect, com a
+  leitura de peso e a de histórico, cada uma com a justificativa — tem de
+  bater com o manifesto. Junto, a declaração de app de saúde e a Segurança
+  dos dados (peso: coletado, guardado na conta, compartilhado com a
+  clínica com consentimento).
+- A política precisa estar num endereço público, e o texto da Play
+  Console tem de ser o mesmo que o app mostra.
+- **Com o endereço público, pôr em app.json a opção `politica` do
+  plugin** (`["./plugins/politica-no-health-connect", { "politica":
+  "https://…" }]`). Sem ela, o link abre a rota do app — e, tocado de
+  DENTRO do pedido de permissão, reabre a MainActivity (`singleTask`),
+  que desmonta o pedido: ele volta como cancelado e a chave fica
+  desligada. Com ela, a política abre no navegador e o pedido fica onde
+  estava.
+
+**4. Decisão em aberto: marcar a origem da pesagem.** Hoje a pesagem que
+veio do aparelho é igual à digitada. Uma marca (digitada × aparelho)
+ajudaria a clínica a ler a curva e permitiria, um dia, "apagar o que veio
+do aparelho". Mexe no formato do registro que sobe para o banco.
+
+**5. Leitura em segundo plano**, se um dia for querida: hoje lemos só com o
+aplicativo aberto, e por isso a entrega em segundo plano do iPhone saiu.
+Voltar com ela é `background: true` no plugin do HealthKit e, no Android,
+a permissão `READ_HEALTH_DATA_IN_BACKGROUND` — com a declaração na Play
+Console.

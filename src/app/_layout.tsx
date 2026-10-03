@@ -243,8 +243,15 @@ function SaudeDoAparelho() {
     if (!ready || !ligado) return;
     let vivo = true;
     const ler = async () => {
-      const pesagens = await pesagensDoAparelho();
-      if (!vivo || !pesagens.length) return;
+      const r = await pesagensDoAparelho(useStore.getState().S.profile.startT);
+      /* Daqui ninguém fala com a pessoa: sem acesso ou sem resposta, esta
+         volta não traz nada, e a tela de integrações diz o porquê. */
+      if (!vivo || !r.ok || !r.pesagens.length) return;
+      const pesagens = r.pesagens;
+      /* Só grava quando chegou pesagem nova. Todo `update` grava o diário
+         inteiro no aparelho, mude ou não alguma coisa — e esta leitura
+         acontece a cada volta do foco, quase sempre sem nada novo. */
+      if (!juntarPesagens(useStore.getState().S.weights ?? [], pesagens).novas) return;
       useStore.getState().update((s: any) => {
         s.weights = juntarPesagens(s.weights ?? [], pesagens).lista;
       });

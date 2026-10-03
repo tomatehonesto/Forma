@@ -1,0 +1,12 @@
+{
+  "ios": {
+    "NSCameraUsageDescription": "We use the camera when you photograph your plate, to estimate the meal’s protein, or a lab report, to read its results.",
+    "NSPhotoLibraryUsageDescription": "We open your photos so you can choose a picture of a meal, a lab report or your profile photo.",
+    "NSLocationWhenInUseUsageDescription": "We use your location to show how far the clinics in our partner network are. It stays on your device and isn’t sent to anyone.",
+    "NSHealthShareUsageDescription": "We read your weigh-ins from Apple Health to complete your progress curve without you typing them in. They join your journal like the ones you log — we keep them in your account, and if you connect to a clinic, its team sees them too.",
+    "NSMicrophoneUsageDescription": "We use the microphone when you tap to dictate a question instead of typing it.",
+    "NSSpeechRecognitionUsageDescription": "We turn your speech into text in the question field. You read what came out before sending it.",
+    "NSHealthUpdateUsageDescription": "We don’t write anything to Apple Health — we only read your weigh-ins.",
+    "NSMotionUsageDescription": "We don’t use your device’s motion sensors."
+  }
+}

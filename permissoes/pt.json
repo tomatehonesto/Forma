@@ -1,0 +1,12 @@
+{
+  "ios": {
+    "NSCameraUsageDescription": "Usamos a câmera quando você fotografa o seu prato, para estimar a proteína da refeição, ou um laudo de exame, para ler os resultados.",
+    "NSPhotoLibraryUsageDescription": "Abrimos as suas fotos para você escolher a imagem de uma refeição, de um laudo de exame ou a sua foto de perfil.",
+    "NSLocationWhenInUseUsageDescription": "Usamos a sua localização para mostrar a distância até os consultórios da rede. Ela fica no aparelho e não é enviada a ninguém.",
+    "NSHealthShareUsageDescription": "Lemos as suas pesagens do Apple Saúde para completar a sua curva de evolução sem você digitar. Elas entram no seu diário como as que você registra — guardamos na sua conta e, se você se conectar a uma clínica, a equipe dela também as vê.",
+    "NSMicrophoneUsageDescription": "Usamos o microfone quando você toca para ditar uma pergunta em vez de digitar.",
+    "NSSpeechRecognitionUsageDescription": "Transformamos a sua fala em texto no campo de pergunta. Você lê o que saiu antes de enviar.",
+    "NSHealthUpdateUsageDescription": "Não escrevemos nada no Apple Saúde — só lemos as suas pesagens.",
+    "NSMotionUsageDescription": "Não usamos os sensores de movimento do aparelho."
+  }
+}
