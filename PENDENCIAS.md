@@ -3,6 +3,20 @@
 Lista curta do que está **de marcação** no código e precisa virar verdade
 antes da primeira publicação. Cada item diz onde mexer.
 
+> **Decidido em 08/10/2026, pelo dono:** o Morphi estreia **pago, por
+> assinatura, e no mundo todo**. As contas de desenvolvedor da Apple e do
+> Google já existem (item 16). Com isso, o que esperava passa a travar:
+>
+> - **a seção "Passa a valer quando a assinatura entrar", inteira:** o
+>   endereço físico (4), a cobrança (5) — com o teste grátis, o desconto
+>   de retenção, o código que hoje libera tudo sem conferência e o
+>   cancelamento pelo servidor quando o vínculo nasce — e os códigos de
+>   verdade (38.6);
+> - **o preço por mercado** (21);
+> - **os itens de idioma e de mercado** (17, 19, 20, 22, 23, 26, 27 e 33):
+>   a versão estrangeira não vem depois, sai no mesmo dia. E a prosa das
+>   cinco línguas foi escrita por mim, sem nativo (20).
+
 ---
 
 ## 🔴 Bloqueia a publicação
@@ -139,10 +153,12 @@ virada, trocar `SUPABASE_URL` e `SUPABASE_PUBLISHABLE_KEY` da Vercel
 pelas do projeto de produção e pôr as duas `EXPO_PUBLIC_ANALISE_*` nas
 variáveis da build do EAS. O crédito da Anthropic é pré-pago (US$ 5 no
 começo): quando acaba, a IA para e o app cai no caminho manual.
-⚠️ **01/10/2026: a API recusa por saldo com US$ 19,59 no painel** (org
+~~⚠️ **01/10/2026: a API recusa por saldo com US$ 19,59 no painel** (org
 "Sello", fatura WSTIYNSR-0004 paga e liberada, auto-reload ligado). Chamado
 no suporte humano da Anthropic: conversa 215476192937466, resposta por
-e-mail. Até lá a IA não responde, no teste e na Vercel. A IA do Morphi
+e-mail. Até lá a IA não responde, no teste e na Vercel.~~ **Voltou no
+mesmo dia:** as rodadas v12 a v14 da avaliação, na tarde de 01/10,
+responderam 18 de 18. A IA do Morphi
 está cobrada na organização do Sello: na virada, uma organização própria.
 
 
@@ -1242,6 +1258,10 @@ compras do anterior. Antes de publicar é uma linha; depois, não é nada.
    publicado, vale seguir o padrão que ela já usa.
 
 ## 🟡 16. O EAS está configurado, mas o projeto ainda não existe na conta
+
+> **08/10/2026:** as contas de desenvolvedor da Apple e do Google existem.
+> Falta o `eas login` e o `eas init` — o `app.json` continua sem
+> `extra.eas.projectId`.
 
 `eas.json` tem três perfis — `development` (build de desenvolvimento, APK,
 distribuição interna), `preview` (release instalável para testar) e

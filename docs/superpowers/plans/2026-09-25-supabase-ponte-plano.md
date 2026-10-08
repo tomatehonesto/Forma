@@ -2127,10 +2127,23 @@ de `__DEV__` sai do commit da fase 8 antes desta lista estar feita.**
 
 1. **Criar o projeto `morphi`** na organização paga, em São Paulo, com a
    exposição automática desligada e a RLS automática ligada.
+   - ⚠️ **Projeto novo, e não o `morphi-dev` promovido** (08/10/2026). O
+     dev tem a semente: clínicas de exemplo publicadas e códigos de
+     convite fáceis de adivinhar — com a assinatura, um código desses vale
+     o aplicativo de graça. Tem as contas de teste e a Apple com o Expo
+     Go. E é o único ref em que a trava e `scripts/banco-dev.mjs` rodam:
+     promovido, a trava passa a rodar na produção, e o desenvolvimento
+     passa a escrever no banco das pessoas.
 2. **Subir o banco:** as migrações com `db push`. **Nunca** a semente e
    nunca a trava. O executor da trava já se recusa, mas ligar a CLI na
    produção pede um cuidado próprio: um diretório separado, ou ligar e
    desligar no mesmo passo.
+   - **E a função `apagar-conta`** (`functions deploy apagar-conta
+     --use-api`), que não sobe com as migrações. Sem ela, "Apagar meus
+     dados" falha na produção — e a App Store exige apagar a conta por
+     dentro do aplicativo.
+   - Depois, ligar a CLI de volta ao `morphi-dev`: o
+     `supabase/.temp/project-ref` é o que a trava confere.
 3. **Configurar a autenticação e o tempo real:**
    - o SMTP, os modelos, o código de 6 dígitos e a validade;
    - a Apple **sem** `host.exp.Exponent`;
@@ -2139,6 +2152,14 @@ de `__DEV__` sai do commit da fase 8 antes desta lista estar feita.**
 4. **As variáveis do EAS** por ambiente: `production` e `preview`
    apontando para o que for decidido. Elas são a condição para a primeira
    build distribuída.
+   - **E as da Vercel, separadas.** O servidor da IA confere a sessão
+     contra o Supabase das variáveis dele: apontado só para a produção, o
+     aplicativo de desenvolvimento perde a IA. O mais simples são dois
+     projetos na Vercel do mesmo repositório e da mesma Root Directory
+     (`servidor`): o de hoje continua no `morphi-dev`, e um novo, de
+     produção, com o `morphi`, no plano Pro. As variáveis de Preview de
+     um projeto só não servem: o Preview acompanha branch, e aqui tudo
+     vai na `main`.
 5. **Subir o limite de e-mails por hora** para o tamanho do lançamento.
 6. **Resolver o que bloqueia a publicação** nas pendências: os
    documentos e o item 2 — e a leitura das perguntas (o item 37), se ela
