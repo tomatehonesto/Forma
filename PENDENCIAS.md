@@ -378,6 +378,9 @@ físico e eletrônico em local de destaque — isso passa a valer na primeira
 cobrança. Entrar com um **endereço comercial ou fiscal**, e não com o de
 casa.
 
+> **09/10/2026:** as lojas também publicam o endereço — e o que a Apple
+> tem hoje é o residencial. Ver o item 44.
+
 ### 5. A cobrança não existe no código
 
 Os Termos descrevem assinatura, isenção por profissional parceiro,
@@ -3250,3 +3253,51 @@ a ser o da conta da empresa, que é a controladora.
 **A Anthropic, pela mesma lógica:** uma organização para todos divide o
 crédito e o limite de uso — em 01/10/2026 o crédito acabou e a IA parou.
 Se juntar, recarga automática ligada e com folga (item 39).
+
+---
+
+## 🔴 44. As lojas: o contrato de apps pagos e o endereço que fica público
+
+Aberto em 09/10/2026, olhando a conta de desenvolvedor da Apple. Ela está
+no nome da empresa, como organização — a mesma razão social que a
+Política cita como controladora (`EMPRESA`, em `logic/documentos.ts`).
+Duas coisas dela pesam no lançamento pago e no mundo todo.
+
+### O contrato de apps pagos ainda não foi aceito
+
+Sem ele, a Apple não deixa criar as assinaturas nem cobrar ninguém (item
+5). Fica na App Store Connect, em **Negócios**, e pede três coisas:
+
+1. aceitar o **Contrato de Apps Pagos**;
+2. os **dados bancários** da empresa;
+3. os **formulários fiscais**.
+
+A Apple leva alguns dias para aprovar: fazer cedo, antes de existir
+build. No Google Play, o equivalente é o **perfil de pagamentos** da conta
+de desenvolvedor, sem o qual não se vende assinatura — conferir no Play
+Console junto.
+
+### O endereço da empresa fica público nas lojas, e o que está lá é o de casa
+
+Para vender na **União Europeia**, as duas lojas pedem que quem vende
+declare se é **comerciante** (trader, pela lei europeia de serviços
+digitais) — e um app pago é. Declarado, a loja **mostra o endereço, o
+telefone e o e-mail na página do app** para quem está na UE. O Google
+Play também mostra o endereço de conta de organização na página do app
+(conferir no Play Console).
+
+O endereço que a Apple tem hoje é o **residencial** do cartão do CNPJ — o
+mesmo problema do item 4, que deixou o endereço fora da Política por
+isso. ⚠️ Não escrever o endereço de casa neste arquivo: o repositório é
+público.
+
+**Antes de declarar o status de comerciante:**
+
+- conseguir um **endereço comercial ou fiscal** (um escritório virtual
+  serve);
+- atualizá-lo no cadastro da empresa onde for preciso (a Apple confere
+  os dados da organização) e nas duas lojas;
+- usar o mesmo em `EMPRESA.endereco` (item 4), para a Política, os
+  Termos e a página da loja dizerem o mesmo;
+- o telefone e o e-mail públicos: um número da empresa e o
+  `contact@morphihealth.com`, e não os pessoais.
