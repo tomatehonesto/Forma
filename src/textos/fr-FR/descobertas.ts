@@ -70,7 +70,7 @@ export const descobertas = {
     slideProntoTitulo: 'Votre résumé de la semaine est prêt',
     slideProntoTexto: 'Comment elle s’est passée, une découverte et un test pour la suivante.',
     slideProntoCta: 'Voir le résumé',
-    slideConviteTitulo: 'Envie d’un résumé de votre semaine ?',
+    slideConviteTitulo: 'Envie d’un résumé de votre semaine ?',
     slideConviteTexto: 'Chaque lundi, je lis vos données et je vous dis ce que j’ai découvert.',
     titulo: 'Votre semaine',
     pedirSim: 'Oui, volontiers',

@@ -146,7 +146,7 @@ export const companion = {
     curtir: 'Réponse utile',
     naoCurtir: 'Réponse pas utile',
     obrigadoNota: 'Merci pour votre avis',
-    avaliarTitulo: 'Qu’est-ce qui n’a pas aidé ?',
+    avaliarTitulo: 'Qu’est-ce qui n’a pas aidé ?',
     motivos: { errada: 'Information erronée', 'nao-respondeu': 'N’a pas répondu à ma question', tom: 'La façon de le dire', arriscada: 'M’a semblé risquée', outro: 'Autre raison' } as Record<string, string>,
     avaliarAviso: 'Pour nous améliorer, votre question et cette réponse nous sont envoyées. Rien d’autre de la conversation ni de vos données. Nous les gardons jusqu’à 12 mois.',
     avaliarEnviar: 'Envoyer',

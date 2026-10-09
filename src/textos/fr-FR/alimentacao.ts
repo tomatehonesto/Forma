@@ -319,7 +319,7 @@ export const alimentacao = {
     /* o que a estimativa considerou, e o "descrever melhor" (ui/comida, ItemAlimento) */
     calculadoCom: (com: string) => `Calculé avec ${com}`,
     descreverMelhor: 'Décrire plus précisément',
-    descreverPlaceholder: 'Ex. : à la tomate, sans fromage',
+    descreverPlaceholder: 'Ex. : à la tomate, sans fromage',
     recalcular: 'Recalculer',
     recalculando: 'Recalcul…',
     redescreverFalhou: 'Impossible de recalculer pour le moment. Réessayez.',
