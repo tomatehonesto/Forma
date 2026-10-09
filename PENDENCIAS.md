@@ -3183,3 +3183,60 @@ endereços; o que segura é o teto por hora. E e-mail que volta (endereço
 que não existe) gasta a reputação do domínio no Resend. Se aparecer, o
 caminho é o CAPTCHA do Supabase (Authentication › Attack Protection),
 que pede integração no app.
+
+---
+
+## 🟡 43. Vercel e Resend no Pro: uma conta para todos os apps, no e-mail da empresa
+
+Aberto em 09/10/2026. O dono vai criar as contas Pro com o **e-mail da
+empresa**, e não com o da Morphi, e avaliar se uma conta serve a todos os
+apps (Sello, Matilha, Cultivae e Morphi). Não trava sozinho, mas é o
+caminho de dois itens que travam: o 39 (o plano Hobby da Vercel não
+permite uso comercial) e o 42 (o plano do Resend é o teto do código).
+
+**Vercel Pro — juntar é seguro.**
+
+- Um time, um projeto por app; variáveis e região são de cada projeto (o
+  do Morphi fica em `gru1`, São Paulo).
+- O uso incluso no plano é do time inteiro: pôr alerta de gastos, para
+  um app que dispare não surpreender a conta.
+- **Desligar "Improve models with my data" no time.** O ajuste vale para
+  todos os projetos, e pelo do Morphi passam foto de prato e laudo.
+- Quem é membro do time vê as variáveis de todos os projetos — a chave da
+  Anthropic inclusive —, mas não o banco: o dado de saúde fica no
+  Supabase, que continua separado (plano, "Depois do plano — a produção").
+- Vão para o time os dois projetos do servidor da IA: o de hoje
+  (`forma-servidor`, ligado ao morphi-dev), por transferência, e o novo,
+  de produção, ligado ao `morphi`. Depois de transferir, conferir que as
+  variáveis vieram junto.
+
+**Resend Pro — juntar só se todos os apps mandarem apenas e-mail
+transacional** (código, confirmação, aviso).
+
+- A conta aceita vários domínios — conferir quantos na página de preços.
+- **A cota é da conta inteira:** uma campanha de outro app gasta o mesmo
+  saldo do código de acesso do Morphi.
+- **A suspensão também:** se um app gerar devolução ou denúncia de spam
+  demais, o Resend pode pausar a conta, e o código do Morphi para de
+  chegar — quem não entra com a Apple ou o Google fica do lado de fora.
+- Uma chave de API por domínio, limitada a ele.
+- App que manda e-mail de marketing fica em outra conta, longe do código.
+
+**O que acompanha a troca de conta no Resend:**
+
+1. Tirar `morphihealth.com` da conta de hoje e pôr na nova, de novo na
+   região de **São Paulo**. A conta nova gera registros DKIM novos:
+   trocar no DNS da Hostinger e esperar a verificação.
+2. Criar a chave nova (só envio, só `morphihealth.com`) e pô-la como
+   senha do SMTP **nos dois painéis do Supabase** — o `morphi` e o
+   morphi-dev.
+3. Entre tirar o domínio e ele verificar na conta nova, o código não
+   sai. Fazer antes do lançamento, e testar com um código de verdade.
+
+A Política (seção 7) cita a Vercel e o Resend pelo nome, e não a conta:
+mudar de conta não muda o texto. O contrato de tratamento de dados passa
+a ser o da conta da empresa, que é a controladora.
+
+**A Anthropic, pela mesma lógica:** uma organização para todos divide o
+crédito e o limite de uso — em 01/10/2026 o crédito acabou e a IA parou.
+Se juntar, recarga automática ligada e com folga (item 39).
