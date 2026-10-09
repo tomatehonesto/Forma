@@ -15,9 +15,15 @@
    para a produção.
 
    ⚠️ O QUE ELA NÃO DESCREVE, PORQUE NÃO EXISTE: mensagem da equipe,
-   receita ou consulta vindas da clínica (a fase 7 ficou adiada) e o
-   login com o Google (a fase 5). Quando existirem, entram aqui, e a
-   versão sobe.
+   receita ou consulta vindas da clínica (a fase 7 ficou adiada). Quando
+   existirem, entram aqui, e a versão sobe.
+
+   ⚠️ A 2.4 (09/10/2026) TRAZ O LOGIN COM O GOOGLE (a fase 5), no dia em
+   que os clientes OAuth passaram a existir: o que recebemos dele (seção
+   2: identificador, e-mail, nome e foto — o Supabase guarda os três com
+   a conta), como se entra (seção 5), o Google entre os operadores
+   (seção 7) e na transferência internacional (seção 8), e a conta dos
+   Termos (seção 2). Entra na revisão do advogado com o resto.
 
    ⚠️ A LEITURA DO LAUDO ENTROU EM 28/09/2026, e é o trecho que o advogado
    precisa olhar primeiro. Um laudo é dado de saúde sensível que SAI do
@@ -131,8 +137,8 @@ export const temIdentificacao = () => !!(EMPRESA.nome && EMPRESA.cnpj && EMPRESA
 
 /** Sobe quando o conteúdo mudar de forma relevante — e conversa com a
     versão do aviso de consentimento, em src/logic/consentimento.ts. */
-export const VERSAO_DOS_DOCUMENTOS = '2.3';
-export const VIGENTE_DESDE = '1º de outubro de 2026';
+export const VERSAO_DOS_DOCUMENTOS = '2.4';
+export const VIGENTE_DESDE = '9 de outubro de 2026';
 
 /* ⚠️ AS CÓPIAS DE SEGURANÇA DO BANCO: quantos dias elas guardam o que foi
    apagado. Sete é o do plano Pro do Supabase, e o projeto de produção
@@ -194,7 +200,7 @@ export const PRIVACIDADE = (): Documento => ({
         'Tudo abaixo é informado por você ou calculado a partir do que você registra. O aplicativo <b>não guarda nem envia a sua localização</b>: quando você pede as clínicas mais perto, ele a lê para calcular a distância, no próprio aparelho, e a descarta. Ele não lê a sua agenda e não acessa os seus contatos.',
       ],
       itens: [
-        '<b>Conta</b> — o seu e-mail, que é o seu acesso. Quando você entra com a Apple, recebemos dela um identificador e, se você permitir, o e-mail.',
+        '<b>Conta</b> — o seu e-mail, que é o seu acesso. Quando você entra com a Apple, recebemos dela um identificador e, se você permitir, o e-mail. Quando você entra com o Google, recebemos dele um identificador, o e-mail e o nome e a foto da sua conta Google.',
         '<b>Identificação</b> — nome ou apelido, data de nascimento e como você se identifica.',
         '<b>Dados de saúde</b> — altura, peso, medidas corporais, sinais vitais, medicamento, dose, datas e locais de aplicação, sintomas, sono, humor, energia, exames e laudos, histórico de saúde (condições, alergias e medicamentos), restrições alimentares, documentos e as anotações que você escreve.',
         '<b>Hábitos</b> — refeições, proteína, hidratação e exercício que você registra.',
@@ -247,7 +253,7 @@ export const PRIVACIDADE = (): Documento => ({
       paragrafos: [
         'Em dois lugares: <b>no seu aparelho</b>, dentro do aplicativo, e <b>no nosso banco de dados</b>, ligado à sua conta. O banco fica no Supabase, na região de <b>São Paulo</b>: o seu histórico de tratamento não sai do Brasil.',
         'O aplicativo funciona sem conexão, e guarda na sua conta quando a conexão volta. Por isso desinstalar ou trocar de aparelho não perde o seu diário: ele volta quando você entra na sua conta. O que foi registrado sem conexão e ainda não chegou à conta existe só no aparelho até lá.',
-        'Não há senha. Você entra com um código de seis dígitos enviado ao seu e-mail, ou com a Apple. As regras do banco só deixam a sua conta ler o seu diário — e a clínica a que você se conectar, enquanto a conexão durar.',
+        'Não há senha. Você entra com um código de seis dígitos enviado ao seu e-mail, com a Apple ou com o Google. As regras do banco só deixam a sua conta ler o seu diário — e a clínica a que você se conectar, enquanto a conexão durar.',
       ],
     },
     {
@@ -274,6 +280,7 @@ export const PRIVACIDADE = (): Documento => ({
         '<b>Supabase</b> (banco de dados, autenticação e armazenamento) — guarda a sua conta e o seu diário, na região de São Paulo.',
         '<b>Resend</b> (envio de e-mail) — entrega o código de acesso no seu e-mail. Recebe o endereço e o código, e mais nada do seu diário.',
         '<b>Apple</b> — quando você escolhe entrar com a Apple, ela confirma quem você é e nos passa um identificador e, se você permitir, o e-mail.',
+        '<b>Google</b> — quando você escolhe entrar com o Google, ele confirma quem você é e nos passa um identificador, o e-mail e o nome e a foto da sua conta Google.',
         '<b>Vercel</b> (infraestrutura) — hospeda as funções que intermedeiam a leitura da foto do prato e a do laudo, a estimativa pelo nome, a leitura da semana e a conversa com a Morphi Intelligence, em servidores no Brasil. Não guarda a imagem, o laudo nem a conversa, e não tem banco de dados nosso.',
         '<b>Anthropic</b> (modelo de IA) — interpreta a foto do prato e o laudo, estima um prato pelo nome e escreve as respostas e a leitura da semana da Morphi Intelligence. Nem a imagem, nem o laudo, nem a conversa são usados para treinar modelos.',
         '<b>A clínica a que você se conecta</b> — o que a seção 6 lista, enquanto a conexão durar, e o que ela guarda como prontuário depois.',
@@ -287,7 +294,7 @@ export const PRIVACIDADE = (): Documento => ({
       titulo: '8. Transferência internacional',
       paragrafos: [
         'O banco com o seu diário fica em <b>território nacional</b>, em São Paulo.',
-        'Sete coisas podem ser tratadas por provedores sediados nos <b>Estados Unidos</b>, o que configura transferência internacional nos termos do <b>art. 33 da LGPD</b>:',
+        'Oito coisas podem ser tratadas por provedores sediados nos <b>Estados Unidos</b>, o que configura transferência internacional nos termos do <b>art. 33 da LGPD</b>:',
       ],
       itens: [
         '<b>A foto do prato</b>, só quando você usa a leitura por foto. Envolve apenas a imagem enviada, que não é armazenada. Se preferir que isso não aconteça, registre as refeições manualmente.',
@@ -297,6 +304,7 @@ export const PRIVACIDADE = (): Documento => ({
         '<b>O nome de um prato</b>, quando você pede a estimativa. Só o nome digitado.',
         '<b>O seu e-mail</b>, que o serviço de envio usa para entregar o código de acesso.',
         '<b>O identificador da Apple</b>, quando você escolhe entrar com ela.',
+        '<b>O identificador do Google</b>, quando você escolhe entrar com ele.',
       ],
     },
     {
@@ -406,7 +414,7 @@ export const TERMOS = (): Documento => ({
       paragrafos: [
         `Você precisa ter <b>${IDADE_MINIMA} anos completos</b> e capacidade civil para aceitar estes Termos. O serviço não se destina a menores de ${IDADE_MINIMA} anos. Pais, responsáveis ou qualquer pessoa que identifique cadastro de menor pode solicitar exclusão imediata em ${CANAL()}.`,
         'Você se compromete a fornecer informações verdadeiras: elas alimentam todas as contas do aplicativo, e um dado errado produz um acompanhamento errado.',
-        'Para usar o Morphi é preciso <b>ter uma conta</b>, criada com um e-mail seu ou com a Apple. É ela que guarda o seu diário entre aparelhos e que liga você a uma clínica. A conta é pessoal: não a compartilhe.',
+        'Para usar o Morphi é preciso <b>ter uma conta</b>, criada com um e-mail seu, com a Apple ou com o Google. É ela que guarda o seu diário entre aparelhos e que liga você a uma clínica. A conta é pessoal: não a compartilhe.',
       ],
     },
     {

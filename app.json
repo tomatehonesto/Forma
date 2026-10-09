@@ -203,7 +203,13 @@
           "faceIDPermission": false
         }
       ],
-      "expo-apple-authentication"
+      "expo-apple-authentication",
+      [
+        "react-native-nitro-google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.796644798626-iruf2biomgi2n7qo5jg4q23fsv0to6g3"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": false,

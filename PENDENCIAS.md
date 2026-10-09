@@ -1311,6 +1311,32 @@ o código está pronto desde 27/09/2026 e espera isto, na ordem:
 6. **A build:** `npx eas-cli build -p ios --profile development` (e/ou
    `-p android`), instalar no aparelho, e abrir com `npm run start:build`.
 
+> **09/10/2026 — o Google andou:**
+>
+> - ✅ **Google Cloud:** projeto "Morphi" (o "My First Project" renomeado,
+>   ID `project-837d3af1-…`), a tela de consentimento (Externo, em
+>   **Teste**), e os clientes **web** e **iOS**. Os mesmos dois servem ao
+>   morphi-dev e à produção.
+> - ✅ **Os IDs no app:** `.env.development` e o plugin do
+>   `react-native-nitro-google-signin` no `app.json`, com o esquema do iOS
+>   (conferido no `expo config --type introspect`).
+> - ✅ **A Política 2.4** traz o Google (seções 2, 5, 7 e 8, e a seção 2
+>   dos Termos).
+> - ⏳ **Supabase:** o Google na produção (`morphi`) está sendo ligado
+>   pelo dono; no **morphi-dev**, falta — ele está pausado. Os dois levam
+>   `web,ios` em Client IDs e o segredo do web.
+> - ⏳ **Os clientes Android, dois:** um com o SHA-1 da chave do EAS (sai
+>   do `eas init` e da primeira build, em `npx eas-cli credentials`) e um
+>   com o SHA-1 da chave de assinatura do Google Play (Play Console ›
+>   Integridade do app, depois do primeiro envio). Sem eles, o botão do
+>   Google abre e falha no Android. Eles não entram no Supabase: o token
+>   do Android sai em nome do cliente web.
+> - ⏳ **Publicar a tela de consentimento** (sair de Teste) antes da loja:
+>   enquanto estiver em Teste, só os usuários de teste entram com o
+>   Google. Publicar pede a página inicial e a Política num endereço
+>   público (item 3). O logo fica de fora até haver a verificação da marca.
+> - ⏳ **As variáveis da build de produção** no EAS: os mesmos dois IDs.
+
 ## 🟡 17. O nome do marcador é chave de registro, e aparece na tela
 
 Não bloqueia a publicação em português. Bloqueia a versão em inglês.
@@ -2995,9 +3021,9 @@ disto trava a entrega; o que trava a publicação está nos itens 2 e 37.
 8. **A lista de virada para a produção** está no plano, em "Depois do
    plano — a produção". Ela é a condição para qualquer build fora de
    `__DEV__`, porque os textos já descrevem a nuvem.
-9. **O Google na Política.** A seção 7 cita Supabase, Resend, Apple,
-   Vercel e Anthropic. O login com o Google é da fase 5, e entra na
-   Política quando existir, com a versão subindo.
+9. ✅ **O Google na Política** — entrou na 2.4, em 09/10/2026, no dia em
+   que os clientes OAuth passaram a existir (seções 2, 5, 7 e 8, e a
+   seção 2 dos Termos). Vai para o advogado com o resto.
 
 ---
 
