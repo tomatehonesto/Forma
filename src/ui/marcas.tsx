@@ -28,6 +28,11 @@ import { radius } from '../theme';
 
 const ALTURA = 64;
 
+/** O contorno das portas claras: o do Google, pela diretriz dele, e o do
+    "Continuar com e-mail" ao lado (app/conta) — o dono pediu as duas linhas
+    iguais, em 09/10/2026, em vez da linha clara do tema no e-mail. */
+export const contornoDaPorta = (escuro: boolean) => (escuro ? '#8E918F' : '#747775');
+
 export function LogoDaApple({ size = 20, color }: { size?: number; color: string }) {
   return (
     <Svg width={size * 0.814} height={size} viewBox="0 0 814 1000">
@@ -96,7 +101,7 @@ export function BotaoDoGoogle({ label, escuro, onPress }: { label: string; escur
       label={label}
       fundo={escuro ? '#131314' : '#FFFFFF'}
       tinta={escuro ? '#E3E3E3' : '#1F1F1F'}
-      borda={escuro ? '#8E918F' : '#747775'}
+      borda={contornoDaPorta(escuro)}
       logo={<LogoDoGoogle size={20} />}
       onPress={onPress}
     />

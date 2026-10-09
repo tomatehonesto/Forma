@@ -2083,12 +2083,14 @@ export function ItemApagavel({ pergunta, onApagar, children }: {
 
    Desligado ele NÃO CHAMA onPress: um botão que parece apagado e mesmo
    assim funciona é pior do que um que não parece nada. */
-export function Botao({ label, onPress, tom = 'cheio', desligado, pilula, carregando, icone }: {
+export function Botao({ label, onPress, tom = 'cheio', desligado, pilula, carregando, icone, contorno }: {
   label: string; onPress?: () => void; tom?: 'cheio' | 'fantasma' | 'perigo'; desligado?: boolean;
   /** um ícone à esquerda do rótulo, na cor dele — como as portas da Apple e
       do Google ao lado (app/conta). Some enquanto `carregando`: a roda ocupa
       o lugar. */
   icone?: string;
+  /** a cor da linha, no lugar da do tema (só onde há linha: fantasma e perigo) */
+  contorno?: string;
   /* PÍLULA — o botão que fecha uma tela inteira, e não um cartão.
 
      No cadastro cada passo é a tela toda: gradiente no topo, uma pergunta
@@ -2105,7 +2107,7 @@ export function Botao({ label, onPress, tom = 'cheio', desligado, pilula, carreg
   if (carregando) desligado = false;
   const fundo = desligado ? c.bg2 : tom === 'cheio' ? c.accent : c.bg1;
   const tinta = desligado ? c.tx4 : tom === 'cheio' ? c.accentInk : tom === 'perigo' ? c.cta : c.tx;
-  const borda = desligado || tom === 'cheio' ? 'transparent' : tom === 'perigo' ? c.ctaLine : c.line;
+  const borda = desligado || tom === 'cheio' ? 'transparent' : contorno ?? (tom === 'perigo' ? c.ctaLine : c.line);
   return (
     <Pressable
       onPress={desligado || carregando ? undefined : onPress}

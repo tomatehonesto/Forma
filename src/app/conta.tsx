@@ -16,7 +16,7 @@ import {
 } from '../logic/conta';
 import { TelaInterna, Titulao, Botao, Aviso, Cartao, Linha, SEM_ANEL } from '../ui/internas';
 import { Txt } from '../ui/kit';
-import { BotaoDaApple, BotaoDoGoogle } from '../ui/marcas';
+import { BotaoDaApple, BotaoDoGoogle, contornoDaPorta } from '../ui/marcas';
 import { Icon } from '../ui/Icon';
 import { TelaDePergunta } from '../ui/pergunta';
 import { useTheme } from '../ui/useTheme';
@@ -535,7 +535,8 @@ export default function Conta() {
           Go e sem os IDs, não há botão — ver `previaDasPortas`.
 
           E O E-MAIL LEVA O ENVELOPE, para as três portas terem um desenho
-          à esquerda do texto, e não duas marcas e uma linha só de letra. */}
+          à esquerda do texto, e não duas marcas e uma linha só de letra — e
+          o contorno do Google, para as duas portas de linha serem iguais. */}
       {apple || previaDasPortas ? (
         <BotaoDaApple label={K().comApple} escuro={isDark} onPress={apple ? viaApple : () => setPrevia(true)} />
       ) : null}
@@ -543,7 +544,8 @@ export default function Conta() {
         <BotaoDoGoogle label={K().comGoogle} escuro={isDark} onPress={google ? viaGoogle : () => setPrevia(true)} />
       ) : null}
       <Botao
-        label={K().comEmail} pilula icone="mail" tom={apple || google || previaDasPortas ? 'fantasma' : 'cheio'}
+        label={K().comEmail} pilula icone="mail" contorno={contornoDaPorta(isDark)}
+        tom={apple || google || previaDasPortas ? 'fantasma' : 'cheio'}
         onPress={() => { limpar(); setPrevia(false); setPasso('email'); }}
       />
       <Txt v="caption" c={previa ? c.tx2 : c.tx3} style={{ textAlign: 'center', marginTop: 6 }}>
