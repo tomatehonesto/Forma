@@ -10,7 +10,10 @@
     "ios": {
       "bundleIdentifier": "com.morphihealth.app",
       "supportsTablet": true,
-      "usesAppleSignIn": true
+      "usesAppleSignIn": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.morphihealth.app",
@@ -220,6 +223,12 @@
         "projectId": "6e8df074-03cc-4e12-88f9-e23b4c83d223"
       }
     },
-    "owner": "delusional-company"
+    "owner": "delusional-company",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/6e8df074-03cc-4e12-88f9-e23b4c83d223"
+    }
   }
 }

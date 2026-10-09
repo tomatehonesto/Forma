@@ -3356,3 +3356,48 @@ número do caso: anotar aqui.
 
 O endereço da conta, que também aparece nas lojas, é outro pedido, pelo
 subtópico "Atualização sobre informações da conta" — ver o item 44.
+
+---
+
+## 🔴 46. O EAS Update: o app passa a perguntar à Expo, toda vez que abre, se há versão nova
+
+Aberto em 09/10/2026. Na primeira build de desenvolvimento, o EAS viu os
+`channel` do `eas.json` e ofereceu o **EAS Update** — publicar correção de
+código JavaScript sem passar pela revisão da loja —, e a resposta foi
+sim: entrou o `expo-updates` (57.0.25) e, no `app.json`, `updates.url` e
+`runtimeVersion` (pela versão do app).
+
+**O que muda para a pessoa.** Na build de loja, a cada abertura (o padrão
+`ON_LOAD`), o app pergunta aos servidores da Expo, nos EUA, se há versão
+nova. Pelo que a Expo descreve (fórum oficial, "EAS Update and data
+policy"), a pergunta leva o id do projeto, **um identificador aleatório
+da instalação** (que a Expo usa para contar os aparelhos atualizados no
+mês, para cobrar), o sistema do aparelho, a versão do app e os ids das
+atualizações — e o IP, como toda conexão. Nada do diário. Na build de
+desenvolvimento não pergunta: ela carrega o código do computador.
+
+**Decidir antes da build de loja — manter ou tirar:**
+
+- **Manter** (o que eu recomendo: num app pago recém-lançado, consertar
+  um erro no mesmo dia vale muito). Aí, antes da loja:
+  - a **Política**: a Expo entre os operadores (seção 7) e na
+    transferência internacional (seção 8), com a versão subindo — e vai
+    ao advogado (item 2);
+  - a **tela de Privacidade**, "O que sai daqui": ela diz "Só o primeiro
+    vai sozinho", e a pergunta por atualização também vai sozinha. Uma
+    linha nova e a nota refeita, nos seis idiomas;
+  - os **rótulos de privacidade** da App Store e a Segurança dos dados do
+    Google Play contam esse identificador.
+- **Tirar:** `npm uninstall expo-updates`, apagar `updates` e
+  `runtimeVersion` do `app.json`, e tirar os `channel` dos perfis do
+  `eas.json` — sem isso, a próxima build oferece de novo.
+
+⚠️ Os comandos do EAS gravam no `app.json` o resultado dos plugins como se
+fosse configuração (já são duas vezes: o `init` e esta build). Desta vez
+vieram até as permissões do Android em dobro. Saíram de novo; olhar o diff
+sempre que o EAS disser que mexeu no `app.json`.
+
+O que ficou da mesma passagem, e está certo: `ITSAppUsesNonExemptEncryption:
+false` no `app.json`. O app só usa a criptografia padrão do sistema (HTTPS),
+que é isenta — com a chave, a App Store Connect para de perguntar sobre
+exportação de criptografia a cada envio.
