@@ -84,6 +84,13 @@ controlador (art. 9º) e quem é o encarregado (art. 41) precisam de nome
 próprio, não de "nós". Política em linguagem simples faz assim, e a
 leitura melhora bastante.
 
+**E a marca, junto (09/10/2026):** o nome "Morphi" já estava em uso na
+App Store, e o app entrou lá como **"Morphi: GLP-1 Tracker"**. Pedir ao
+advogado a busca de "Morphi" como marca de software no INPI, nos EUA e na
+Europa: se o outro "Morphi" for marca registrada, pode haver conflito num
+lançamento mundial — e o domínio, o e-mail e o nome na tela inicial já
+são "Morphi".
+
 ### 3. A política precisa de uma URL pública
 
 As lojas exigem um endereço na internet para a política de privacidade. O
@@ -1275,6 +1282,16 @@ compras do anterior. Antes de publicar é uma linha; depois, não é nada.
 > ⚠️ O `eas` instalado globalmente nesta máquina é o 21.2.0, e o
 > `eas.json` pede 24 ou mais: rodar com `npx eas-cli@latest …`, ou
 > atualizar o global (`npm i -g eas-cli`).
+>
+> **09/10/2026: a Apple, do lado de lá.** O identificador
+> `com.morphihealth.app` está registrado no portal, com Sign In with
+> Apple, HealthKit e Push Notifications (as três que a build pede; o
+> In-App Purchase a Apple liga sozinha). O app existe na App Store
+> Connect: **"Morphi: GLP-1 Tracker"** ("Morphi" já estava em uso — a
+> marca vai ao advogado, item 2), Apple ID **6821091937** (no `eas.json`,
+> em `submit.production.ios.ascAppId`), SKU `morphi-ios`, idioma
+> principal inglês (EUA). O Apple ID também vai no campo "Código da App
+> Store" do cliente iOS no Google Cloud.
 
 `eas.json` tem três perfis — `development` (build de desenvolvimento, APK,
 distribuição interna), `preview` (release instalável para testar) e
