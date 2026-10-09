@@ -75,9 +75,7 @@ export const conta = {
 
   naoEncontramos: {
     titulo: 'Non abbiamo trovato un account con questa e‑mail',
-    lead: (email?: string) => email
-      ? `Non c’è nessun account Morphi con ${email}. Vuoi crearne uno? Prepari il tuo piano in pochi passi, e lì conserviamo tutto.`
-      : 'Non c’è nessun account Morphi con l’accesso che hai usato. Vuoi crearne uno? Prepari il tuo piano in pochi passi, e lì conserviamo tutto.',
+    lead: 'Vuoi crearne uno? Prepari il tuo piano in pochi passi, e lì conserviamo tutto.',
     criar: 'Crea account',
     outra: 'Accedi con un altro account',
   },

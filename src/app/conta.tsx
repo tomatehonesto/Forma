@@ -120,7 +120,7 @@ export default function Conta() {
      sobre a lavagem, clara, e pedem o escuro — e os três são a mesma
      tela. O `useLightStatusBar` das outras telas acende no foco da rota
      e não veria a troca de passo. Ao sair, volta o padrão do app. */
-  React.useEffect(() => { setStatusBarStyle(passo === 'escolha' ? 'light' : 'dark'); }, [passo]);
+  React.useEffect(() => { setStatusBarStyle(passo === 'escolha' || passo === 'sem-conta' ? 'light' : 'dark'); }, [passo]);
   React.useEffect(() => () => setStatusBarStyle('dark'), []);
 
   React.useEffect(() => {
@@ -410,19 +410,28 @@ export default function Conta() {
     );
   }
 
-  /* "Não encontramos conta". ⚠️ SÓ EM DESENVOLVIMENTO, `?passo=sem-conta`
-     mostra a tela com um e-mail de exemplo e os botões parados, para o
-     desenho ser visto sem confirmar um código de verdade. */
+  /* "Não encontramos conta".
+
+     ⚠️ NA CAPA DA ESCOLHA, E NÃO NUMA TELA INTERNA (09/10/2026, pedido do
+     dono: "mais chamativa"). Ela é o passo seguinte do mesmo fluxo das
+     três portas, e ganha a mesma aurora — o cabeçalho cinza a fazia
+     parecer um erro de sistema. O ENDEREÇO USADO VIRA DESTAQUE, com o
+     envelope, logo abaixo do título: é o que a pessoa precisa ver para
+     notar que digitou outro e-mail. A frase fica só com o convite.
+
+     ⚠️ SÓ EM DESENVOLVIMENTO, `?passo=sem-conta` mostra a tela com um
+     e-mail de exemplo e os botões parados, para o desenho ser visto sem
+     confirmar um código de verdade. */
   const semConta = (email: string | undefined, criar: () => void, outra: () => void) => {
     const N = K().naoEncontramos;
     return (
-      <TelaInterna titulo={N.titulo} onVoltar={outra} semCascata>
-        <Titulao titulo={N.titulo} lead={N.lead(email)} />
-        <View style={{ gap: 10 }}>
-          <Botao label={N.criar} pilula onPress={criar} />
-          <Botao label={N.outra} pilula tom="fantasma" onPress={outra} />
-        </View>
-      </TelaInterna>
+      <CapaDaConta
+        titulo={N.titulo} lead={N.lead} onVoltar={outra}
+        destaque={email ? <EnderecoUsado email={email} /> : null}
+      >
+        <Botao label={N.criar} pilula onPress={criar} />
+        <Botao label={N.outra} pilula tom="fantasma" contorno={contornoDaPorta(isDark)} onPress={outra} />
+      </CapaDaConta>
     );
   };
   if (__DEV__ && passoDoLink === 'sem-conta') return semConta('voce@exemplo.com', () => {}, () => {});
@@ -608,8 +617,10 @@ export default function Conta() {
 
    AS PORTAS FICAM EMBAIXO, perto do polegar. */
 /* ------------------------------------------------------------------ */
-function CapaDaConta({ titulo, lead, onVoltar, children }: {
+function CapaDaConta({ titulo, lead, onVoltar, children, destaque }: {
   titulo: string; lead: string; onVoltar: () => void; children: React.ReactNode;
+  /** entre o título e a frase — o endereço usado, no "não encontramos conta" */
+  destaque?: React.ReactNode;
 }) {
   const { c, isDark } = useTheme();
   const aurora = useAurora();
@@ -665,10 +676,33 @@ function CapaDaConta({ titulo, lead, onVoltar, children }: {
           style={{ gap: 10, marginBottom: 22 }}
         >
           <Txt v="h1">{titulo}</Txt>
+          {destaque}
           <Txt v="note" c={c.tx2} style={{ lineHeight: 23 }}>{lead}</Txt>
         </View>
         {children}
       </View>
+    </View>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* O ENDEREÇO USADO — no "não encontramos conta", entre o título e a frase.
+   Uma pílula com o envelope, como a porta do e-mail na escolha; o endereço
+   longo encurta no meio, onde o começo e o domínio continuam legíveis. */
+function EnderecoUsado({ email }: { email: string }) {
+  const { c } = useTheme();
+  return (
+    <View
+      accessible
+      accessibilityLabel={email}
+      style={{
+        alignSelf: 'flex-start', maxWidth: '100%', flexDirection: 'row', alignItems: 'center', gap: 8,
+        paddingHorizontal: 14, paddingVertical: 9, marginVertical: 2,
+        borderRadius: radius.pill, backgroundColor: c.bg1, borderWidth: 1, borderColor: c.line,
+      }}
+    >
+      <Icon name="mail" size={17} color={c.accent} sw={1.9} />
+      <Txt v="label" numberOfLines={1} ellipsizeMode="middle" style={{ flexShrink: 1 }}>{email}</Txt>
     </View>
   );
 }
