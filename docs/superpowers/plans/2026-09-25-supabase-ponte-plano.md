@@ -2144,6 +2144,27 @@ de `__DEV__` sai do commit da fase 8 antes desta lista estar feita.**
      dentro do aplicativo.
    - Depois, ligar a CLI de volta ao `morphi-dev`: o
      `supabase/.temp/project-ref` é o que a trava confere.
+
+   > ✅ **Feitos os passos 1 e 2 em 09/10/2026.** Projeto `morphi`, ref
+   > `jsyrmhzjwuckmixyvsnn`, em `sa-east-1`, na organização Pro que ele
+   > divide com o Sello, o Matilha e o Cultivae — ⚠️ todo membro dela lê o
+   > dado de saúde pelo painel; a recomendação é uma organização só do
+   > Morphi (o Supabase transfere o projeto). A RLS automática está ligada
+   > e a exposição automática, desligada (conferido no `pg_default_acl`).
+   > As 14 migrações subiram sem semente, a `apagar-conta` está publicada
+   > (`verify_jwt` ligado, como no dev), o conselheiro de segurança não
+   > acusa nada, e o banco nasceu com 15 tabelas, todas com RLS, e nenhuma
+   > clínica nem conta.
+   >
+   > **O método, para a próxima migração:** o repositório nunca é ligado
+   > à produção. Um diretório fora dele leva a cópia de
+   > `supabase/config.toml` (com `[db.seed]` desligado e `sql_paths = []`),
+   > de `supabase/migrations/` e de `supabase/functions/` — e nada da
+   > semente nem da trava. Os comandos rodam de dentro do repositório, para
+   > usar a CLI fixada, com `--workdir <diretório>`: `link --project-ref
+   > jsyrmhzjwuckmixyvsnn`, `db push --linked --dry-run` primeiro, depois
+   > `db push --linked`, e `functions deploy <nome> --use-api --project-ref
+   > jsyrmhzjwuckmixyvsnn`.
 3. **Configurar a autenticação e o tempo real:**
    - o SMTP, os modelos, o código de 6 dígitos e a validade;
    - a Apple **sem** `host.exp.Exponent`;
