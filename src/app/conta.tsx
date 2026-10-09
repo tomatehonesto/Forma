@@ -1,7 +1,6 @@
 import React from 'react';
 import { ActivityIndicator, Animated, AppState, Platform, Pressable, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import * as AppleAuthentication from 'expo-apple-authentication';
 import * as Clipboard from 'expo-clipboard';
 import { Image } from 'expo-image';
 import { setStatusBarStyle } from 'expo-status-bar';
@@ -522,32 +521,29 @@ export default function Conta() {
       lead={K().lead[porta]} onVoltar={voltar}
     >
       {aviso}
-      {/* ⚠️ O BOTÃO DA APPLE É O DELA, e não um desenhado aqui: a revisão
-          da loja confere o desenho do "Continuar com a Apple", e o botão
-          do sistema já sai certo em qualquer idioma. A altura é a da
-          pílula do app, para as portas empilhadas terem o mesmo tamanho.
+      {/* ⚠️ O BOTÃO DA APPLE É DESENHADO AQUI (ui/marcas), e não o do
+          sistema: o do sistema calcula a letra pela altura, e na altura da
+          pílula ela saía muito maior que a das outras portas (visto no
+          iPhone em 09/10/2026). O desenho segue a diretriz da Apple para
+          botão próprio — ver o alto de ui/marcas, porque a revisão da loja
+          confere. A altura é a da pílula do app, para as portas empilhadas
+          terem o mesmo tamanho.
 
           O GOOGLE VEM LOGO DEPOIS, com o "G" e as cores da marca (ui/marcas),
           e só onde ele abre: na build com o módulo nativo e com os IDs do
           Google Cloud (ver logic/conta). Fora do desenvolvimento, no Expo
-          Go e sem os IDs, não há botão — ver `previaDasPortas`. */}
-      {!apple && previaDasPortas ? (
-        <BotaoDaApple label={K().comApple} escuro={isDark} onPress={() => setPrevia(true)} />
-      ) : null}
-      {apple ? (
-        <AppleAuthentication.AppleAuthenticationButton
-          buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
-          buttonStyle={isDark ? AppleAuthentication.AppleAuthenticationButtonStyle.WHITE : AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
-          cornerRadius={radius.pill}
-          style={{ height: 64 }}
-          onPress={viaApple}
-        />
+          Go e sem os IDs, não há botão — ver `previaDasPortas`.
+
+          E O E-MAIL LEVA O ENVELOPE, para as três portas terem um desenho
+          à esquerda do texto, e não duas marcas e uma linha só de letra. */}
+      {apple || previaDasPortas ? (
+        <BotaoDaApple label={K().comApple} escuro={isDark} onPress={apple ? viaApple : () => setPrevia(true)} />
       ) : null}
       {google || previaDasPortas ? (
         <BotaoDoGoogle label={K().comGoogle} escuro={isDark} onPress={google ? viaGoogle : () => setPrevia(true)} />
       ) : null}
       <Botao
-        label={K().comEmail} pilula tom={apple || google || previaDasPortas ? 'fantasma' : 'cheio'}
+        label={K().comEmail} pilula icone="mail" tom={apple || google || previaDasPortas ? 'fantasma' : 'cheio'}
         onPress={() => { limpar(); setPrevia(false); setPasso('email'); }}
       />
       <Txt v="caption" c={previa ? c.tx2 : c.tx3} style={{ textAlign: 'center', marginTop: 6 }}>

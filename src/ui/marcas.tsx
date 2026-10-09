@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, View } from 'react-native';
+import { Platform, Pressable, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { Txt } from './kit';
 import { radius } from '../theme';
@@ -14,10 +14,16 @@ import { radius } from '../theme';
    escuro. A altura é a da pílula do app, para as portas empilhadas terem
    o mesmo tamanho.
 
-   A APPLE DE VERDADE CONTINUA SENDO O BOTÃO DO SISTEMA quando ele existe
-   (ver app/conta): a revisão da loja confere aquele desenho. Este aqui é
-   o da prévia — na build de desenvolvimento sem o módulo, e no Expo Go —,
-   desenhado para parecer com ele.
+   ⚠️ A APPLE É ESTE BOTÃO, E NÃO O DO SISTEMA (09/10/2026). O do sistema
+   (`AppleAuthenticationButton`) não deixa escolher a letra: ele a calcula
+   pela altura, e na altura da pílula ela saía muito maior que a do Google
+   e a do e-mail — o dono viu no iPhone. A diretriz da Apple permite botão
+   próprio, com regras que este segue: o logotipo e o título na mesma cor,
+   preto no claro e branco no escuro, sem outra cor; o título é um dos
+   aprovados ("Continuar com a Apple", traduzido pelo catálogo); e o
+   tamanho e o peso da letra podem ser ajustados — no iPhone, a letra do
+   título é a do sistema, no tamanho das outras portas. A revisão confere
+   esse desenho: mudar cor, logotipo ou título aqui é mexer no que ela olha.
    ============================================================ */
 
 const ALTURA = 64;
@@ -45,8 +51,10 @@ export function LogoDoGoogle({ size = 20 }: { size?: number }) {
   );
 }
 
-function Porta({ label, fundo, tinta, borda, logo, onPress }: {
+function Porta({ label, fundo, tinta, borda, logo, onPress, letraDoSistema }: {
   label: string; fundo: string; tinta: string; borda?: string; logo: React.ReactNode; onPress: () => void;
+  /** o título na letra do sistema (a da Apple no iPhone), no tamanho das outras portas */
+  letraDoSistema?: boolean;
 }) {
   return (
     <Pressable
@@ -61,7 +69,12 @@ function Porta({ label, fundo, tinta, borda, logo, onPress }: {
       }]}
     >
       <View style={{ marginTop: -2 }}>{logo}</View>
-      <Txt v="bodyMed" c={tinta}>{label}</Txt>
+      <Txt
+        v="bodyMed" c={tinta}
+        style={letraDoSistema && Platform.OS === 'ios' ? { fontFamily: 'System', fontWeight: '500' } : undefined}
+      >
+        {label}
+      </Txt>
     </Pressable>
   );
 }
@@ -69,7 +82,12 @@ function Porta({ label, fundo, tinta, borda, logo, onPress }: {
 export function BotaoDaApple({ label, escuro, onPress }: { label: string; escuro: boolean; onPress: () => void }) {
   const fundo = escuro ? '#FFFFFF' : '#000000';
   const tinta = escuro ? '#000000' : '#FFFFFF';
-  return <Porta label={label} fundo={fundo} tinta={tinta} logo={<LogoDaApple size={20} color={tinta} />} onPress={onPress} />;
+  return (
+    <Porta
+      label={label} fundo={fundo} tinta={tinta} letraDoSistema
+      logo={<LogoDaApple size={20} color={tinta} />} onPress={onPress}
+    />
+  );
 }
 
 export function BotaoDoGoogle({ label, escuro, onPress }: { label: string; escuro: boolean; onPress: () => void }) {
