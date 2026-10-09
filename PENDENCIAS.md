@@ -3318,3 +3318,41 @@ público.
   Termos e a página da loja dizerem o mesmo;
 - o telefone e o e-mail públicos: um número da empresa e o
   `contact@morphihealth.com`, e não os pessoais.
+
+---
+
+## 🔴 45. O nome de desenvolvedor na App Store é "Sello: descubra onde comer"
+
+Aberto em 09/10/2026. Na App Store, o nome de desenvolvedor — o que
+aparece embaixo do nome do app e na instalação — é **da conta inteira**, e
+é digitado **uma vez só**, no campo "Nome da empresa" da criação do
+primeiro app. Quem criou o Sello pôs ali o nome do app. Ele vale para os
+três apps da conta (Apple IDs 6819306520, 6820720693 e 6821091937, este
+o Morphi), e a App Store Connect não deixa editar.
+
+Pela regra da Apple, organização só exibe nome diferente da razão social
+se for **nome comercial registrado** — no Brasil, o nome fantasia do CNPJ.
+
+**Andou:** pedido enviado em 09/10/2026 ao suporte (Contact Us ›
+Assinatura e conta › **Alteração de nome da organização**), dizendo que a
+razão social está certa e não muda, e pedindo o nome fantasia ("The
+Delusional Co" — conferir no cartão do CNPJ que é exatamente essa a
+grafia registrada) ou a razão social. A resposta chega por e-mail, com o
+número do caso: anotar aqui.
+
+**O que falta:**
+
+- acompanhar o caso e mandar o cartão do CNPJ quando pedirem;
+- se a Apple recusar o nome fantasia (por grafia diferente ou por não
+  estar registrado), aceitar a razão social ou registrar o nome fantasia
+  e pedir de novo;
+- **resolver antes de o Morphi ser aprovado:** o nome aparece na página
+  do app a partir da aprovação, e um app de saúde assinado por "Sello:
+  descubra onde comer" lê como de outro produto;
+- **o Google Play**, conferir: lá o nome de desenvolvedor se troca no
+  próprio Play Console (Conta de desenvolvedor › Sobre você › Nome do
+  desenvolvedor, só o dono da conta), e o Google revisa antes de
+  publicar.
+
+O endereço da conta, que também aparece nas lojas, é outro pedido, pelo
+subtópico "Atualização sobre informações da conta" — ver o item 44.
