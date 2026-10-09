@@ -2182,6 +2182,8 @@ de `__DEV__` sai do commit da fase 8 antes desta lista estar feita.**
      um projeto só não servem: o Preview acompanha branch, e aqui tudo
      vai na `main`.
 5. **Subir o limite de e-mails por hora** para o tamanho do lançamento.
+   - 09/10/2026: **200 por hora** na produção. O teto que vale primeiro é
+     o do plano do Resend (PENDENCIAS, item 42).
 6. **Resolver o que bloqueia a publicação** nas pendências: os
    documentos e o item 2 — e a leitura das perguntas (o item 37), se ela
    tiver voltado.

@@ -3151,3 +3151,35 @@ aplicativo aberto, e por isso a entrega em segundo plano do iPhone saiu.
 Voltar com ela é `background: true` no plugin do HealthKit e, no Android,
 a permissão `READ_HEALTH_DATA_IN_BACKGROUND` — com a declaração na Play
 Console.
+
+---
+
+## 🔴 42. O plano do Resend é o teto do código de acesso
+
+Aberto em 09/10/2026, ao configurar a produção do Supabase. O código de
+acesso sai pelo Resend (`no-reply@morphihealth.com`), e **o limite que
+vale primeiro é o do plano do Resend**, e não o do Supabase.
+
+- **O plano gratuito manda 100 e-mails por dia e 3 mil por mês.** Num
+  dia de lançamento, o código para de chegar quando o Resend recusa —
+  e quem está no cadastro fica parado na tela do código, sem jeito de
+  entrar a não ser pela Apple ou pelo Google.
+- **O dev e a produção dividem a mesma conta e o mesmo domínio** no
+  Resend: cada código pedido no teste conta no mesmo teto.
+- **No Supabase da produção**, o limite está em **200 e-mails por hora**
+  (Authentication › Rate Limits, 09/10/2026), o teto do projeto inteiro,
+  e 60 s entre dois códigos para a mesma pessoa (o mesmo
+  `ESPERA_PARA_REENVIAR_S` do app). Os dois números só valem se o
+  Resend aguentar o mesmo.
+
+**Antes da loja:** conferir o plano em resend.com › Settings › Billing e,
+se for o gratuito, passar ao pago (o primeiro degrau, de US$ 20 por mês,
+manda 50 mil por mês e não tem teto diário). Depois do lançamento, olhar
+o envio de verdade no painel do Resend e subir os dois limites juntos.
+
+**E um risco que o limite não resolve:** alguém pode pedir código para
+endereços inventados, em massa. Os 60 s seguram uma pessoa, não mil
+endereços; o que segura é o teto por hora. E e-mail que volta (endereço
+que não existe) gasta a reputação do domínio no Resend. Se aparecer, o
+caminho é o CAPTCHA do Supabase (Authentication › Attack Protection),
+que pede integração no app.
