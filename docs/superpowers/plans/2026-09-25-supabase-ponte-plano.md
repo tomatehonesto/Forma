@@ -2187,6 +2187,20 @@ de `__DEV__` sai do commit da fase 8 antes desta lista estar feita.**
 4. **As variáveis do EAS** por ambiente: `production` e `preview`
    apontando para o que for decidido. Elas são a condição para a primeira
    build distribuída.
+   - ✅ **09/10/2026, `production`:** `EXPO_PUBLIC_SUPABASE_URL` e
+     `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (as do `morphi`) e os dois
+     `EXPO_PUBLIC_GOOGLE_*`, todas públicas, no projeto
+     `@delusional-company/morphi`; e o perfil `production` do `eas.json`
+     diz `"environment": "production"` (conferido no `eas config`: as
+     quatro carregam). **Sem** `EXPO_PUBLIC_REDE`, de propósito. Faltam
+     as duas `EXPO_PUBLIC_ANALISE_*`, quando o servidor de produção
+     existir na Vercel — sem elas, a IA some da build de loja.
+   - ⏳ **`preview`:** nada ainda. A sugestão é apontar para o
+     `morphi-dev`, para que testar uma build de release não crie conta
+     na produção.
+   - ⚠️ O `.env.production.local` desta máquina aponta para o
+     `morphi-dev` e fica fora do EAS (está no `.gitignore`), mas vale em
+     `expo export` e em build local: não usar build local para a loja.
    - **E as da Vercel, separadas.** O servidor da IA confere a sessão
      contra o Supabase das variáveis dele: apontado só para a produção, o
      aplicativo de desenvolvimento perde a IA. O mais simples são dois
