@@ -1614,8 +1614,18 @@ export default function Cadastro() {
      Ela não aparece na edição: quem veio do perfil corrigir a altura não
      precisa ser apresentado ao app de novo. O quadro em branco enquanto o
      índice não chega é de um piscar; abrir a manchete da marca ali seria
-     mostrar a tela errada por um instante e a certa depois. */
-  if (n === -1) return editando ? <View style={{ flex: 1, backgroundColor: c.bg }} /> : <Abertura onComecar={() => setN(0)} onJaTenho={contaLigada() && !(S as any).conta ? () => router.push('/conta?de=abertura' as any) : undefined} />;
+     mostrar a tela errada por um instante e a certa depois.
+
+     ⚠️ O "JÁ TENHO CONTA" TAMBÉM APARECE COM CONTA GRAVADA E O CADASTRO
+     POR FAZER (09/10/2026, lido no iPhone: conta gravada, `onboardDone`
+     falso, e só o "Começar" na tela). Esse estado nasce quando a descida
+     do diário da conta é interrompida no meio, ou quando a pessoa tocou
+     "Criar conta" depois de "não encontramos conta" e quer trocar. Uma
+     conta nesse ponto está vazia ou pela metade, e entrar de novo resolve
+     as duas: o diário desce inteiro, ou a conta nova vale no lugar. Sem
+     o link, a pessoa ficava presa ao cadastro de uma conta que não queria. */
+  const podeEntrar = contaLigada() && (!(S as any).conta || !(S as any).onboardDone);
+  if (n === -1) return editando ? <View style={{ flex: 1, backgroundColor: c.bg }} /> : <Abertura onComecar={() => setN(0)} onJaTenho={podeEntrar ? () => router.push('/conta?de=abertura' as any) : undefined} />;
 
   if (n === PLANO) return telaDoPlano;
 
