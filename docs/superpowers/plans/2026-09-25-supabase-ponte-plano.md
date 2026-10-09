@@ -2156,15 +2156,23 @@ de `__DEV__` sai do commit da fase 8 antes desta lista estar feita.**
    > acusa nada, e o banco nasceu com 15 tabelas, todas com RLS, e nenhuma
    > clínica nem conta.
    >
-   > **O método, para a próxima migração:** o repositório nunca é ligado
-   > à produção. Um diretório fora dele leva a cópia de
-   > `supabase/config.toml` (com `[db.seed]` desligado e `sql_paths = []`),
-   > de `supabase/migrations/` e de `supabase/functions/` — e nada da
-   > semente nem da trava. Os comandos rodam de dentro do repositório, para
-   > usar a CLI fixada, com `--workdir <diretório>`: `link --project-ref
-   > jsyrmhzjwuckmixyvsnn`, `db push --linked --dry-run` primeiro, depois
-   > `db push --linked`, e `functions deploy <nome> --use-api --project-ref
-   > jsyrmhzjwuckmixyvsnn`.
+   > **O método, para a próxima migração:** `node scripts/subir-banco.mjs`
+   > (09/10/2026). Ele faz, nesta ordem: no dev, a trava no modo ensaio, o
+   > push, a trava de novo e as funções; na produção, por um diretório
+   > fora do repositório (`scripts/producao.mjs`: o `config.toml` com a
+   > semente desligada, as migrações, as funções e o modelo do e-mail —
+   > nada da semente nem da trava), o ensaio do push, a palavra
+   > "produção" digitada, o push e as funções. `--ensaio` mostra sem
+   > escrever; `--so-dev` para no dev. O repositório nunca é ligado à
+   > produção, e o script confere isso no fim.
+   >
+   > **E a configuração do painel** (login, e-mail, provedores, API,
+   > armazenamento) mora em `supabase/config.toml`, montado do `config
+   > pull` da produção, com um bloco `[remotes.*]` por projeto: sobe com
+   > `node scripts/subir-config.mjs` (`--diff` só mostra). Os segredos
+   > (senha do SMTP, chaves dos provedores) ficam só no painel, o limite de
+   > e-mails por hora também (a CLI não o compara sem o SMTP no arquivo),
+   > e o diff não compara o corpo do e-mail — ver `supabase/modelos/README.md`.
 3. **Configurar a autenticação e o tempo real:**
    - o SMTP, os modelos, o código de 6 dígitos e a validade;
    - a Apple **sem** `host.exp.Exponent`;

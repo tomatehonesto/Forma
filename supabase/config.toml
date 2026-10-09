@@ -1,3 +1,29 @@
+# ============================================================
+# A CONFIGURAÇÃO DOS DOIS PROJETOS — morphi-dev e morphi (produção)
+#
+# Este arquivo é a fonte da configuração de autenticação, API e
+# armazenamento dos DOIS projetos no Supabase, e não só do ambiente
+# local (que nem roda: não há Docker nesta máquina). Ele sobe com
+#
+#   node scripts/subir-config.mjs
+#
+# que mostra a diferença de cada projeto e pede confirmação antes de
+# escrever. A base vale para os dois; o que muda por projeto mora nos
+# blocos [remotes.*], no fim do arquivo — a CLI escolhe o bloco pelo
+# `project_id`.
+#
+# ⚠️⚠️ NENHUM SEGREDO AQUI. ⚠️⚠️ A senha do SMTP e as chaves secretas dos
+# provedores (Google, Apple) moram só no painel de cada projeto. A API
+# não os devolve, então o `config diff` não os compara — e um push com a
+# variável `env(...)` vazia pode gravar o vazio por cima do que funciona.
+# Por isso o bloco do SMTP não está declarado, e os provedores não têm a
+# linha `secret`: o que não está declarado, o push não toca.
+#
+# Montado em 09/10/2026 a partir do `config pull` da produção (o diff
+# deu zero). O que estava aqui antes era o padrão do `supabase init`, e
+# um push dele teria desfeito o painel.
+# ============================================================
+
 # For detailed configuration reference documentation, visit:
 # https://supabase.com/docs/guides/local-development/cli/config
 # A string used to distinguish different Supabase projects on the same host. Defaults to the
@@ -48,9 +74,9 @@ port = 54329
 # Configure one of the supported pooler modes: `transaction`, `session`.
 pool_mode = "transaction"
 # How many server connections to allow per user/database pair.
-default_pool_size = 20
+default_pool_size = 15
 # Maximum number of client connections allowed.
-max_client_conn = 100
+max_client_conn = 200
 
 # [db.vault]
 # secret_key = "env(SECRET_VALUE)"
@@ -128,14 +154,14 @@ file_size_limit = "50MiB"
 enabled = true
 
 # Image transformation API is available to Supabase Pro plan.
-# [storage.image_transformation]
-# enabled = true
+[storage.image_transformation]
+enabled = true
 
 # Store analytical data in S3 for running ETL jobs over Iceberg Catalog
 # This feature is only available on the hosted platform.
 [storage.analytics]
-enabled = false
-max_namespaces = 5
+enabled = true
+max_namespaces = 10
 max_tables = 10
 max_catalogs = 2
 
@@ -155,11 +181,11 @@ max_indexes = 5
 enabled = true
 # The base URL of your website. Used as an allow-list for redirects and for constructing URLs used
 # in emails.
-site_url = "http://127.0.0.1:3000"
+site_url = "http://localhost:3000"
 # The public URL that Auth serves on. Defaults to the API external URL with `/auth/v1` appended.
 # external_url = ""
 # A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
-additional_redirect_urls = ["https://127.0.0.1:3000"]
+additional_redirect_urls = []
 # How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
 jwt_expiry = 3600
 # JWT issuer URL. If not set, defaults to auth.external_url.
@@ -181,7 +207,9 @@ enable_manual_linking = false
 minimum_password_length = 6
 # Passwords that do not meet the following requirements will be rejected as weak. Supported values
 # are: `letters_digits`, `lower_upper_letters_digits`, `lower_upper_letters_digits_symbols`
-password_requirements = ""
+# Não declarado: o app não usa senha, e o vazio daqui contra o nulo do servidor virava uma
+# diferença a cada push.
+# password_requirements = ""
 
 # Configure passkey sign-ins.
 # [auth.passkey]
@@ -195,7 +223,10 @@ password_requirements = ""
 
 [auth.rate_limit]
 # Number of emails that can be sent per hour. Requires auth.email.smtp to be enabled.
-email_sent = 2
+# O teto do projeto inteiro. O que vale primeiro é o plano do Resend (PENDENCIAS, 42).
+# ⚠️ Com o SMTP fora deste arquivo, a CLI NÃO compara nem sobe este número: ele é mexido no
+# painel (Authentication › Rate Limits). Fica escrito aqui como registro do que está lá.
+email_sent = 200
 # Number of SMS messages that can be sent per hour. Requires auth.sms to be enabled.
 sms_sent = 30
 # Number of anonymous sign-ins that can be made per hour per IP address. Requires enable_anonymous_sign_ins = true.
@@ -222,30 +253,32 @@ enable_signup = true
 # addresses. If disabled, only the new email is required to confirm.
 double_confirm_changes = true
 # If enabled, users need to confirm their email address before signing in.
-enable_confirmations = false
+# Ligada: é ela que manda o "Confirm signup" a conta nova e o "Magic link" a quem já tem conta.
+enable_confirmations = true
 # If enabled, users will need to reauthenticate or have logged in recently to change their password.
 secure_password_change = false
 # Controls the minimum amount of time that must pass before sending another signup confirmation or password reset email.
-max_frequency = "1s"
+# O mesmo ESPERA_PARA_REENVIAR_S do app (logic/conta).
+max_frequency = "1m0s"
 # Number of characters used in the email OTP.
+# ⚠️ O comprimento e a validade têm de bater com o e-mail (supabase/modelos) e com o app
+# (logic/conta: DIGITOS_DO_CODIGO e VALIDADE_DO_CODIGO_MIN). Mudar um é mudar os três.
 otp_length = 6
 # Number of seconds before the email OTP expires (defaults to 1 hour).
-otp_expiry = 3600
+otp_expiry = 600
 
-# Use a production-ready SMTP server
-# [auth.email.smtp]
-# enabled = true
-# host = "smtp.sendgrid.net"
-# port = 587
-# user = "apikey"
-# pass = "env(SENDGRID_API_KEY)"
-# admin_email = "admin@email.com"
-# sender_name = "Admin"
+# O SMTP (Resend, no-reply@morphihealth.com) NÃO é declarado aqui: a senha é segredo, e
+# um bloco sem ela invalida o envio. Ele mora no painel de cada projeto (ver o alto do arquivo).
 
-# Uncomment to customize email template
-# [auth.email.template.invite]
-# subject = "You have been invited"
-# content_path = "./supabase/templates/invite.html"
+# O e-mail do código — o mesmo corpo nos dois modelos. O que explica o desenho e as
+# armadilhas dele está em supabase/modelos/README.md.
+[auth.email.template.confirmation]
+subject = "Morphi · {{ .Token }}"
+content_path = "./supabase/modelos/codigo.html"
+
+[auth.email.template.magic_link]
+subject = "Morphi · {{ .Token }}"
+content_path = "./supabase/modelos/codigo.html"
 
 # Uncomment to customize notification email template
 # [auth.email.notification.password_changed]
@@ -285,12 +318,8 @@ max_frequency = "5s"
 # uri = "pg-functions://<database>/<schema>/<hook_name>"
 
 # Configure one of the supported SMS providers: `twilio`, `twilio_verify`, `messagebird`, `textlocal`, `vonage`.
-[auth.sms.twilio]
-enabled = false
-account_sid = ""
-message_service_sid = ""
-# DO NOT commit your Twilio auth token to git. Use environment variable substitution instead:
-auth_token = "env(SUPABASE_AUTH_SMS_TWILIO_AUTH_TOKEN)"
+# Nenhum provedor de SMS é declarado: o app não entra por telefone, e o bloco do padrão
+# (com o segredo vazio) faria o push mexer no que o painel tem.
 
 # Multi-factor-authentication is available to Supabase Pro plan.
 [auth.mfa]
@@ -299,8 +328,8 @@ max_enrolled_factors = 10
 
 # Control MFA via App Authenticator (TOTP)
 [auth.mfa.totp]
-enroll_enabled = false
-verify_enabled = false
+enroll_enabled = true
+verify_enabled = true
 
 # Configure MFA via Phone Messaging
 [auth.mfa.phone]
@@ -318,11 +347,13 @@ max_frequency = "5s"
 # Use an external OAuth provider. The full list of providers are: `apple`, `azure`, `bitbucket`,
 # `discord`, `facebook`, `github`, `gitlab`, `google`, `keycloak`, `linkedin_oidc`, `notion`, `twitch`,
 # `twitter`, `x`, `slack`, `spotify`, `workos`, `zoom`.
+#
+# A Apple e o Google entram pela tela nativa (token de identidade), e não pelo navegador: o
+# `secret` só serviria ao fluxo web, e mora no painel — sem a linha aqui, o push não o toca.
+# Na produção, a Apple aceita SÓ o app; o dev acrescenta o Expo Go (bloco [remotes.dev]).
 [auth.external.apple]
-enabled = false
-client_id = ""
-# DO NOT commit your OAuth provider secret to git. Use environment variable substitution instead:
-secret = "env(SUPABASE_AUTH_EXTERNAL_APPLE_SECRET)"
+enabled = true
+client_id = "com.morphihealth.app"
 # Overrides the default auth callback URL derived from auth.external_url.
 redirect_uri = ""
 # Overrides the default auth provider URL. Used to support self-hosted gitlab, single-tenant Azure,
@@ -331,6 +362,14 @@ url = ""
 # If enabled, the nonce check will be skipped. Required for local sign in with Google auth.
 skip_nonce_check = false
 # If enabled, it will allow the user to successfully authenticate when the provider does not return an email address.
+email_optional = false
+
+# O Google: o cliente web primeiro (é o que o Supabase confere no token), depois o do iOS.
+# Os mesmos dois no dev e na produção, do projeto "Morphi" no Google Cloud.
+[auth.external.google]
+enabled = true
+client_id = "796644798626-628m94tlcgvjg053dqkuvgmtf31ka2fu.apps.googleusercontent.com,796644798626-iruf2biomgi2n7qo5jg4q23fsv0to6g3.apps.googleusercontent.com"
+skip_nonce_check = false
 email_optional = false
 
 # Allow Solana wallet holders to sign in to your project via the Sign in with Solana (SIWS, EIP-4361) standard.
@@ -413,3 +452,21 @@ enabled = true
 # formatted with uppercase keywords, indent 2, max width 180, trailing commas,
 # and column/key alignment. Set to "null" to emit raw, unformatted SQL.
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":180,\"commaStyle\":\"trailing\"}"
+
+# ============================================================
+# POR PROJETO — o que difere da base. A CLI escolhe o bloco cujo
+# `project_id` é o projeto do push (ou do diff); o resto vem da base.
+# ============================================================
+
+# A produção é a base inteira, sem exceção. O bloco existe para o
+# `config diff` dizer em voz alta qual projeto está comparando.
+[remotes.producao]
+project_id = "jsyrmhzjwuckmixyvsnn"
+
+# O desenvolvimento aceita a Apple também pelo Expo Go (`host.exp.Exponent`),
+# que é por onde o dono abre o app no iPhone sem build. Na produção, não.
+[remotes.dev]
+project_id = "kjagyoqykhysvasauzgo"
+
+[remotes.dev.auth.external.apple]
+client_id = "com.morphihealth.app,host.exp.Exponent"
