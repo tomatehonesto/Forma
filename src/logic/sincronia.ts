@@ -486,6 +486,19 @@ export function criarSincronia({ transporte, loja, guarda, fingindo, emEspera, r
     /* Sem a primeira descida, nada sobe: o servidor ainda não disse o que
        tem. */
     if (!base.iniciada) return;
+    /* ⚠️ O CADASTRO PELA METADE NÃO SOBE (09/10/2026, achado no iPhone).
+       A conta pode nascer antes do fim do cadastro — "Já tenho conta" numa
+       conta vazia, e o "Criar conta" de "não encontramos conta" —, e a
+       sincronia subia o perfil a cada passo. Aí a conta passava a ter
+       perfil, `contaTemDiario` a chamava de conta com diário, e quem
+       entrasse nela depois pulava o cadastro e caía na Home com o perfil
+       vazio. A descida continua (é ela que traz o diário de quem já tem
+       conta, com o cadastro ainda por fazer); a subida espera o
+       `onboardDone`, e a mudança dele mesmo dispara a próxima volta. */
+    if (!loja.ler()?.onboardDone) {
+      mudarEstado('desligada');
+      return;
+    }
     await subir(base, q.dono, q.diario);
     const fim = loja.ler();
     if (parada || !mesmoDiario(fim, q.dono, q.diario)) return;

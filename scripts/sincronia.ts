@@ -111,6 +111,7 @@ function completo(S0: any): any {
   const S = clone(S0);
   S.semente = false;
   S.conta = { id: CONTA_A };
+  S.onboardDone = true;
   Object.assign(S.profile, {
     consentimento: { em: INSTANTE, versao: 1 },
     foto: 'data:image/jpeg;base64,AAAA',
@@ -128,18 +129,28 @@ function completo(S0: any): any {
   return carimbar(S);
 }
 
-/** Um diário de verdade, de uma conta: a semente, sem a marca. */
+/** Um diário de verdade, de uma conta: a semente, sem a marca.
+
+    ⚠️ COM O CADASTRO FEITO (`onboardDone`), como todo diário de conta no
+    app: desde 09/10/2026 a sincronia não sobe cadastro pela metade, e um
+    aparelho de teste sem a marca não subiria nada. */
 function diarioDe(conta: string | null): any {
   const S: any = clone(ensureDefaults(comNotificacoesDeExemplo(buildSeed())));
   S.semente = false;
   S.conta = conta ? { id: conta } : null;
+  S.onboardDone = true;
   S.diario = novoRid();
   S.profile.consentimento = { em: INSTANTE, versao: 1 };
   return S;
 }
+/** Um telefone que acabou de entrar numa conta. No app, o `onboardDone`
+    vem logo depois da primeira descida (app/conta, `trazerDaConta`); aqui
+    ele já nasce com ela, para as voltas seguintes subirem. O cadastro pela
+    metade tem a sua própria seção. */
 function vazioDe(conta: string | null): any {
   const S: any = estadoVazio();
   S.conta = conta ? { id: conta } : null;
+  S.onboardDone = true;
   return S;
 }
 
@@ -744,6 +755,40 @@ console.log('\nO QUE NUNCA SOBE');
   const F = aparelho(srv, (() => { const v = vazioDe(null); v.onboardDone = true; return v; })(), CONTA_A);
   await F.sync();
   ok(F.motor.estado() === 'sem-conta', 'o diário de alguém, ainda sem conta, é dito como tal');
+}
+
+console.log('\nO CADASTRO PELA METADE NÃO SOBE');
+{
+  /* A conta nasce antes do fim do cadastro ("Já tenho conta" numa conta
+     vazia; "Criar conta" depois de "não encontramos conta"). Achado no
+     iPhone em 09/10/2026: o perfil subia a cada passo, e a conta passava a
+     contar como conta com diário. */
+  const srvM = new ServidorFalso();
+  srvM.criarConta(CONTA_C);
+  const metade = vazioDe(CONTA_C);
+  metade.onboardDone = false;
+  const M = aparelho(srvM, metade, CONTA_C);
+  M.registrar((s) => { s.profile.name = 'Ainda no cadastro'; s.weights.push({ t: Date.now(), kg: 88 }); });
+  await M.sync();
+  ok(!srvM.perfis.has(CONTA_C) && srvM.registros.size === 0,
+    'com o cadastro pela metade, nem o perfil nem os registros sobem');
+  M.registrar((s) => { s.onboardDone = true; });
+  await M.sync();
+  ok(srvM.perfis.has(CONTA_C) && srvM.registros.size > 0,
+    'com o cadastro feito, tudo sobe na volta seguinte');
+
+  /* E a descida continua: é ela que traz o diário de quem já tem conta
+     enquanto o telefone ainda está com o cadastro por fazer. */
+  const srvD = new ServidorFalso();
+  srvD.criarConta(CONTA_C);
+  const dona = aparelho(srvD, diarioDe(CONTA_C), CONTA_C);
+  await dona.sync();
+  const chegando = vazioDe(CONTA_C);
+  chegando.onboardDone = false;
+  const N = aparelho(srvD, chegando, CONTA_C);
+  await N.sync(true);
+  ok(N.S.weights.length === dona.S.weights.length && N.S.weights.length > 0,
+    'com o cadastro por fazer, o diário da conta desce inteiro');
 }
 
 
