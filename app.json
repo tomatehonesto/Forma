@@ -214,6 +214,12 @@
     "experiments": {
       "typedRoutes": false,
       "baseUrl": "/gs-packs/forma"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "6e8df074-03cc-4e12-88f9-e23b4c83d223"
+      }
+    },
+    "owner": "delusional-company"
   }
 }

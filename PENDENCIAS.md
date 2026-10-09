@@ -1260,8 +1260,18 @@ compras do anterior. Antes de publicar é uma linha; depois, não é nada.
 ## 🟡 16. O EAS está configurado, mas o projeto ainda não existe na conta
 
 > **08/10/2026:** as contas de desenvolvedor da Apple e do Google existem.
-> Falta o `eas login` e o `eas init` — o `app.json` continua sem
-> `extra.eas.projectId`.
+>
+> **09/10/2026: o projeto existe no EAS** — `@delusional-company/morphi`,
+> ID `6e8df074-03cc-4e12-88f9-e23b4c83d223`, na organização
+> `delusional-company` (escolha do dono), com o `owner` e o `projectId`
+> no `app.json`. ⚠️ O `eas init` gravou também, no `app.json`, o
+> resultado dos plugins (os textos do microfone no iOS, quatro permissões
+> do Android e um `router` vazio); saíram, porque os plugins já os
+> produzem — conferido no `expo config --type introspect`. Vale olhar o
+> diff de qualquer comando do EAS que diga "modified app.json".
+> ⚠️ O `eas` instalado globalmente nesta máquina é o 21.2.0, e o
+> `eas.json` pede 24 ou mais: rodar com `npx eas-cli@latest …`, ou
+> atualizar o global (`npm i -g eas-cli`).
 
 `eas.json` tem três perfis — `development` (build de desenvolvimento, APK,
 distribuição interna), `preview` (release instalável para testar) e
