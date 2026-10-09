@@ -448,7 +448,6 @@ export default function RootLayout() {
           <Stack.Screen name="exames" />
           <Stack.Screen name="notificacoes" />
           <Stack.Screen name="saude" />
-          <Stack.Screen name="fotos" />
           <Stack.Screen name="sintomas" />
           <Stack.Screen name="medico" />
           <Stack.Screen name="consultas" />
