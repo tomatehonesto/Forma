@@ -2170,6 +2170,20 @@ de `__DEV__` sai do commit da fase 8 antes desta lista estar feita.**
    - a Apple **sem** `host.exp.Exponent`;
    - o Google;
    - o Realtime sem acesso público.
+
+   > ✅ **Feito pelo dono em 09/10/2026, e conferido de fora** (`config
+   > diff` e `config pull` num diretório descartável, sem escrever nada na
+   > produção): SMTP do Resend (`smtp.resend.com`, 465, `resend`,
+   > `no-reply@morphihealth.com`, "Morphi"); confirmação de e-mail ligada;
+   > código de 6 dígitos, 600 s, 60 s entre dois; Apple só com
+   > `com.morphihealth.app` e o nonce conferido; Google com `web,ios`; 200
+   > e-mails por hora e o resto no padrão. O Realtime foi provado com a
+   > chave pública: canal público recusado ("PrivateOnly"), canal privado
+   > sem sessão recusado ("Unauthorized"); e a API sem sessão leva
+   > `42501` em `perfis`.
+   >
+   > **O que a CLI não alcança:** os dois modelos de e-mail e a senha do
+   > SMTP. A prova deles é o primeiro código de verdade chegando.
 4. **As variáveis do EAS** por ambiente: `production` e `preview`
    apontando para o que for decidido. Elas são a condição para a primeira
    build distribuída.
