@@ -20,8 +20,11 @@
      · o limite de e-mails por hora — com o SMTP fora do arquivo, a CLI
        não o compara nem o sobe;
      · o CORPO do e-mail (supabase/modelos/codigo.html) — o diff compara
-       o assunto, não o corpo. Mudou o corpo? A prova é um código de
-       verdade chegando (supabase/modelos/README.md).
+       o assunto, não o corpo. O PUSH compara (mostra "content … (differs)"),
+       e por isso, fora do --diff, o push roda SEMPRE, mesmo com o diff
+       zerado: é ele quem vê o corpo, e ele pergunta antes de escrever. A
+       prova final continua sendo um código de verdade chegando
+       (supabase/modelos/README.md).
 
    O repositório continua ligado ao dev: `--project-ref` não muda a
    ligação (conferido no fim, por garantia).
@@ -69,18 +72,22 @@ for (const alvo of alvos) {
   const escritas = diff.changes.filter((c) => c.class !== 'remote_only');
   console.log(`  bloco usado: ${diff.target?.local_scope ?? '?'}`);
   if (!escritas.length) {
-    console.log('  nada a subir: o projeto já tem o que o arquivo declara');
-    continue;
-  }
-  console.log(`  ${escritas.length} diferença(s) que o push escreveria:`);
-  for (const c of escritas) {
-    const p = c.path.join('.');
-    const valor = /pass|secret|content/i.test(p) ? '(oculto)' : `${JSON.stringify(c.remote)} → ${JSON.stringify(c.local)}`;
-    console.log(`    • ${p}: ${valor}`);
+    console.log('  o diff não vê diferença (e ele não compara o corpo do e-mail)');
+  } else {
+    console.log(`  ${escritas.length} diferença(s) que o push escreveria:`);
+    for (const c of escritas) {
+      const p = c.path.join('.');
+      const valor = /pass|secret|content/i.test(p) ? '(oculto)' : `${JSON.stringify(c.remote)} → ${JSON.stringify(c.local)}`;
+      console.log(`    • ${p}: ${valor}`);
+    }
   }
   if (SO_DIFF) continue;
 
-  if (alvo.producao && !(await confirmarProducao('O push vai mudar a configuração de login do app das pessoas.'))) {
+  /* Mesmo com o diff zerado: o corpo do e-mail só o push compara. Ele
+     mostra a comparação inteira e pergunta antes de escrever. */
+  if (alvo.producao && !(await confirmarProducao(
+    'O push pode mudar a configuração de login do app das pessoas — a CLI ainda mostra cada bloco e pergunta.',
+  ))) {
     console.log('  cancelado: nada foi escrito na produção.');
     continue;
   }

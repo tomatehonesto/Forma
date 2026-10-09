@@ -470,3 +470,14 @@ project_id = "kjagyoqykhysvasauzgo"
 
 [remotes.dev.auth.external.apple]
 client_id = "com.morphihealth.app,host.exp.Exponent"
+
+# O dev está numa organização gratuita, e estes três são do plano Pro: ficam desligados
+# como o painel os tem (conferido no diff de 09/10/2026), em vez de o push tentar ligá-los.
+[remotes.dev.storage.image_transformation]
+enabled = false
+
+[remotes.dev.storage.analytics]
+enabled = false
+
+[remotes.dev.storage.vector]
+enabled = false

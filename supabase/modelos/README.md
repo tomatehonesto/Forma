@@ -23,10 +23,13 @@ Os dois — assunto e corpo — estão declarados em `supabase/config.toml`
 e sobem para os dois projetos com `node scripts/subir-config.mjs`.
 
 ⚠️ **O `config diff` compara o assunto, mas NÃO o corpo** (conferido em
-09/10/2026: um corpo inteiramente outro passou sem diferença). Mudar só o
-corpo não aparece no diff. Depois de mudar o corpo, a prova é um código de
-verdade chegando — e, se ele não mudou, colar à mão no painel
-(Authentication › Emails › Templates), na aba de código-fonte.
+09/10/2026: um corpo inteiramente outro passou sem diferença). **O `config
+push` compara**, e mostra `auth.email.template.<nome>.content` como
+"differs" antes de perguntar — foi assim que se viu, no primeiro push, que
+o "Confirm signup" do dev era outro corpo. Por isso o
+`scripts/subir-config.mjs` chama o push sempre, e não só quando o diff
+acusa algo. Depois de mudar o corpo, a prova continua sendo um código de
+verdade chegando.
 
 ## As armadilhas
 
