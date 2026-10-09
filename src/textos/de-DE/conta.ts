@@ -73,6 +73,15 @@ export const conta = {
     comecarSim: 'Neu anfangen',
   },
 
+  naoEncontramos: {
+    titulo: 'Wir haben kein Konto mit dieser E‑Mail gefunden',
+    lead: (email?: string) => email
+      ? `Es gibt kein Morphi-Konto mit ${email}. Möchtest du eins anlegen? Du stellst deinen Plan in wenigen Schritten zusammen, und wir speichern alles darin.`
+      : 'Es gibt kein Morphi-Konto mit der Anmeldung, die du benutzt hast. Möchtest du eins anlegen? Du stellst deinen Plan in wenigen Schritten zusammen, und wir speichern alles darin.',
+    criar: 'Konto anlegen',
+    outra: 'Mit einem anderen Konto anmelden',
+  },
+
   linha: {
     titulo: 'Dein Konto',
     guardado: 'Alles gespeichert',

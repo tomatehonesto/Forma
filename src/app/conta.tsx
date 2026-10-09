@@ -61,7 +61,7 @@ const K = () => T.conta;
    ============================================================ */
 
 type Porta = 'cadastro' | 'abertura' | 'sessao';
-type Passo = 'escolha' | 'email' | 'codigo' | 'entrando' | 'dois-diarios' | 'outra-conta';
+type Passo = 'escolha' | 'email' | 'codigo' | 'entrando' | 'dois-diarios' | 'outra-conta' | 'sem-conta';
 type Dono = { id: string; email?: string };
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -287,11 +287,13 @@ export default function Conta() {
     }
     if (porta === 'abertura') {
       if (tem) return trazerDaConta(quem);
-      /* Conta vazia: o cadastro segue, já com dono. */
-      update((s: any) => { s.conta = quem; });
-      sincronia()?.iniciar();
-      if (router.canGoBack()) router.back();
-      else router.replace('/cadastro' as any);
+      /* ⚠️ A PESSOA DISSE QUE JÁ TINHA CONTA, E NÃO HAVIA (09/10/2026,
+         pedido do dono). Antes, a conta vazia seguia calada para o
+         cadastro, e quem errou o e-mail descobria só no fim, com um
+         diário em branco. Agora a tela diz, e oferece criar ou trocar.
+         É aqui, e não antes do código, porque aqui o e-mail já é dela
+         — ver `naoEncontramos` no catálogo. */
+      setPasso('sem-conta');
       return;
     }
     if (tem) { setPasso('dois-diarios'); return; }
@@ -299,12 +301,21 @@ export default function Conta() {
   };
   const entrou = (quem: Dono) => decidir(quem);
 
+  /** "Criar conta", depois de "não encontramos": a conta que nasceu na
+      confirmação ganha o cadastro, já com dono. */
+  const criarComEsta = (quem: Dono) => {
+    update((s: any) => { s.conta = quem; });
+    sincronia()?.iniciar();
+    if (router.canGoBack()) router.back();
+    else router.replace('/cadastro' as any);
+  };
+
   /* ---------------- o voltar ---------------- */
   const voltar = () => {
     limpar();
     if (passo === 'codigo') return setPasso('email');
     if (passo === 'email') return setPasso('escolha');
-    if (passo === 'dois-diarios' || passo === 'outra-conta') {
+    if (passo === 'dois-diarios' || passo === 'outra-conta' || passo === 'sem-conta') {
       sair();
       setDono(null);
       setConfirmando(false);
@@ -398,6 +409,24 @@ export default function Conta() {
       </TelaInterna>
     );
   }
+
+  /* "Não encontramos conta". ⚠️ SÓ EM DESENVOLVIMENTO, `?passo=sem-conta`
+     mostra a tela com um e-mail de exemplo e os botões parados, para o
+     desenho ser visto sem confirmar um código de verdade. */
+  const semConta = (email: string | undefined, criar: () => void, outra: () => void) => {
+    const N = K().naoEncontramos;
+    return (
+      <TelaInterna titulo={N.titulo} onVoltar={outra} semCascata>
+        <Titulao titulo={N.titulo} lead={N.lead(email)} />
+        <View style={{ gap: 10 }}>
+          <Botao label={N.criar} pilula onPress={criar} />
+          <Botao label={N.outra} pilula tom="fantasma" onPress={outra} />
+        </View>
+      </TelaInterna>
+    );
+  };
+  if (__DEV__ && passoDoLink === 'sem-conta') return semConta('voce@exemplo.com', () => {}, () => {});
+  if (passo === 'sem-conta' && dono) return semConta(dono.email, () => criarComEsta(dono), voltar);
 
   /* O E-MAIL E O CÓDIGO SÃO PERGUNTAS DO CADASTRO, e têm o desenho delas
      (ver ui/pergunta): a resposta escrita na tela, sem caixa em volta, e

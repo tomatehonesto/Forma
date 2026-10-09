@@ -115,6 +115,27 @@ export const conta = {
     comecarSim: 'Começar de novo',
   },
 
+  /* ---- entrou pela abertura ("já tenho conta"), e não havia conta ----
+
+     ⚠️ SÓ DEPOIS DO CÓDIGO (ou da Apple, ou do Google), e nunca antes.
+     Dizer "não há conta com este e-mail" a quem só digitou um endereço
+     contaria a qualquer pessoa quem usa o Morphi — e usar o Morphi diz que
+     a pessoa faz tratamento com GLP-1: dado de saúde (LGPD, art. 11).
+     Depois do código, ela já provou que o e-mail é dela.
+
+     A conta, vazia, nasce na própria confirmação: "Criar conta" segue
+     com ela para o cadastro, e "Entrar com outra conta" sai dela. */
+  naoEncontramos: {
+    /* O hífen de "e‑mail" é o que não quebra (U+2011): no título grande, o
+       comum partia a palavra em "e-" no fim de uma linha e "mail" na outra. */
+    titulo: 'Não encontramos conta com esse e‑mail',
+    lead: (email?: string) => email
+      ? `Não há conta no Morphi com ${email}. Quer criar uma? Você monta o seu plano em poucos passos, e guardamos tudo nela.`
+      : 'Não há conta no Morphi com o que você usou para entrar. Quer criar uma? Você monta o seu plano em poucos passos, e guardamos tudo nela.',
+    criar: 'Criar conta',
+    outra: 'Entrar com outra conta',
+  },
+
   /* ---- a linha de estado, no Perfil ---- */
   linha: {
     titulo: 'Sua conta',

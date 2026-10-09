@@ -73,6 +73,15 @@ export const conta = {
     comecarSim: 'Recommencer',
   },
 
+  naoEncontramos: {
+    titulo: 'Nous n’avons pas trouvé de compte avec cet e‑mail',
+    lead: (email?: string) => email
+      ? `Il n’y a pas de compte Morphi avec ${email}. Vous voulez en créer un ? Vous préparez votre plan en quelques étapes, et nous y gardons tout.`
+      : 'Il n’y a pas de compte Morphi avec l’identifiant que vous avez utilisé. Vous voulez en créer un ? Vous préparez votre plan en quelques étapes, et nous y gardons tout.',
+    criar: 'Créer un compte',
+    outra: 'Se connecter avec un autre compte',
+  },
+
   linha: {
     titulo: 'Votre compte',
     guardado: 'Tout est enregistré',
