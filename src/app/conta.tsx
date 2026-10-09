@@ -793,11 +793,20 @@ function BotaoDeColar({ onTexto }: { onTexto: (texto: string) => void }) {
    vez.
 
    A CASA DA VEZ tem a borda da cor de ação e um cursor piscando: é onde o
-   próximo número vai cair. Sem o campo em foco, nenhuma casa é da vez. */
+   próximo número vai cair. Sem o campo em foco, nenhuma casa é da vez.
+
+   ⚠️ O TOQUE NAS CASAS DÁ O FOCO PELA MÃO (09/10/2026, achado no iPhone).
+   O campo é invisível por `opacity: 0`, e o UIKit não entrega toque a
+   nada com opacidade abaixo de 1%: o campo só funcionava pelo `autoFocus`.
+   Fechado o teclado (um toque fora), tocar nas casas não abria mais nada.
+   No navegador e no Android a opacidade zero ainda recebe o toque, e por
+   isso não se via fora do aparelho. Agora as casas são um Pressable que
+   chama `focus()` — e o campo continua invisível, como precisa ser. */
 /* ------------------------------------------------------------------ */
 function CasasDoCodigo({ valor, onMuda }: { valor: string; onMuda: (so: string) => void }) {
   const { c } = useTheme();
   const [focado, setFocado] = React.useState(true);
+  const campo = React.useRef<TextInput>(null);
   const pisca = React.useRef(new Animated.Value(1)).current;
   /* ⚠️ COM "REDUZIR MOVIMENTO", O CURSOR PARA ACESO (02/10/2026, fase 4 de
      docs/superpowers/specs/2026-10-02-motion-design.md). O laço piscava
@@ -838,13 +847,14 @@ function CasasDoCodigo({ valor, onMuda }: { valor: string; onMuda: (so: string) 
   };
 
   return (
-    <View>
+    <Pressable onPress={() => campo.current?.focus()} accessible={false}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
         {Array.from({ length: meio }, (_, i) => casa(i))}
         <View style={{ width: 10, height: 2, borderRadius: 1, backgroundColor: c.tx4 }} />
         {Array.from({ length: DIGITOS_DO_CODIGO - meio }, (_, i) => casa(meio + i))}
       </View>
       <TextInput
+        ref={campo}
         value={valor}
         onChangeText={(v) => onMuda(v.replace(/\D/g, '').slice(0, DIGITOS_DO_CODIGO))}
         autoFocus
@@ -860,6 +870,6 @@ function CasasDoCodigo({ valor, onMuda }: { valor: string; onMuda: (so: string) 
         accessibilityLabel={K().codigoTitulo}
         style={[StyleSheet.absoluteFill, SEM_ANEL, { color: 'transparent', opacity: 0 }]}
       />
-    </View>
+    </Pressable>
   );
 }
