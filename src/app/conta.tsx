@@ -319,6 +319,13 @@ export default function Conta() {
       sair();
       setDono(null);
       setConfirmando(false);
+      /* ⚠️ O E-MAIL SAI JUNTO (09/10/2026, pedido do dono): quem sai daqui
+         acabou de descobrir que aquele endereço não é o da conta, e o campo
+         voltava preenchido com ele. O "Outro e-mail" da tela do código não
+         passa por aqui, e lá o endereço fica — é onde se conserta um erro
+         de digitação. */
+      setEmail('');
+      setCodigo('');
       return setPasso('escolha');
     }
     if (porta === 'cadastro') return router.replace('/planos?de=cadastro' as any);
