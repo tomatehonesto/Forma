@@ -16,7 +16,10 @@ Com a confirmação de e-mail ligada, o servidor manda o primeiro para conta
 nova e o segundo para conta existente — os dois pedidos de código passam
 por um deles.
 
-O assunto, nos dois: `Morphi · {{ .Token }}`.
+O assunto, nos dois: a palavra "código" e o número, no idioma da pessoa —
+"Seu código Morphi: 123456", "Your Morphi code: 123456", e assim nos seis.
+Ele mora inteiro em `supabase/config.toml` (é um modelo de uma linha, com
+os seis ramos).
 
 Os dois — assunto e corpo — estão declarados em `supabase/config.toml`
 (`[auth.email.template.confirmation]` e `[auth.email.template.magic_link]`)
@@ -39,10 +42,27 @@ inteiro, das variáveis ao último `</div>`, na aba do código-fonte do editor
 desenham nada), o e-mail chega em branco: foi o que aconteceu no primeiro
 teste.
 
-**Um assunto só, sem idioma.** O painel limita o tamanho do assunto, e os
-seis ramos não cabiam. O nome e o código se leem em qualquer língua — e o
-código já aparece na notificação, sem abrir o e-mail. Quem escolhe o idioma
-é o corpo.
+**O assunto diz "código" ao lado do número, no idioma da pessoa (09/10/2026,
+provado no iPhone).** Era `Morphi · {{ .Token }}`, um só para os seis
+idiomas, porque o campo do painel limitava o tamanho e os seis ramos não
+cabiam. Só que, com ele, o iOS não oferecia o código acima do teclado — nem
+no app, nem no Safari —, mesmo com o e-mail no app Mail. Com "Seu código
+Morphi: 123456", ofereceu: a palavra "código" colada ao número é a pista que
+ele procura. Pelo `config.toml` o limite do painel não vale (são 458
+caracteres, aceitos pelo servidor), e o assunto ganhou os seis ramos, como o
+corpo.
+
+Duas regras dele, as duas para o servidor nunca mandar assunto errado:
+
+- **a frase é uma variável trocada por idioma**, e o que se imprime é ela —
+  e não seis `if` que imprimem cada um a sua. Um idioma fora da lista
+  daria assunto vazio; assim, cai no português;
+- **o teste que prova é em OUTRO idioma.** O servidor continua mandando o
+  último modelo que funcionou quando o novo falha, e em português o
+  assunto antigo de teste era igual ao novo. Provado com uma conta nova em
+  inglês: chegou "Your Morphi code".
+
+O francês leva a espaça fina (U+202F) antes dos dois-pontos.
 
 **A validade escrita tem de bater com a do servidor.** O texto diz dez
 minutos; o servidor (`otp_expiry` em `config.toml`, ou Sign In / Providers

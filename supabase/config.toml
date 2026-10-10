@@ -272,12 +272,21 @@ otp_expiry = 600
 
 # O e-mail do código — o mesmo corpo nos dois modelos. O que explica o desenho e as
 # armadilhas dele está em supabase/modelos/README.md.
+#
+# ⚠️ O ASSUNTO DIZ "CÓDIGO" AO LADO DO NÚMERO, no idioma da pessoa (09/10/2026, provado
+# no iPhone): com "Morphi · 123456" o iOS não oferecia o código acima do teclado, nem no
+# app nem no Safari; com "Seu código Morphi: 123456", ofereceu. A frase vem do idioma
+# gravado na conta (o mesmo que escolhe o corpo), com o português como padrão para
+# qualquer valor desconhecido — por isso ela é uma variável trocada, e não seis `if`
+# que imprimem: um idioma fora da lista daria assunto vazio. Sem "else if" e sem
+# comentário de modelo, pelas mesmas razões do corpo. O francês leva a espaça fina
+# (U+202F) antes dos dois-pontos.
 [auth.email.template.confirmation]
-subject = "Morphi · {{ .Token }}"
+subject = '{{ $i := "pt-BR" }}{{ with .Data }}{{ with .idioma }}{{ $i = printf "%v" . }}{{ end }}{{ end }}{{ $a := "Seu código Morphi" }}{{ if eq $i "en-US" }}{{ $a = "Your Morphi code" }}{{ end }}{{ if eq $i "es-419" }}{{ $a = "Tu código de Morphi" }}{{ end }}{{ if eq $i "fr-FR" }}{{ $a = "Votre code Morphi " }}{{ end }}{{ if eq $i "it-IT" }}{{ $a = "Il tuo codice Morphi" }}{{ end }}{{ if eq $i "de-DE" }}{{ $a = "Dein Morphi-Code" }}{{ end }}{{ $a }}: {{ .Token }}'
 content_path = "./supabase/modelos/codigo.html"
 
 [auth.email.template.magic_link]
-subject = "Morphi · {{ .Token }}"
+subject = '{{ $i := "pt-BR" }}{{ with .Data }}{{ with .idioma }}{{ $i = printf "%v" . }}{{ end }}{{ end }}{{ $a := "Seu código Morphi" }}{{ if eq $i "en-US" }}{{ $a = "Your Morphi code" }}{{ end }}{{ if eq $i "es-419" }}{{ $a = "Tu código de Morphi" }}{{ end }}{{ if eq $i "fr-FR" }}{{ $a = "Votre code Morphi " }}{{ end }}{{ if eq $i "it-IT" }}{{ $a = "Il tuo codice Morphi" }}{{ end }}{{ if eq $i "de-DE" }}{{ $a = "Dein Morphi-Code" }}{{ end }}{{ $a }}: {{ .Token }}'
 content_path = "./supabase/modelos/codigo.html"
 
 # Uncomment to customize notification email template
