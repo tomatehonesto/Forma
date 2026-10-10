@@ -1292,6 +1292,20 @@ compras do anterior. Antes de publicar é uma linha; depois, não é nada.
 > em `submit.production.ios.ascAppId`), SKU `morphi-ios`, idioma
 > principal inglês (EUA). O Apple ID também vai no campo "Código da App
 > Store" do cliente iOS no Google Cloud.
+>
+> **09/10/2026: a primeira build de desenvolvimento rodou no iPhone** (o
+> aparelho registrado, o certificado de distribuição da equipe, o mesmo do
+> Matilha, e o perfil ad hoc até 10/2027). **Provado no aparelho:** entrar
+> com a Apple (ligou-se à conta de mesmo e-mail), com o Google e pelo
+> código do e-mail; a sugestão do código acima do teclado, vinda do Mail;
+> e "Apagar meus dados" (a função `apagar-conta` do dev). **Achado e
+> consertado no caminho:** a letra do botão da Apple, a tela "não
+> encontramos conta", o "Já tenho conta" sumido com conta gravada, o
+> cadastro pela metade subindo para a conta, as casas do código que não
+> abriam o teclado depois de fechado, e o assunto do e-mail sem "código"
+> (o iOS não oferecia o código). **Falta do roteiro:** os lembretes (item
+> 8), o Apple Saúde (item 41), o ditado (item 14), a troca de ícone (item
+> 9), as funções de IA, a exportação (item 7) e o movimento (item 39).
 
 `eas.json` tem três perfis — `development` (build de desenvolvimento, APK,
 distribuição interna), `preview` (release instalável para testar) e
