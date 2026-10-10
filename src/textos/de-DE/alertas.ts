@@ -104,6 +104,9 @@ export const alertas = {
       `${avisos} Hinweise pro Tag, alle ${cada} Stunden.`,
 
     tocaEm: (quando: string) => `Klingelt: ${quando}`,
+    /** Com mais de um horário: todos, e depois o próximo. */
+    tocaNasHoras: (horas: string, proximo: string) => `Klingelt um ${horas}. Nächster: ${proximo}`,
+    emLista: (itens: string[]) => (itens.length < 2 ? itens.join('') : `${itens.slice(0, -1).join(', ')} und ${itens[itens.length - 1]}`),
     semHorario: 'Keine Uhrzeit markiert',
   },
   telaLembretes: {

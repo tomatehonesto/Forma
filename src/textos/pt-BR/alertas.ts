@@ -109,6 +109,9 @@ export const alertas = {
       `${avisos} avisos por dia, de ${cada} em ${cada} horas.`,
 
     tocaEm: (quando: string) => `Toca ${quando}`,
+    /** Com mais de um horário: todos, e depois o próximo. */
+    tocaNasHoras: (horas: string, proximo: string) => `Toca às ${horas}. O próximo: ${proximo}`,
+    emLista: (itens: string[]) => (itens.length < 2 ? itens.join('') : `${itens.slice(0, -1).join(', ')} e ${itens[itens.length - 1]}`),
     semHorario: 'Sem horário marcado',
   },
   /* ============================================================

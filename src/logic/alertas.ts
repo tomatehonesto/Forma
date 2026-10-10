@@ -190,13 +190,13 @@ export const ORDEM: TipoDeAlerta[] = ['dose', 'checkin', 'peso', 'agua', 'protei
    um alerta precisar de hora quebrada, o campo que falta é o minuto e a
    lista continua servindo para o resto.
 
-   E SÃO DEZESSEIS, que é o que preenche quatro colunas exatas. Havia
-   dezessete, até as dez da noite, e a décima sétima ficava sozinha numa
-   quinta fileira — uma peça órfã embaixo de uma grade cheia. O que se
-   perdeu foi um horário em que nenhum dos quatro assuntos faz sentido:
-   pesar às dez da noite, beber água antes de dormir, ou saber às 22h que
-   a dose era hoje. */
-export const HORAS = [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21];
+   ⚠️ ATÉ AS ONZE DA NOITE (09/10/2026, pedido do dono). Eram dezesseis,
+   das seis às nove da noite, para preencher quatro colunas exatas — e as
+   22h tinham saído com o argumento de que nenhum assunto fazia sentido
+   tão tarde. O check-in faz: o fim do dia é a hora dele, e o dono quis
+   marcá-lo às 22h e não pôde. As 22h e as 23h voltam, e a última fileira
+   fica com duas peças e dois vãos (a grade não estica peça órfã). */
+export const HORAS = [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
 
 export const LEADS = [0, 1, 2, 3];
 

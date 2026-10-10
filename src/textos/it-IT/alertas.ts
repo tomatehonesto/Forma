@@ -95,6 +95,9 @@ export const alertas = {
       `${avisos} avvisi al giorno, ogni ${cada} ore.`,
 
     tocaEm: (quando: string) => `Suona ${quando}`,
+    /** Com mais de um horário: todos, e depois o próximo. */
+    tocaNasHoras: (horas: string, proximo: string) => `Suona alle ${horas}. Il prossimo: ${proximo}`,
+    emLista: (itens: string[]) => (itens.length < 2 ? itens.join('') : `${itens.slice(0, -1).join(', ')} e ${itens[itens.length - 1]}`),
     semHorario: 'Nessun orario impostato',
   },
 

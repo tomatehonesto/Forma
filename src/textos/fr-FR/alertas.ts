@@ -90,6 +90,9 @@ export const alertas = {
       `${avisos} rappels par jour, toutes les ${cada} heures.`,
 
     tocaEm: (quando: string) => `Sonne ${quando}`,
+    /** Com mais de um horário: todos, e depois o próximo. */
+    tocaNasHoras: (horas: string, proximo: string) => `Sonne à ${horas}. Le prochain : ${proximo}`,
+    emLista: (itens: string[]) => (itens.length < 2 ? itens.join('') : `${itens.slice(0, -1).join(', ')} et ${itens[itens.length - 1]}`),
     semHorario: 'Aucun horaire coché',
   },
   telaLembretes: {

@@ -110,6 +110,15 @@ export default function AlertaFolha() {
      Sem isso, montar um alerta seria escolher opções no escuro e
      descobrir o resultado na lista de trás. */
   const proxima = quando(proximaDe(S, { ...a, on: true }));
+  /* ⚠️ COM MAIS DE UM HORÁRIO, A LINHA DIZ TODOS (09/10/2026, pedido do
+     dono). Ela dizia só o próximo toque — "Toca sexta · 08:00" — e quem
+     marcou 08:00, 14:00 e 22:00 lia como se só a primeira tivesse ficado.
+     Agora vêm as horas marcadas e, depois, qual é o próximo. No intervalo
+     continua só o próximo: a regra já está escrita nos campos acima. */
+  const marcadas = a.modo === 'horas' ? horasDe(a) : [];
+  const linhaDoToque = !proxima ? K().semHorario
+    : marcadas.length > 1 ? K().tocaNasHoras(K().emLista(marcadas.map((h) => hm(h, 0))), proxima)
+    : K().tocaEm(proxima);
 
   return (
     <SheetScreen
@@ -232,7 +241,7 @@ export default function AlertaFolha() {
         <Row gap={8} style={{ alignItems: 'center' }}>
           <Icon name="bell" size={14} color={c.accent} sw={2} />
           <Txt v="caption" c={c.tx2} style={{ flex: 1 }}>
-            {proxima ? K().tocaEm(proxima) : K().semHorario}
+            {linhaDoToque}
           </Txt>
         </Row>
       </View>
