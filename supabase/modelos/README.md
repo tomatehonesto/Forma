@@ -80,9 +80,16 @@ o navegador, e a entrada é no aplicativo.
 **O desenho é de e-mail, e não de página (28/09/2026, pedido do dono: o
 código chegava em texto, sem destaque).** Tabelas no lugar de caixas
 flexíveis e estilo em cada elemento, porque boa parte dos leitores de
-e-mail ignora o `<style>` e o flex. A faixa do alto é o degradê da marca;
-quem não desenha degradê (o Outlook) fica com o azul sólido do
-`background-color`.
+e-mail ignora o `<style>` e o flex.
+
+**E é um e-mail comum, e não um cartão (09/10/2026, pedido do dono: "menos
+cara de IA").** Saíram a faixa em degradê, o cartão arredondado sobre o
+cinza e a caixa azul em volta do código. Ficou o que um e-mail
+transacional tem: o logo pequeno com o nome, o título, uma linha, o código
+grande e solto, a validade, e o rodapé depois de um fio — tudo alinhado à
+esquerda, no branco. O código está na fonte do sistema, como o resto (a
+monoespaçada destoava, visto no iPhone), com `tabular-nums` para os seis
+dígitos terem a mesma largura.
 
 **O logo vem de um endereço público:** e-mail não carrega arquivo do
 aplicativo, e o Gmail bloqueia imagem embutida. Hoje é o arquivo cru do
